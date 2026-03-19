@@ -1,0 +1,30 @@
+{
+  "twin_id": "P-NON-3175",
+  "framework": "Ukubona-Pentad-v2.0",
+  "grammar": {
+    "I": "Anatomy/Physiology · θₜ", 
+    "II": "Pathology · L(θₜ)",
+    "III": "Pathophysiology · ∇L",
+    "IV": "Treatment · −η∇L",
+    "V": "Plasticity · θₜ₊₁"
+  },
+  "condition": {
+    "name": "non-utricarial",
+    "domain": "dermatology",
+    "desc": "no heaves, no rush",
+    "s1_label": "non-utricarial",
+    "s1_body": "Absolutely nothing to say about the skins appearance",
+    "s2_label": "aquagenic pruritus",
+    "s2_body": "Onset invariably has something to do with lukewarm show or transition from warm bed to cold outside bed",
+    "s3_label": "typically naked (from shower) or shirtless, so there is a temperature change",
+    "s3_body": "",
+    "s4_label": "Hot showers, Quick drying and covering in shirt (longsleeves)",
+    "s4_body": "",
+    "s5_label": "Learning to avoid triggers",
+    "s5_body": "",
+    "s5_fractal": "",
+    "created": "2026-03-13T09:00:06.644Z"
+  },
+  "fractal_property": "θₜ₊₁ becomes new θₜ — Ukubona is not the end",
+  "generated": "2026-03-13T09:00:06.645Z"
+}

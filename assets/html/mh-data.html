@@ -1,0 +1,1134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Uganda Mental Health · The Invisible Burden · Amaani × Ukubona</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=DM+Mono:wght@300;400;500&family=Source+Serif+4:ital,opsz,wght@0,8..60,300;0,8..60,400;0,8..60,600;1,8..60,300;1,8..60,400&display=swap" rel="stylesheet">
+<style>
+:root {
+  --laterite:  #B5472A;
+  --lat-dk:    #7A2E16;
+  --lat-lt:    #E07A5F;
+  --forest:    #1B3A2D;
+  --forest-lt: #2E5E45;
+  --gold:      #C49A3C;
+  --gold-lt:   #E8C86A;
+  --soil:      #2B1A0E;
+  --cream:     #F7F2EA;
+  --savanna:   #E8D9C0;
+  --mist:      #C8BCA8;
+  --white:     #FDFAF6;
+  --ink:       #1A1208;
+  --crisis:    #D62828;
+  --warn:      #E07A2F;
+  --ok:        #2E7D32;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  background: var(--ink);
+  color: var(--cream);
+  font-family: 'Source Serif 4', Georgia, serif;
+  font-size: 16px;
+  line-height: 1.7;
+  overflow-x: hidden;
+}
+
+/* ── GRAIN ── */
+body::after {
+  content: '';
+  position: fixed; inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E");
+  pointer-events: none; z-index: 9999;
+}
+
+/* ── SUITE NAV ── */
+.suite-nav {
+  background: rgba(26,18,8,0.98);
+  border-bottom: 1px solid rgba(181,71,42,0.2);
+  padding: 0.5rem 3rem;
+  display: flex; align-items: center; gap: 2rem;
+  font-family: 'DM Mono', monospace; font-size: 0.6rem;
+  letter-spacing: 0.12em; text-transform: uppercase;
+  position: sticky; top: 0; z-index: 200;
+}
+.suite-logo { color: var(--laterite); font-weight: 500; }
+.suite-logo span { color: var(--gold-lt); }
+.suite-links { display: flex; gap: 1.5rem; margin-left: auto; }
+.suite-link { color: rgba(200,188,168,0.4); text-decoration: none; transition: color 0.2s; }
+.suite-link:hover { color: var(--lat-lt); }
+.suite-link.active { color: var(--gold-lt); border-bottom: 1px solid var(--gold); padding-bottom: 0.2rem; }
+.suite-map-cards {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 3rem;
+}
+.map-card {
+  background: rgba(43,26,14,0.6); border: 1px solid rgba(200,188,168,0.1);
+  padding: 1.5rem; text-decoration: none; display: block;
+  transition: border-color 0.2s, background 0.2s;
+  position: relative; overflow: hidden;
+}
+.map-card::before {
+  content: ''; position: absolute; top:0; left:0; right:0; height:3px;
+}
+.map-card.uganda::before { background: var(--laterite); }
+.map-card.africa::before { background: var(--gold); }
+.map-card:hover { border-color: rgba(181,71,42,0.4); background: rgba(43,26,14,0.9); }
+.map-card-label { font-family: 'DM Mono', monospace; font-size: 0.6rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--laterite); margin-bottom: 0.5rem; }
+.map-card.africa .map-card-label { color: var(--gold); }
+.map-card-title { font-family: 'Playfair Display', serif; font-size: 1.1rem; font-weight: 700; color: var(--cream); margin-bottom: 0.4rem; }
+.map-card-desc { font-size: 0.82rem; color: rgba(232,217,192,0.5); line-height: 1.5; }
+.map-card-arrow { font-family: 'DM Mono', monospace; font-size: 0.68rem; color: rgba(200,188,168,0.3); margin-top: 0.8rem; }
+
+/* ── HEADER ── */
+header {
+  padding: 2rem 3rem 1.5rem;
+  border-bottom: 1px solid rgba(200,188,168,0.12);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  top: 2.2rem; z-index: 100;
+  background: rgba(26,18,8,0.96);
+  backdrop-filter: blur(12px);
+}
+.logo {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.1rem;
+  font-weight: 900;
+  color: var(--laterite);
+  letter-spacing: -0.01em;
+}
+.logo span { color: var(--gold-lt); font-style: italic; }
+.header-tag {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.65rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(200,188,168,0.4);
+}
+.data-badge {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.6rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  background: rgba(181,71,42,0.2);
+  border: 1px solid var(--laterite);
+  color: var(--lat-lt);
+  padding: 0.3rem 0.7rem;
+}
+
+/* ── HERO ── */
+.hero {
+  padding: 5rem 3rem 4rem;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+.hero-eyebrow {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.68rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--laterite);
+  margin-bottom: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+.hero-eyebrow::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: rgba(181,71,42,0.3);
+}
+.hero-title {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(2.5rem, 5vw, 4.5rem);
+  font-weight: 900;
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+  color: var(--cream);
+  margin-bottom: 1.5rem;
+}
+.hero-title em { font-style: italic; color: var(--lat-lt); }
+.hero-sub {
+  font-size: 1.05rem;
+  color: rgba(232,217,192,0.7);
+  max-width: 65ch;
+  line-height: 1.75;
+  margin-bottom: 2rem;
+}
+.data-note {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.72rem;
+  color: rgba(200,188,168,0.45);
+  font-style: italic;
+  border-left: 2px solid rgba(181,71,42,0.4);
+  padding-left: 1rem;
+  line-height: 1.6;
+}
+
+/* ── STAT GRID ── */
+.stat-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1px;
+  background: rgba(200,188,168,0.08);
+  border: 1px solid rgba(200,188,168,0.08);
+  margin: 0 3rem 0;
+  max-width: 1400px;
+  margin-left: auto;
+  margin-right: auto;
+}
+.stat-card {
+  background: rgba(43,26,14,0.6);
+  padding: 2rem 1.5rem;
+  position: relative;
+  overflow: hidden;
+  transition: background 0.3s;
+}
+.stat-card:hover { background: rgba(43,26,14,0.9); }
+.stat-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+}
+.stat-card.crisis::before   { background: var(--crisis); }
+.stat-card.warn::before     { background: var(--warn); }
+.stat-card.forest::before   { background: var(--forest-lt); }
+.stat-card.gold::before     { background: var(--gold); }
+
+.stat-label {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.6rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(200,188,168,0.45);
+  margin-bottom: 0.8rem;
+}
+.stat-number {
+  font-family: 'Playfair Display', serif;
+  font-size: 2.8rem;
+  font-weight: 900;
+  line-height: 1;
+  margin-bottom: 0.4rem;
+  letter-spacing: -0.03em;
+}
+.stat-card.crisis  .stat-number { color: var(--crisis); }
+.stat-card.warn    .stat-number { color: var(--warn); }
+.stat-card.forest  .stat-number { color: var(--gold-lt); }
+.stat-card.gold    .stat-number { color: var(--gold); }
+
+.stat-desc {
+  font-size: 0.82rem;
+  color: rgba(232,217,192,0.6);
+  line-height: 1.5;
+}
+.stat-source {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.58rem;
+  color: rgba(200,188,168,0.25);
+  margin-top: 0.8rem;
+  font-style: italic;
+}
+
+/* ── SECTION WRAPPER ── */
+.section {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 5rem 3rem;
+}
+.section-label {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.65rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--laterite);
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+}
+.section-label::before {
+  content: '▸';
+  color: var(--laterite);
+}
+.section-title {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(1.8rem, 3vw, 2.6rem);
+  font-weight: 900;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  color: var(--cream);
+  margin-bottom: 0.5rem;
+}
+.section-title em { font-style: italic; color: var(--lat-lt); }
+
+/* ── DIVIDER ── */
+.divider {
+  height: 1px;
+  background: rgba(200,188,168,0.08);
+  margin: 0 3rem;
+}
+
+/* ── AUTISM SECTION ── */
+.autism-grid {
+  display: grid;
+  grid-template-columns: 1.2fr 1fr;
+  gap: 4rem;
+  align-items: start;
+  margin-top: 3rem;
+}
+.autism-facts { }
+.fact-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1px;
+  background: rgba(200,188,168,0.08);
+  margin-bottom: 1px;
+}
+.fact-cell {
+  background: rgba(43,26,14,0.5);
+  padding: 1.3rem 1.2rem;
+}
+.fact-cell-label {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.6rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(200,188,168,0.35);
+  margin-bottom: 0.4rem;
+}
+.fact-cell-value {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: var(--cream);
+  letter-spacing: -0.02em;
+}
+.fact-cell-note {
+  font-size: 0.78rem;
+  color: rgba(232,217,192,0.55);
+  margin-top: 0.2rem;
+  line-height: 1.5;
+}
+.fact-cell.highlight .fact-cell-value { color: var(--lat-lt); }
+.fact-cell.highlight-gold .fact-cell-value { color: var(--gold-lt); }
+
+/* ── BAR CHART ── */
+.bar-chart { margin-top: 2.5rem; }
+.bar-chart-title {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.65rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(200,188,168,0.4);
+  margin-bottom: 1.2rem;
+}
+.bar-row {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  margin-bottom: 0.7rem;
+}
+.bar-country {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.72rem;
+  color: rgba(200,188,168,0.6);
+  width: 9rem;
+  flex-shrink: 0;
+  text-align: right;
+}
+.bar-track {
+  flex: 1;
+  height: 24px;
+  background: rgba(200,188,168,0.06);
+  position: relative;
+  overflow: hidden;
+}
+.bar-fill {
+  height: 100%;
+  position: relative;
+  display: flex;
+  align-items: center;
+  padding-left: 0.5rem;
+  transition: width 1.2s cubic-bezier(0.4,0,0.2,1);
+}
+.bar-val {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.65rem;
+  color: rgba(255,255,255,0.8);
+  position: relative;
+  z-index: 1;
+  white-space: nowrap;
+}
+.bar-row.uganda .bar-fill { background: var(--laterite); }
+.bar-row.africa .bar-fill { background: var(--forest-lt); }
+.bar-row.global .bar-fill { background: rgba(200,188,168,0.3); }
+.bar-row.highlight .bar-fill { background: var(--gold); }
+
+/* ── PENTAGON VIZ ── */
+.pentagon-wrapper {
+  position: sticky;
+  top: 6rem;
+}
+.pentagon-title {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.65rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(200,188,168,0.4);
+  margin-bottom: 1.5rem;
+}
+svg.pentad-svg { width: 100%; max-width: 400px; display: block; }
+
+/* ── WORKFORCE ── */
+.workforce-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1px;
+  background: rgba(200,188,168,0.08);
+  margin-top: 3rem;
+}
+.wf-card {
+  background: rgba(43,26,14,0.5);
+  padding: 2rem 1.5rem;
+  transition: background 0.3s;
+}
+.wf-card:hover { background: rgba(43,26,14,0.85); }
+.wf-big {
+  font-family: 'Playfair Display', serif;
+  font-size: 3.2rem;
+  font-weight: 900;
+  line-height: 1;
+  margin-bottom: 0.5rem;
+  letter-spacing: -0.03em;
+}
+.wf-label {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.62rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(200,188,168,0.4);
+  margin-bottom: 0.6rem;
+}
+.wf-desc {
+  font-size: 0.82rem;
+  color: rgba(232,217,192,0.55);
+  line-height: 1.55;
+}
+.wf-source {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.56rem;
+  color: rgba(200,188,168,0.2);
+  margin-top: 0.8rem;
+  font-style: italic;
+}
+
+/* ── RATIO VISUAL ── */
+.ratio-section {
+  background: rgba(181,71,42,0.07);
+  border: 1px solid rgba(181,71,42,0.2);
+  padding: 3rem;
+  margin-top: 3rem;
+}
+.ratio-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: var(--cream);
+  margin-bottom: 0.4rem;
+}
+.ratio-sub {
+  font-size: 0.85rem;
+  color: rgba(232,217,192,0.55);
+  margin-bottom: 2rem;
+}
+.ratio-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 2rem;
+}
+.ratio-item { }
+.ratio-label {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.6rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(200,188,168,0.35);
+  margin-bottom: 0.6rem;
+}
+.ratio-dots {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-bottom: 0.6rem;
+}
+.dot {
+  width: 10px; height: 10px;
+  border-radius: 50%;
+  background: rgba(200,188,168,0.15);
+}
+.dot.boy  { background: var(--laterite); }
+.dot.girl { background: var(--gold); }
+.ratio-legend {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.62rem;
+  color: rgba(200,188,168,0.5);
+  line-height: 1.8;
+}
+
+/* ── AMAANI GAP ── */
+.gap-section { margin-top: 0; }
+.gap-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1px;
+  background: rgba(200,188,168,0.08);
+  margin-top: 3rem;
+}
+.gap-card {
+  background: rgba(43,26,14,0.5);
+  padding: 2.5rem 2rem;
+}
+.gap-icon {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.6rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--laterite);
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+.gap-icon::before {
+  content: '';
+  display: inline-block;
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--laterite);
+}
+.gap-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--cream);
+  margin-bottom: 0.6rem;
+  line-height: 1.3;
+}
+.gap-desc {
+  font-size: 0.85rem;
+  color: rgba(232,217,192,0.6);
+  line-height: 1.65;
+}
+.gap-stat {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.78rem;
+  color: var(--lat-lt);
+  margin-top: 0.8rem;
+  font-style: italic;
+}
+
+/* ── SCROLL LINE ── */
+.scroll-line {
+  position: fixed;
+  left: 0; top: 0;
+  width: 3px;
+  height: 0%;
+  background: linear-gradient(180deg, var(--laterite), var(--gold));
+  z-index: 200;
+  transition: height 0.1s;
+}
+
+/* ── FOOTER ── */
+footer {
+  border-top: 1px solid rgba(200,188,168,0.08);
+  padding: 2rem 3rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  max-width: 100%;
+}
+.footer-left {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.62rem;
+  color: rgba(200,188,168,0.25);
+  line-height: 1.8;
+}
+.footer-sources {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.58rem;
+  color: rgba(200,188,168,0.18);
+  line-height: 1.9;
+  text-align: right;
+  max-width: 500px;
+}
+
+/* ── PULL QUOTE ── */
+.pull-quote {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.25rem;
+  font-style: italic;
+  line-height: 1.5;
+  color: var(--gold-lt);
+  border-left: 3px solid var(--laterite);
+  padding: 1rem 1.5rem;
+  margin: 3rem 0;
+  background: rgba(181,71,42,0.07);
+}
+
+/* ── REVEAL ── */
+.reveal {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.6s ease, transform 0.6s ease;
+}
+.reveal.visible { opacity: 1; transform: translateY(0); }
+
+@media (max-width: 900px) {
+  .stat-grid, .autism-grid, .workforce-grid,
+  .ratio-grid, .gap-grid { grid-template-columns: 1fr; }
+  .fact-row { grid-template-columns: 1fr; }
+  .section, .hero { padding: 3rem 1.5rem; }
+  header { padding: 1.5rem; }
+  .stat-grid { margin: 0 1.5rem; }
+  footer { flex-direction: column; gap: 1.5rem; text-align: center; }
+  .footer-sources { text-align: center; }
+}
+</style>
+</head>
+<body>
+
+<div class="scroll-line" id="scrollLine"></div>
+
+<!-- SUITE NAV -->
+<nav class="suite-nav">
+  <div class="suite-logo">Amaani <span>× Ukubona</span></div>
+  <div class="suite-links">
+    <a href="mh-data.html" class="suite-link active">Uganda MH Data</a>
+    <a href="autism-ug.html" class="suite-link">Uganda District Map</a>
+    <a href="bigger-picture.html" class="suite-link">Africa Gap Map</a>
+    <a href="md-registration.html" class="suite-link">Amaani Home</a>
+  </div>
+</nav>
+
+<!-- HEADER -->
+<header>
+  <div class="logo">Amaani <span>× Ukubona</span></div>
+  <div class="header-tag">Uganda Mental Health · Evidence Dashboard</div>
+  <div class="data-badge">Literature Review · Phase I</div>
+</header>
+
+<!-- HERO -->
+<div class="hero reveal">
+  <div class="hero-eyebrow">Uganda · Mental Health · Autism · The Numbers</div>
+  <h1 class="hero-title">The burden is <em>real.</em><br>The data is sparse.<br>That is the crisis.</h1>
+  <p class="hero-sub">
+    What we know about autism and mental health in Uganda — from peer-reviewed sources, WHO assessments, national census data, and published clinical studies. Every number here has a citation. Where data is missing, that absence is itself the finding.
+  </p>
+  <div class="data-note">
+    <strong style="color:var(--lat-lt);font-style:normal;">Phase I · Literature Review.</strong> All figures drawn from peer-reviewed sources and national reports. District-level primary data collection begins Phase II, in partnership with MUST and the Uganda NGO Bureau. This dashboard is the evidence base — not the endpoint.<br><br>
+    Sources: WHO-AIMS Uganda · Lancet Psychiatry 2022 · Kakooza-Mwesige et al. 2014 · Save Children with Autism Uganda · UBOS NPHC 2024 · PubMed meta-analysis Feb 2026 · Butabika Hospital records · NPA Mental Health Report 2025
+  </div>
+</div>
+
+<!-- TOP STATS -->
+<div class="stat-grid">
+  <div class="stat-card crisis reveal">
+    <div class="stat-label">Psychiatrists per 100,000 people</div>
+    <div class="stat-number">0.08</div>
+    <div class="stat-desc">Uganda has approximately 53 psychiatrists for ~50 million people. One per million. The WHO minimum standard is 1 per 100,000.</div>
+    <div class="stat-source">Lancet Psychiatry, 2022 · WHO-AIMS Uganda</div>
+  </div>
+  <div class="stat-card warn reveal">
+    <div class="stat-label">Mental health cases 2025 (NPA data)</div>
+    <div class="stat-number">843K</div>
+    <div class="stat-desc">Facility-reported mental health cases surged +71% from 494,326 (pre-2020) to 843,295 — NPA's Feb 2026 silent emergency declaration.</div>
+    <div class="stat-source">Uganda NPA · Feb 2026 Emergency Report</div>
+  </div>
+  <div class="stat-card forest reveal">
+    <div class="stat-label">Estimated autism prevalence</div>
+    <div class="stat-number">88/10K</div>
+    <div class="stat-desc">Based on 2014 census baseline of 70/10,000 scaled to 2024 population of ~44M. Approx. 38,800 people with ASD — likely a severe undercount.</div>
+    <div class="stat-source">Save Children with Autism Uganda · UBOS 2024</div>
+  </div>
+  <div class="stat-card gold reveal">
+    <div class="stat-label">Mental health budget (% of health spend)</div>
+    <div class="stat-number">1%</div>
+    <div class="stat-desc">Only 1% of Uganda's healthcare budget goes to mental health. Most is directed to Butabika Hospital. Community and neurodevelopmental care is nearly unfunded.</div>
+    <div class="stat-source">WHO-AIMS Uganda · Sub-Saharan Africa Review 2025</div>
+  </div>
+</div>
+
+<div class="divider" style="margin-top: 1px;"></div>
+
+<!-- AUTISM DEEP DIVE -->
+<div class="section">
+  <div class="section-label">Autism Spectrum Disorder · Uganda</div>
+  <h2 class="section-title">The <em>invisible</em> diagnosis.</h2>
+  <p style="color: rgba(232,217,192,0.6); max-width: 65ch; margin-top: 0.5rem; font-size:0.95rem;">
+    ASD prevalence in Uganda is estimated to be comparable to global rates — but diagnosis, recognition, and support remain critically limited. The gap between screening prevalence (4%) and confirmed diagnosis (1%) tells the story.
+  </p>
+
+  <div class="autism-grid">
+    <div class="autism-facts reveal">
+      <div class="fact-row">
+        <div class="fact-cell highlight">
+          <div class="fact-cell-label">Confirmed ASD prevalence (Africa meta-analysis)</div>
+          <div class="fact-cell-value">~1%</div>
+          <div class="fact-cell-note">PubMed meta-analysis, Feb 2026 · 7 studies · Egypt, Kenya, Uganda, Nigeria · 71,341 participants</div>
+        </div>
+        <div class="fact-cell">
+          <div class="fact-cell-label">High-risk screening prevalence</div>
+          <div class="fact-cell-value">~4%</div>
+          <div class="fact-cell-note">Same meta-analysis. I²=99.8% heterogeneity — reflects diagnostic gap, not true variation.</div>
+        </div>
+      </div>
+      <div class="fact-row">
+        <div class="fact-cell">
+          <div class="fact-cell-label">Uganda ASD prevalence (Kakooza-Mwesige 2014)</div>
+          <div class="fact-cell-value">0.68%</div>
+          <div class="fact-cell-note">Household screen of 1,169 children age 2–9 · 8 confirmed ASD cases · WB/Mulago study</div>
+        </div>
+        <div class="fact-cell highlight">
+          <div class="fact-cell-label">Estimated ASD cases, Uganda 2024</div>
+          <div class="fact-cell-value">38,800+</div>
+          <div class="fact-cell-note">Based on 88/10,000 × 44.1M population. Almost certainly a severe undercount given low diagnosis rates.</div>
+        </div>
+      </div>
+      <div class="fact-row">
+        <div class="fact-cell highlight-gold">
+          <div class="fact-cell-label">Sex ratio (boys : girls)</div>
+          <div class="fact-cell-value">3 : 1</div>
+          <div class="fact-cell-note">Consistent with global data. Boys predominantly diagnosed — girls systematically missed in existing screening tools.</div>
+        </div>
+        <div class="fact-cell">
+          <div class="fact-cell-label">ASD rate in paediatric neurology clinic (Mulago)</div>
+          <div class="fact-cell-value">~27%</div>
+          <div class="fact-cell-note">27% of 318 children (2–9 yrs) screened positive for ASD symptoms at Mulago neurology clinic. PubMed, Jan 2021.</div>
+        </div>
+      </div>
+      <div class="fact-row">
+        <div class="fact-cell">
+          <div class="fact-cell-label">Health workers with limited ASD knowledge</div>
+          <div class="fact-cell-value">36%</div>
+          <div class="fact-cell-note">Among child/adolescent health professionals at Mulago + Butabika. Mean KCAHW score 11.8/16. PMC 2020.</div>
+        </div>
+        <div class="fact-cell highlight">
+          <div class="fact-cell-label">Special needs schools in Uganda (est.)</div>
+          <div class="fact-cell-value">&lt; 30</div>
+          <div class="fact-cell-note">Clinicians cite "few affordable special needs schools" as a primary treatment barrier. No national count exists.</div>
+        </div>
+      </div>
+
+      <div class="pull-quote">
+        "Challenges in identification result in low detection of ASD in Uganda… health professionals often do not think it is there."
+        <div style="font-size:0.72rem; color:rgba(200,188,168,0.4); margin-top:0.5rem; font-style:normal; font-family:'DM Mono',monospace; letter-spacing:0.06em;">— PLOS Mental Health, 2024 · Makerere University · Kampala</div>
+      </div>
+
+      <!-- BAR CHART -->
+      <div class="bar-chart reveal">
+        <div class="bar-chart-title">ASD Confirmed Prevalence — Country Comparison (% of population)</div>
+
+        <div class="bar-row highlight">
+          <div class="bar-country">USA (2018)</div>
+          <div class="bar-track">
+            <div class="bar-fill" style="width:0%" data-target="100%">
+              <span class="bar-val">2.3% (1 in 44)</span>
+            </div>
+          </div>
+        </div>
+        <div class="bar-row global">
+          <div class="bar-country">Global est.</div>
+          <div class="bar-track">
+            <div class="bar-fill" style="width:0%" data-target="43%">
+              <span class="bar-val">1.0% (WHO)</span>
+            </div>
+          </div>
+        </div>
+        <div class="bar-row africa">
+          <div class="bar-country">Nigeria</div>
+          <div class="bar-track">
+            <div class="bar-fill" style="width:0%" data-target="100%">
+              <span class="bar-val">2.3% (Lagunju)</span>
+            </div>
+          </div>
+        </div>
+        <div class="bar-row africa">
+          <div class="bar-country">Africa meta-avg</div>
+          <div class="bar-track">
+            <div class="bar-fill" style="width:0%" data-target="43%">
+              <span class="bar-val">1.0% confirmed</span>
+            </div>
+          </div>
+        </div>
+        <div class="bar-row uganda">
+          <div class="bar-country">Uganda (confirmed)</div>
+          <div class="bar-track">
+            <div class="bar-fill" style="width:0%" data-target="30%">
+              <span class="bar-val">0.68–0.88%</span>
+            </div>
+          </div>
+        </div>
+        <div class="bar-row global" style="opacity:0.5">
+          <div class="bar-country">Uganda (screened)</div>
+          <div class="bar-track">
+            <div class="bar-fill" style="width:0%; background: rgba(181,71,42,0.3); border: 1px dashed var(--laterite)" data-target="174%">
+              <span class="bar-val" style="color:var(--lat-lt)">~4% (screening) ← unmet need</span>
+            </div>
+          </div>
+        </div>
+
+        <div style="font-family:'DM Mono',monospace; font-size:0.6rem; color:rgba(200,188,168,0.3); margin-top:1rem; font-style:italic;">
+          Bars scaled relative to USA rate (2.3% = 100%). Dashed bar = screening vs. confirmed gap.
+        </div>
+      </div>
+    </div>
+
+    <!-- PENTAD PENTAGON -->
+    <div class="pentagon-wrapper reveal">
+      <div class="pentagon-title">Pentadic Loss · Uganda Autism · L(θ) by Layer</div>
+      <svg class="pentad-svg" viewBox="0 0 380 380" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <radialGradient id="pentaGrad" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stop-color="#B5472A" stop-opacity="0.15"/>
+            <stop offset="100%" stop-color="#B5472A" stop-opacity="0"/>
+          </radialGradient>
+        </defs>
+
+        <!-- Grid rings -->
+        <g stroke="rgba(200,188,168,0.08)" fill="none" stroke-width="1">
+          <polygon points="190,90 274,148 242,248 138,248 106,148"/>
+          <polygon points="190,120 254,166 228,240 152,240 126,166"/>
+          <polygon points="190,150 234,184 214,232 166,232 146,184"/>
+        </g>
+
+        <!-- Axes -->
+        <g stroke="rgba(200,188,168,0.1)" stroke-width="1">
+          <line x1="190" y1="190" x2="190" y2="60"/>
+          <line x1="190" y1="190" x2="300" y2="130"/>
+          <line x1="190" y1="190" x2="260" y2="280"/>
+          <line x1="190" y1="190" x2="120" y2="280"/>
+          <line x1="190" y1="190" x2="80" y2="130"/>
+        </g>
+
+        <!-- Data polygon — high loss scores (each layer 0–1, scaled from center=190,190, max radius ~130) -->
+        <!-- L1=0.85 child, L2=0.72 family, L3=0.90 system, L4=0.65 govt, L5=0.55 NPA -->
+        <polygon
+          points="190,82 286,124 253,274 127,274 90,124"
+          fill="url(#pentaGrad)"
+          stroke="#B5472A"
+          stroke-width="1.5"
+          opacity="0.7"
+        />
+        <!-- Reduced polygon showing "current capacity" -->
+        <polygon
+          points="190,158 218,174 210,208 170,208 162,174"
+          fill="rgba(46,94,69,0.25)"
+          stroke="#2E5E45"
+          stroke-width="1.5"
+          stroke-dasharray="4,3"
+        />
+
+        <!-- Layer labels -->
+        <text x="190" y="52" text-anchor="middle" font-family="DM Mono" font-size="10" fill="rgba(200,188,168,0.7)" letter-spacing="1">L1 · CHILD</text>
+        <text x="315" y="128" text-anchor="start" font-family="DM Mono" font-size="10" fill="rgba(200,188,168,0.7)" letter-spacing="1">L2 · KIN</text>
+        <text x="268" y="300" text-anchor="middle" font-family="DM Mono" font-size="10" fill="rgba(200,188,168,0.7)" letter-spacing="1">L3 · SYSTEM</text>
+        <text x="112" y="300" text-anchor="middle" font-family="DM Mono" font-size="10" fill="rgba(200,188,168,0.7)" letter-spacing="1">L4 · GOVT</text>
+        <text x="42" y="128" text-anchor="end" font-family="DM Mono" font-size="10" fill="rgba(200,188,168,0.7)" letter-spacing="1">L5 · NPA</text>
+
+        <!-- Loss value dots -->
+        <circle cx="190" cy="82"  r="4" fill="#B5472A"/>
+        <circle cx="286" cy="124" r="4" fill="#B5472A"/>
+        <circle cx="253" cy="274" r="4" fill="#B5472A"/>
+        <circle cx="127" cy="274" r="4" fill="#B5472A"/>
+        <circle cx="90"  cy="124" r="4" fill="#B5472A"/>
+
+        <!-- Loss labels -->
+        <text x="190" y="74" text-anchor="middle" font-family="Playfair Display" font-size="11" fill="#E07A5F" font-weight="700">0.85</text>
+        <text x="298" y="121" text-anchor="start" font-family="Playfair Display" font-size="11" fill="#E07A5F" font-weight="700">0.72</text>
+        <text x="258" y="292" text-anchor="middle" font-family="Playfair Display" font-size="11" fill="#E07A5F" font-weight="700">0.90</text>
+        <text x="122" y="292" text-anchor="middle" font-family="Playfair Display" font-size="11" fill="#E07A5F" font-weight="700">0.65</text>
+        <text x="78"  cy="121" x2="78" y="121" text-anchor="end" font-family="Playfair Display" font-size="11" fill="#E07A5F" font-weight="700">0.55</text>
+
+        <!-- Center -->
+        <circle cx="190" cy="190" r="3" fill="rgba(200,188,168,0.3)"/>
+
+        <!-- Legend -->
+        <rect x="20" y="340" width="12" height="3" fill="#B5472A"/>
+        <text x="38" y="347" font-family="DM Mono" font-size="9" fill="rgba(200,188,168,0.5)">Current loss (unmet need)</text>
+        <rect x="20" y="356" width="12" height="2" fill="#2E5E45" stroke-dasharray="3,2" stroke="#2E5E45"/>
+        <text x="38" y="363" font-family="DM Mono" font-size="9" fill="rgba(200,188,168,0.5)">Current system capacity</text>
+      </svg>
+
+      <!-- Layer scores table -->
+      <div style="margin-top:1.5rem;">
+        <div style="font-family:'DM Mono',monospace; font-size:0.6rem; letter-spacing:0.12em; text-transform:uppercase; color:rgba(200,188,168,0.3); margin-bottom:0.8rem;">Loss L(θ) by pentadic layer · 0=optimal · 1=crisis</div>
+        <div id="lossTable"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="divider"></div>
+
+<!-- SEX RATIO -->
+<div class="section">
+  <div class="section-label">The 3:1 Ratio · Gender Gap in ASD Diagnosis</div>
+  <h2 class="section-title">Boys are seen.<br><em>Girls are invisible.</em></h2>
+  <p style="color:rgba(232,217,192,0.6); max-width:65ch; margin-top:0.5rem; font-size:0.95rem;">
+    The 3:1 male-to-female diagnosis ratio in Uganda (consistent with global data) is not evidence that boys have autism more often — it is evidence that existing screening tools and clinical frameworks are calibrated to male presentation. Girls with ASD are systematically missed.
+  </p>
+
+  <div class="ratio-section reveal">
+    <div class="ratio-title">Visualising the 3:1 Diagnostic Ratio</div>
+    <div class="ratio-sub">Each dot = 1 child in a hypothetical cohort of 40 children screened. Red = boys diagnosed. Yellow = girls diagnosed. Grey = undiagnosed (estimated).</div>
+    <div class="ratio-grid">
+      <div class="ratio-item">
+        <div class="ratio-label">Uganda · Current diagnosis</div>
+        <div class="ratio-dots" id="dots-uganda"></div>
+        <div class="ratio-legend">
+          <span style="color:var(--laterite)">■</span> Boys diagnosed (3x)<br>
+          <span style="color:var(--gold)">■</span> Girls diagnosed (1x)<br>
+          <span style="color:rgba(200,188,168,0.15)">■</span> Likely undiagnosed
+        </div>
+      </div>
+      <div class="ratio-item">
+        <div class="ratio-label">Global average</div>
+        <div class="ratio-dots" id="dots-global"></div>
+        <div class="ratio-legend">
+          <span style="color:var(--laterite)">■</span> Boys diagnosed (3–4x)<br>
+          <span style="color:var(--gold)">■</span> Girls diagnosed (1x)<br>
+          <span style="color:rgba(200,188,168,0.15)">■</span> Undiagnosed / masked
+        </div>
+      </div>
+      <div class="ratio-item">
+        <div class="ratio-label">Amaani target · Equitable screening</div>
+        <div class="ratio-dots" id="dots-target"></div>
+        <div class="ratio-legend">
+          <span style="color:var(--laterite)">■</span> Boys identified<br>
+          <span style="color:var(--gold)">■</span> Girls identified (equalised)<br>
+          <span style="color:var(--forest-lt)">■</span> Previously hidden, now seen
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="divider"></div>
+
+<!-- WORKFORCE CRISIS -->
+<div class="section">
+  <div class="section-label">Workforce · The Human Resource Crisis</div>
+  <h2 class="section-title">53 psychiatrists.<br><em>50 million people.</em></h2>
+  <p style="color:rgba(232,217,192,0.6); max-width:65ch; margin-top:0.5rem; font-size:0.95rem;">
+    The structural foundation for addressing autism and mental health in Uganda is critically under-resourced. What follows is the real arithmetic of the treatment gap.
+  </p>
+
+  <div class="workforce-grid">
+    <div class="wf-card reveal">
+      <div class="wf-label">Psychiatrists · Uganda total</div>
+      <div class="wf-big" style="color: var(--crisis)">53</div>
+      <div class="wf-desc">For ~50 million people. Most are based in Kampala. Only one was historically based outside the capital — at Mbarara University (MUST).</div>
+      <div class="wf-source">Lancet Psychiatry 2022 · earlier WHO-AIMS: 0.08/100K</div>
+    </div>
+    <div class="wf-card reveal">
+      <div class="wf-label">Psychiatric beds near Kampala</div>
+      <div class="wf-big" style="color: var(--warn)">62%</div>
+      <div class="wf-desc">62% of all psychiatric beds are in or near Kampala. 87% of Uganda's population lives in rural areas. The math does not work.</div>
+      <div class="wf-source">WHO-AIMS Uganda · GlobeMed Northwestern 2020</div>
+    </div>
+    <div class="wf-card reveal">
+      <div class="wf-label">Psychologists per 100K</div>
+      <div class="wf-big" style="color: var(--crisis)">0.01</div>
+      <div class="wf-desc">One psychologist per 10 million people. Social workers: 0.01/100K. Occupational therapists: 0.01/100K. The autism therapy workforce is essentially non-existent outside Kampala.</div>
+      <div class="wf-source">WHO-AIMS Uganda</div>
+    </div>
+    <div class="wf-card reveal">
+      <div class="wf-label">Mental health budget (% healthcare)</div>
+      <div class="wf-big" style="color: var(--warn)">1%</div>
+      <div class="wf-desc">Less than 1% of the healthcare budget. The vast majority goes to Butabika Hospital for severe psychiatric inpatient care. Community, neurodevelopmental, and child mental health receive almost nothing.</div>
+      <div class="wf-source">Sub-Saharan Africa MH Review, PMC 2025</div>
+    </div>
+    <div class="wf-card reveal">
+      <div class="wf-label">Inpatient psychiatric units (all Uganda)</div>
+      <div class="wf-big" style="color: var(--gold-lt)">28</div>
+      <div class="wf-desc">28 inpatient units across Uganda. One national mental hospital (Butabika, 500 beds, frequently overcrowded). No separate children's psychiatric facility.</div>
+      <div class="wf-source">GlobeMed Northwestern 2020 · WHO-AIMS</div>
+    </div>
+    <div class="wf-card reveal">
+      <div class="wf-label">Mental health cases, surge 2020–2025</div>
+      <div class="wf-big" style="color: var(--crisis)">+71%</div>
+      <div class="wf-desc">NPA Feb 2026 data: facility-reported cases surged from 494,326 to 843,295. NPA has classified mental health as Uganda's #1 planning priority. The silent emergency.</div>
+      <div class="wf-source">Uganda National Planning Authority · Feb 2026</div>
+    </div>
+  </div>
+</div>
+
+<div class="divider"></div>
+
+<!-- THE GAP AMAANI ADDRESSES -->
+<div class="section gap-section">
+  <div class="section-label">The Amaani Response · What the Data Demands</div>
+  <h2 class="section-title">Six gaps.<br><em>One loop.</em></h2>
+  <p style="color:rgba(232,217,192,0.6); max-width:65ch; margin-top:0.5rem; font-size:0.95rem;">
+    The data above defines the problem. Amaani's closed-loop system is designed to address each gap — not separately, but as an integrated pentadic system.
+  </p>
+
+  <div class="gap-grid reveal">
+    <div class="gap-card">
+      <div class="gap-icon">Diagnosis Gap · L1</div>
+      <div class="gap-title">~38,800 estimated ASD cases. Less than 1% formally diagnosed.</div>
+      <div class="gap-desc">The gap between screening prevalence (4%) and confirmed diagnosis (1%) across Africa represents tens of thousands of children who are invisible to the health system.</div>
+      <div class="gap-stat">→ Amaani response: MUST app deployment for community-level screening in schools</div>
+    </div>
+    <div class="gap-card">
+      <div class="gap-icon">Gender Gap · L1</div>
+      <div class="gap-title">Girls with ASD are systematically missed by current tools.</div>
+      <div class="gap-desc">The 3:1 ratio is a measurement artifact, not a biological reality. Screening instruments calibrated to male ASD presentation produce false negatives for girls in Uganda and across Africa.</div>
+      <div class="gap-stat">→ Amaani response: Gender-stratified data collection from Field, feeding model refinement in Engine</div>
+    </div>
+    <div class="gap-card">
+      <div class="gap-icon">Caregiver Gap · L2</div>
+      <div class="gap-title">Families carry the full burden without structured support.</div>
+      <div class="gap-desc">With almost no community-based support structures, families — primarily mothers — absorb the full physical, financial, and psychological cost of ASD care in informal kin-networks.</div>
+      <div class="gap-stat">→ Amaani response: Kin-network support programs, caregiver training, household-level data (L2 twin)</div>
+    </div>
+    <div class="gap-card">
+      <div class="gap-icon">Workforce Gap · L3</div>
+      <div class="gap-title">0.01 psychologists per 100,000 people.</div>
+      <div class="gap-desc">The clinical workforce for autism support is effectively absent outside Kampala. Therapy, behavioral intervention, and specialist support are inaccessible to 87% of the population.</div>
+      <div class="gap-stat">→ Amaani response: MUST student capacity building, task-shifted tech deployment, school-based intervention</div>
+    </div>
+    <div class="gap-card">
+      <div class="gap-icon">Policy Gap · L4</div>
+      <div class="gap-title">Mental health policies exist. Implementation does not.</div>
+      <div class="gap-desc">Uganda has had a Mental Health Act since 1964. The 2000 mental health policy was still in draft form in 2006. The gap between policy intent and funded implementation defines the regulatory layer.</div>
+      <div class="gap-stat">→ Amaani response: Ministry of Health + MoE data partnerships, district-level loss mapping (L4 twin)</div>
+    </div>
+    <div class="gap-card">
+      <div class="gap-icon">Data Gap · L5</div>
+      <div class="gap-title">No national autism prevalence dataset exists.</div>
+      <div class="gap-desc">The NPA has declared mental health its #1 priority but lacks the granular, district-level data to plan effectively. There is no longitudinal autism data at national scale.</div>
+      <div class="gap-stat">→ Amaani response: 133-district data pipeline to NPA, long-term health cartography (L5 civilizational twin)</div>
+    </div>
+  </div>
+</div>
+
+<!-- MAP SUITE NAVIGATION -->
+<div class="section" style="padding-top:2rem;padding-bottom:4rem;">
+  <div class="section-label">Explore the Suite</div>
+  <h2 class="section-title">Go deeper.<br><em>See the maps.</em></h2>
+  <div class="suite-map-cards reveal">
+    <a href="autism-ug.html" class="map-card uganda">
+      <div class="map-card-label">Interactive · 133 Districts · Synthetic Phase I</div>
+      <div class="map-card-title">Uganda District Loss Map</div>
+      <div class="map-card-desc">ASD burden, mental health, workforce gap, and care access — mapped to all 133 Ugandan districts. Adjustable weights, ROYGBIV loss gradient, scenario simulation. Bayesian swap ready for MoH DHIS2 data.</div>
+      <div class="map-card-arrow">→ Open autism-ug.html</div>
+    </a>
+    <a href="bigger-picture.html" class="map-card africa">
+      <div class="map-card-label">Interactive · 54 Countries · Literature Review</div>
+      <div class="map-card-title">Africa ASD Knowledge Gap Map</div>
+      <div class="map-card-desc">Where does ASD research exist on the continent? Derived from 6 systematic reviews (2016–2026). 44 of 54 African nations have zero published ASD studies. Click any country for the evidence.</div>
+      <div class="map-card-arrow">→ Open bigger-picture.html</div>
+    </a>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-left">
+    Amaani × Ukubona · Uganda Mental Health Dashboard<br>
+    Data compiled from peer-reviewed sources + national statistics<br>
+    Phase I · March 2026 · For grant and planning purposes
+  </div>
+  <div class="footer-sources">
+    Sources: Lancet Psychiatry 2022 · WHO-AIMS Uganda · PubMed meta-analysis Feb 2026<br>
+    Kakooza-Mwesige et al. 2014 (Autism journal) · Save Children with Autism Uganda<br>
+    UBOS NPHC 2024 · PMC Sub-Saharan Africa MH Review 2025<br>
+    GlobeMed Northwestern 2020 · PLOS Mental Health 2024 · NPA Feb 2026
+  </div>
+</footer>
+
+<script>
+// Scroll line
+window.addEventListener('scroll', () => {
+  const pct = window.scrollY / (document.body.scrollHeight - window.innerHeight) * 100;
+  document.getElementById('scrollLine').style.height = pct + '%';
+});
+
+// Reveal
+const obs = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) { e.target.classList.add('visible'); obs.unobserve(e.target); }
+  });
+}, { threshold: 0.08 });
+document.querySelectorAll('.reveal').forEach(r => obs.observe(r));
+
+// Animate bars on scroll
+const barObs = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      e.target.querySelectorAll('.bar-fill').forEach(b => {
+        setTimeout(() => { b.style.width = b.dataset.target; }, 200);
+      });
+      barObs.unobserve(e.target);
+    }
+  });
+}, { threshold: 0.3 });
+document.querySelectorAll('.bar-chart').forEach(b => barObs.observe(b));
+
+// Dot matrix for ratio visualization
+function makeDots(containerId, boys, girls, undiag, newlySeen) {
+  const c = document.getElementById(containerId);
+  const total = boys + girls + undiag + (newlySeen || 0);
+  for (let i = 0; i < total; i++) {
+    const d = document.createElement('div');
+    d.className = 'dot';
+    if (i < boys) d.style.background = 'var(--laterite)';
+    else if (i < boys + girls) d.style.background = 'var(--gold)';
+    else if (newlySeen && i < boys + girls + undiag) d.style.background = 'var(--forest-lt)';
+    c.appendChild(d);
+  }
+}
+// Uganda: 3 boys, 1 girl, 36 undiagnosed of 40
+makeDots('dots-uganda', 3, 1, 36, 0);
+// Global: similar 3:1 but more total diagnosed
+makeDots('dots-global', 6, 2, 32, 0);
+// Target: equitable — 10 boys, 10 girls, 10 previously hidden (green), 10 still undiagnosed
+makeDots('dots-target', 10, 10, 10, 10);
+
+// Loss table
+const layers = [
+  { name: 'L1 · Child',     score: 0.85, desc: 'Diagnosis gap · <1% confirmed' },
+  { name: 'L2 · Kin',       score: 0.72, desc: 'Caregiver burden · no support' },
+  { name: 'L3 · System',    score: 0.90, desc: '0.01 psychologists/100K' },
+  { name: 'L4 · Govt',      score: 0.65, desc: '1% budget · policy gap' },
+  { name: 'L5 · NPA',       score: 0.55, desc: 'No national ASD dataset' },
+];
+const tbl = document.getElementById('lossTable');
+layers.forEach(l => {
+  const row = document.createElement('div');
+  row.style.cssText = 'display:flex; align-items:center; gap:0.8rem; padding:0.4rem 0; border-bottom:1px solid rgba(200,188,168,0.06);';
+  const name = document.createElement('div');
+  name.style.cssText = "font-family:'DM Mono',monospace; font-size:0.65rem; color:rgba(200,188,168,0.5); width:6rem; flex-shrink:0;";
+  name.textContent = l.name;
+  const track = document.createElement('div');
+  track.style.cssText = 'flex:1; height:6px; background:rgba(200,188,168,0.06); position:relative;';
+  const fill = document.createElement('div');
+  fill.style.cssText = `width:${l.score*100}%; height:100%; background:linear-gradient(90deg, var(--forest-lt), var(--laterite));`;
+  track.appendChild(fill);
+  const val = document.createElement('div');
+  val.style.cssText = "font-family:'DM Mono',monospace; font-size:0.65rem; color:var(--lat-lt); width:2rem; flex-shrink:0;";
+  val.textContent = l.score.toFixed(2);
+  const desc = document.createElement('div');
+  desc.style.cssText = "font-family:'DM Mono',monospace; font-size:0.58rem; color:rgba(200,188,168,0.25); font-style:italic; flex:1;";
+  desc.textContent = l.desc;
+  row.append(name, track, val, desc);
+  tbl.appendChild(row);
+});
+</script>
+</body>
+</html>

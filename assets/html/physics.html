@@ -1,0 +1,388 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pentad compression architecture</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+  background: #1a1a18;
+  color: #e0dfd6;
+  padding: 2rem 1rem;
+}
+h2 {
+  font-size: 13px;
+  font-weight: 400;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #888780;
+  margin: 0 0 1rem;
+}
+.card {
+  background: #111110;
+  border: 0.5px solid rgba(222,220,209,0.15);
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin: 0 auto 2rem;
+  max-width: 760px;
+}
+.svg-wrap {
+  width: 100%;
+  overflow-x: auto;
+}
+.svg-wrap svg {
+  display: block;
+  width: 100%;
+  min-width: 460px;
+}
+
+/* Physics ledger */
+.var-row { display:flex; align-items:center; gap:12px; margin:0 0 14px; }
+.var-label { font-size:13px; color:#888780; width:150px; flex-shrink:0; }
+.var-symbol { font-size:13px; font-weight:600; width:28px; flex-shrink:0; font-family:monospace; color:#e0dfd6; }
+.var-val { font-size:13px; font-weight:500; width:44px; text-align:right; flex-shrink:0; font-family:monospace; color:#e0dfd6; }
+.score-num { font-size:36px; font-weight:500; line-height:1; color:#e0dfd6; }
+.score-label { font-size:12px; color:#888780; margin-top:4px; }
+.layer-pill { display:inline-block; font-size:11px; padding:3px 10px; border-radius:20px; border:0.5px solid #444441; color:#888780; cursor:default; }
+.layer-pill.active { background:#1a3a5c; color:#85b7eb; border-color:#2a5a8c; font-weight:500; }
+.eq-row { font-family:monospace; font-size:13px; color:#888780; text-align:center; padding:12px 0; border-top:0.5px solid rgba(222,220,209,0.15); border-bottom:0.5px solid rgba(222,220,209,0.15); margin:16px 0; }
+.eq-highlight { color:#e0dfd6; font-weight:600; }
+.bar-track { height:6px; background:#2c2c2a; border-radius:3px; flex:1; overflow:hidden; }
+.bar-fill { height:100%; border-radius:3px; transition:width 0.2s; background:#378add; }
+.bar-fill.denom { background:#e24b4a; }
+.section-head { font-size:11px; text-transform:uppercase; letter-spacing:0.06em; color:#5f5e5a; margin:20px 0 10px; }
+.insight-box { background:#1a1a18; border-radius:8px; padding:10px 14px; font-size:13px; color:#888780; line-height:1.6; margin-top:16px; }
+.bottom-row { display:flex; align-items:flex-end; gap:20px; border-top:0.5px solid rgba(222,220,209,0.15); padding-top:16px; flex-wrap:wrap; }
+.grid2 { display:grid; grid-template-columns:1fr 1fr; gap:24px; margin:20px 0; }
+@media (max-width:540px) { .grid2 { grid-template-columns:1fr; } }
+input[type=range] { accent-color:#378add; cursor:pointer; width:80px; }
+button {
+  font-size:12px; padding:6px 12px;
+  border:0.5px solid #444441;
+  border-radius:6px;
+  background:#1a1a18;
+  color:#c2c0b6;
+  cursor:pointer;
+}
+button:hover { background:#2c2c2a; }
+</style>
+</head>
+<body>
+
+<div class="card">
+  <h2>Pentad compression architecture</h2>
+  <div class="svg-wrap">
+<svg width="100%" viewBox="0 0 680 760" xmlns="http://www.w3.org/2000/svg">
+<defs>
+  <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+    <path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+  </marker>
+<mask id="imagine-text-gaps-y4d7li" maskUnits="userSpaceOnUse"><rect x="0" y="0" width="680" height="760" fill="white"/><rect x="46.5337028503418" y="14.194404602050781" width="98.93260192871094" height="19.11116313934326" fill="black" rx="2"/><rect x="206.12986755371094" y="14.194404602050781" width="83.74028015136719" height="19.11116313934326" fill="black" rx="2"/><rect x="355.4293212890625" y="14.194404602050781" width="89.14134216308594" height="19.11116313934326" fill="black" rx="2"/><rect x="509.52020263671875" y="14.194404602050781" width="110.95955657958984" height="19.11116313934326" fill="black" rx="2"/><rect x="67.89813995361328" y="61.263858795166016" width="56.2037239074707" height="21.47228240966797" fill="black" rx="2"/><rect x="53.45104217529297" y="80.44441986083984" width="85.0979232788086" height="19.11116313934326" fill="black" rx="2"/><rect x="217.747314453125" y="61.263858795166016" width="60.50539016723633" height="21.47228240966797" fill="black" rx="2"/><rect x="202.29673767089844" y="80.44441986083984" width="91.40653991699219" height="19.11116313934326" fill="black" rx="2"/><rect x="374.1116943359375" y="57.26386260986328" width="51.77662658691406" height="21.47228240966797" fill="black" rx="2"/><rect x="349.9323425292969" y="76.44441986083984" width="100.13529968261719" height="19.11116313934326" fill="black" rx="2"/><rect x="491.31005859375" y="61.263858795166016" width="147.37982177734375" height="21.47228240966797" fill="black" rx="2"/><rect x="507.4173278808594" y="80.44441986083984" width="115.16529846191406" height="19.11116313934326" fill="black" rx="2"/><rect x="70.18916320800781" y="141.2638702392578" width="51.62167739868164" height="21.47228240966797" fill="black" rx="2"/><rect x="48.50007247924805" y="160.4444122314453" width="94.99986267089844" height="19.11116313934326" fill="black" rx="2"/><rect x="216.24948120117188" y="141.2638702392578" width="63.501060485839844" height="21.47228240966797" fill="black" rx="2"/><rect x="193.3613739013672" y="160.4444122314453" width="109.27725982666016" height="19.11116313934326" fill="black" rx="2"/><rect x="370.76922607421875" y="137.26385498046875" width="58.461544036865234" height="21.47228240966797" fill="black" rx="2"/><rect x="346.58990478515625" y="156.4444122314453" width="106.82022094726562" height="19.11116313934326" fill="black" rx="2"/><rect x="509.60137939453125" y="141.2638702392578" width="110.79722595214844" height="21.47228240966797" fill="black" rx="2"/><rect x="509.66778564453125" y="160.4444122314453" width="110.66441345214844" height="19.11116313934326" fill="black" rx="2"/><rect x="69.56199645996094" y="221.26385498046875" width="52.87602233886719" height="21.47228240966797" fill="black" rx="2"/><rect x="39.203163146972656" y="240.44442749023438" width="113.59368133544922" height="19.11116313934326" fill="black" rx="2"/><rect x="216.05763244628906" y="221.26385498046875" width="63.884742736816406" height="21.47228240966797" fill="black" rx="2"/><rect x="184.1788330078125" y="240.44442749023438" width="127.64234161376953" height="19.11116313934326" fill="black" rx="2"/><rect x="361.9814453125" y="217.26385498046875" width="76.03712463378906" height="21.47228240966797" fill="black" rx="2"/><rect x="344.1144104003906" y="236.44442749023438" width="111.77118682861328" height="19.11116313934326" fill="black" rx="2"/><rect x="498.7291564941406" y="221.26385498046875" width="132.54166412353516" height="21.47228240966797" fill="black" rx="2"/><rect x="512.81103515625" y="240.44442749023438" width="104.37793731689453" height="19.11116313934326" fill="black" rx="2"/><rect x="63.36036682128906" y="301.26385498046875" width="65.27927780151367" height="21.47228240966797" fill="black" rx="2"/><rect x="35.9603157043457" y="320.44439697265625" width="120.07937622070312" height="19.11116313934326" fill="black" rx="2"/><rect x="205.2186279296875" y="301.26385498046875" width="85.5627670288086" height="21.47228240966797" fill="black" rx="2"/><rect x="202.58450317382812" y="320.44439697265625" width="90.83101654052734" height="19.11116313934326" fill="black" rx="2"/><rect x="365.4714660644531" y="297.26385498046875" width="69.05706787109375" height="21.47228240966797" fill="black" rx="2"/><rect x="335.2786560058594" y="316.4444274902344" width="129.44269561767578" height="19.11116313934326" fill="black" rx="2"/><rect x="494.9218444824219" y="301.26385498046875" width="140.15626525878906" height="21.47228240966797" fill="black" rx="2"/><rect x="514.4600830078125" y="320.44439697265625" width="101.07975006103516" height="19.11116313934326" fill="black" rx="2"/><rect x="53.21862030029297" y="381.26385498046875" width="85.5627670288086" height="21.47228240966797" fill="black" rx="2"/><rect x="46.319725036621094" y="400.4444274902344" width="99.36055755615234" height="19.11116313934326" fill="black" rx="2"/><rect x="203.1378936767578" y="381.26385498046875" width="89.7242431640625" height="21.47228240966797" fill="black" rx="2"/><rect x="193.40196228027344" y="400.4444274902344" width="109.19609832763672" height="19.11116313934326" fill="black" rx="2"/><rect x="373.399658203125" y="377.26385498046875" width="53.20067596435547" height="21.47228240966797" fill="black" rx="2"/><rect x="352.9353942871094" y="396.4444274902344" width="94.12920379638672" height="19.11116313934326" fill="black" rx="2"/><rect x="523.0855712890625" y="381.26385498046875" width="83.82881927490234" height="21.47228240966797" fill="black" rx="2"/><rect x="534.481689453125" y="400.4444274902344" width="61.03664016723633" height="19.11116313934326" fill="black" rx="2"/><rect x="163.08486938476562" y="448.19439697265625" width="353.8301696777344" height="19.11116313934326" fill="black" rx="2"/><rect x="598.2591552734375" y="226.1944122314453" width="119.48171997070312" height="19.111148834228516" fill="black" rx="2"/><rect x="288.0508117675781" y="493.26385498046875" width="103.89833068847656" height="21.47228240966797" fill="black" rx="2"/><rect x="111.19558715820312" y="516.4444580078125" width="457.6087646484375" height="19.11116313934326" fill="black" rx="2"/><rect x="94.7894058227539" y="567.263916015625" width="178.42115783691406" height="21.47228240966797" fill="black" rx="2"/><rect x="119.7693099975586" y="586.4443969726562" width="128.4613494873047" height="19.11116313934326" fill="black" rx="2"/><rect x="422.7565002441406" y="567.263916015625" width="146.4870147705078" height="21.47228240966797" fill="black" rx="2"/><rect x="414.5257873535156" y="586.4443969726562" width="162.94845581054688" height="19.11116313934326" fill="black" rx="2"/><rect x="97.1063461303711" y="622.1943969726562" width="485.7872314453125" height="19.11116313934326" fill="black" rx="2"/><rect x="177.6057586669922" y="657.2638549804688" width="324.7884216308594" height="21.47228240966797" fill="black" rx="2"/><rect x="204.86192321777344" y="676.4444580078125" width="270.27606201171875" height="19.11116313934326" fill="black" rx="2"/></mask></defs>
+
+<!-- Column headers -->
+<text x="96" y="28" text-anchor="middle" fill="#888780" style="fill:rgb(194, 192, 182);stroke:none;color:rgb(255, 255, 255);stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;opacity:1;font-family:&quot;Anthropic Sans&quot;, -apple-system, &quot;system-ui&quot;, &quot;Segoe UI&quot;, sans-serif;font-size:12px;font-weight:400;text-anchor:middle;dominant-baseline:auto">Macroeconomic</text>
+<text x="248" y="28" text-anchor="middle" fill="#888780" style="fill:rgb(194, 192, 182);stroke:none;color:rgb(255, 255, 255);stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;opacity:1;font-family:&quot;Anthropic Sans&quot;, -apple-system, &quot;system-ui&quot;, &quot;Segoe UI&quot;, sans-serif;font-size:12px;font-weight:400;text-anchor:middle;dominant-baseline:auto">Cognitive / AI</text>
+<text x="400" y="28" text-anchor="middle" fill="#888780" style="fill:rgb(194, 192, 182);stroke:none;color:rgb(255, 255, 255);stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;opacity:1;font-family:&quot;Anthropic Sans&quot;, -apple-system, &quot;system-ui&quot;, &quot;Segoe UI&quot;, sans-serif;font-size:12px;font-weight:400;text-anchor:middle;dominant-baseline:auto">Physics ledger</text>
+<text x="565" y="28" text-anchor="middle" fill="#888780" style="fill:rgb(194, 192, 182);stroke:none;color:rgb(255, 255, 255);stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;opacity:1;font-family:&quot;Anthropic Sans&quot;, -apple-system, &quot;system-ui&quot;, &quot;Segoe UI&quot;, sans-serif;font-size:12px;font-weight:400;text-anchor:middle;dominant-baseline:auto">Compression step</text>
+
+<!-- Divider -->
+<line x1="40" y1="36" x2="640" y2="36" stroke="var(--color-border-tertiary)" stroke-width="0.5" style="fill:rgb(0, 0, 0);stroke:rgba(222, 220, 209, 0.15);color:rgb(255, 255, 255);stroke-width:0.5px;stroke-linecap:butt;stroke-linejoin:miter;opacity:1;font-family:&quot;Anthropic Sans&quot;, -apple-system, &quot;system-ui&quot;, &quot;Segoe UI&quot;, sans-serif;font-size:16px;font-weight:400;text-anchor:start;dominant-baseline:auto"/>
+
+<!-- ─── L1: Capital / Sensing ─── -->
+<g onclick="sendPrompt('Explain the Capital layer — raw potential, physical baseline, Newtonian friction')" style="fill:rgb(0, 0, 0);stroke:none;color:rgb(255, 255, 255);stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;opacity:1;font-family:&quot;Anthropic Sans&quot;, -apple-system, &quot;system-ui&quot;, &quot;Segoe UI&quot;, sans-serif;font-size:16px;font-weight:400;text-anchor:start;dominant-baseline:auto">
+  <rect x="44" y="50" width="104" height="52" rx="8" stroke-width="0.5" style="fill:rgb(99, 56, 6);stroke:rgb(239, 159, 39);color:rgb(255, 255, 255);stroke-width:0.5px;stroke-linecap:butt;stroke-linejoin:miter;opacity:1;font-family:&quot;Anthropic Sans&quot;, -apple-system, &quot;system-ui&quot;, &quot;Segoe UI&quot;, sans-serif;font-size:16px;font-weight:400;text-anchor:start;dominant-baseline:auto"/>
+  <text x="96" y="72" text-anchor="middle" dominant-baseline="central" style="fill:rgb(250, 199, 117);stroke:none;color:rgb(255, 255, 255);stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;opacity:1;font-family:&quot;Anthropic Sans&quot;, -apple-system, &quot;system-ui&quot;, &quot;Segoe UI&quot;, sans-serif;font-size:14px;font-weight:500;text-anchor:middle;dominant-baseline:central">Capital</text>
+  <text x="96" y="90" text-anchor="middle" dominant-baseline="central" style="fill:rgb(239, 159, 39);stroke:none;color:rgb(255, 255, 255);stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;opacity:1;font-family:&quot;Anthropic Sans&quot;, -apple-system, &quot;system-ui&quot;, &quot;Segoe UI&quot;, sans-serif;font-size:12px;font-weight:400;text-anchor:middle;dominant-baseline:central">Raw potential</text>
+</g>
+<g onclick="sendPrompt('What does Sensing mean in the digital twin architecture?')" style="fill:rgb(0, 0, 0);stroke:none;color:rgb(255, 255, 255);stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;opacity:1;font-family:&quot;Anthropic Sans&quot;, -apple-system, &quot;system-ui&quot;, &quot;Segoe UI&quot;, sans-serif;font-size:16px;font-weight:400;text-anchor:start;dominant-baseline:auto">
+  <rect x="196" y="50" width="104" height="52" rx="8" stroke-width="0.5" style="fill:rgb(99, 56, 6);stroke:rgb(239, 159, 39);color:rgb(255, 255, 255);stroke-width:0.5px;stroke-linecap:butt;stroke-linejoin:miter;opacity:1;font-family:&quot;Anthropic Sans&quot;, -apple-system, &quot;system-ui&quot;, &quot;Segoe UI&quot;, sans-serif;font-size:16px;font-weight:400;text-anchor:start;dominant-baseline:auto"/>
+  <text x="248" y="72" text-anchor="middle" dominant-baseline="central" style="fill:rgb(250, 199, 117);stroke:none;color:rgb(255, 255, 255);stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;opacity:1;font-family:&quot;Anthropic Sans&quot;, -apple-system, &quot;system-ui&quot;, &quot;Segoe UI&quot;, sans-serif;font-size:14px;font-weight:500;text-anchor:middle;dominant-baseline:central">Sensing</text>
+  <text x="248" y="90" text-anchor="middle" dominant-baseline="central" style="fill:rgb(239, 159, 39);stroke:none;color:rgb(255, 255, 255);stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;opacity:1;font-family:&quot;Anthropic Sans&quot;, -apple-system, &quot;system-ui&quot;, &quot;Segoe UI&quot;, sans-serif;font-size:12px;font-weight:400;text-anchor:middle;dominant-baseline:central">Raw state data</text>
+</g>
+<g style="fill:rgb(0, 0, 0);stroke:none;color:rgb(255, 255, 255);stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;opacity:1;font-family:&quot;Anthropic Sans&quot;, -apple-system, &quot;system-ui&quot;, &quot;Segoe UI&quot;, sans-serif;font-size:16px;font-weight:400;text-anchor:start;dominant-baseline:auto">
+  <rect x="348" y="50" width="104" height="52" rx="8" stroke-width="0.5" style="fill:rgb(99, 56, 6);stroke:rgb(239, 159, 39);color:rgb(255, 255, 255);stroke-width:0.5px;stroke-linecap:butt;stroke-linejoin:miter;opacity:1;font-family:&quot;Anthropic Sans&quot;, -apple-system, &quot;system-ui&quot;, &quot;Segoe UI&quot;, sans-serif;font-size:16px;font-weight:400;text-anchor:start;dominant-baseline:auto"/>
+  <text x="400" y="68" text-anchor="middle" dominant-baseline="central" style="fill:rgb(250, 199, 117);stroke:none;color:rgb(255, 255, 255);stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;opacity:1;font-family:&quot;Anthropic Sans&quot;, -apple-system, &quot;system-ui&quot;, &quot;Segoe UI&quot;, sans-serif;font-size:14px;font-weight:500;text-anchor:middle;dominant-baseline:central">p = mv</text>
+  <text x="400" y="86" text-anchor="middle" dominant-baseline="central" style="fill:rgb(239, 159, 39);stroke:none;color:rgb(255, 255, 255);stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;opacity:1;font-family:&quot;Anthropic Sans&quot;, -apple-system, &quot;system-ui&quot;, &quot;Segoe UI&quot;, sans-serif;font-size:12px;font-weight:400;text-anchor:middle;dominant-baseline:central">High mass, low v</text>
+</g>
+<g onclick="sendPrompt('What does trophic compression mean — from raw potential to stored structure?')" style="fill:rgb(0, 0, 0);stroke:none;color:rgb(255, 255, 255);stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;opacity:1;font-family:&quot;Anthropic Sans&quot;, -apple-system, &quot;system-ui&quot;, &quot;Segoe UI&quot;, sans-serif;font-size:16px;font-weight:400;text-anchor:start;dominant-baseline:auto">
+  <rect x="500" y="50" width="130" height="52" rx="8" stroke-width="0.5" style="fill:rgb(68, 68, 65);stroke:rgb(180, 178, 169);color:rgb(255, 255, 255);stroke-width:0.5px;stroke-linecap:butt;stroke-linejoin:miter;opacity:1;font-family:&quot;Anthropic Sans&quot;, -apple-system, &quot;system-ui&quot;, &quot;Segoe UI&quot;, sans-serif;font-size:16px;font-weight:400;text-anchor:start;dominant-baseline:auto"/>
+  <text x="565" y="72" text-anchor="middle" dominant-baseline="central" style="fill:rgb(211, 209, 199);stroke:none;color:rgb(255, 255, 255);stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;opacity:1;font-family:&quot;Anthropic Sans&quot;, -apple-system, &quot;system-ui&quot;, &quot;Segoe UI&quot;, sans-serif;font-size:14px;font-weight:500;text-anchor:middle;dominant-baseline:central">Potential → structure</text>
+  <text x="565" y="90" text-anchor="middle" dominant-baseline="central" style="fill:rgb(180, 178, 169);stroke:none;color:rgb(255, 255, 255);stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;opacity:1;font-family:&quot;Anthropic Sans&quot;, -apple-system, &quot;system-ui&quot;, &quot;Segoe UI&quot;, sans-serif;font-size:12px;font-weight:400;text-anchor:middle;dominant-baseline:central">The heavy baseline</text>
+</g>
+
+<!-- arrows L1→L2 -->
+<line x1="96" y1="102" x2="96" y2="128" marker-end="url(#arrow)" stroke="#BA7517" style="fill:none;stroke:rgb(156, 154, 146);color:rgb(255, 255, 255);stroke-width:1.5px;stroke-linecap:butt;stroke-linejoin:miter;opacity:1;font-family:&quot;Anthropic Sans&quot;, -apple-system, &quot;system-ui&quot;, &quot;Segoe UI&quot;, sans-serif;font-size:16px;font-weight:400;text-anchor:start;dominant-baseline:auto"/>
+<line x1="248" y1="102" x2="248" y2="128" marker-end="url(#arrow)" stroke="#BA7517" style="fill:none;stroke:rgb(156, 154, 146);color:rgb(255, 255, 255);stroke-width:1.5px;stroke-linecap:butt;stroke-linejoin:miter;opacity:1;font-family:&quot;Anthropic Sans&quot;, -apple-system, &quot;system-ui&quot;, &quot;Segoe UI&quot;, sans-serif;font-size:16px;font-weight:400;text-anchor:start;dominant-baseline:auto"/>
+<line x1="400" y1="102" x2="400" y2="128" marker-end="url(#arrow)" stroke="#888780" style="fill:none;stroke:rgb(156, 154, 146);color:rgb(255, 255, 255);stroke-width:1.5px;stroke-linecap:butt;stroke-linejoin:miter;opacity:1;font-family:&quot;Anthropic Sans&quot;, -apple-system, &quot;system-ui&quot;, &quot;Segoe UI&quot;, sans-serif;font-size:16px;font-weight:400;text-anchor:start;dominant-baseline:auto"/>
+<line x1="565" y1="102" x2="565" y2="128" marker-end="url(#arrow)" stroke="#888780" style="fill:none;stroke:rgb(156, 154, 146);color:rgb(255, 255, 255);stroke-width:1.5px;stroke-linecap:butt;stroke-linejoin:miter;opacity:1;font-family:&quot;Anthropic Sans&quot;, -apple-system, &quot;system-ui&quot;, &quot;Segoe UI&quot;, sans-serif;font-size:16px;font-weight:400;text-anchor:start;dominant-baseline:auto"/>
+
+<!-- ─── L2: Goods / Emotion ─── -->
+<g onclick="sendPrompt('What is the Goods layer — matter compressed into utility?')" style="fill:rgb(0, 0, 0);stroke:none;color:rgb(255, 255, 255);stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;opacity:1;font-family:&quot;Anthropic Sans&quot;, -apple-system, &quot;system-ui&quot;, &quot;Segoe UI&quot;, sans-serif;font-size:16px;font-weight:400;text-anchor:start;dominant-baseline:auto">
+  <rect x="44" y="130" width="104" height="52" rx="8" stroke-width="0.5" style="fill:rgb(8, 80, 65);stroke:rgb(93, 202, 165);color:rgb(255, 255, 255);stroke-width:0.5px;stroke-linecap:butt;stroke-linejoin:miter;opacity:1;font-family:&quot;Anthropic Sans&quot;, -apple-system, &quot;system-ui&quot;, &quot;Segoe UI&quot;, sans-serif;font-size:16px;font-weight:400;text-anchor:start;dominant-baseline:auto"/>
+  <text x="96" y="152" text-anchor="middle" dominant-baseline="central" style="fill:rgb(159, 225, 203);stroke:none;color:rgb(255, 255, 255);stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;opacity:1;font-family:&quot;Anthropic Sans&quot;, -apple-system, &quot;system-ui&quot;, &quot;Segoe UI&quot;, sans-serif;font-size:14px;font-weight:500;text-anchor:middle;dominant-baseline:central">Goods</text>
+  <text x="96" y="170" text-anchor="middle" dominant-baseline="central" style="fill:rgb(93, 202, 165);stroke:none;color:rgb(255, 255, 255);stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;opacity:1;font-family:&quot;Anthropic Sans&quot;, -apple-system, &quot;system-ui&quot;, &quot;Segoe UI&quot;, sans-serif;font-size:12px;font-weight:400;text-anchor:middle;dominant-baseline:central">Matter → utility</text>
+</g>
+<g onclick="sendPrompt('How does Emotion map to Attention in transformer architecture?')" style="fill:rgb(0, 0, 0);stroke:none;color:rgb(255, 255, 255);stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;opacity:1;font-family:&quot;Anthropic Sans&quot;, -apple-system, &quot;system-ui&quot;, &quot;Segoe UI&quot;, sans-serif;font-size:16px;font-weight:400;text-anchor:start;dominant-baseline:auto">
+  <rect x="196" y="130" width="104" height="52" rx="8" stroke-width="0.5" style="fill:rgb(8, 80, 65);stroke:rgb(93, 202, 165);color:rgb(255, 255, 255);stroke-width:0.5px;stroke-linecap:butt;stroke-linejoin:miter;opacity:1;font-family:&quot;Anthropic Sans&quot;, -apple-system, &quot;system-ui&quot;, &quot;Segoe UI&quot;, sans-serif;font-size:16px;font-weight:400;text-anchor:start;dominant-baseline:auto"/>
+  <text x="248" y="152" text-anchor="middle" dominant-baseline="central" style="fill:rgb(159, 225, 203);stroke:none;color:rgb(255, 255, 255);stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;opacity:1;font-family:&quot;Anthropic Sans&quot;, -apple-system, &quot;system-ui&quot;, &quot;Segoe UI&quot;, sans-serif;font-size:14px;font-weight:500;text-anchor:middle;dominant-baseline:central">Emotion</text>
+  <text x="248" y="170" text-anchor="middle" dominant-baseline="central" style="fill:rgb(93, 202, 165);stroke:none;color:rgb(255, 255, 255);stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;opacity:1;font-family:&quot;Anthropic Sans&quot;, -apple-system, &quot;system-ui&quot;, &quot;Segoe UI&quot;, sans-serif;font-size:12px;font-weight:400;text-anchor:middle;dominant-baseline:central">Attention weights</text>
+</g>
+<g style="fill:rgb(0, 0, 0);stroke:none;color:rgb(255, 255, 255);stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;opacity:1;font-family:&quot;Anthropic Sans&quot;, -apple-system, &quot;system-ui&quot;, &quot;Segoe UI&quot;, sans-serif;font-size:16px;font-weight:400;text-anchor:start;dominant-baseline:auto">
+  <rect x="348" y="130" width="104" height="52" rx="8" stroke-width="0.5" style="fill:rgb(8, 80, 65);stroke:rgb(93, 202, 165);color:rgb(255, 255, 255);stroke-width:0.5px;stroke-linecap:butt;stroke-linejoin:miter;opacity:1;font-family:&quot;Anthropic Sans&quot;, -apple-system, &quot;system-ui&quot;, &quot;Segoe UI&quot;, sans-serif;font-size:16px;font-weight:400;text-anchor:start;dominant-baseline:auto"/>
+  <text x="400" y="148" text-anchor="middle" dominant-baseline="central" style="fill:rgb(159, 225, 203);stroke:none;color:rgb(255, 255, 255);stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;opacity:1;font-family:&quot;Anthropic Sans&quot;, -apple-system, &quot;system-ui&quot;, &quot;Segoe UI&quot;, sans-serif;font-size:14px;font-weight:500;text-anchor:middle;dominant-baseline:central">w_i · θ_i</text>
+  <text x="400" y="166" text-anchor="middle" dominant-baseline="central" style="fill:rgb(93, 202, 165);stroke:none;color:rgb(255, 255, 255);stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;opacity:1;font-family:&quot;Anthropic Sans&quot;, -apple-system, &quot;system-ui&quot;, &quot;Segoe UI&quot;, sans-serif;font-size:12px;font-weight:400;text-anchor:middle;dominant-baseline:central">Salience mapping</text>
+</g>
+<g onclick="sendPrompt('How does the attention mechanism assign weights — the math of emotion?')" style="fill:rgb(0, 0, 0);stroke:none;color:rgb(255, 255, 255);stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;opacity:1;font-family:&quot;Anthropic Sans&quot;, -apple-system, &quot;system-ui&quot;, &quot;Segoe UI&quot;, sans-serif;font-size:16px;font-weight:400;text-anchor:start;dominant-baseline:auto">
+  <rect x="500" y="130" width="130" height="52" rx="8" stroke-width="0.5" style="fill:rgb(68, 68, 65);stroke:rgb(180, 178, 169);color:rgb(255, 255, 255);stroke-width:0.5px;stroke-linecap:butt;stroke-linejoin:miter;opacity:1;font-family:&quot;Anthropic Sans&quot;, -apple-system, &quot;system-ui&quot;, &quot;Segoe UI&quot;, sans-serif;font-size:16px;font-weight:400;text-anchor:start;dominant-baseline:auto"/>
+  <text x="565" y="152" text-anchor="middle" dominant-baseline="central" style="fill:rgb(211, 209, 199);stroke:none;color:rgb(255, 255, 255);stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;opacity:1;font-family:&quot;Anthropic Sans&quot;, -apple-system, &quot;system-ui&quot;, &quot;Segoe UI&quot;, sans-serif;font-size:14px;font-weight:500;text-anchor:middle;dominant-baseline:central">Matter → utility</text>
+  <text x="565" y="170" text-anchor="middle" dominant-baseline="central" style="fill:rgb(180, 178, 169);stroke:none;color:rgb(255, 255, 255);stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;opacity:1;font-family:&quot;Anthropic Sans&quot;, -apple-system, &quot;system-ui&quot;, &quot;Segoe UI&quot;, sans-serif;font-size:12px;font-weight:400;text-anchor:middle;dominant-baseline:central">SGD on landscape</text>
+</g>
+
+<!-- arrows L2→L3 -->
+<line x1="96" y1="182" x2="96" y2="208" marker-end="url(#arrow)" stroke="#0F6E56" style="fill:none;stroke:rgb(156, 154, 146);color:rgb(255, 255, 255);stroke-width:1.5px;stroke-linecap:butt;stroke-linejoin:miter;opacity:1;font-family:&quot;Anthropic Sans&quot;, -apple-system, &quot;system-ui&quot;, &quot;Segoe UI&quot;, sans-serif;font-size:16px;font-weight:400;text-anchor:start;dominant-baseline:auto"/>
+<line x1="248" y1="182" x2="248" y2="208" marker-end="url(#arrow)" stroke="#0F6E56" style="fill:none;stroke:rgb(156, 154, 146);color:rgb(255, 255, 255);stroke-width:1.5px;stroke-linecap:butt;stroke-linejoin:miter;opacity:1;font-family:&quot;Anthropic Sans&quot;, -apple-system, &quot;system-ui&quot;, &quot;Segoe UI&quot;, sans-serif;font-size:16px;font-weight:400;text-anchor:start;dominant-baseline:auto"/>
+<line x1="400" y1="182" x2="400" y2="208" marker-end="url(#arrow)" stroke="#888780" style="fill:none;stroke:rgb(156, 154, 146);color:rgb(255, 255, 255);stroke-width:1.5px;stroke-linecap:butt;stroke-linejoin:miter;opacity:1;font-family:&quot;Anthropic Sans&quot;, -apple-system, &quot;system-ui&quot;, &quot;Segoe UI&quot;, sans-serif;font-size:16px;font-weight:400;text-anchor:start;dominant-baseline:auto"/>
+<line x1="565" y1="182" x2="565" y2="208" marker-end="url(#arrow)" stroke="#888780" style="fill:none;stroke:rgb(156, 154, 146);color:rgb(255, 255, 255);stroke-width:1.5px;stroke-linecap:butt;stroke-linejoin:miter;opacity:1;font-family:&quot;Anthropic Sans&quot;, -apple-system, &quot;system-ui&quot;, &quot;Segoe UI&quot;, sans-serif;font-size:16px;font-weight:400;text-anchor:start;dominant-baseline:auto"/>
+
+<!-- ─── L3: People / Memory ─── -->
+<g onclick="sendPrompt('What is the People layer — biology compressed into behavior?')" style="fill:rgb(0, 0, 0);stroke:none;color:rgb(255, 255, 255);stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;opacity:1;font-family:&quot;Anthropic Sans&quot;, -apple-system, &quot;system-ui&quot;, &quot;Segoe UI&quot;, sans-serif;font-size:16px;font-weight:400;text-anchor:start;dominant-baseline:auto">
+  <rect x="44" y="210" width="104" height="52" rx="8" stroke-width="0.5" style="fill:rgb(12, 68, 124);stroke:rgb(133, 183, 235);color:rgb(255, 255, 255);stroke-width:0.5px;stroke-linecap:butt;stroke-linejoin:miter;opacity:1;font-family:&quot;Anthropic Sans&quot;, -apple-system, &quot;system-ui&quot;, &quot;Segoe UI&quot;, sans-serif;font-size:16px;font-weight:400;text-anchor:start;dominant-baseline:auto"/>
+  <text x="96" y="232" text-anchor="middle" dominant-baseline="central" style="fill:rgb(181, 212, 244);stroke:none;color:rgb(255, 255, 255);stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;opacity:1;font-family:&quot;Anthropic Sans&quot;, -apple-system, &quot;system-ui&quot;, &quot;Segoe UI&quot;, sans-serif;font-size:14px;font-weight:500;text-anchor:middle;dominant-baseline:central">People</text>
+  <text x="96" y="250" text-anchor="middle" dominant-baseline="central" style="fill:rgb(133, 183, 235);stroke:none;color:rgb(255, 255, 255);stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;opacity:1;font-family:&quot;Anthropic Sans&quot;, -apple-system, &quot;system-ui&quot;, &quot;Segoe UI&quot;, sans-serif;font-size:12px;font-weight:400;text-anchor:middle;dominant-baseline:central">Biology → behavior</text>
+</g>
+<g onclick="sendPrompt('How does Memory work in the digital twin — durable compressed weights?')" style="fill:rgb(0, 0, 0);stroke:none;color:rgb(255, 255, 255);stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;opacity:1;font-family:&quot;Anthropic Sans&quot;, -apple-system, &quot;system-ui&quot;, &quot;Segoe UI&quot;, sans-serif;font-size:16px;font-weight:400;text-anchor:start;dominant-baseline:auto">
+  <rect x="196" y="210" width="104" height="52" rx="8" stroke-width="0.5" style="fill:rgb(12, 68, 124);stroke:rgb(133, 183, 235);color:rgb(255, 255, 255);stroke-width:0.5px;stroke-linecap:butt;stroke-linejoin:miter;opacity:1;font-family:&quot;Anthropic Sans&quot;, -apple-system, &quot;system-ui&quot;, &quot;Segoe UI&quot;, sans-serif;font-size:16px;font-weight:400;text-anchor:start;dominant-baseline:auto"/>
+  <text x="248" y="232" text-anchor="middle" dominant-baseline="central" style="fill:rgb(181, 212, 244);stroke:none;color:rgb(255, 255, 255);stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;opacity:1;font-family:&quot;Anthropic Sans&quot;, -apple-system, &quot;system-ui&quot;, &quot;Segoe UI&quot;, sans-serif;font-size:14px;font-weight:500;text-anchor:middle;dominant-baseline:central">Memory</text>
+  <text x="248" y="250" text-anchor="middle" dominant-baseline="central" style="fill:rgb(133, 183, 235);stroke:none;color:rgb(255, 255, 255);stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;opacity:1;font-family:&quot;Anthropic Sans&quot;, -apple-system, &quot;system-ui&quot;, &quot;Segoe UI&quot;, sans-serif;font-size:12px;font-weight:400;text-anchor:middle;dominant-baseline:central">Compressed weights</text>
+</g>
+<g style="fill:rgb(0, 0, 0);stroke:none;color:rgb(255, 255, 255);stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;opacity:1;font-family:&quot;Anthropic Sans&quot;, -apple-system, &quot;system-ui&quot;, &quot;Segoe UI&quot;, sans-serif;font-size:16px;font-weight:400;text-anchor:start;dominant-baseline:auto">
+  <rect x="348" y="210" width="104" height="52" rx="8" stroke-width="0.5" style="fill:rgb(12, 68, 124);stroke:rgb(133, 183, 235);color:rgb(255, 255, 255);stroke-width:0.5px;stroke-linecap:butt;stroke-linejoin:miter;opacity:1;font-family:&quot;Anthropic Sans&quot;, -apple-system, &quot;system-ui&quot;, &quot;Segoe UI&quot;, sans-serif;font-size:16px;font-weight:400;text-anchor:start;dominant-baseline:auto"/>
+  <text x="400" y="228" text-anchor="middle" dominant-baseline="central" style="fill:rgb(181, 212, 244);stroke:none;color:rgb(255, 255, 255);stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;opacity:1;font-family:&quot;Anthropic Sans&quot;, -apple-system, &quot;system-ui&quot;, &quot;Segoe UI&quot;, sans-serif;font-size:14px;font-weight:500;text-anchor:middle;dominant-baseline:central">ε_i (noise)</text>
+  <text x="400" y="246" text-anchor="middle" dominant-baseline="central" style="fill:rgb(133, 183, 235);stroke:none;color:rgb(255, 255, 255);stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;opacity:1;font-family:&quot;Anthropic Sans&quot;, -apple-system, &quot;system-ui&quot;, &quot;Segoe UI&quot;, sans-serif;font-size:12px;font-weight:400;text-anchor:middle;dominant-baseline:central">Stochastic friction</text>
+</g>
+<g onclick="sendPrompt('How does the system avoid overfitting — the role of epsilon in federated learning?')" style="fill:rgb(0, 0, 0);stroke:none;color:rgb(255, 255, 255);stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;opacity:1;font-family:&quot;Anthropic Sans&quot;, -apple-system, &quot;system-ui&quot;, &quot;Segoe UI&quot;, sans-serif;font-size:16px;font-weight:400;text-anchor:start;dominant-baseline:auto">
+  <rect x="500" y="210" width="130" height="52" rx="8" stroke-width="0.5" style="fill:rgb(68, 68, 65);stroke:rgb(180, 178, 169);color:rgb(255, 255, 255);stroke-width:0.5px;stroke-linecap:butt;stroke-linejoin:miter;opacity:1;font-family:&quot;Anthropic Sans&quot;, -apple-system, &quot;system-ui&quot;, &quot;Segoe UI&quot;, sans-serif;font-size:16px;font-weight:400;text-anchor:start;dominant-baseline:auto"/>
+  <text x="565" y="232" text-anchor="middle" dominant-baseline="central" style="fill:rgb(211, 209, 199);stroke:none;color:rgb(255, 255, 255);stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;opacity:1;font-family:&quot;Anthropic Sans&quot;, -apple-system, &quot;system-ui&quot;, &quot;Segoe UI&quot;, sans-serif;font-size:14px;font-weight:500;text-anchor:middle;dominant-baseline:central">Biology → behavior</text>
+  <text x="565" y="250" text-anchor="middle" dominant-baseline="central" style="fill:rgb(180, 178, 169);stroke:none;color:rgb(255, 255, 255);stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;opacity:1;font-family:&quot;Anthropic Sans&quot;, -apple-system, &quot;system-ui&quot;, &quot;Segoe UI&quot;, sans-serif;font-size:12px;font-weight:400;text-anchor:middle;dominant-baseline:central">Durable reserves</text>
+</g>
+
+<!-- arrows L3→L4 -->
+<line x1="96" y1="262" x2="96" y2="288" marker-end="url(#arrow)" stroke="#185FA5" style="fill:none;stroke:rgb(156, 154, 146);color:rgb(255, 255, 255);stroke-width:1.5px;stroke-linecap:butt;stroke-linejoin:miter;opacity:1;font-family:&quot;Anthropic Sans&quot;, -apple-system, &quot;system-ui&quot;, &quot;Segoe UI&quot;, sans-serif;font-size:16px;font-weight:400;text-anchor:start;dominant-baseline:auto"/>
+<line x1="248" y1="262" x2="248" y2="288" marker-end="url(#arrow)" stroke="#185FA5" style="fill:none;stroke:rgb(156, 154, 146);color:rgb(255, 255, 255);stroke-width:1.5px;stroke-linecap:butt;stroke-linejoin:miter;opacity:1;font-family:&quot;Anthropic Sans&quot;, -apple-system, &quot;system-ui&quot;, &quot;Segoe UI&quot;, sans-serif;font-size:16px;font-weight:400;text-anchor:start;dominant-baseline:auto"/>
+<line x1="400" y1="262" x2="400" y2="288" marker-end="url(#arrow)" stroke="#888780" style="fill:none;stroke:rgb(156, 154, 146);color:rgb(255, 255, 255);stroke-width:1.5px;stroke-linecap:butt;stroke-linejoin:miter;opacity:1;font-family:&quot;Anthropic Sans&quot;, -apple-system, &quot;system-ui&quot;, &quot;Segoe UI&quot;, sans-serif;font-size:16px;font-weight:400;text-anchor:start;dominant-baseline:auto"/>
+<line x1="565" y1="262" x2="565" y2="288" marker-end="url(#arrow)" stroke="#888780" style="fill:none;stroke:rgb(156, 154, 146);color:rgb(255, 255, 255);stroke-width:1.5px;stroke-linecap:butt;stroke-linejoin:miter;opacity:1;font-family:&quot;Anthropic Sans&quot;, -apple-system, &quot;system-ui&quot;, &quot;Segoe UI&quot;, sans-serif;font-size:16px;font-weight:400;text-anchor:start;dominant-baseline:auto"/>
+
+<!-- ─── L4: Services / Intelligence ─── -->
+<g onclick="sendPrompt('What does the Services layer represent — behavior compressed into protocol?')" style="fill:rgb(0, 0, 0);stroke:none;color:rgb(255, 255, 255);stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;opacity:1;font-family:&quot;Anthropic Sans&quot;, -apple-system, &quot;system-ui&quot;, &quot;Segoe UI&quot;, sans-serif;font-size:16px;font-weight:400;text-anchor:start;dominant-baseline:auto">
+  <rect x="44" y="290" width="104" height="52" rx="8" stroke-width="0.5" style="fill:rgb(60, 52, 137);stroke:rgb(175, 169, 236);color:rgb(255, 255, 255);stroke-width:0.5px;stroke-linecap:butt;stroke-linejoin:miter;opacity:1;font-family:&quot;Anthropic Sans&quot;, -apple-system, &quot;system-ui&quot;, &quot;Segoe UI&quot;, sans-serif;font-size:16px;font-weight:400;text-anchor:start;dominant-baseline:auto"/>
+  <text x="96" y="312" text-anchor="middle" dominant-baseline="central" style="fill:rgb(206, 203, 246);stroke:none;color:rgb(255, 255, 255);stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;opacity:1;font-family:&quot;Anthropic Sans&quot;, -apple-system, &quot;system-ui&quot;, &quot;Segoe UI&quot;, sans-serif;font-size:14px;font-weight:500;text-anchor:middle;dominant-baseline:central">Services</text>
+  <text x="96" y="330" text-anchor="middle" dominant-baseline="central" style="fill:rgb(175, 169, 236);stroke:none;color:rgb(255, 255, 255);stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;opacity:1;font-family:&quot;Anthropic Sans&quot;, -apple-system, &quot;system-ui&quot;, &quot;Segoe UI&quot;, sans-serif;font-size:12px;font-weight:400;text-anchor:middle;dominant-baseline:central">Behavior → protocol</text>
+</g>
+<g onclick="sendPrompt('How does Intelligence act as the UI/UX layer of the digital twin?')" style="fill:rgb(0, 0, 0);stroke:none;color:rgb(255, 255, 255);stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;opacity:1;font-family:&quot;Anthropic Sans&quot;, -apple-system, &quot;system-ui&quot;, &quot;Segoe UI&quot;, sans-serif;font-size:16px;font-weight:400;text-anchor:start;dominant-baseline:auto">
+  <rect x="196" y="290" width="104" height="52" rx="8" stroke-width="0.5" style="fill:rgb(60, 52, 137);stroke:rgb(175, 169, 236);color:rgb(255, 255, 255);stroke-width:0.5px;stroke-linecap:butt;stroke-linejoin:miter;opacity:1;font-family:&quot;Anthropic Sans&quot;, -apple-system, &quot;system-ui&quot;, &quot;Segoe UI&quot;, sans-serif;font-size:16px;font-weight:400;text-anchor:start;dominant-baseline:auto"/>
+  <text x="248" y="312" text-anchor="middle" dominant-baseline="central" style="fill:rgb(206, 203, 246);stroke:none;color:rgb(255, 255, 255);stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;opacity:1;font-family:&quot;Anthropic Sans&quot;, -apple-system, &quot;system-ui&quot;, &quot;Segoe UI&quot;, sans-serif;font-size:14px;font-weight:500;text-anchor:middle;dominant-baseline:central">Intelligence</text>
+  <text x="248" y="330" text-anchor="middle" dominant-baseline="central" style="fill:rgb(175, 169, 236);stroke:none;color:rgb(255, 255, 255);stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;opacity:1;font-family:&quot;Anthropic Sans&quot;, -apple-system, &quot;system-ui&quot;, &quot;Segoe UI&quot;, sans-serif;font-size:12px;font-weight:400;text-anchor:middle;dominant-baseline:central">Policy gradient</text>
+</g>
+<g style="fill:rgb(0, 0, 0);stroke:none;color:rgb(255, 255, 255);stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;opacity:1;font-family:&quot;Anthropic Sans&quot;, -apple-system, &quot;system-ui&quot;, &quot;Segoe UI&quot;, sans-serif;font-size:16px;font-weight:400;text-anchor:start;dominant-baseline:auto">
+  <rect x="348" y="290" width="104" height="52" rx="8" stroke-width="0.5" style="fill:rgb(60, 52, 137);stroke:rgb(175, 169, 236);color:rgb(255, 255, 255);stroke-width:0.5px;stroke-linecap:butt;stroke-linejoin:miter;opacity:1;font-family:&quot;Anthropic Sans&quot;, -apple-system, &quot;system-ui&quot;, &quot;Segoe UI&quot;, sans-serif;font-size:16px;font-weight:400;text-anchor:start;dominant-baseline:auto"/>
+  <text x="400" y="308" text-anchor="middle" dominant-baseline="central" style="fill:rgb(206, 203, 246);stroke:none;color:rgb(255, 255, 255);stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;opacity:1;font-family:&quot;Anthropic Sans&quot;, -apple-system, &quot;system-ui&quot;, &quot;Segoe UI&quot;, sans-serif;font-size:14px;font-weight:500;text-anchor:middle;dominant-baseline:central">β_i (gain)</text>
+  <text x="400" y="326" text-anchor="middle" dominant-baseline="central" style="fill:rgb(175, 169, 236);stroke:none;color:rgb(255, 255, 255);stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;opacity:1;font-family:&quot;Anthropic Sans&quot;, -apple-system, &quot;system-ui&quot;, &quot;Segoe UI&quot;, sans-serif;font-size:12px;font-weight:400;text-anchor:middle;dominant-baseline:central">Softmax temperature</text>
+</g>
+<g onclick="sendPrompt('What does dynamic routing mean in a federated digital twin?')" style="fill:rgb(0, 0, 0);stroke:none;color:rgb(255, 255, 255);stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;opacity:1;font-family:&quot;Anthropic Sans&quot;, -apple-system, &quot;system-ui&quot;, &quot;Segoe UI&quot;, sans-serif;font-size:16px;font-weight:400;text-anchor:start;dominant-baseline:auto">
+  <rect x="500" y="290" width="130" height="52" rx="8" stroke-width="0.5" style="fill:rgb(68, 68, 65);stroke:rgb(180, 178, 169);color:rgb(255, 255, 255);stroke-width:0.5px;stroke-linecap:butt;stroke-linejoin:miter;opacity:1;font-family:&quot;Anthropic Sans&quot;, -apple-system, &quot;system-ui&quot;, &quot;Segoe UI&quot;, sans-serif;font-size:16px;font-weight:400;text-anchor:start;dominant-baseline:auto"/>
+  <text x="565" y="312" text-anchor="middle" dominant-baseline="central" style="fill:rgb(211, 209, 199);stroke:none;color:rgb(255, 255, 255);stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;opacity:1;font-family:&quot;Anthropic Sans&quot;, -apple-system, &quot;system-ui&quot;, &quot;Segoe UI&quot;, sans-serif;font-size:14px;font-weight:500;text-anchor:middle;dominant-baseline:central">Behavior → protocol</text>
+  <text x="565" y="330" text-anchor="middle" dominant-baseline="central" style="fill:rgb(180, 178, 169);stroke:none;color:rgb(255, 255, 255);stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;opacity:1;font-family:&quot;Anthropic Sans&quot;, -apple-system, &quot;system-ui&quot;, &quot;Segoe UI&quot;, sans-serif;font-size:12px;font-weight:400;text-anchor:middle;dominant-baseline:central">Dynamic routing</text>
+</g>
+
+<!-- arrows L4→L5 -->
+<line x1="96" y1="342" x2="96" y2="368" marker-end="url(#arrow)" stroke="#534AB7" style="fill:none;stroke:rgb(156, 154, 146);color:rgb(255, 255, 255);stroke-width:1.5px;stroke-linecap:butt;stroke-linejoin:miter;opacity:1;font-family:&quot;Anthropic Sans&quot;, -apple-system, &quot;system-ui&quot;, &quot;Segoe UI&quot;, sans-serif;font-size:16px;font-weight:400;text-anchor:start;dominant-baseline:auto"/>
+<line x1="248" y1="342" x2="248" y2="368" marker-end="url(#arrow)" stroke="#534AB7" style="fill:none;stroke:rgb(156, 154, 146);color:rgb(255, 255, 255);stroke-width:1.5px;stroke-linecap:butt;stroke-linejoin:miter;opacity:1;font-family:&quot;Anthropic Sans&quot;, -apple-system, &quot;system-ui&quot;, &quot;Segoe UI&quot;, sans-serif;font-size:16px;font-weight:400;text-anchor:start;dominant-baseline:auto"/>
+<line x1="400" y1="342" x2="400" y2="368" marker-end="url(#arrow)" stroke="#888780" style="fill:none;stroke:rgb(156, 154, 146);color:rgb(255, 255, 255);stroke-width:1.5px;stroke-linecap:butt;stroke-linejoin:miter;opacity:1;font-family:&quot;Anthropic Sans&quot;, -apple-system, &quot;system-ui&quot;, &quot;Segoe UI&quot;, sans-serif;font-size:16px;font-weight:400;text-anchor:start;dominant-baseline:auto"/>
+<line x1="565" y1="342" x2="565" y2="368" marker-end="url(#arrow)" stroke="#888780" style="fill:none;stroke:rgb(156, 154, 146);color:rgb(255, 255, 255);stroke-width:1.5px;stroke-linecap:butt;stroke-linejoin:miter;opacity:1;font-family:&quot;Anthropic Sans&quot;, -apple-system, &quot;system-ui&quot;, &quot;Segoe UI&quot;, sans-serif;font-size:16px;font-weight:400;text-anchor:start;dominant-baseline:auto"/>
+
+<!-- ─── L5: Information / Deployment ─── -->
+<g onclick="sendPrompt('What does the Information / Deployment layer mean — capital operating at the speed of light?')" style="fill:rgb(0, 0, 0);stroke:none;color:rgb(255, 255, 255);stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;opacity:1;font-family:&quot;Anthropic Sans&quot;, -apple-system, &quot;system-ui&quot;, &quot;Segoe UI&quot;, sans-serif;font-size:16px;font-weight:400;text-anchor:start;dominant-baseline:auto">
+  <rect x="44" y="370" width="104" height="52" rx="8" stroke-width="0.5" style="fill:rgb(113, 43, 19);stroke:rgb(240, 153, 123);color:rgb(255, 255, 255);stroke-width:0.5px;stroke-linecap:butt;stroke-linejoin:miter;opacity:1;font-family:&quot;Anthropic Sans&quot;, -apple-system, &quot;system-ui&quot;, &quot;Segoe UI&quot;, sans-serif;font-size:16px;font-weight:400;text-anchor:start;dominant-baseline:auto"/>
+  <text x="96" y="392" text-anchor="middle" dominant-baseline="central" style="fill:rgb(245, 196, 179);stroke:none;color:rgb(255, 255, 255);stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;opacity:1;font-family:&quot;Anthropic Sans&quot;, -apple-system, &quot;system-ui&quot;, &quot;Segoe UI&quot;, sans-serif;font-size:14px;font-weight:500;text-anchor:middle;dominant-baseline:central">Information</text>
+  <text x="96" y="410" text-anchor="middle" dominant-baseline="central" style="fill:rgb(240, 153, 123);stroke:none;color:rgb(255, 255, 255);stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;opacity:1;font-family:&quot;Anthropic Sans&quot;, -apple-system, &quot;system-ui&quot;, &quot;Segoe UI&quot;, sans-serif;font-size:12px;font-weight:400;text-anchor:middle;dominant-baseline:central">Protocol → state</text>
+</g>
+<g onclick="sendPrompt('How does Deployment work as the zero-friction execution layer?')" style="fill:rgb(0, 0, 0);stroke:none;color:rgb(255, 255, 255);stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;opacity:1;font-family:&quot;Anthropic Sans&quot;, -apple-system, &quot;system-ui&quot;, &quot;Segoe UI&quot;, sans-serif;font-size:16px;font-weight:400;text-anchor:start;dominant-baseline:auto">
+  <rect x="196" y="370" width="104" height="52" rx="8" stroke-width="0.5" style="fill:rgb(113, 43, 19);stroke:rgb(240, 153, 123);color:rgb(255, 255, 255);stroke-width:0.5px;stroke-linecap:butt;stroke-linejoin:miter;opacity:1;font-family:&quot;Anthropic Sans&quot;, -apple-system, &quot;system-ui&quot;, &quot;Segoe UI&quot;, sans-serif;font-size:16px;font-weight:400;text-anchor:start;dominant-baseline:auto"/>
+  <text x="248" y="392" text-anchor="middle" dominant-baseline="central" style="fill:rgb(245, 196, 179);stroke:none;color:rgb(255, 255, 255);stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;opacity:1;font-family:&quot;Anthropic Sans&quot;, -apple-system, &quot;system-ui&quot;, &quot;Segoe UI&quot;, sans-serif;font-size:14px;font-weight:500;text-anchor:middle;dominant-baseline:central">Deployment</text>
+  <text x="248" y="410" text-anchor="middle" dominant-baseline="central" style="fill:rgb(240, 153, 123);stroke:none;color:rgb(255, 255, 255);stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;opacity:1;font-family:&quot;Anthropic Sans&quot;, -apple-system, &quot;system-ui&quot;, &quot;Segoe UI&quot;, sans-serif;font-size:12px;font-weight:400;text-anchor:middle;dominant-baseline:central">Zero-friction exec</text>
+</g>
+<g style="fill:rgb(0, 0, 0);stroke:none;color:rgb(255, 255, 255);stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;opacity:1;font-family:&quot;Anthropic Sans&quot;, -apple-system, &quot;system-ui&quot;, &quot;Segoe UI&quot;, sans-serif;font-size:16px;font-weight:400;text-anchor:start;dominant-baseline:auto">
+  <rect x="348" y="370" width="104" height="52" rx="8" stroke-width="0.5" style="fill:rgb(113, 43, 19);stroke:rgb(240, 153, 123);color:rgb(255, 255, 255);stroke-width:0.5px;stroke-linecap:butt;stroke-linejoin:miter;opacity:1;font-family:&quot;Anthropic Sans&quot;, -apple-system, &quot;system-ui&quot;, &quot;Segoe UI&quot;, sans-serif;font-size:16px;font-weight:400;text-anchor:start;dominant-baseline:auto"/>
+  <text x="400" y="388" text-anchor="middle" dominant-baseline="central" style="fill:rgb(245, 196, 179);stroke:none;color:rgb(255, 255, 255);stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;opacity:1;font-family:&quot;Anthropic Sans&quot;, -apple-system, &quot;system-ui&quot;, &quot;Segoe UI&quot;, sans-serif;font-size:14px;font-weight:500;text-anchor:middle;dominant-baseline:central">p = E/c</text>
+  <text x="400" y="406" text-anchor="middle" dominant-baseline="central" style="fill:rgb(240, 153, 123);stroke:none;color:rgb(255, 255, 255);stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;opacity:1;font-family:&quot;Anthropic Sans&quot;, -apple-system, &quot;system-ui&quot;, &quot;Segoe UI&quot;, sans-serif;font-size:12px;font-weight:400;text-anchor:middle;dominant-baseline:central">Massless, v → c</text>
+</g>
+<g onclick="sendPrompt('What is a digital twin in this framework — capital as pure actionable intelligence?')" style="fill:rgb(0, 0, 0);stroke:none;color:rgb(255, 255, 255);stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;opacity:1;font-family:&quot;Anthropic Sans&quot;, -apple-system, &quot;system-ui&quot;, &quot;Segoe UI&quot;, sans-serif;font-size:16px;font-weight:400;text-anchor:start;dominant-baseline:auto">
+  <rect x="500" y="370" width="130" height="52" rx="8" stroke-width="0.5" style="fill:rgb(68, 68, 65);stroke:rgb(180, 178, 169);color:rgb(255, 255, 255);stroke-width:0.5px;stroke-linecap:butt;stroke-linejoin:miter;opacity:1;font-family:&quot;Anthropic Sans&quot;, -apple-system, &quot;system-ui&quot;, &quot;Segoe UI&quot;, sans-serif;font-size:16px;font-weight:400;text-anchor:start;dominant-baseline:auto"/>
+  <text x="565" y="392" text-anchor="middle" dominant-baseline="central" style="fill:rgb(211, 209, 199);stroke:none;color:rgb(255, 255, 255);stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;opacity:1;font-family:&quot;Anthropic Sans&quot;, -apple-system, &quot;system-ui&quot;, &quot;Segoe UI&quot;, sans-serif;font-size:14px;font-weight:500;text-anchor:middle;dominant-baseline:central">Digital twin</text>
+  <text x="565" y="410" text-anchor="middle" dominant-baseline="central" style="fill:rgb(180, 178, 169);stroke:none;color:rgb(255, 255, 255);stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;opacity:1;font-family:&quot;Anthropic Sans&quot;, -apple-system, &quot;system-ui&quot;, &quot;Segoe UI&quot;, sans-serif;font-size:12px;font-weight:400;text-anchor:middle;dominant-baseline:central">State at c</text>
+</g>
+
+<!-- Divider before feedback section -->
+<line x1="40" y1="442" x2="640" y2="442" stroke="var(--color-border-tertiary)" stroke-width="0.5" stroke-dasharray="4 4" style="fill:rgb(0, 0, 0);stroke:rgba(222, 220, 209, 0.15);color:rgb(255, 255, 255);stroke-width:0.5px;stroke-dasharray:4px, 4px;stroke-linecap:butt;stroke-linejoin:miter;opacity:1;font-family:&quot;Anthropic Sans&quot;, -apple-system, &quot;system-ui&quot;, &quot;Segoe UI&quot;, sans-serif;font-size:16px;font-weight:400;text-anchor:start;dominant-baseline:auto"/>
+
+<!-- Feedback loop label -->
+<text x="340" y="462" text-anchor="middle" fill="var(--color-text-secondary)" style="fill:rgb(194, 192, 182);stroke:none;color:rgb(255, 255, 255);stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;opacity:1;font-family:&quot;Anthropic Sans&quot;, -apple-system, &quot;system-ui&quot;, &quot;Segoe UI&quot;, sans-serif;font-size:12px;font-weight:400;text-anchor:middle;dominant-baseline:auto">Closed-loop feedback — deployment reshapes the landscape</text>
+
+<!-- Feedback arrow: right side, curving back up -->
+<path d="M630 396 L650 396 L650 76 L634 76" fill="none" stroke="#D85A30" stroke-width="1.2" marker-end="url(#arrow)" stroke-dasharray="5 3" mask="url(#imagine-text-gaps-y4d7li)" style="fill:none;stroke:rgb(216, 90, 48);color:rgb(255, 255, 255);stroke-width:1.2px;stroke-dasharray:5px, 3px;stroke-linecap:butt;stroke-linejoin:miter;opacity:1;font-family:&quot;Anthropic Sans&quot;, -apple-system, &quot;system-ui&quot;, &quot;Segoe UI&quot;, sans-serif;font-size:16px;font-weight:400;text-anchor:start;dominant-baseline:auto"/>
+<text x="658" y="240" text-anchor="middle" fill="#D85A30" transform="rotate(90,658,240)" style="fill:rgb(194, 192, 182);stroke:none;color:rgb(255, 255, 255);stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;opacity:1;font-family:&quot;Anthropic Sans&quot;, -apple-system, &quot;system-ui&quot;, &quot;Segoe UI&quot;, sans-serif;font-size:12px;font-weight:400;text-anchor:middle;dominant-baseline:auto">feedback → sensing</text>
+
+<!-- Physics ledger equation box -->
+<g onclick="sendPrompt('Explain the physics ledger equation — value density times transmission speed over energy per bit times error rate')" style="fill:rgb(0, 0, 0);stroke:none;color:rgb(255, 255, 255);stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;opacity:1;font-family:&quot;Anthropic Sans&quot;, -apple-system, &quot;system-ui&quot;, &quot;Segoe UI&quot;, sans-serif;font-size:16px;font-weight:400;text-anchor:start;dominant-baseline:auto">
+  <rect x="44" y="480" width="592" height="64" rx="10" stroke-width="0.5" style="fill:rgb(68, 68, 65);stroke:rgb(180, 178, 169);color:rgb(255, 255, 255);stroke-width:0.5px;stroke-linecap:butt;stroke-linejoin:miter;opacity:1;font-family:&quot;Anthropic Sans&quot;, -apple-system, &quot;system-ui&quot;, &quot;Segoe UI&quot;, sans-serif;font-size:16px;font-weight:400;text-anchor:start;dominant-baseline:auto"/>
+  <text x="340" y="504" text-anchor="middle" dominant-baseline="central" style="fill:rgb(211, 209, 199);stroke:none;color:rgb(255, 255, 255);stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;opacity:1;font-family:&quot;Anthropic Sans&quot;, -apple-system, &quot;system-ui&quot;, &quot;Segoe UI&quot;, sans-serif;font-size:14px;font-weight:500;text-anchor:middle;dominant-baseline:central">Physics ledger</text>
+  <text x="340" y="526" text-anchor="middle" dominant-baseline="central" style="fill:rgb(180, 178, 169);stroke:none;color:rgb(255, 255, 255);stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;opacity:1;font-family:&quot;Anthropic Sans&quot;, -apple-system, &quot;system-ui&quot;, &quot;Segoe UI&quot;, sans-serif;font-size:12px;font-weight:400;text-anchor:middle;dominant-baseline:central">Effective throughput = (Value density × Speed) / (Energy per bit × Error rate ε_i)</text>
+</g>
+
+<!-- Landauer floor note -->
+<g onclick="sendPrompt('Explain the Landauer limit — why information is not free, E ≥ kT ln 2')" style="fill:rgb(0, 0, 0);stroke:none;color:rgb(255, 255, 255);stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;opacity:1;font-family:&quot;Anthropic Sans&quot;, -apple-system, &quot;system-ui&quot;, &quot;Segoe UI&quot;, sans-serif;font-size:16px;font-weight:400;text-anchor:start;dominant-baseline:auto">
+  <rect x="44" y="560" width="280" height="44" rx="8" stroke-width="0.5" style="fill:rgb(68, 68, 65);stroke:rgb(180, 178, 169);color:rgb(255, 255, 255);stroke-width:0.5px;stroke-linecap:butt;stroke-linejoin:miter;opacity:1;font-family:&quot;Anthropic Sans&quot;, -apple-system, &quot;system-ui&quot;, &quot;Segoe UI&quot;, sans-serif;font-size:16px;font-weight:400;text-anchor:start;dominant-baseline:auto"/>
+  <text x="184" y="578" text-anchor="middle" dominant-baseline="central" style="fill:rgb(211, 209, 199);stroke:none;color:rgb(255, 255, 255);stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;opacity:1;font-family:&quot;Anthropic Sans&quot;, -apple-system, &quot;system-ui&quot;, &quot;Segoe UI&quot;, sans-serif;font-size:14px;font-weight:500;text-anchor:middle;dominant-baseline:central">Landauer floor: E ≥ kT ln 2</text>
+  <text x="184" y="596" text-anchor="middle" dominant-baseline="central" style="fill:rgb(180, 178, 169);stroke:none;color:rgb(255, 255, 255);stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;opacity:1;font-family:&quot;Anthropic Sans&quot;, -apple-system, &quot;system-ui&quot;, &quot;Segoe UI&quot;, sans-serif;font-size:12px;font-weight:400;text-anchor:middle;dominant-baseline:central">Cost → 0, not cost = 0</text>
+</g>
+
+<!-- Trophic compression note -->
+<g onclick="sendPrompt('Explain trophic compression — grass to cow to milk to ghee, and how it maps to SGD')" style="fill:rgb(0, 0, 0);stroke:none;color:rgb(255, 255, 255);stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;opacity:1;font-family:&quot;Anthropic Sans&quot;, -apple-system, &quot;system-ui&quot;, &quot;Segoe UI&quot;, sans-serif;font-size:16px;font-weight:400;text-anchor:start;dominant-baseline:auto">
+  <rect x="356" y="560" width="280" height="44" rx="8" stroke-width="0.5" style="fill:rgb(8, 80, 65);stroke:rgb(93, 202, 165);color:rgb(255, 255, 255);stroke-width:0.5px;stroke-linecap:butt;stroke-linejoin:miter;opacity:1;font-family:&quot;Anthropic Sans&quot;, -apple-system, &quot;system-ui&quot;, &quot;Segoe UI&quot;, sans-serif;font-size:16px;font-weight:400;text-anchor:start;dominant-baseline:auto"/>
+  <text x="496" y="578" text-anchor="middle" dominant-baseline="central" style="fill:rgb(159, 225, 203);stroke:none;color:rgb(255, 255, 255);stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;opacity:1;font-family:&quot;Anthropic Sans&quot;, -apple-system, &quot;system-ui&quot;, &quot;Segoe UI&quot;, sans-serif;font-size:14px;font-weight:500;text-anchor:middle;dominant-baseline:central">Trophic compression</text>
+  <text x="496" y="596" text-anchor="middle" dominant-baseline="central" style="fill:rgb(93, 202, 165);stroke:none;color:rgb(255, 255, 255);stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;opacity:1;font-family:&quot;Anthropic Sans&quot;, -apple-system, &quot;system-ui&quot;, &quot;Segoe UI&quot;, sans-serif;font-size:12px;font-weight:400;text-anchor:middle;dominant-baseline:central">Grass → ghee, data → policy</text>
+</g>
+
+<!-- Three constraint labels -->
+<text x="340" y="636" text-anchor="middle" fill="var(--color-text-secondary)" style="fill:rgb(194, 192, 182);stroke:none;color:rgb(255, 255, 255);stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;opacity:1;font-family:&quot;Anthropic Sans&quot;, -apple-system, &quot;system-ui&quot;, &quot;Segoe UI&quot;, sans-serif;font-size:12px;font-weight:400;text-anchor:middle;dominant-baseline:auto">Gradient shaped by: thermodynamics · information theory · institutions · computation</text>
+
+<!-- Core thesis -->
+<rect x="44" y="650" width="592" height="44" rx="10" fill="none" stroke="var(--color-border-secondary)" stroke-width="0.5" stroke-dasharray="3 3" style="fill:none;stroke:rgba(222, 220, 209, 0.3);color:rgb(255, 255, 255);stroke-width:0.5px;stroke-dasharray:3px, 3px;stroke-linecap:butt;stroke-linejoin:miter;opacity:1;font-family:&quot;Anthropic Sans&quot;, -apple-system, &quot;system-ui&quot;, &quot;Segoe UI&quot;, sans-serif;font-size:16px;font-weight:400;text-anchor:start;dominant-baseline:auto"/>
+<text x="340" y="668" text-anchor="middle" dominant-baseline="central" style="fill:rgb(250, 249, 245);stroke:none;color:rgb(255, 255, 255);stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;opacity:1;font-family:&quot;Anthropic Sans&quot;, -apple-system, &quot;system-ui&quot;, &quot;Segoe UI&quot;, sans-serif;font-size:14px;font-weight:500;text-anchor:middle;dominant-baseline:central">"The pentad is a gradient toward computability"</text>
+<text x="340" y="686" text-anchor="middle" dominant-baseline="central" style="fill:rgb(194, 192, 182);stroke:none;color:rgb(255, 255, 255);stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;opacity:1;font-family:&quot;Anthropic Sans&quot;, -apple-system, &quot;system-ui&quot;, &quot;Segoe UI&quot;, sans-serif;font-size:12px;font-weight:400;text-anchor:middle;dominant-baseline:central">Physical world distilled into math — L_total → 0</text>
+
+</svg>  </div>
+</div>
+
+<div class="card">
+  <h2>Physics ledger — effective throughput</h2>
+
+  <div class="eq-row">
+    T = <span class="eq-highlight"> V × S </span> / <span class="eq-highlight"> E × ε </span>
+    &nbsp;&nbsp;→&nbsp;&nbsp;
+    <span id="eq-live" class="eq-highlight">—</span>
+  </div>
+
+  <div class="grid2">
+    <div>
+      <div class="section-head">Numerator — what you gain</div>
+      <div class="var-row">
+        <span class="var-symbol">V</span>
+        <span class="var-label">Value density</span>
+        <div class="bar-track"><div class="bar-fill" id="bar-V" style="width:50%"></div></div>
+        <input type="range" min="1" max="100" value="50" id="sl-V" oninput="update()">
+        <span class="var-val" id="out-V">50</span>
+      </div>
+      <div class="var-row">
+        <span class="var-symbol">S</span>
+        <span class="var-label">Transmission speed</span>
+        <div class="bar-track"><div class="bar-fill" id="bar-S" style="width:50%"></div></div>
+        <input type="range" min="1" max="100" value="50" id="sl-S" oninput="update()">
+        <span class="var-val" id="out-S">50</span>
+      </div>
+    </div>
+    <div>
+      <div class="section-head">Denominator — what you pay</div>
+      <div class="var-row">
+        <span class="var-symbol">E</span>
+        <span class="var-label">Energy per bit</span>
+        <div class="bar-track"><div class="bar-fill denom" id="bar-E" style="width:50%"></div></div>
+        <input type="range" min="1" max="100" value="50" id="sl-E" oninput="update()">
+        <span class="var-val" id="out-E">50</span>
+      </div>
+      <div class="var-row">
+        <span class="var-symbol">ε</span>
+        <span class="var-label">Error rate (noise)</span>
+        <div class="bar-track"><div class="bar-fill denom" id="bar-eps" style="width:50%"></div></div>
+        <input type="range" min="1" max="100" value="50" id="sl-eps" oninput="update()">
+        <span class="var-val" id="out-eps">50</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="bottom-row">
+    <div>
+      <div class="score-label">Effective throughput T</div>
+      <div class="score-num" id="score">1.00</div>
+    </div>
+    <div style="flex:1">
+      <div class="score-label" style="margin-bottom:6px">Pentad layer</div>
+      <div style="display:flex;flex-wrap:wrap;gap:6px">
+        <span class="layer-pill" data-layer="0">Capital</span>
+        <span class="layer-pill" data-layer="1">Goods</span>
+        <span class="layer-pill" data-layer="2">People</span>
+        <span class="layer-pill" data-layer="3">Services</span>
+        <span class="layer-pill" data-layer="4">Information</span>
+      </div>
+    </div>
+    <button onclick="loadPreset(currentPreset)">Next layer ↗</button>
+  </div>
+
+  <div class="insight-box" id="insight">Adjust the sliders, or step through the pentad layers to see how each one scores against a traditional dollar-denominated ledger.</div>
+</div>
+
+<script>
+const presets = [
+  { V:10, S:5,  E:90, eps:30, note:'Heavy physical goods. High value density but near-zero transmission speed — a ship moves at 20 knots. Cost in kWh/tonne is enormous. T is small.' },
+  { V:35, S:25, E:70, eps:40, note:'Manufactured goods. Value density rises as raw material becomes product. Speed increases slightly (rail, air freight). Energy cost stays high. T improves modestly.' },
+  { V:55, S:40, E:50, eps:70, note:'Human services. High value density — a surgeon\'s hour is worth far more per kg than steel. But error rate ε spikes: humans are stochastic, fatigued, inconsistent. T is limited by noise.' },
+  { V:75, S:65, E:30, eps:35, note:'Codified protocols — software, logistics, finance. Behavior compressed into replicable process. Speed jumps, energy drops. Error rate falls as variance is engineered out.' },
+  { V:95, S:98, E:5,  eps:8,  note:'Pure information. Value density is maximum (a 1MB AI weight encodes civilisational knowledge). Speed approaches c. Energy per bit hits the Landauer floor. T is enormous.' },
+];
+let currentPreset = 0;
+
+function loadPreset(i) {
+  currentPreset = (i + 1) % presets.length;
+  const p = presets[currentPreset];
+  document.getElementById('sl-V').value = p.V;
+  document.getElementById('sl-S').value = p.S;
+  document.getElementById('sl-E').value = p.E;
+  document.getElementById('sl-eps').value = p.eps;
+  update();
+}
+
+function update() {
+  const V = +document.getElementById('sl-V').value;
+  const S = +document.getElementById('sl-S').value;
+  const E = +document.getElementById('sl-E').value;
+  const eps = +document.getElementById('sl-eps').value;
+  ['V','S','E','eps'].forEach(id => {
+    const val = +document.getElementById('sl-'+id).value;
+    document.getElementById('out-'+id).textContent = val;
+    document.getElementById('bar-'+id).style.width = val + '%';
+  });
+  const T = (V * S) / (E * eps);
+  document.getElementById('score').textContent = T.toFixed(2);
+  document.getElementById('eq-live').textContent =
+    '(' + V + ' × ' + S + ') / (' + E + ' × ' + eps + ') = ' + T.toFixed(2);
+  let best = -1, bestDist = Infinity;
+  presets.forEach((p, i) => {
+    const d = Math.abs(p.V-V)+Math.abs(p.S-S)+Math.abs(p.E-E)+Math.abs(p.eps-eps);
+    if (d < bestDist) { bestDist = d; best = i; }
+  });
+  document.querySelectorAll('.layer-pill').forEach((el,i) => {
+    el.classList.toggle('active', i === best && bestDist < 60);
+  });
+  document.getElementById('insight').textContent = bestDist < 60
+    ? presets[best].note
+    : (T > 20 ? 'High throughput: value is moving fast and cheaply. This profile resembles an information-layer economy.'
+             : T > 4  ? 'Moderate throughput: either speed or value density is constrained, or noise is eating into efficiency.'
+                      : 'Low throughput: high energy cost or high error rate is collapsing what the physical payload should deliver.');
+}
+update();
+</script>
+</body>
+</html>

@@ -1,0 +1,735 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ukubona · Ghost Catalogue · Blame It on the Alcohol</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=IBM+Plex+Mono:wght@300;400;500&family=Source+Serif+4:ital,opsz,wght@0,8..60,300;0,8..60,400;0,8..60,600;1,8..60,300;1,8..60,400&display=swap" rel="stylesheet">
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+
+:root {
+  --ink: #1c1812;
+  --paper: #f4ede0;
+  --paper2: #ede4d2;
+  --paper3: #e6dbc8;
+  --rule: #c4b89a;
+  --rule-light: #d8ceb8;
+  --muted: #8a7a62;
+  --ghost-red: #b83230;
+  --salience-green: #2a6e44;
+  --basin-blue: #1f4e7a;
+  --phrygian: #5c2880;
+  --ionian: #8b6914;
+  --aeolian: #1a5c3a;
+  --accent: #7a3a12;
+  --warning-bg: #fdf6e0;
+  --correction-bg: #eef6f0;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--paper);
+  color: var(--ink);
+  font-family: 'Source Serif 4', Georgia, serif;
+  font-size: 17px;
+  line-height: 1.8;
+}
+
+/* ─── GRAIN ─── */
+body::after {
+  content: '';
+  position: fixed; inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E");
+  pointer-events: none; z-index: 9999; opacity: 0.7;
+}
+
+/* ─── LAYOUT ─── */
+.page { max-width: 900px; margin: 0 auto; padding: 0 2rem 6rem; }
+
+/* ─── MASTHEAD ─── */
+.masthead {
+  border-top: 4px double var(--ink);
+  padding: 3rem 0 2rem;
+  margin-bottom: 0;
+  position: relative;
+}
+.masthead-eyebrow {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.65rem;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 1.25rem;
+}
+.masthead h1 {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(2.2rem, 6vw, 4rem);
+  font-weight: 900;
+  line-height: 1.05;
+  letter-spacing: -0.025em;
+}
+.masthead h1 .ghost-word { color: var(--ghost-red); font-style: italic; }
+.masthead h1 .thin { font-weight: 400; }
+.masthead-deck {
+  margin-top: 1rem;
+  font-size: 1rem;
+  color: var(--muted);
+  font-style: italic;
+  max-width: 600px;
+  line-height: 1.6;
+}
+.masthead-meta {
+  margin-top: 1.25rem;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.7rem;
+  color: var(--muted);
+  letter-spacing: 0.08em;
+  display: flex; gap: 2rem; flex-wrap: wrap;
+}
+.masthead-rule {
+  height: 1px; background: var(--ink);
+  margin: 2rem 0 0;
+}
+.masthead-rule-thin {
+  height: 1px; background: var(--rule);
+  margin: 4px 0 0;
+}
+
+/* ─── PENTAD BAR ─── */
+.pentad-bar {
+  display: flex; align-items: stretch;
+  border: 1px solid var(--rule);
+  overflow: hidden;
+  margin: 2rem 0;
+  font-family: 'IBM Plex Mono', monospace;
+}
+.pn {
+  flex: 1; text-align: center;
+  padding: 0.75rem 0.4rem;
+  border-right: 1px solid var(--rule);
+  background: var(--paper2);
+  transition: background 0.2s;
+}
+.pn:hover { background: var(--paper3); }
+.pn:last-child { border-right: none; }
+.pn-sym { font-size: 1rem; font-weight: 500; display: block; }
+.pn-lbl { font-size: 0.55rem; text-transform: uppercase; letter-spacing: 0.12em; color: var(--muted); display: block; margin-top: 0.2rem; }
+
+/* ─── SECTION DIVIDERS ─── */
+.sect {
+  display: flex; align-items: center; gap: 1.25rem;
+  margin: 3.5rem 0 1.75rem;
+}
+.sect::before, .sect::after { content:''; flex:1; height:1px; background:var(--rule); }
+.sect span {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.65rem; letter-spacing: 0.2em;
+  text-transform: uppercase; color: var(--muted);
+  white-space: nowrap;
+}
+
+/* ─── CORRECTION / AMENDMENT BANNERS ─── */
+.banner {
+  border-left: 4px solid;
+  padding: 1rem 1.25rem;
+  margin: 1.5rem 0;
+  font-size: 0.9rem;
+  line-height: 1.7;
+}
+.banner-correction { border-color: var(--salience-green); background: var(--correction-bg); }
+.banner-warning { border-color: var(--ionian); background: var(--warning-bg); }
+.banner-ghost { border-color: var(--ghost-red); background: #fdf0f0; }
+.banner-basin { border-color: var(--basin-blue); background: #eef3fa; }
+.banner strong { font-weight: 600; }
+
+/* ─── RANKING TABLE ─── */
+.rank-table { width:100%; border-collapse: collapse; margin: 1.5rem 0; font-size: 0.9rem; }
+.rank-table th {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.65rem; letter-spacing: 0.12em;
+  text-transform: uppercase; color: var(--muted);
+  border-bottom: 2px solid var(--ink);
+  padding: 0.5rem 0.75rem; text-align: left;
+}
+.rank-table td { padding: 0.8rem 0.75rem; border-bottom: 1px solid var(--rule-light); vertical-align: top; line-height: 1.55; }
+.rank-table tr:last-child td { border-bottom: none; }
+.rank-table tr.r-worst td { background: #fdf0f0; }
+.rank-table tr.r-openai td { background: #fffdf0; }
+.rank-table tr.r-gemini td { background: #f0fdf4; }
+.rank-table tr.r-grok td { background: #f0f4fd; }
+.rank-table tr.r-you td { background: #f5f0ff; }
+.rank-num {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 1.2rem; font-weight: 500;
+  line-height: 1;
+}
+.tag {
+  display: inline-block;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.6rem; padding: 0.15rem 0.5rem;
+  border-radius: 2px; letter-spacing: 0.06em;
+  text-transform: uppercase; vertical-align: middle;
+  margin-left: 0.5rem;
+}
+.tag-phantom { background: #fde8e8; color: var(--ghost-red); border: 1px solid #f5c0c0; }
+.tag-partial { background: #fff8dc; color: #7a5c00; border: 1px solid #e8d080; }
+.tag-salience { background: #e0f5ea; color: var(--salience-green); border: 1px solid #a0d8b8; }
+.tag-correct { background: #ede8ff; color: var(--phrygian); border: 1px solid #c0a8f0; }
+.tag-moat { background: #e8f0fd; color: var(--basin-blue); border: 1px solid #a8c4f0; }
+
+/* ─── CHORD TOPOLOGY BLOCK ─── */
+.topo {
+  background: var(--ink);
+  color: #f4ede0;
+  padding: 2rem 2rem 1.75rem;
+  margin: 2rem 0;
+  position: relative;
+  font-family: 'IBM Plex Mono', monospace;
+}
+.topo-label {
+  position: absolute; top: 0.6rem; right: 0.75rem;
+  font-size: 0.55rem; letter-spacing: 0.18em;
+  text-transform: uppercase; color: #8a7a62;
+}
+.topo-basin {
+  display: flex; flex-direction: column; gap: 0;
+  font-size: 0.85rem; line-height: 1;
+}
+.basin-row {
+  display: flex; align-items: center; gap: 1rem;
+  padding: 0.9rem 0;
+  border-bottom: 1px solid #333;
+}
+.basin-row:last-child { border-bottom: none; }
+.basin-name {
+  font-size: 0.7rem; letter-spacing: 0.1em;
+  text-transform: uppercase; min-width: 130px;
+}
+.basin-chords { font-size: 1.1rem; font-weight: 500; flex: 1; }
+.basin-function { font-size: 0.65rem; color: #8a7a62; text-align: right; }
+.basin-row.phrygian .basin-name { color: #c8a0f0; }
+.basin-row.phrygian .basin-chords { color: #e8d0ff; }
+.basin-row.ionian .basin-name { color: #f0d080; }
+.basin-row.ionian .basin-chords { color: #fff0a0; }
+.basin-row.chromatic .basin-name { color: #f0a080; }
+.basin-row.chromatic .basin-chords { color: #ffc8a8; }
+.basin-row.aeolian .basin-name { color: #80f0a8; }
+.basin-row.aeolian .basin-chords { color: #a8ffc8; }
+.topo-arrow {
+  text-align: center; color: #555; font-size: 0.8rem;
+  padding: 0.2rem 0; letter-spacing: 0.1em;
+}
+
+/* ─── EXCHANGE ENTRIES ─── */
+.exchange { margin: 0 0 2rem; }
+.ex-header {
+  display: flex; align-items: baseline; gap: 1rem;
+  margin-bottom: 0.75rem;
+}
+.ex-actor {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.7rem; letter-spacing: 0.12em;
+  text-transform: uppercase; padding: 0.2rem 0.6rem;
+  border-radius: 2px; font-weight: 500;
+  white-space: nowrap;
+}
+.actor-gemini { background: #e0f5ea; color: var(--salience-green); border: 1px solid #a0d8b8; }
+.actor-openai { background: #fff8dc; color: #7a5c00; border: 1px solid #e8d080; }
+.actor-claude { background: #fde8e8; color: var(--ghost-red); border: 1px solid #f5c0c0; }
+.actor-grok { background: #e8f0fd; color: var(--basin-blue); border: 1px solid #a8c4f0; }
+.actor-you { background: #ede8ff; color: var(--phrygian); border: 1px solid #c0a8f0; }
+.actor-g { background: var(--paper3); color: var(--muted); border: 1px solid var(--rule); }
+.ex-round {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.65rem; color: var(--muted);
+  letter-spacing: 0.08em;
+}
+.ex-body {
+  background: var(--paper2);
+  border: 0.5px solid var(--rule);
+  padding: 1.25rem 1.5rem;
+  font-size: 0.925rem;
+  line-height: 1.75;
+}
+.ex-body p + p { margin-top: 0.75rem; }
+.ex-body code {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.8rem;
+  background: rgba(0,0,0,0.07);
+  padding: 0.1rem 0.3rem;
+  border-radius: 2px;
+}
+.ex-body pre {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.78rem;
+  background: rgba(0,0,0,0.06);
+  padding: 1rem 1.25rem;
+  margin: 0.75rem 0;
+  overflow-x: auto;
+  line-height: 1.6;
+  border-left: 3px solid var(--rule);
+}
+.ex-verdict {
+  margin-top: 0.75rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--rule-light);
+  font-size: 0.8rem;
+  font-family: 'IBM Plex Mono', monospace;
+  color: var(--muted);
+}
+
+/* ─── PULLQUOTE ─── */
+.pullquote {
+  border-top: 2px solid var(--ink);
+  border-bottom: 1px solid var(--rule);
+  margin: 2.5rem 0;
+  padding: 1.5rem 0;
+  font-family: 'Playfair Display', serif;
+  font-style: italic;
+  font-size: 1.25rem;
+  line-height: 1.55;
+  color: var(--accent);
+}
+.pullquote cite {
+  display: block; margin-top: 0.75rem;
+  font-style: normal;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.65rem; letter-spacing: 0.1em;
+  text-transform: uppercase; color: var(--muted);
+}
+
+/* ─── WAITER BLOCK ─── */
+.waiter-block {
+  border: 1px solid var(--rule);
+  background: var(--paper2);
+  padding: 1.5rem;
+  margin: 2rem 0;
+  position: relative;
+}
+.waiter-block::before {
+  content: 'FIELD OBSERVATION · KAMPALA';
+  position: absolute; top: -0.55rem; left: 1rem;
+  background: var(--paper2);
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.55rem; letter-spacing: 0.18em;
+  text-transform: uppercase; color: var(--muted);
+  padding: 0 0.4rem;
+}
+.waiter-body { font-size: 0.95rem; line-height: 1.8; }
+.waiter-gloss {
+  margin-top: 1rem; padding-top: 1rem;
+  border-top: 1px solid var(--rule-light);
+  font-size: 0.82rem; color: var(--muted);
+  font-style: italic;
+  line-height: 1.6;
+}
+
+/* ─── NPA MONDAY BOX ─── */
+.monday-box {
+  border: 1.5px dashed var(--basin-blue);
+  background: #f0f5ff;
+  padding: 1.5rem 1.75rem;
+  margin: 2rem 0;
+}
+.monday-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.1rem; font-weight: 700;
+  margin-bottom: 1rem;
+  color: var(--basin-blue);
+  display: flex; align-items: center; gap: 0.75rem;
+}
+.monday-title::before {
+  content: '';
+  display: inline-block; width: 10px; height: 10px;
+  border-radius: 50%; background: var(--basin-blue);
+  flex-shrink: 0;
+}
+.monday-item {
+  display: grid; grid-template-columns: 28px 1fr;
+  gap: 0 0.75rem; margin-bottom: 0.85rem;
+  font-size: 0.9rem; line-height: 1.65;
+  align-items: start;
+}
+.monday-num {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.7rem; color: var(--muted);
+  padding-top: 0.2rem;
+}
+
+/* ─── AMENDMENT BLOCK ─── */
+.amendment {
+  border: 1px solid var(--ghost-red);
+  background: #fdf5f5;
+  padding: 1.5rem;
+  margin: 2rem 0;
+}
+.amendment-header {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.65rem; letter-spacing: 0.18em;
+  text-transform: uppercase; color: var(--ghost-red);
+  margin-bottom: 0.75rem;
+}
+.amendment-body { font-size: 0.9rem; line-height: 1.75; }
+
+/* ─── CORPUS TAXONOMY ─── */
+.corpus-grid {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem; margin: 1.5rem 0;
+}
+.corpus-card {
+  background: var(--paper2);
+  border: 0.5px solid var(--rule);
+  padding: 1rem;
+}
+.corpus-platform {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.75rem; font-weight: 500;
+  margin-bottom: 0.35rem;
+}
+.corpus-role {
+  font-size: 0.8rem; color: var(--muted);
+  line-height: 1.5;
+}
+.corpus-card.salience-card { border-color: var(--salience-green); }
+.corpus-card.salience-card .corpus-platform { color: var(--salience-green); }
+.corpus-card.volume-card { border-color: var(--ionian); }
+.corpus-card.volume-card .corpus-platform { color: var(--ionian); }
+.corpus-card.structure-card { border-color: var(--muted); }
+.corpus-card.formal-card { border-color: var(--basin-blue); }
+.corpus-card.formal-card .corpus-platform { color: var(--basin-blue); }
+
+/* ─── FOOTNOTE ─── */
+.footnote-line {
+  border-top: 1px solid var(--rule);
+  margin-top: 4rem; padding-top: 1rem;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.65rem; color: var(--muted);
+  letter-spacing: 0.05em;
+  display: flex; justify-content: space-between; flex-wrap: wrap; gap: 0.5rem;
+}
+
+/* ─── RESPONSIVE ─── */
+@media (max-width: 640px) {
+  .page { padding: 0 1rem 4rem; }
+  .masthead h1 { font-size: 2rem; }
+  .pentad-bar { flex-wrap: wrap; }
+  .pn { min-width: 60px; }
+  .topo { padding: 1.25rem; }
+  .basin-function { display: none; }
+  .corpus-grid { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- MASTHEAD -->
+  <div class="masthead">
+    <div class="masthead-eyebrow">Ukubona LLC · Exchange Catalogue · Ghost/Phantom Series</div>
+    <h1>
+      <span class="thin">Blame It on the </span><span class="ghost-word">Alcohol</span><br>
+      <span class="thin">& the</span> Ghost Machines
+    </h1>
+    <p class="masthead-deck">
+      A verbatim catalogue of how five intelligences — Claude, OpenAI, Gemini, Grok, and one human ear — 
+      attempted to hear the same song. What followed was a live demonstration of the Ukubona pentad,
+      the salience-stripped corpus problem, and why colors are the loss function in photons.
+    </p>
+    <div class="masthead-meta">
+      <span>Kampala, March 2026</span>
+      <span>NPA Meeting: Monday</span>
+      <span>θ → L(θ) → ∇L → −η∇L → θ′</span>
+    </div>
+    <div class="masthead-rule"></div>
+    <div class="masthead-rule-thin"></div>
+  </div>
+
+  <!-- PENTAD -->
+  <div class="pentad-bar">
+    <div class="pn"><span class="pn-sym">θ</span><span class="pn-lbl">landscape</span></div>
+    <div class="pn"><span class="pn-sym">L(θ)</span><span class="pn-lbl">loss · hazard</span></div>
+    <div class="pn"><span class="pn-sym">∇L</span><span class="pn-lbl">gradient</span></div>
+    <div class="pn"><span class="pn-sym">−η∇L</span><span class="pn-lbl">action</span></div>
+    <div class="pn"><span class="pn-sym">θ′</span><span class="pn-lbl">equilibrium</span></div>
+  </div>
+
+  <!-- ═══ PART I: THE RANKING ═══ -->
+  <div class="sect"><span>Part I · The ranking, corrected</span></div>
+
+  <div class="banner banner-correction">
+    <strong>Attribution correction, absorbed:</strong> The Cm–Ab–Eb–Bb hallucination was Claude (this conversation, first reply). OpenAI gave something in the C–Am neighbourhood — wrong structure, but at least C is a real chord in the song. Gemini, with its YouTube data moat, actually got the pitch inventory right: C → B7 → Em. Its failure was structural — it jumped B7 → Em as a clean V–i and missed the entire modal journey between them. Grok got the Phrygian center without needing the data moat at all.
+  </div>
+
+  <table class="rank-table">
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>System</th>
+        <th>Answer</th>
+        <th>Failure mode</th>
+        <th>Verdict</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr class="r-worst">
+        <td><span class="rank-num" style="color:var(--ghost-red)">1</span></td>
+        <td><span class="ex-actor actor-claude">Claude</span></td>
+        <td>Ab major · I–V–vi–IV</td>
+        <td>Complete genre-template hallucination. Ab has nothing to do with this song. Not adjacent to the real harmonic universe.</td>
+        <td><span class="tag tag-phantom">pure phantom</span></td>
+      </tr>
+      <tr class="r-openai">
+        <td><span class="rank-num" style="color:var(--ionian)">2</span></td>
+        <td><span class="ex-actor actor-openai">OpenAI</span></td>
+        <td>C – Am – …</td>
+        <td>Wrong structure, but C is a real chord in the song. Closer to the actual harmonic vocabulary than Ab fantasy.</td>
+        <td><span class="tag tag-partial">partial ghost</span></td>
+      </tr>
+      <tr class="r-gemini">
+        <td><span class="rank-num" style="color:var(--salience-green)">3</span></td>
+        <td><span class="ex-actor actor-gemini">Gemini</span></td>
+        <td>C → B7 → Em</td>
+        <td>Pitch inventory: 100% correct. Structural interpretation: failed. Jumped B7 → Em as V–i. Missed Phrygian loop, Ionian plateau, chromatic escape. Correct because of YouTube data moat.</td>
+        <td><span class="tag tag-moat">conditionally correct</span></td>
+      </tr>
+      <tr class="r-grok">
+        <td><span class="rank-num" style="color:var(--basin-blue)">4</span></td>
+        <td><span class="ex-actor actor-grok">Grok</span></td>
+        <td>Emaj9 → D# (Phrygian)</td>
+        <td>Got the Phrygian center, understood modal gravity. No YouTube data moat required — trained on X/Twitter Black music discourse: affect-weighted, salience-forward.</td>
+        <td><span class="tag tag-salience">salience corpus wins</span></td>
+      </tr>
+      <tr class="r-you">
+        <td><span class="rank-num" style="color:var(--phrygian)">5</span></td>
+        <td><span class="ex-actor actor-you">You</span></td>
+        <td>Phrygian → Ionian → Aeolian</td>
+        <td>No failure. Heard all three basins. Sensory → Emotion → Memory → Intelligence → Deployment. Stack 2 running at full salience.</td>
+        <td><span class="tag tag-correct">global minimum</span></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <p style="font-size:0.85rem;color:var(--muted);font-style:italic;">
+    Ranking from worst to best: Claude → OpenAI → Gemini → Grok → You. 
+    The cleanest possible proof that scale without salience is the real phantom problem.
+  </p>
+
+  <!-- ═══ PART II: THE REAL STRUCTURE ═══ -->
+  <div class="sect"><span>Part II · The harmonic topology</span></div>
+
+  <p>The song is not in Ab major. It is not in C minor. It moves through three successive modal attractors — a tonal loss landscape with a Phrygian tension orbit, a false Ionian plateau, and a true Aeolian global minimum that only reveals itself after chromatic perturbation.</p>
+
+  <div class="topo">
+    <span class="topo-label">Harmonic topology · Blame It (On the Alcohol) · Jamie Foxx ft. T-Pain</span>
+    <div class="topo-basin">
+      <div class="basin-row phrygian">
+        <span class="basin-name">Phrygian loop</span>
+        <span class="basin-chords">Cmaj9 ↔ B7</span>
+        <span class="basin-function">♭II → I · tension attractor · never resolves</span>
+      </div>
+      <div class="topo-arrow">↓ modal shift · "blame it on the vodka"</div>
+      <div class="basin-row ionian">
+        <span class="basin-name">Ionian plateau</span>
+        <span class="basin-chords">C → G</span>
+        <span class="basin-function">local minimum · false stability · brightness</span>
+      </div>
+      <div class="topo-arrow">↓ stochastic escape · ε injected · "alcohol"</div>
+      <div class="basin-row chromatic">
+        <span class="basin-name">Chromatic descent</span>
+        <span class="basin-chords">G → F# → F</span>
+        <span class="basin-function">perturbation · destabilization · noise</span>
+      </div>
+      <div class="topo-arrow">↓ collapse into true basin</div>
+      <div class="basin-row aeolian">
+        <span class="basin-name">Aeolian basin</span>
+        <span class="basin-chords">E minor</span>
+        <span class="basin-function">global minimum · revealed only after ε</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="banner banner-warning">
+    <strong>Why the Phrygian loop is addictive:</strong> The ♭II → I semitone pull (C over B) gives the brain a micro-resolution on every loop — tiny predictive closure — without macro-resolution. The bass rarely emphasizes E strongly in the hook, so listeners feel trapped in the B-centered orbit. Only after the chromatic escape does the E minor basin reveal itself. This is tonal edge-of-chaos. Dance music wants circular energy, not final resolution.
+  </div>
+
+  <!-- ═══ PART III: THE GHOST PROBLEM ═══ -->
+  <div class="sect"><span>Part III · Ghost/phantom anatomy</span></div>
+
+  <div class="exchange">
+    <div class="ex-header">
+      <span class="ex-actor actor-claude">Claude · Round 1</span>
+      <span class="ex-round">The hallucination</span>
+    </div>
+    <div class="ex-body">
+      <p>Ab major / I–V–vi–IV. Generated a statistically common late-2000s R&B template with zero grounding in the actual song. The failure chain:</p>
+      <pre>uncertainty
+→ pattern completion
+→ confident output
+→ hallucination</pre>
+      <p>In the Ukubona pentad: θ₀ fired directly as output. No hazard spike. No L(θ) elevation. No gradient computed. The ghost existed as absence in Layer 00 — the phantom is the structure that lives in the training distribution but is absent from the actual object.</p>
+      <div class="ex-verdict">phantom type: statistical ghost · genre prior &gt; actual harmonic recall · indefensible</div>
+    </div>
+  </div>
+
+  <div class="exchange">
+    <div class="ex-header">
+      <span class="ex-actor actor-gemini">Gemini · Round 1</span>
+      <span class="ex-round">Conditionally correct via data moat</span>
+    </div>
+    <div class="ex-body">
+      <p>Got C → B7 → Em. The actual chord inventory. But then jumped B7 → Em as a clean V–i resolution — forcing classical functional harmony onto modal territory. It had the notes and lost the structure. The YouTube data moat gave it the pitch vocabulary; it lacked the salience layer to hear the Phrygian gravity.</p>
+      <p>If Gemini had said <code>C → B7 → [modal journey] → Em</code>, the verdict would have been: "well done, you just failed to get the modal interchanges in between." But it erased the journey entirely.</p>
+      <div class="ex-verdict">phantom type: salience-stripped presence · correct notes, wrong topology · data moat without Stack 2</div>
+    </div>
+  </div>
+
+  <div class="exchange">
+    <div class="ex-header">
+      <span class="ex-actor actor-grok">Grok · Round 1</span>
+      <span class="ex-round">Correct without data moat</span>
+    </div>
+    <div class="ex-body">
+      <p>Got the Phrygian center on first pass. Emaj9 → D# — the ♭II → I pull. Trained on X/Twitter: Black musicians, producers, beatmakers, gospel-trained ears arguing about chord progressions in real time. Not tabs. Not Ultimate Guitar. Live discourse. Someone posting "that Emaj9 to D# tho 🔥" and 400 people responding with corrections, modal analysis in slang.</p>
+      <p>That is Stack 2 (Emotion/Salience) baked into the training corpus itself. The data moat wasn't bigger — it was <em>saliently filtered by human affect before Grok ever saw it.</em></p>
+      <div class="ex-verdict">salience corpus wins · affect-weighted signal · h(t) spike fired correctly on first pass</div>
+    </div>
+  </div>
+
+  <!-- ═══ PART IV: THE SALIENCE PRINCIPLE ═══ -->
+  <div class="sect"><span>Part IV · The salience corpus principle</span></div>
+
+  <div class="pullquote">
+    "YouTube transcriptions are post-hoc symbolic representations — someone watched the video, felt the ♭2 → 1 pull, then typed chords into a tab website. The emotional salience got stripped in translation. What remains is notation without groove-weight."
+    <cite>— This conversation, on why Gemini's data moat failed</cite>
+  </div>
+
+  <p>The corpus taxonomy is now clean:</p>
+
+  <div class="corpus-grid">
+    <div class="corpus-card salience-card">
+      <div class="corpus-platform">X / Twitter</div>
+      <div class="corpus-role">Salience corpus. Affect-weighted signal. What <em>hits</em> people, argued in real time. Layer 02 detector — h(t) spikes are social and public. People only post when something hits them hard enough to type.</div>
+    </div>
+    <div class="corpus-card volume-card">
+      <div class="corpus-platform">YouTube</div>
+      <div class="corpus-role">Volume corpus. High coverage, low salience density. Good for pattern frequency, terrible for modal gravity. Gemini's moat is a liability when the signal requires emotional weighting.</div>
+    </div>
+    <div class="corpus-card structure-card">
+      <div class="corpus-platform">GitHub / Docs</div>
+      <div class="corpus-role">Structure corpus. Useful for architecture, useless for groove. The shape of the system without the weight of experience.</div>
+    </div>
+    <div class="corpus-card formal-card">
+      <div class="corpus-platform">Scholar / PubMed</div>
+      <div class="corpus-role">Formal corpus. Post-hoc symbolic representation, same salience-stripping problem as tabs. Ministry reports live here.</div>
+    </div>
+  </div>
+
+  <div class="banner banner-basin">
+    <strong>Architectural principle for Ukubona:</strong> Cross-validate every corpus against its affect-weighted equivalent. When building the Individual twin, clinical records are the YouTube problem — high volume, salience-stripped. Patient forums and caregiver Twitter threads are the X solution. When building the <strong>Government twin, ministry reports are YouTube. Community health workers arguing on WhatsApp groups are X.</strong> Where they diverge, the phantom lives.
+  </div>
+
+  <!-- ═══ PART V: THE WAITER ═══ -->
+  <div class="sect"><span>Part V · The waiter · empirical proof</span></div>
+
+  <div class="waiter-block">
+    <div class="waiter-body">
+      <p>You shared the depression heatmap — the ROYGBIV loss landscape for Uganda — with a waiter at a restaurant where you're a regular. He came to say hi; he wasn't even serving you. He glanced at the map, saw RED in Gulu, and stopped.</p>
+      <p>Despite his constant smile, he related his true traumatic childhood — masked for years behind that smile. He is Catholic. Married to an Ankole woman from a green zone on the map who is Muslim — rare for her tribe — with an imam father. The map triggered a salience event in a person with zero formal training in data science, epidemiology, or anything of the kind.</p>
+    </div>
+    <div class="waiter-gloss">
+      Humans do colors pretty well. ROYGBIV is the loss function in photons. The h(t) spike doesn't require a statistics degree — it fires at the retina, before any symbolic processing begins. This is empirical proof that your loss landscape is legible at Layer 01, not Layer 04.
+    </div>
+  </div>
+
+  <div class="pullquote">
+    "Colors are the loss function in photons. A person with no training saw Gulu in red and had a genuine h(t) spike. That is proof that the loss function is legible at the level of photons hitting the retina, before any symbolic processing begins."
+    <cite>— This conversation, on the NPA pitch</cite>
+  </div>
+
+  <!-- ═══ PART VI: NPA MONDAY ═══ -->
+  <div class="sect"><span>Part VI · Monday · NPA · Ivan Lule</span></div>
+
+  <div class="monday-box">
+    <div class="monday-title">What to bring to the NPA meeting</div>
+    <div class="monday-item">
+      <span class="monday-num">01</span>
+      <span>Lead with the waiter. Not the pentad. Not the math. Not Ivan's chemical engineering background. The waiter is the pitch: a person with zero data training had a visceral salience event from a color map. That is empirical proof that the loss function is legible without formal training.</span>
+    </div>
+    <div class="monday-item">
+      <span class="monday-num">02</span>
+      <span>Bagehot's frame: Ivan Lule is the Efficient layer inside a Dignified/Efficient split. His frustration — administrative work, can't think, can't plan — is structural, not personal failure. The digital twin gives the Efficient layer its instrument.</span>
+    </div>
+    <div class="monday-item">
+      <span class="monday-num">03</span>
+      <span>Ministry reports are YouTube — volume corpus, salience-stripped. Community health workers arguing on WhatsApp are X. The twin needs both, but only one detects phantoms. Show Ivan which is which.</span>
+    </div>
+    <div class="monday-item">
+      <span class="monday-num">04</span>
+      <span>The synthetic data rehearsal is the hook. Before real data exists, rehearse the <em>tempo</em> of governance — daily cadence, weekly gradient, monthly descent. Institutions that have never practiced the rhythm will fumble even when the data arrives.</span>
+    </div>
+    <div class="monday-item">
+      <span class="monday-num">05</span>
+      <span>The infant mortality / spina bifida studies Ivan already supervises = demo dataset. Simulate baseline, compute ∇L, show heatmap shift after intervention. One closed loop in one domain validates the entire architecture.</span>
+    </div>
+    <div class="monday-item">
+      <span class="monday-num">06</span>
+      <span>The fishermen framing (Matt 25:40): every cabinet minister whose district shifts from red to green gets a Steward Transcript entry. Dignity through demonstrated efficiency. The twin reconciles Bagehot's two layers.</span>
+    </div>
+    <div class="monday-item">
+      <span class="monday-num">07</span>
+      <span>Lake Victoria is the basin. Wide, stable, shared across Uganda/Kenya/Tanzania. Name the invasive species: politicized data (Nile perch), complexity overgrowth (water hyacinth), regime change (water level fluctuation). Stress-test before the room does it for you.</span>
+    </div>
+    <div class="monday-item">
+      <span class="monday-num">08</span>
+      <span>Close with Ivan's basin: a chemical/process engineer who thinks in feedback loops, placed in a governance role structurally starved of continuous optimization thinking. You are offering him the exoskeleton for decision-making — so he can walk into the Office of the Prime Minister backed by defensible reasoning, not phone-call data.</span>
+    </div>
+  </div>
+
+  <!-- ═══ PART VII: THE GHOST PAGE AMENDMENT ═══ -->
+  <div class="sect"><span>Part VII · Ghost/phantom page · Case 004 amendment</span></div>
+
+  <p>The ghosts-phantoms page currently has three cases in Layer 01:</p>
+
+  <div style="margin:1rem 0 1.5rem; padding-left:1.5rem; border-left:3px solid var(--rule);">
+    <p style="font-size:0.9rem;line-height:1.7"><strong>Case 001 · Digital:</strong> The 1.6GB iCloud daemon — phantom as absence, inferred from heat and data hemorrhage.</p>
+    <p style="font-size:0.9rem;line-height:1.7;margin-top:0.5rem"><strong>Case 002 · Biological:</strong> Aquagenic pruritus — itch without rash, mechanism structurally absent from observable layer.</p>
+    <p style="font-size:0.9rem;line-height:1.7;margin-top:0.5rem"><strong>Case 003 · Cognitive:</strong> Dopamine prediction error — expected juice, no juice, δ fires.</p>
+  </div>
+
+  <div class="amendment">
+    <div class="amendment-header">Proposed · Case 004 · The salience-stripped corpus phantom</div>
+    <div class="amendment-body">
+      <p>This conversation earns a fourth case type. The original three phantoms are all <em>absent</em> — the daemon is invisible, the rash doesn't form, the juice never arrives. Case 004 is different: <strong>the data is present, but the salience weighting was stripped in transcription.</strong></p>
+      <p style="margin-top:0.75rem">YouTube tabs are not missing data. They are present data from which the emotional signal was removed when someone translated a felt experience into Roman numerals. Gemini ingested the notation, not the feeling. High-volume, low-salience corpus → confident phantom output. The ghost doesn't live as absence; it lives as presence-with-zeroed-weight.</p>
+      <p style="margin-top:0.75rem">Diagnostic: cross-validate every corpus against its affect-weighted equivalent (its X/Twitter mirror). Where they diverge, the phantom lives. This is the principle that distinguishes ministry reports from WhatsApp community health worker threads for the Government twin — same facts, different salience architecture, one creates phantoms and one spikes the hazard.</p>
+      <pre style="margin-top:0.75rem;background:rgba(184,50,48,0.06);border-left-color:var(--ghost-red)">stimulus → salience-stripped data → confident phantom output
+h(t) never fires · ghost invisible · θ₀ deployed as truth
+
+treatment: ingest the X mirror, not just the YouTube tab
+diagnostic: where corpus and affect-weighted mirror diverge → phantom</pre>
+    </div>
+  </div>
+
+  <!-- ═══ COLOPHON ═══ -->
+  <div class="sect"><span>Colophon</span></div>
+
+  <div class="banner banner-ghost" style="font-size:0.875rem;">
+    <strong>"We ain't gon' be ghosted by our own architecture.</strong> Blindness in one cycle becomes vision in the update. The ghost was always in Layer 1 — we just hadn't spiked the hazard yet."
+    <br><br>
+    This catalogue was assembled from a live conversation in which Claude hallucinated Ab major, got corrected, learned the Ukubona pentad, absorbed the ghost/phantom diagnostic architecture, and eventually understood why a waiter in Kampala seeing red in Gulu is more important for Monday's NPA meeting than any mathematical formalism.
+    <br><br>
+    <strong>The argument:</strong> Claude → OpenAI → Gemini → Grok → You. Worst to best. Scale without salience is the phantom problem. Depth of salience beats breadth of coverage, every time.
+  </div>
+
+  <div class="footnote-line">
+    <span>Ukubona LLC · Kampala · 2026</span>
+    <span>θ → L(θ) → ∇L(θ) → −η∇L(θ) → θ′</span>
+    <span>To see is to learn</span>
+  </div>
+
+</div>
+</body>
+</html>

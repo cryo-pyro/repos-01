@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Kiti kya Muwogo — Ukubona LLC</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Space+Mono:ital@0;1&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --soil:      #2a1a0e;
+      --laterite:  #8b3a1a;
+      --ochre:     #c2682a;
+      --cassava:   #e8d5a3;
+      --leaf:      #4a6741;
+      --mist:      #f2ede6;
+      --ink:       #1a120a;
+      --math:      #c2682a;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background-color: var(--mist);
+      color: var(--ink);
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(17px, 2vw, 21px);
+      line-height: 1.75;
+      overflow-x: hidden;
+    }
+
+    /* ── GRAIN OVERLAY ── */
+    body::before {
+      content: '';
+      position: fixed; inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.06'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 999;
+      opacity: 0.5;
+    }
+
+    /* ── HERO ── */
+    .hero {
+      min-height: 100svh;
+      display: grid;
+      grid-template-rows: 1fr auto;
+      padding: clamp(2rem, 6vw, 5rem) clamp(1.5rem, 8vw, 8rem);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero::after {
+      content: '';
+      position: absolute;
+      bottom: -2px; left: 0; right: 0;
+      height: 120px;
+      background: linear-gradient(to bottom, transparent, var(--mist));
+      pointer-events: none;
+    }
+
+    /* Red laterite vertical stripe */
+    .hero-stripe {
+      position: absolute;
+      top: 0; left: clamp(1.5rem, 8vw, 8rem);
+      width: 3px;
+      height: 100%;
+      background: linear-gradient(to bottom, var(--laterite), var(--ochre) 60%, transparent);
+      opacity: 0.6;
+    }
+
+    .hero-content {
+      padding-left: clamp(1.5rem, 4vw, 3rem);
+      align-self: center;
+    }
+
+    .luganda {
+      font-family: 'Space Mono', monospace;
+      font-size: clamp(0.7rem, 1.2vw, 0.85rem);
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--laterite);
+      opacity: 0;
+      animation: fadeUp 0.8s ease forwards 0.2s;
+    }
+
+    h1 {
+      font-size: clamp(2.8rem, 8vw, 7.5rem);
+      font-weight: 300;
+      line-height: 1.05;
+      letter-spacing: -0.01em;
+      color: var(--soil);
+      margin-top: 0.4rem;
+      opacity: 0;
+      animation: fadeUp 0.9s ease forwards 0.45s;
+    }
+
+    h1 em {
+      font-style: italic;
+      color: var(--laterite);
+    }
+
+    .hero-subtitle {
+      margin-top: 1.8rem;
+      font-size: clamp(1rem, 1.8vw, 1.25rem);
+      font-weight: 300;
+      font-style: italic;
+      color: var(--soil);
+      opacity: 0.75;
+      max-width: 52ch;
+      opacity: 0;
+      animation: fadeUp 0.9s ease forwards 0.7s;
+    }
+
+    .motto {
+      margin-top: 2.8rem;
+      display: inline-block;
+      border-left: 2px solid var(--ochre);
+      padding: 0.6rem 0 0.6rem 1.4rem;
+      font-family: 'Space Mono', monospace;
+      font-size: clamp(0.72rem, 1.1vw, 0.82rem);
+      line-height: 1.6;
+      color: var(--laterite);
+      letter-spacing: 0.02em;
+      opacity: 0;
+      animation: fadeUp 0.9s ease forwards 0.95s;
+    }
+
+    .scroll-cue {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.65rem;
+      letter-spacing: 0.2em;
+      color: var(--laterite);
+      opacity: 0;
+      animation: fadeUp 0.9s ease forwards 1.3s, pulse 2.5s ease-in-out infinite 2s;
+      padding-left: clamp(1.5rem, 4vw, 3rem);
+      padding-bottom: 2rem;
+    }
+
+    /* ── BODY SECTIONS ── */
+    main {
+      padding: 0 clamp(1.5rem, 8vw, 8rem);
+      padding-bottom: 6rem;
+    }
+
+    section {
+      max-width: 68ch;
+      margin: 0 auto;
+      padding: 5rem 0;
+    }
+
+    section + section {
+      border-top: 1px solid rgba(139, 58, 26, 0.15);
+    }
+
+    .section-label {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.7rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--laterite);
+      margin-bottom: 2rem;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .section-label::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--laterite);
+      opacity: 0.3;
+      max-width: 4rem;
+    }
+
+    p {
+      margin-bottom: 1.4rem;
+      font-weight: 300;
+    }
+
+    p:last-child { margin-bottom: 0; }
+
+    strong {
+      font-weight: 600;
+      color: var(--soil);
+    }
+
+    /* Math inline */
+    .math {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.88em;
+      color: var(--math);
+      background: rgba(194, 104, 42, 0.08);
+      padding: 0.1em 0.35em;
+      border-radius: 2px;
+    }
+
+    /* Pull quote / aphorism */
+    .aphorism {
+      margin: 3rem 0;
+      padding: 2rem 2rem 2rem 2.5rem;
+      border-left: 3px solid var(--laterite);
+      background: rgba(139, 58, 26, 0.04);
+      font-size: clamp(1.1rem, 2.2vw, 1.5rem);
+      font-style: italic;
+      font-weight: 300;
+      line-height: 1.5;
+      color: var(--soil);
+      position: relative;
+    }
+
+    .aphorism cite {
+      display: block;
+      margin-top: 1rem;
+      font-family: 'Space Mono', monospace;
+      font-size: 0.65rem;
+      font-style: normal;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--laterite);
+      opacity: 0.8;
+    }
+
+    /* Chain diagram */
+    .chain {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+      margin: 2.5rem 0;
+      font-family: 'Space Mono', monospace;
+      font-size: clamp(0.7rem, 1.3vw, 0.82rem);
+      color: var(--laterite);
+    }
+
+    .chain-node {
+      background: rgba(194, 104, 42, 0.1);
+      border: 1px solid rgba(194, 104, 42, 0.3);
+      padding: 0.35em 0.8em;
+      border-radius: 2px;
+      letter-spacing: 0.05em;
+    }
+
+    .chain-arrow {
+      color: var(--ochre);
+      opacity: 0.6;
+      font-size: 1em;
+    }
+
+    /* Footer */
+    footer {
+      border-top: 1px solid rgba(139, 58, 26, 0.2);
+      padding: 2.5rem clamp(1.5rem, 8vw, 8rem);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    .footer-logo {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.7rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--laterite);
+    }
+
+    .footer-note {
+      font-size: 0.8rem;
+      font-style: italic;
+      color: var(--soil);
+      opacity: 0.5;
+    }
+
+    /* ── ANIMATIONS ── */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(18px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 0.5; }
+      50%       { opacity: 1; }
+    }
+
+    /* Scroll-reveal */
+    .reveal {
+      opacity: 0;
+      transform: translateY(22px);
+      transition: opacity 0.8s ease, transform 0.8s ease;
+    }
+
+    .reveal.visible {
+      opacity: 1;
+      transform: none;
+    }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 600px) {
+      .chain { gap: 0.3rem; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ═══════════════════════════ HERO ═══════════════════════════ -->
+<header class="hero">
+  <div class="hero-stripe" aria-hidden="true"></div>
+
+  <div class="hero-content">
+    <p class="luganda">Ukubona LLC · Philosophy</p>
+
+    <h1><em>Kiti kya Muwogo</em></h1>
+
+    <p class="hero-subtitle">
+      In the red lateritic soils of the Victoria Basin, one discards a cassava stem
+      only to watch it take root and thrive — anywhere, without cultivation.
+    </p>
+
+    <div class="motto">
+      Kiti kya Muwogo: we root in the red laterite,<br>
+      forage the gradient, and lay the pheromone trail<br>
+      the colony follows home.
+    </div>
+  </div>
+
+  <p class="scroll-cue">↓ &nbsp; continue</p>
+</header>
+
+<!-- ═══════════════════════════ BODY ═══════════════════════════ -->
+<main>
+
+  <!-- 1. The proverb -->
+  <section class="reveal">
+    <p class="section-label">I. The Proverb</p>
+
+    <div class="aphorism">
+      That is <em>kiti kya muwogo</em>.<br>
+      That is us.
+    </div>
+
+    <p>
+      We are stochastic scouts thrown into the high-dimensional noise of a shifting landscape.
+      Drop us into the unmapped chaos — the friction of 133 districts, silent emergencies,
+      raw uncalibrated parameters <span class="math">θ<sub>t</sub></span> — and we take root.
+    </p>
+
+    <p>
+      No Apollonian nurseries required.
+    </p>
+
+    <p>
+      We run the descent, forage stochastically <span class="math">ε</span>, and read
+      the gradient <span class="math">∇L</span> from the variance others mistake for noise.
+    </p>
+
+    <p>
+      We are the discarded stem that returns with the pheromone cartography
+      the colony needs to converge.
+    </p>
+  </section>
+
+  <!-- 2. The loop -->
+  <section class="reveal">
+    <p class="section-label">II. The Loop</p>
+
+    <p>
+      Three ideas, one chain. The proverb closes the algorithmic loop so cleanly
+      it feels inevitable:
+    </p>
+
+    <div class="chain">
+      <span class="chain-node">cassava stem</span>
+      <span class="chain-arrow">→</span>
+      <span class="chain-node">resilience</span>
+      <span class="chain-arrow">→</span>
+      <span class="chain-node">stochastic scout</span>
+      <span class="chain-arrow">→</span>
+      <span class="chain-node">composite loss <span class="math" style="background:none;padding:0;font-size:1em;">L(θ<sub>t</sub>)</span></span>
+      <span class="chain-arrow">→</span>
+      <span class="chain-node">pheromone trail</span>
+      <span class="chain-arrow">→</span>
+      <span class="chain-node">colony convergence</span>
+    </div>
+
+    <p>
+      The ant colony does not plan. It lays trace. The colony converges
+      not on a blueprint, but on accumulated evidence — the gradient,
+      distilled from millions of foraging decisions across noisy terrain.
+    </p>
+
+    <p>
+      That is stochastic gradient descent. That is also what a Ugandan farmer
+      encoded in a three-word proverb, centuries before the notation existed.
+    </p>
+  </section>
+
+  <!-- 3. The deeper claim -->
+  <section class="reveal">
+    <p class="section-label">III. The Deeper Claim</p>
+
+    <div class="aphorism">
+      The proverb <em>is</em> the math,<br>
+      discovered earlier, stored differently.
+      <cite>— Ukubona LLC</cite>
+    </div>
+
+    <p>
+      Your mother didn't just give you a metaphor. She gave you a <strong>prior</strong>.
+      Ugandan smallholder farmers discovered, through centuries of practice, that cassava
+      propagates from discarded stems without supervision. That is empirical Bayesian
+      reasoning, encoded in proverb. The plant <em>is</em> the algorithm.
+    </p>
+
+    <p>
+      That is not decoration. That is the actual intellectual claim Ukubona is making:
+      that <strong>local epistemic traditions contain optimization theory
+      before the theory had notation</strong>.
+    </p>
+
+    <p>
+      Not "our culture inspires us." The proverb is the math. It was shipped
+      without LaTeX. It propagated without citation. It survived without a server.
+    </p>
+
+    <p>
+      Instead of Silicon Valley mythology — the garage, the dorm room, the pivot —
+      you have: Ugandan algorithmic philosophy. Home-grown. Laterite-grown.
+      Gradient-grown.
+    </p>
+
+    <div class="aphorism">
+      This is intellectual property no one in Palo Alto can copy.
+      <cite>— on "Kiti kya Muwogo"</cite>
+    </div>
+  </section>
+
+  <!-- 4. What we do -->
+  <section class="reveal">
+    <p class="section-label">IV. What We Do</p>
+
+    <p>
+      Ukubona — <em>to see</em>, in Luganda — builds at the intersection where
+      traditional knowledge and statistical inference meet. We operate in the
+      friction of 133 Ugandan districts, in the silence of emergencies that
+      don't yet have data, in the unmapped terrain where models fail because
+      they were never trained to look here.
+    </p>
+
+    <p>
+      We measure the true composite loss <span class="math">L(θ<sub>t</sub>)</span>
+      where others see only barren ground. We metabolize the variance.
+      We return with the trail.
+    </p>
+
+    <p>
+      The cassava does not ask permission to root. Neither do we.
+    </p>
+  </section>
+
+</main>
+
+<footer>
+  <span class="footer-logo">Ukubona LLC</span>
+  <span class="footer-note">Kiti kya muwogo &mdash; the stem knows where to root.</span>
+</footer>
+
+<script>
+  // Scroll-reveal
+  const observer = new IntersectionObserver(
+    entries => entries.forEach(e => {
+      if (e.isIntersecting) { e.target.classList.add('visible'); observer.unobserve(e.target); }
+    }),
+    { threshold: 0.12 }
+  );
+  document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+</script>
+
+</body>
+</html>

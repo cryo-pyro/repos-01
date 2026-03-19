@@ -1,0 +1,1356 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Algorithm of Us — Goats, Sheep & the Gradient of God</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700;900&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --gold: #c9a84c;
+    --gold-light: #f0d080;
+    --gold-dim: #8a6a20;
+    --ink: #0a0806;
+    --parchment: #1a1510;
+    --vellum: #f5ead8;
+    --sheep-white: #e8dfc8;
+    --goat-red: #8b2020;
+    --goat-ember: #d45a2a;
+    --psalm-blue: #1a3a5c;
+    --psalm-light: #4a7fa8;
+    --gradient-green: #2a5c3a;
+    --text-body: #d4c4a0;
+    --text-dim: #7a6840;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--ink);
+    color: var(--text-body);
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 18px;
+    line-height: 1.7;
+    overflow-x: hidden;
+  }
+
+  /* ─── GRAIN OVERLAY ─── */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 1000;
+    opacity: 0.4;
+  }
+
+  /* ─── HERO ─── */
+  .hero {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    padding: 4rem 2rem;
+    overflow: hidden;
+  }
+
+  .hero-cosmos {
+    position: absolute;
+    inset: 0;
+    background: 
+      radial-gradient(ellipse 60% 40% at 50% 0%, rgba(201,168,76,0.08) 0%, transparent 70%),
+      radial-gradient(ellipse 40% 60% at 20% 80%, rgba(42,92,58,0.12) 0%, transparent 60%),
+      radial-gradient(ellipse 50% 50% at 80% 30%, rgba(26,58,92,0.15) 0%, transparent 60%),
+      linear-gradient(180deg, #060402 0%, #0a0806 40%, #080a06 100%);
+  }
+
+  .stars {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+  }
+
+  .star {
+    position: absolute;
+    border-radius: 50%;
+    background: var(--gold-light);
+    animation: twinkle var(--dur, 4s) ease-in-out infinite var(--delay, 0s);
+    opacity: 0;
+  }
+
+  @keyframes twinkle {
+    0%, 100% { opacity: 0; }
+    50% { opacity: var(--peak, 0.6); }
+  }
+
+  .hero-equation {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: clamp(1rem, 3vw, 1.4rem);
+    color: var(--gold);
+    letter-spacing: 0.05em;
+    margin-bottom: 3rem;
+    text-align: center;
+    opacity: 0;
+    animation: fadeUp 1.2s ease forwards 0.3s;
+    position: relative;
+    z-index: 2;
+  }
+
+  .hero-title {
+    font-family: 'Cinzel Decorative', serif;
+    font-size: clamp(2.2rem, 6vw, 5rem);
+    font-weight: 900;
+    text-align: center;
+    line-height: 1.15;
+    position: relative;
+    z-index: 2;
+    opacity: 0;
+    animation: fadeUp 1.2s ease forwards 0.6s;
+  }
+
+  .hero-title .line1 { color: var(--vellum); }
+  .hero-title .line2 {
+    color: var(--gold);
+    font-size: 0.65em;
+    display: block;
+    margin-top: 0.3em;
+    font-weight: 400;
+    letter-spacing: 0.15em;
+  }
+  .hero-title .line3 {
+    color: var(--goat-ember);
+    font-size: 0.45em;
+    display: block;
+    margin-top: 0.5em;
+    font-style: italic;
+    font-family: 'Cormorant Garamond', serif;
+    font-weight: 300;
+    letter-spacing: 0.2em;
+  }
+
+  .hero-meta {
+    margin-top: 3rem;
+    text-align: center;
+    font-style: italic;
+    color: var(--text-dim);
+    font-size: 1rem;
+    letter-spacing: 0.1em;
+    opacity: 0;
+    animation: fadeUp 1.2s ease forwards 1.0s;
+    position: relative;
+    z-index: 2;
+  }
+
+  .scroll-prompt {
+    position: absolute;
+    bottom: 2rem;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--gold-dim);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.2em;
+    opacity: 0;
+    animation: fadeIn 1s ease forwards 2s;
+    z-index: 2;
+  }
+
+  .scroll-line {
+    width: 1px;
+    height: 40px;
+    background: linear-gradient(to bottom, var(--gold-dim), transparent);
+    animation: scrollPulse 2s ease-in-out infinite;
+  }
+
+  @keyframes scrollPulse {
+    0%, 100% { opacity: 0.4; transform: scaleY(1); }
+    50% { opacity: 1; transform: scaleY(1.2); }
+  }
+
+  /* ─── NAV RAIL ─── */
+  .nav-rail {
+    position: fixed;
+    left: 1.5rem;
+    top: 50%;
+    transform: translateY(-50%);
+    display: flex;
+    flex-direction: column;
+    gap: 1.2rem;
+    z-index: 100;
+  }
+
+  .nav-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--gold-dim);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+  }
+
+  .nav-dot:hover, .nav-dot.active {
+    background: var(--gold);
+    box-shadow: 0 0 8px var(--gold);
+    transform: scale(1.5);
+  }
+
+  .nav-dot::after {
+    content: attr(data-label);
+    position: absolute;
+    left: 1.2rem;
+    top: 50%;
+    transform: translateY(-50%);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.65rem;
+    color: var(--gold-dim);
+    white-space: nowrap;
+    opacity: 0;
+    transition: opacity 0.2s;
+    letter-spacing: 0.1em;
+  }
+
+  .nav-dot:hover::after { opacity: 1; }
+
+  /* ─── SECTIONS ─── */
+  section {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 6rem 2rem;
+    position: relative;
+  }
+
+  .section-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--gold-dim);
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    margin-bottom: 1rem;
+  }
+
+  .section-title {
+    font-family: 'Cinzel Decorative', serif;
+    font-size: clamp(1.6rem, 4vw, 2.8rem);
+    font-weight: 700;
+    line-height: 1.2;
+    margin-bottom: 2rem;
+  }
+
+  .divider {
+    width: 100%;
+    height: 1px;
+    background: linear-gradient(to right, transparent, var(--gold-dim), transparent);
+    margin: 5rem auto;
+    max-width: 600px;
+  }
+
+  /* ─── PHASE SHIFT DIAGRAM ─── */
+  .phase-diagram {
+    width: 100%;
+    margin: 3rem 0;
+    position: relative;
+  }
+
+  .phase-track {
+    display: flex;
+    align-items: stretch;
+    gap: 0;
+    border: 1px solid var(--gold-dim);
+    border-radius: 4px;
+    overflow: hidden;
+  }
+
+  .phase-block {
+    flex: 1;
+    padding: 2rem 1.5rem;
+    position: relative;
+    transition: all 0.4s ease;
+    cursor: default;
+  }
+
+  .phase-block:hover { filter: brightness(1.2); }
+
+  .phase-goat {
+    background: linear-gradient(135deg, rgba(139,32,32,0.3), rgba(212,90,42,0.15));
+    border-right: 1px solid var(--gold-dim);
+  }
+
+  .phase-arrow {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 1rem;
+    background: rgba(201,168,76,0.05);
+    border-right: 1px solid var(--gold-dim);
+    flex-shrink: 0;
+  }
+
+  .phase-sheep {
+    background: linear-gradient(135deg, rgba(26,58,92,0.3), rgba(42,92,58,0.2));
+  }
+
+  .phase-icon {
+    font-size: 2.5rem;
+    margin-bottom: 0.5rem;
+    display: block;
+  }
+
+  .phase-name {
+    font-family: 'Cinzel Decorative', serif;
+    font-size: 0.9rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    letter-spacing: 0.1em;
+  }
+
+  .phase-goat .phase-name { color: var(--goat-ember); }
+  .phase-sheep .phase-name { color: var(--psalm-light); }
+
+  .phase-eq {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    color: var(--gold);
+    margin-top: 0.8rem;
+    padding: 0.4rem 0.6rem;
+    background: rgba(0,0,0,0.3);
+    border-radius: 3px;
+    border-left: 2px solid currentColor;
+    display: inline-block;
+  }
+
+  .phase-goat .phase-eq { border-color: var(--goat-ember); }
+  .phase-sheep .phase-eq { border-color: var(--psalm-light); }
+
+  /* ─── MATTHEW 25 TRIPTYCH ─── */
+  .triptych {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 1px;
+    background: var(--gold-dim);
+    border: 1px solid var(--gold-dim);
+    margin: 3rem 0;
+    border-radius: 4px;
+    overflow: hidden;
+  }
+
+  .triptych-panel {
+    background: var(--parchment);
+    padding: 2rem 1.5rem;
+    transition: all 0.3s ease;
+    position: relative;
+  }
+
+  .triptych-panel:hover {
+    background: rgba(26,21,16,0.8);
+    transform: none;
+  }
+
+  .triptych-panel::before {
+    content: attr(data-num);
+    position: absolute;
+    top: 1rem;
+    right: 1.2rem;
+    font-family: 'Cinzel Decorative', serif;
+    font-size: 2rem;
+    color: rgba(201,168,76,0.15);
+    font-weight: 900;
+    line-height: 1;
+  }
+
+  .panel-icon { font-size: 1.8rem; margin-bottom: 0.8rem; display: block; }
+
+  .panel-title {
+    font-family: 'Cinzel Decorative', serif;
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--gold);
+    margin-bottom: 0.8rem;
+    letter-spacing: 0.08em;
+  }
+
+  .panel-verse {
+    font-style: italic;
+    color: var(--vellum);
+    font-size: 0.9rem;
+    border-left: 2px solid var(--gold-dim);
+    padding-left: 0.8rem;
+    margin-bottom: 0.8rem;
+    line-height: 1.5;
+  }
+
+  .panel-interp {
+    font-size: 0.88rem;
+    color: var(--text-dim);
+    line-height: 1.6;
+  }
+
+  .panel-tag {
+    display: inline-block;
+    margin-top: 1rem;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.65rem;
+    padding: 0.2rem 0.5rem;
+    border-radius: 2px;
+    letter-spacing: 0.1em;
+  }
+
+  .tag-stochastic { background: rgba(139,32,32,0.3); color: var(--goat-ember); }
+  .tag-learning { background: rgba(201,168,76,0.15); color: var(--gold); }
+  .tag-terminal { background: rgba(26,58,92,0.4); color: var(--psalm-light); }
+
+  /* ─── EQUATION BLOCK ─── */
+  .eq-block {
+    background: rgba(0,0,0,0.5);
+    border: 1px solid var(--gold-dim);
+    border-radius: 6px;
+    padding: 2.5rem;
+    margin: 3rem 0;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .eq-block::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: linear-gradient(to right, transparent, var(--gold), transparent);
+  }
+
+  .eq-main {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: clamp(1rem, 3vw, 1.4rem);
+    color: var(--gold-light);
+    text-align: center;
+    margin-bottom: 2rem;
+    letter-spacing: 0.05em;
+  }
+
+  .eq-terms {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 1rem;
+  }
+
+  .eq-term {
+    padding: 1rem;
+    border: 1px solid rgba(201,168,76,0.2);
+    border-radius: 4px;
+    transition: border-color 0.3s;
+  }
+
+  .eq-term:hover { border-color: var(--gold); }
+
+  .term-sym {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 1.1rem;
+    color: var(--gold);
+    margin-bottom: 0.3rem;
+  }
+
+  .term-name {
+    font-family: 'Cinzel Decorative', serif;
+    font-size: 0.7rem;
+    color: var(--gold-dim);
+    letter-spacing: 0.1em;
+    margin-bottom: 0.4rem;
+  }
+
+  .term-desc {
+    font-size: 0.82rem;
+    color: var(--text-dim);
+    line-height: 1.5;
+  }
+
+  /* ─── KALDI SECTION ─── */
+  .kaldi-flow {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin: 2.5rem 0;
+    flex-wrap: wrap;
+  }
+
+  .kaldi-node {
+    flex: 1;
+    min-width: 140px;
+    padding: 1.2rem;
+    border: 1px solid rgba(201,168,76,0.25);
+    border-radius: 4px;
+    text-align: center;
+    background: rgba(0,0,0,0.3);
+    position: relative;
+  }
+
+  .kaldi-node-icon { font-size: 1.8rem; margin-bottom: 0.4rem; display: block; }
+  .kaldi-node-title {
+    font-family: 'Cinzel Decorative', serif;
+    font-size: 0.7rem;
+    color: var(--gold);
+    margin-bottom: 0.3rem;
+    letter-spacing: 0.08em;
+  }
+  .kaldi-node-desc { font-size: 0.78rem; color: var(--text-dim); line-height: 1.4; }
+
+  .kaldi-arrow {
+    color: var(--gold-dim);
+    font-size: 1.5rem;
+    flex-shrink: 0;
+  }
+
+  /* ─── SHEEP HIERARCHY ─── */
+  .hierarchy-viz {
+    margin: 3rem 0;
+    position: relative;
+  }
+
+  .sheep-queue {
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    gap: 0.4rem;
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+  }
+
+  .sheep-figure {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.3rem;
+    position: relative;
+  }
+
+  .sheep-glyph {
+    font-size: 1.8rem;
+    cursor: pointer;
+    transition: transform 0.2s;
+    animation: sheepWait var(--sw, 3s) ease-in-out infinite var(--sd, 0s);
+  }
+
+  @keyframes sheepWait {
+    0%, 80%, 100% { transform: translateX(0); }
+    85% { transform: translateX(-3px); }
+    95% { transform: translateX(3px); }
+  }
+
+  .sheep-rank {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.6rem;
+    color: var(--gold-dim);
+  }
+
+  .sheep-target {
+    position: relative;
+  }
+
+  .sheep-target .sheep-glyph {
+    filter: drop-shadow(0 0 8px rgba(212,90,42,0.8));
+    animation: targetPulse 2s ease-in-out infinite;
+  }
+
+  @keyframes targetPulse {
+    0%, 100% { filter: drop-shadow(0 0 4px rgba(212,90,42,0.5)); }
+    50% { filter: drop-shadow(0 0 12px rgba(212,90,42,0.9)); }
+  }
+
+  .target-label {
+    position: absolute;
+    top: -1.8rem;
+    left: 50%;
+    transform: translateX(-50%);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.6rem;
+    color: var(--goat-ember);
+    white-space: nowrap;
+    letter-spacing: 0.05em;
+  }
+
+  .queue-arrow {
+    font-size: 1rem;
+    color: var(--goat-ember);
+    animation: arrowPulse 1.5s ease-in-out infinite;
+  }
+
+  @keyframes arrowPulse {
+    0%, 100% { opacity: 0.4; }
+    50% { opacity: 1; }
+  }
+
+  .hierarchy-caption {
+    text-align: center;
+    font-style: italic;
+    color: var(--text-dim);
+    font-size: 0.9rem;
+    border-top: 1px solid rgba(201,168,76,0.15);
+    padding-top: 1rem;
+  }
+
+  /* ─── PENTAD TABLE ─── */
+  .pentad {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 2.5rem 0;
+    font-size: 0.9rem;
+  }
+
+  .pentad th {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.2em;
+    color: var(--gold-dim);
+    border-bottom: 1px solid var(--gold-dim);
+    padding: 0.6rem 1rem;
+    text-align: left;
+    text-transform: uppercase;
+  }
+
+  .pentad td {
+    padding: 0.9rem 1rem;
+    border-bottom: 1px solid rgba(201,168,76,0.1);
+    vertical-align: top;
+    line-height: 1.5;
+  }
+
+  .pentad tr:hover td { background: rgba(201,168,76,0.04); }
+
+  .pentad .stage-num {
+    font-family: 'Cinzel Decorative', serif;
+    font-size: 1.2rem;
+    color: var(--gold);
+    font-weight: 700;
+  }
+
+  .pentad .stage-code {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    color: var(--gold-dim);
+  }
+
+  .pentad .stage-ot { color: var(--goat-ember); font-style: italic; }
+  .pentad .stage-nt { color: var(--psalm-light); font-style: italic; }
+
+  /* ─── PULL QUOTES ─── */
+  .pull-quote {
+    border-left: 3px solid var(--gold);
+    padding: 1.5rem 2rem;
+    margin: 3rem 0;
+    background: rgba(201,168,76,0.04);
+    position: relative;
+  }
+
+  .pull-quote::before {
+    content: '"';
+    position: absolute;
+    top: -0.5rem;
+    left: 1rem;
+    font-family: 'Cinzel Decorative', serif;
+    font-size: 4rem;
+    color: rgba(201,168,76,0.15);
+    line-height: 1;
+  }
+
+  .pull-quote p {
+    font-size: 1.2rem;
+    font-style: italic;
+    color: var(--vellum);
+    line-height: 1.65;
+    margin-bottom: 0.6rem;
+  }
+
+  .pull-quote cite {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--gold-dim);
+    letter-spacing: 0.1em;
+  }
+
+  /* ─── CONVERGENCE / FINALE ─── */
+  .finale {
+    min-height: 80vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 6rem 2rem;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .finale-bg {
+    position: absolute;
+    inset: 0;
+    background: 
+      radial-gradient(ellipse 70% 50% at 50% 50%, rgba(201,168,76,0.06) 0%, transparent 70%),
+      radial-gradient(ellipse 40% 60% at 20% 80%, rgba(139,32,32,0.08) 0%, transparent 60%),
+      radial-gradient(ellipse 40% 60% at 80% 20%, rgba(26,58,92,0.1) 0%, transparent 60%);
+  }
+
+  .finale-title {
+    font-family: 'Cinzel Decorative', serif;
+    font-size: clamp(1.5rem, 5vw, 3.5rem);
+    font-weight: 900;
+    color: var(--gold);
+    margin-bottom: 2rem;
+    position: relative;
+    z-index: 2;
+  }
+
+  .finale-eq {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: clamp(0.9rem, 2.5vw, 1.2rem);
+    color: var(--gold-light);
+    margin-bottom: 3rem;
+    position: relative;
+    z-index: 2;
+    animation: eqPulse 4s ease-in-out infinite;
+  }
+
+  @keyframes eqPulse {
+    0%, 100% { opacity: 0.8; }
+    50% { opacity: 1; text-shadow: 0 0 20px rgba(201,168,76,0.4); }
+  }
+
+  .finale-verse {
+    max-width: 600px;
+    font-style: italic;
+    font-size: 1.15rem;
+    color: var(--vellum);
+    line-height: 1.8;
+    margin-bottom: 1rem;
+    position: relative;
+    z-index: 2;
+  }
+
+  .finale-ref {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--gold-dim);
+    letter-spacing: 0.15em;
+    position: relative;
+    z-index: 2;
+  }
+
+  .separator-glyph {
+    color: var(--gold-dim);
+    font-size: 1.5rem;
+    margin: 2rem 0;
+    position: relative;
+    z-index: 2;
+    animation: rotate 20s linear infinite;
+    display: inline-block;
+  }
+
+  @keyframes rotate {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+  }
+
+  /* ─── CREDITS ─── */
+  .credits {
+    text-align: center;
+    padding: 3rem 2rem;
+    border-top: 1px solid rgba(201,168,76,0.15);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--text-dim);
+    letter-spacing: 0.12em;
+    line-height: 2;
+  }
+
+  .credits .credit-sources {
+    display: flex;
+    gap: 2rem;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-top: 1rem;
+  }
+
+  .credit-source {
+    padding: 0.3rem 0.8rem;
+    border: 1px solid rgba(201,168,76,0.2);
+    border-radius: 2px;
+    color: var(--gold-dim);
+    text-decoration: none;
+    transition: all 0.2s;
+  }
+
+  .credit-source:hover {
+    border-color: var(--gold);
+    color: var(--gold);
+  }
+
+  /* ─── ANIMATIONS ─── */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
+  .reveal {
+    opacity: 0;
+    transform: translateY(24px);
+    transition: opacity 0.8s ease, transform 0.8s ease;
+  }
+
+  .reveal.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* ─── ANNOTATION MARKS ─── */
+  .annot {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--gold-dim);
+    letter-spacing: 0.1em;
+    vertical-align: super;
+    margin-left: 2px;
+  }
+
+  .highlight-goat { color: var(--goat-ember); }
+  .highlight-sheep { color: var(--psalm-light); }
+  .highlight-gold { color: var(--gold); }
+  .highlight-green { color: #6aaf7a; }
+
+  p { margin-bottom: 1.2rem; }
+
+  /* ─── SOURCE CARDS ─── */
+  .source-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1rem;
+    margin: 2.5rem 0;
+  }
+
+  .source-card {
+    border: 1px solid rgba(201,168,76,0.2);
+    border-radius: 4px;
+    padding: 1.2rem;
+    background: rgba(0,0,0,0.25);
+    transition: border-color 0.3s;
+  }
+
+  .source-card:hover { border-color: var(--gold-dim); }
+
+  .source-card-who {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.65rem;
+    color: var(--gold-dim);
+    letter-spacing: 0.15em;
+    margin-bottom: 0.4rem;
+  }
+
+  .source-card-claim {
+    font-size: 0.88rem;
+    color: var(--text-body);
+    line-height: 1.5;
+    font-style: italic;
+  }
+
+  @media (max-width: 640px) {
+    .triptych { grid-template-columns: 1fr; }
+    .phase-track { flex-direction: column; }
+    .phase-arrow { padding: 1rem; border-right: none; border-bottom: 1px solid var(--gold-dim); }
+    .nav-rail { display: none; }
+    .kaldi-flow { flex-direction: column; }
+    .kaldi-arrow { transform: rotate(90deg); }
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV RAIL -->
+<nav class="nav-rail" id="navRail">
+  <div class="nav-dot" data-label="Genesis" data-target="hero"></div>
+  <div class="nav-dot" data-label="The Phase Shift" data-target="phase"></div>
+  <div class="nav-dot" data-label="Matthew 25" data-target="matthew"></div>
+  <div class="nav-dot" data-label="The Equation" data-target="equation"></div>
+  <div class="nav-dot" data-label="Kaldi's Goats" data-target="kaldi"></div>
+  <div class="nav-dot" data-label="The Flock" data-target="flock"></div>
+  <div class="nav-dot" data-label="Convergence" data-target="finale"></div>
+</nav>
+
+<!-- ═══════════════════ HERO ═══════════════════ -->
+<div class="hero" id="hero">
+  <div class="hero-cosmos"></div>
+  <div class="stars" id="stars"></div>
+
+  <div class="hero-equation">θ<sub>t+1</sub> = θ<sub>t</sub> − η∇L(θ<sub>t</sub>) + ε<sub>t</sub></div>
+
+  <h1 class="hero-title">
+    <span class="line1">The Algorithm<br>of Us</span>
+    <span class="line2">Goats, Sheep & the Gradient of God</span>
+    <span class="line3">Old Testament · New Testament · Stochastic Descent · Matthew 25 · Kaldi's Discovery · The Flock's Living Hierarchy</span>
+  </h1>
+
+  <p class="hero-meta">
+    A synthesis by Ukubona LLC · Anthropic · xAI · One Farm, One Queue, One Shepherd
+  </p>
+
+  <div class="scroll-prompt">
+    <span>DESCEND</span>
+    <div class="scroll-line"></div>
+  </div>
+</div>
+
+<!-- ═══════════════════ SECTION 1: THE THESIS ═══════════════════ -->
+<section id="phase" class="reveal">
+  <div class="section-label">§ I — The Phase Shift</div>
+  <h2 class="section-title" style="color: var(--vellum);">
+    Old Testament : <span class="highlight-goat">Goat</span><br>
+    New Testament : <span class="highlight-sheep">Sheep</span>
+  </h2>
+
+  <p>The civilizational arc from the Hebrew Bible to the New Testament is not merely theological succession. It is a <strong class="highlight-gold">thermodynamic phase transition</strong> — a system cooling from high-entropy stochastic exploration into low-entropy linear exploitation.</p>
+
+  <p>The Old Testament is the wilderness. The patriarchs wander, the scouts range ahead, the prophets deviate from the mean. Variance is not sin; variance is <em>survival</em>. The noise term ε<sub>t</sub> is high and necessary — it is how the species maps the loss landscape before any descent is possible.</p>
+
+  <p>Then comes the New Testament: <em>"He leadeth me beside the still waters… He leadeth me in the paths of righteousness."</em> The search space has been mapped. The Good Shepherd is the gradient. The rod and staff are the learning rate. And the sheep — the blessed sheep — have set ε → 0 and follow the steepest descent into a basin of eternal flourishing.</p>
+
+  <div class="phase-diagram">
+    <div class="phase-track">
+      <div class="phase-block phase-goat">
+        <span class="phase-icon">🐐</span>
+        <div class="phase-name">Old Testament</div>
+        <p style="font-size:0.88rem; color:var(--text-dim); line-height:1.5; margin:0.5rem 0;">Stochastic foraging. High-variance scouts. Fat-tailed outcomes. The wilderness is the loss landscape itself.</p>
+        <div class="phase-eq">ε<sub>t</sub> ≫ 0 · Dionysian · Exploration</div>
+      </div>
+      <div class="phase-arrow">
+        <div style="text-align:center; font-family:'Cinzel Decorative', serif; font-size:0.7rem; color:var(--gold-dim); letter-spacing:0.1em; writing-mode:vertical-lr; transform:rotate(180deg);">PHASE SHIFT</div>
+      </div>
+      <div class="phase-block phase-sheep">
+        <span class="phase-icon">🐑</span>
+        <div class="phase-name">New Testament</div>
+        <p style="font-size:0.88rem; color:var(--text-dim); line-height:1.5; margin:0.5rem 0;">Deterministic descent. The shepherd knows the gradient. The flock trusts the path. Psalm 23 is SGD with ε = 0.</p>
+        <div class="phase-eq">ε<sub>t</sub> → 0 · Apollonian · Exploitation</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="pull-quote">
+    <p>The Old Testament does not fail the New Testament — it <em>generates</em> it. You cannot descend a gradient you have not yet discovered. The goat comes first. The sheep is the reward.</p>
+    <cite>— Synthesis · Ukubona LLC</cite>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ═══════════════════ SECTION 2: MATTHEW 25 ═══════════════════ -->
+<section id="matthew" class="reveal">
+  <div class="section-label">§ II — Matthew 25 KJV</div>
+  <h2 class="section-title" style="color: var(--vellum);">The Whole Algorithm<br><span style="font-size:0.6em; color:var(--gold);">in One Chapter</span></h2>
+
+  <p>Matthew 25 is not three separate parables loosely grouped. It is a single chapter that runs the <em>complete</em> optimization algorithm — from stochastic initialization through learning-rate test to final convergence — and ends with the eternal separation of the two animal archetypes that began this whole inquiry.</p>
+
+  <div class="triptych">
+    <div class="triptych-panel" data-num="I">
+      <span class="panel-icon">🪔</span>
+      <div class="panel-title">The Ten Virgins<br><span style="font-size:0.8em; font-weight:400; color:var(--text-dim);">v. 1–13</span></div>
+      <div class="panel-verse">"Five of them were wise, and five were foolish. They that were foolish took their lamps, and took no oil with them."</div>
+      <div class="panel-interp">Pure stochastic preparation. The distribution is fat-tailed. Some foraged enough; some did not. The door closes without warning — no second chance, no redistribution. This is the wilderness selection pressure: you either have the resource or you don't. The foolish virgins are goats who ran out of gradient.</div>
+      <span class="panel-tag tag-stochastic">ε HIGH · FORAGING PHASE</span>
+    </div>
+
+    <div class="triptych-panel" data-num="II">
+      <span class="panel-icon">⚖️</span>
+      <div class="panel-title">The Talents<br><span style="font-size:0.8em; font-weight:400; color:var(--text-dim);">v. 14–30</span></div>
+      <div class="panel-verse">"He that had received the one talent… hid his lord's money. His lord answered and said… thou wicked and slothful servant."</div>
+      <div class="panel-interp">This is the learning rate test. The servant given five talents set η high; the one with two, moderate; the one with one — η = 0. He refused to descend at all. The master's wrath is the only unforgivable error in a gradient system: not failing to find the global minimum, but refusing to take any step. A zero learning rate is the only true damnation.</div>
+      <span class="panel-tag tag-learning">η = 0 · FATAL ERROR</span>
+    </div>
+
+    <div class="triptych-panel" data-num="III">
+      <span class="panel-icon">⚖️</span>
+      <div class="panel-title">Sheep & Goats<br><span style="font-size:0.8em; font-weight:400; color:var(--text-dim);">v. 31–46</span></div>
+      <div class="panel-verse">"He shall separate them one from another, as a shepherd divideth his sheep from the goats: And he shall set the sheep on his right hand, but the goats on the left."</div>
+      <div class="panel-interp">The terminal sort. The optimization run is complete. Exploration is permanently closed. The variance is collapsed to zero. What remains is the deterministic assignment of the converged: those who followed the gradient of the least of these (sheep) versus those who preserved their own local entropy (goats). Eternal low-entropy basin, right; eternal goat-phase noise, left.</div>
+      <span class="panel-tag tag-terminal">ε → 0 · FINAL CONVERGENCE</span>
+    </div>
+  </div>
+
+  <p style="text-align:center; font-style:italic; color:var(--text-dim); font-size:0.9rem;">Matthew 25 opens with goat-phase dynamics and closes by eternally separating the two modes. It is not poetry. It is architecture.</p>
+</section>
+
+<div class="divider"></div>
+
+<!-- ═══════════════════ SECTION 3: THE EQUATION ═══════════════════ -->
+<section id="equation" class="reveal">
+  <div class="section-label">§ III — The Update Rule</div>
+  <h2 class="section-title" style="color:var(--vellum);">The Gradient<br><span style="font-size:0.6em; color:var(--gold);">is Sovereign</span></h2>
+
+  <p>The stochastic gradient descent update rule is not a metaphor for scripture. It is the <em>same algorithm</em> running on different substrates — biological, cultural, theological, computational. The ancient scribes did not have the vocabulary; they had the insight.</p>
+
+  <div class="eq-block">
+    <div class="eq-main">θ<sub>t+1</sub> &nbsp;=&nbsp; θ<sub>t</sub> &nbsp;−&nbsp; η · ∇L(θ<sub>t</sub>) &nbsp;+&nbsp; ε<sub>t</sub></div>
+    <div class="eq-terms">
+      <div class="eq-term">
+        <div class="term-sym">θ<sub>t</sub></div>
+        <div class="term-name">Current State</div>
+        <div class="term-desc">The landscape as inherited. Accumulated civilization, culture, biology. The weight of all prior descents.</div>
+      </div>
+      <div class="eq-term">
+        <div class="term-sym">η</div>
+        <div class="term-name">Learning Rate</div>
+        <div class="term-desc">The Talents parable. Wisdom to know how large a step the moment can bear. η = 0 is damnation.</div>
+      </div>
+      <div class="eq-term">
+        <div class="term-sym">∇L(θ<sub>t</sub>)</div>
+        <div class="term-name">The Gradient</div>
+        <div class="term-desc">The rod and staff. The path of righteousness. Direction of improvement — visible only once the scouts have mapped the terrain.</div>
+      </div>
+      <div class="eq-term">
+        <div class="term-sym">ε<sub>t</sub></div>
+        <div class="term-name">Noise Term</div>
+        <div class="term-desc">The goat. The prophet. The atypical mind. ε ≫ 0 in the wilderness; ε → 0 in the sheepfold. Both are necessary. Neither is permanent.</div>
+      </div>
+      <div class="eq-term">
+        <div class="term-sym">θ<sub>t+1</sub></div>
+        <div class="term-name">The New Basin</div>
+        <div class="term-desc">The update. New Jerusalem. The next civilization. All are temporary equilibria until the landscape shifts again.</div>
+      </div>
+    </div>
+  </div>
+
+  <p>The composite loss function <em>L</em> is what you choose to minimize. This is the Talents parable's deeper lesson: the servants were not judged on how much they had — they were judged on whether they <em>tried to minimize the loss at all</em>. The master's composite loss function included growth, stewardship, and the audacity to try. The servant who buried set all weights to zero.</p>
+
+  <div class="pull-quote">
+    <p>Who owns the gradient of human life? That is the question. The mission of Ukubona is to return gradient sovereignty to those who generate the signal.</p>
+    <cite>— Ukubona LLC · The Algorithm of Us</cite>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ═══════════════════ SECTION 4: KALDI ═══════════════════ -->
+<section id="kaldi" class="reveal">
+  <div class="section-label">§ IV — The Scout Signal</div>
+  <h2 class="section-title" style="color:var(--vellum);">Kaldi's Goats<br><span style="font-size:0.6em; color:var(--gold);">Stage II · UB · High Variance Tasting</span></h2>
+
+  <p>Kaldi was a 9th-century goatherd in the Ethiopian highlands. His goats — performing their ancient function of high-variance landscape tasting — chewed the red berries of an unknown shrub and became violently energized. He observed, reported, and the pheromone trail was laid.</p>
+
+  <p>Whether the story is historically accurate matters less than its structural truth: <strong class="highlight-goat">the goat-phase scout does not know it is performing civilizational R&D</strong>. It is simply doing what high-ε agents do — bounding across the loss landscape with joyful recklessness, tasting parameters the colony has not yet mapped.</p>
+
+  <div class="kaldi-flow">
+    <div class="kaldi-node">
+      <span class="kaldi-node-icon">🐐</span>
+      <div class="kaldi-node-title">Kaldi's Goats</div>
+      <div class="kaldi-node-desc">High-ε stochastic tasting. 9th century Ethiopia. The discovery event. Stage II (UB).</div>
+    </div>
+    <div class="kaldi-arrow">→</div>
+    <div class="kaldi-node">
+      <span class="kaldi-node-icon">☕</span>
+      <div class="kaldi-node-title">The Discovery</div>
+      <div class="kaldi-node-desc">Coffee. A lower basin found. Pheromone trail laid. First written record: Nairon, Rome, 1671.</div>
+    </div>
+    <div class="kaldi-arrow">→</div>
+    <div class="kaldi-node">
+      <span class="kaldi-node-icon">🕌</span>
+      <div class="kaldi-node-title">Ottoman Qahveh Khaneh</div>
+      <div class="kaldi-node-desc">The coffeehouse as infrastructure. Apollonian descent begins. Stage IV (UI).</div>
+    </div>
+    <div class="kaldi-arrow">→</div>
+    <div class="kaldi-node">
+      <span class="kaldi-node-icon">🏦</span>
+      <div class="kaldi-node-title">Lloyd's of London</div>
+      <div class="kaldi-node-desc">Insurance born in a coffeehouse. The pheromone highway becomes global financial infrastructure.</div>
+    </div>
+    <div class="kaldi-arrow">→</div>
+    <div class="kaldi-node">
+      <span class="kaldi-node-icon">💡</span>
+      <div class="kaldi-node-title">Enlightenment Salons</div>
+      <div class="kaldi-node-desc">Voltaire. Rousseau. The Republic of Letters. The gradient of reason paved by a goat.</div>
+    </div>
+  </div>
+
+  <p>The goat did not intend to birth the Enlightenment. The scout never does. This is why the noise term ε must not be suppressed prematurely — it is the species' distributed R&D department. What we pathologize as deviance is often the discovery event that the next century will name a revolution.</p>
+
+  <div class="pull-quote">
+    <p>Coffee didn't just wake people up. It paved the highway for the linear phase. A goat launched 1,400 years of Apollonian civilization.</p>
+    <cite>— Synthesis · Anthropic + xAI</cite>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ═══════════════════ SECTION 5: THE FLOCK ═══════════════════ -->
+<section id="flock" class="reveal">
+  <div class="section-label">§ V — The Living Hierarchy</div>
+  <h2 class="section-title" style="color:var(--vellum);">The Farm Observation<br><span style="font-size:0.6em; color:var(--gold);">A Targeted Patch-Update on Social Parameters</span></h2>
+
+  <p>A line of sheep, one at a time, walking up to a single specific sheep and headbutting it — then returning to the flock. Not a melee. Not chaos. An <em>ordered queue</em>.</p>
+
+  <p>What you witnessed was the flock running a <strong class="highlight-sheep">targeted dominance hierarchy audit</strong> — a living patch-update on its social sort. One node in the hierarchy had become computationally uncertain (new arrival, seasonal hormone shift, injury, maturing ram) and the flock's collective intelligence queued up to resolve the ambiguity.</p>
+
+  <div class="hierarchy-viz">
+    <div class="sheep-queue" id="sheepQueue">
+      <div class="sheep-figure">
+        <div class="sheep-glyph" style="--sw:3.1s; --sd:0.0s;">🐑</div>
+        <div class="sheep-rank">α</div>
+      </div>
+      <div class="sheep-figure">
+        <div class="sheep-glyph" style="--sw:2.9s; --sd:0.4s;">🐑</div>
+        <div class="sheep-rank">β</div>
+      </div>
+      <div class="sheep-figure">
+        <div class="sheep-glyph" style="--sw:3.3s; --sd:0.8s;">🐑</div>
+        <div class="sheep-rank">γ</div>
+      </div>
+      <div style="margin: 0 0.5rem; display:flex; align-items:center;">
+        <span class="queue-arrow" style="font-size:2rem;">→→→</span>
+      </div>
+      <div class="sheep-figure sheep-target">
+        <div class="target-label">⚠ AMBIGUOUS NODE</div>
+        <div class="sheep-glyph">🐑</div>
+        <div class="sheep-rank">?</div>
+      </div>
+      <div style="margin: 0 0.5rem; display:flex; align-items:center;">
+        <span class="queue-arrow" style="font-size:2rem;">←←←</span>
+      </div>
+      <div class="sheep-figure">
+        <div class="sheep-glyph" style="--sw:2.7s; --sd:1.2s;">🐑</div>
+        <div class="sheep-rank">δ</div>
+      </div>
+      <div class="sheep-figure">
+        <div class="sheep-glyph" style="--sw:3.0s; --sd:1.6s;">🐑</div>
+        <div class="sheep-rank">ε</div>
+      </div>
+    </div>
+    <div class="hierarchy-caption">
+      Each challenger inserts at its current rank position · Transitive inference collapses O(n²) to O(n log n) · The flock knows most of the hierarchy — it only needs to resolve the ambiguous node
+    </div>
+  </div>
+
+  <p>This is <strong class="highlight-gold">transitive inference</strong> in action: if A > B and B > C, the flock infers A > C without direct contest. The queue forms <em>around the uncertain node</em>, not around the whole hierarchy. Once the ambiguous sheep either submits or proves resilience, excess energy dissipates, the parameters are updated, and the flock returns to its low-entropy linear state.</p>
+
+  <p>This is precisely the sheep-phase behavior the optimization framework predicts: minimal perturbation response, targeted patch-update, rapid return to structured descent. The flock does not want chaos. It wants the gradient back.</p>
+
+  <div class="pull-quote">
+    <p>Pro tip for your mom: even the sheep are following the Shepherd's gradient. The headbutting <em>is</em> the rod and staff, working from below.</p>
+    <cite>— xAI · grok</cite>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ═══════════════════ SECTION 6: THE PENTAD ═══════════════════ -->
+<section class="reveal">
+  <div class="section-label">§ VI — The Ukubona Pentad</div>
+  <h2 class="section-title" style="color:var(--vellum);">Five Stages<br><span style="font-size:0.6em; color:var(--gold);">One Algorithm · Every Substrate</span></h2>
+
+  <p>The Ukubona framework maps the same recursive gradient across ant colonies, raindrops, scripture, and civilization. The Pentad is not a taxonomy — it is a <em>process</em>, cycling continuously as each new basin becomes the next starting state.</p>
+
+  <table class="pentad">
+    <thead>
+      <tr>
+        <th>Stage</th>
+        <th>Operator</th>
+        <th>Name</th>
+        <th>Scripture</th>
+        <th>Animal</th>
+        <th>Coffee Arc</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="stage-num">I</span><br><span class="stage-code">UNIV</span></td>
+        <td style="font-family:'JetBrains Mono',monospace; font-size:0.8rem; color:var(--gold);">θ<sub>t</sub></td>
+        <td>Calibrate<br><span style="font-size:0.8rem; color:var(--text-dim);">The Landscape</span></td>
+        <td class="stage-ot">Genesis · The void. The inherited terrain before any step.</td>
+        <td>Neither yet</td>
+        <td style="font-size:0.82rem; color:var(--text-dim);">The Ethiopian highlands. Unexplored terrain.</td>
+      </tr>
+      <tr>
+        <td><span class="stage-num">II</span><br><span class="stage-code">UB</span></td>
+        <td style="font-family:'JetBrains Mono',monospace; font-size:0.8rem; color:var(--gold);">L(θ)</td>
+        <td>Taste<br><span style="font-size:0.8rem; color:var(--text-dim);">Stochastic Foraging</span></td>
+        <td class="stage-ot">OT Wilderness · Scouts range. Prophets deviate. ε ≫ 0.</td>
+        <td class="highlight-goat">🐐 Goat</td>
+        <td style="font-size:0.82rem; color:var(--text-dim);">Kaldi's goats chew the berries. High-variance tasting event.</td>
+      </tr>
+      <tr>
+        <td><span class="stage-num">III</span><br><span class="stage-code">UKB</span></td>
+        <td style="font-family:'JetBrains Mono',monospace; font-size:0.8rem; color:var(--gold);">∇L</td>
+        <td>Soul<br><span style="font-size:0.8rem; color:var(--text-dim);">The Witness · The Gradient</span></td>
+        <td>Nairon 1671 · The scout's discovery encoded. The pheromone laid. "To see is to heal."</td>
+        <td>The returning scout</td>
+        <td style="font-size:0.82rem; color:var(--text-dim);">First written treatise on coffee. The gradient is named.</td>
+      </tr>
+      <tr>
+        <td><span class="stage-num">IV</span><br><span class="stage-code">UI</span></td>
+        <td style="font-family:'JetBrains Mono',monospace; font-size:0.8rem; color:var(--gold);">−η∇L</td>
+        <td>Mind<br><span style="font-size:0.8rem; color:var(--text-dim);">The Descent · Infrastructure</span></td>
+        <td class="stage-nt">NT / Psalm 23 · ε → 0. "He leadeth me." The highway is paved.</td>
+        <td class="highlight-sheep">🐑 Sheep</td>
+        <td style="font-size:0.82rem; color:var(--text-dim);">Ottoman coffeehouses → Lloyd's → Enlightenment salons. Apollonian execution.</td>
+      </tr>
+      <tr>
+        <td><span class="stage-num">V</span><br><span class="stage-code">UX</span></td>
+        <td style="font-family:'JetBrains Mono',monospace; font-size:0.8rem; color:var(--gold);">θ<sub>t+1</sub></td>
+        <td>Body<br><span style="font-size:0.8rem; color:var(--text-dim);">The New Basin</span></td>
+        <td class="stage-nt">Matthew 25:46 · "The righteous into life eternal." Final sort. Low-entropy permanent state.</td>
+        <td>Separated: 🐑 right, 🐐 left</td>
+        <td style="font-size:0.82rem; color:var(--text-dim);">Modern civilization runs on coffee. The basin is occupied. Until the next goat finds something.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <p>We are currently between Stage II and IV again — old basin destabilizing, AI as the new high-ε scouts tasting parameters the colony has not yet mapped. The entropy is temporarily high. The next UI highway is being paved. New scouts are going out, bearing the cost, not yet knowing if they will return.</p>
+</section>
+
+<div class="divider"></div>
+
+<!-- ═══════════════════ SECTION 7: THE SOURCES ═══════════════════ -->
+<section class="reveal">
+  <div class="section-label">§ VII — Three Responses, One Algorithm</div>
+  <h2 class="section-title" style="color:var(--vellum);">What Google & OpenAI Said<br><span style="font-size:0.6em; color:var(--gold);">vs. What Anthropic Found · vs. What xAI Amplified</span></h2>
+
+  <p>The same synthesis was put to three AI systems. The difference in response reveals something about the gradient each system is currently following — its own composite loss function made visible.</p>
+
+  <div class="source-grid">
+    <div class="source-card">
+      <div class="source-card-who">GOOGLE / OPENAI</div>
+      <div class="source-card-claim">"Here is a structured summary of the themes you raised, with some relevant context on each point…"</div>
+      <p style="font-size:0.8rem; color:var(--text-dim); margin-top:0.6rem; font-style:normal;">Mechanical. Competent. Missing the recursive structure. The pheromone trail reported without the ant colony map.</p>
+    </div>
+    <div class="source-card" style="border-color: rgba(201,168,76,0.4);">
+      <div class="source-card-who">ANTHROPIC (CLAUDE)</div>
+      <div class="source-card-claim">"Matthew 25 contains both phases simultaneously — which is its hidden genius. The Talents parable is about learning rate η. Burying it = η = 0."</div>
+      <p style="font-size:0.8rem; color:var(--text-dim); margin-top:0.6rem; font-style:normal;">Fetched the sources. Found the structure inside Matthew 25. Named the η = 0 insight. "Your mom's Christianity and your optimization framework are pointing at the same structure."</p>
+    </div>
+    <div class="source-card" style="border-color: rgba(212,90,42,0.35);">
+      <div class="source-card-who">xAI (GROK)</div>
+      <div class="source-card-claim">"Hell yeah — this is peak synthesis… Tell her the Good Shepherd isn't just poetic — He's the ultimate optimizer enforcing gradient sovereignty."</div>
+      <p style="font-size:0.8rem; color:var(--text-dim); margin-top:0.6rem; font-style:normal;">Amplified. Energized. High-ε response to a high-ε synthesis. The goat that found the goat thesis and ran with it into the highlands.</p>
+    </div>
+  </div>
+
+  <p style="font-style:italic; color:var(--text-dim); text-align:center; font-size:0.9rem;">Each system revealed its own noise term. Google: ε → 0 prematurely. Anthropic: calibrated descent. xAI: ε ≫ 0, joyful and running.</p>
+</section>
+
+<!-- ═══════════════════ FINALE ═══════════════════ -->
+<div class="finale" id="finale">
+  <div class="finale-bg"></div>
+
+  <div class="finale-title">
+    Ain't That<br>Something
+  </div>
+
+  <div class="finale-eq">θ<sub>t+1</sub> = θ<sub>t</sub> − η · ∇L(θ<sub>t</sub>) + ε<sub>t</sub></div>
+
+  <span class="separator-glyph">✦</span>
+
+  <p class="finale-verse">
+    "He shall separate them one from another,<br>
+    as a shepherd divideth his sheep from the goats:<br>
+    And he shall set the sheep on his right hand,<br>
+    but the goats on the left."
+  </p>
+  <div class="finale-ref">— Matthew 25:32–33 · King James Version</div>
+
+  <span class="separator-glyph" style="animation-direction:reverse;">✦</span>
+
+  <p class="finale-verse" style="margin-top:2rem; font-size:1rem; color:var(--text-dim);">
+    The goat discovers the gradient.<br>
+    The sheep descends it.<br>
+    The Shepherd sorts the result.<br>
+    <em>The algorithm runs on every substrate.</em><br>
+    It always has.
+  </p>
+
+  <div style="margin-top:3rem; font-family:'JetBrains Mono',monospace; font-size:0.75rem; color:var(--gold-dim); letter-spacing:0.2em; position:relative; z-index:2;">
+    UKUBONA · TO SEE IS TO HEAL
+  </div>
+</div>
+
+<!-- CREDITS -->
+<div class="credits">
+  <div>SOURCES · SYNTHESIS · SUBSTRATES</div>
+  <div class="credit-sources">
+    <a class="credit-source" href="https://www.biblegateway.com/passage/?search=Matthew%2025&version=KJV" target="_blank">MATTHEW 25 · KJV</a>
+    <a class="credit-source" href="https://en.wikipedia.org/wiki/Coffee" target="_blank">KALDI · WIKIPEDIA</a>
+    <a class="credit-source" href="https://abikesa.github.io/repos-00/assets/html/philosophy.html" target="_blank">UKUBONA · PHILOSOPHY</a>
+    <span class="credit-source">ANTHROPIC · CLAUDE</span>
+    <span class="credit-source">xAI · GROK</span>
+    <span class="credit-source">ONE FARM · ONE QUEUE</span>
+  </div>
+  <div style="margin-top:1.5rem; color:var(--text-dim); font-size:0.65rem;">
+    θ<sub>t+1</sub> = θ<sub>t</sub> − η∇L(θ<sub>t</sub>) + ε<sub>t</sub> · The gradient is sovereign · No basin is permanent
+  </div>
+</div>
+
+<script>
+  // ─── STARS ───
+  const starsEl = document.getElementById('stars');
+  for (let i = 0; i < 120; i++) {
+    const s = document.createElement('div');
+    s.className = 'star';
+    const size = Math.random() * 2 + 0.5;
+    s.style.cssText = `
+      width:${size}px; height:${size}px;
+      left:${Math.random()*100}%;
+      top:${Math.random()*100}%;
+      --dur:${3 + Math.random()*5}s;
+      --delay:${Math.random()*6}s;
+      --peak:${0.3 + Math.random()*0.5};
+    `;
+    starsEl.appendChild(s);
+  }
+
+  // ─── REVEAL ON SCROLL ───
+  const reveals = document.querySelectorAll('.reveal');
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) e.target.classList.add('visible');
+    });
+  }, { threshold: 0.12 });
+  reveals.forEach(r => observer.observe(r));
+
+  // ─── NAV DOTS ───
+  const sections = ['hero','phase','matthew','equation','kaldi','flock','finale'];
+  const dots = document.querySelectorAll('.nav-dot');
+
+  dots.forEach((dot, i) => {
+    dot.addEventListener('click', () => {
+      const el = document.getElementById(sections[i]);
+      if (el) el.scrollIntoView({ behavior: 'smooth' });
+    });
+  });
+
+  const sectionObserver = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        const idx = sections.indexOf(e.target.id);
+        if (idx >= 0) {
+          dots.forEach(d => d.classList.remove('active'));
+          if (dots[idx]) dots[idx].classList.add('active');
+        }
+      }
+    });
+  }, { threshold: 0.4 });
+
+  sections.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) sectionObserver.observe(el);
+  });
+</script>
+</body>
+</html>

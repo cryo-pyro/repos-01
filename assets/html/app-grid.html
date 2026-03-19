@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ukubona · Apps</title>
+<link rel="icon" href="https://abikesa.github.io/faviconassets/favicon-light.ico" type="image/x-icon">
+<link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Serif+Display:ital@0;1&family=IBM+Plex+Mono:wght@300;400&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:    #0a0a0f;
+  --off:   #13131a;
+  --rule:  #2a2a35;
+  --muted: #888898;
+  --ink:   #f0f0f8;
+  --r:#f72b1a; --o:#ff7200; --y:#f5cc00;
+  --g:#1ec94a; --b:#1a8fff; --i:#6c35ff; --v:#b800cc;
+  --roy: linear-gradient(90deg,var(--r) 0%,var(--o) 16%,var(--y) 32%,var(--g) 48%,var(--b) 64%,var(--i) 82%,var(--v) 100%);
+  --syne: 'Syne', sans-serif;
+  --mono: 'IBM Plex Mono', monospace;
+  --T: background .35s ease, color .35s ease;
+}
+[data-theme="light"] {
+  --bg:    #f7f7f5;
+  --off:   #efefec;
+  --rule:  #d8d8d2;
+  --muted: #888880;
+  --ink:   #111110;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { font-size: 16px; }
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--syne);
+  min-height: 100vh;
+  cursor: none;
+  transition: var(--T);
+}
+::selection { background: var(--b); color: #fff; }
+
+/* ── CURSOR ── */
+.cursor {
+  position: fixed; width: 10px; height: 10px; border-radius: 50%;
+  background: var(--roy); background-size: 200% 100%;
+  animation: cshift 3s linear infinite;
+  pointer-events: none; z-index: 9999;
+  transform: translate(-50%,-50%);
+  transition: width .2s, height .2s;
+  mix-blend-mode: difference;
+}
+.cursor.large { width: 28px; height: 28px; }
+@keyframes cshift { 0%{background-position:0 50%} 100%{background-position:200% 50%} }
+
+/* ── STRIP ── */
+.strip {
+  position: fixed; top: 0; left: 0; right: 0; height: 3px;
+  background: var(--roy); background-size: 200% 100%;
+  animation: sh 3s linear infinite; z-index: 101; pointer-events: none;
+}
+@keyframes sh { 0%{background-position:0 50%} 100%{background-position:300% 50%} }
+
+/* ── NAV ── */
+nav {
+  position: sticky; top: 0; z-index: 100;
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 1rem 2.5rem;
+  background: color-mix(in srgb, var(--bg) 92%, transparent);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--rule);
+  transition: var(--T);
+}
+.nav-logo {
+  font-family: var(--syne); font-weight: 800; font-size: .95rem;
+  letter-spacing: -.01em; text-decoration: none; color: var(--ink);
+  flex-shrink: 0;
+}
+.gw {
+  background: var(--roy); background-size: 300% 100%;
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  background-clip: text; animation: sh 4s linear infinite;
+}
+.nav-right {
+  display: flex; gap: .8rem; align-items: center;
+  flex-shrink: 0; white-space: nowrap;
+}
+.nav-btn {
+  background: none; border: 1px solid var(--rule); color: var(--muted);
+  font-family: var(--mono); font-size: .62rem; letter-spacing: .1em;
+  padding: .4rem .8rem; cursor: none;
+  transition: border-color .2s, color .2s;
+  text-decoration: none; display: inline-block;
+  white-space: nowrap;
+}
+.nav-btn:hover { border-color: var(--ink); color: var(--ink); }
+
+/* suppress any externally-injected fixed close buttons */
+body > a[style*="position: fixed"],
+body > button[style*="position: fixed"],
+body > div[style*="position: fixed"]:not(.cursor):not(.strip) {
+  display: none !important;
+}
+
+/* ── GRID LAYOUT ── */
+.grid-wrap {
+  max-width: 1300px;
+  margin: 0 auto;
+  padding: 2.5rem 2.5rem 5rem;
+}
+.grid-header {
+  margin-bottom: 2rem;
+  display: flex;
+  align-items: baseline;
+  gap: 1.2rem;
+  flex-wrap: wrap;
+}
+.grid-title {
+  font-family: var(--syne); font-weight: 800;
+  font-size: clamp(1.4rem, 3vw, 2rem);
+  letter-spacing: -.02em; line-height: 1;
+}
+.grid-eq {
+  font-family: var(--mono); font-size: .7rem;
+  color: var(--muted); letter-spacing: .06em;
+}
+
+/* ── PENTAD COLUMNS ── */
+.ag-pentad {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 2px;
+  background: var(--rule);
+  border: 1px solid var(--rule);
+  border-radius: 2px;
+  overflow: hidden;
+}
+.ag-col {
+  display: flex; flex-direction: column;
+  background: var(--off);
+  transition: var(--T);
+}
+.ag-col-head {
+  padding: .9rem 1rem .7rem;
+  border-bottom: 1px solid var(--rule);
+  position: sticky; top: 60px;
+  background: var(--off); z-index: 2;
+  transition: var(--T);
+}
+.ag-step-sym {
+  font-family: var(--mono); font-size: 1.05rem; font-weight: 400;
+  display: block; margin-bottom: .15rem;
+}
+.ag-step-label {
+  font-family: var(--mono); font-size: .5rem; letter-spacing: .18em;
+  text-transform: uppercase; color: var(--muted); display: block; line-height: 1.2;
+}
+.ag-step-name {
+  font-family: var(--syne); font-size: .68rem; font-weight: 700;
+  color: var(--muted); display: block; margin-top: .1rem;
+}
+.ag-col:nth-child(1) .ag-col-head { border-top: 3px solid var(--r); }
+.ag-col:nth-child(2) .ag-col-head { border-top: 3px solid var(--o); }
+.ag-col:nth-child(3) .ag-col-head { border-top: 3px solid var(--y); }
+.ag-col:nth-child(4) .ag-col-head { border-top: 3px solid var(--g); }
+.ag-col:nth-child(5) .ag-col-head { border-top: 3px solid var(--b); }
+.ag-col:nth-child(1) .ag-step-sym { color: var(--r); }
+.ag-col:nth-child(2) .ag-step-sym { color: var(--o); }
+.ag-col:nth-child(3) .ag-step-sym { color: var(--y); }
+.ag-col:nth-child(4) .ag-step-sym { color: var(--g); }
+.ag-col:nth-child(5) .ag-step-sym { color: var(--b); }
+
+/* ── ITEMS ── */
+.ag-items { display: flex; flex-direction: column; flex: 1; }
+.ag-item {
+  display: flex; align-items: center; gap: .7rem;
+  padding: .8rem 1rem;
+  text-decoration: none; color: var(--ink);
+  font-family: var(--syne); font-size: .76rem; font-weight: 600;
+  border-bottom: 1px solid color-mix(in srgb, var(--rule) 50%, transparent);
+  transition: background .15s, color .15s, padding-left .2s;
+}
+.ag-item:last-child { border-bottom: none; }
+.ag-item:hover { background: var(--ink); color: var(--bg); padding-left: 1.35rem; }
+.ag-item:hover .ag-item-hint { color: color-mix(in srgb, var(--bg) 60%, transparent); }
+.ag-icon { font-size: 1rem; line-height: 1; flex-shrink: 0; }
+.ag-item-text { display: flex; flex-direction: column; gap: .04rem; }
+.ag-item-name { line-height: 1.1; }
+.ag-item-hint {
+  font-family: var(--mono); font-size: .5rem; letter-spacing: .08em;
+  color: var(--muted); line-height: 1.2; transition: color .15s;
+}
+.ag-item.placeholder { opacity: .28; pointer-events: none; font-style: italic; }
+
+/* ── RESPONSIVE ── */
+@media (max-width: 900px) {
+  .ag-pentad { grid-template-columns: 1fr 1fr; }
+  .grid-wrap { padding: 2rem 1.5rem 4rem; }
+  nav { padding: 1rem 1.5rem; }
+}
+@media (max-width: 520px) {
+  .ag-pentad { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+
+<div class="cursor" id="cursor"></div>
+<div class="strip"></div>
+
+<nav>
+  <a href="../../index.html" class="nav-logo"><span class="gw">Ukubona</span> LLC</a>
+  <div class="nav-right">
+    <button class="nav-btn" id="themeBtn">◐ theme</button>
+    <a href="../../index.html" class="nav-btn">✕ close</a>
+  </div>
+</nav>
+
+<div class="grid-wrap">
+  <div class="grid-header">
+    <span class="grid-title">All Apps</span>
+    <span class="grid-eq">θ → L(θ) → ∇L → −η∇L → θ′</span>
+  </div>
+
+  <div class="ag-pentad">
+
+    <!-- ── I · θ  IDENTITY ── -->
+    <div class="ag-col">
+      <div class="ag-col-head">
+        <span class="ag-step-sym">θ</span>
+        <span class="ag-step-label">Baseline · State</span>
+        <span class="ag-step-name">Who We Are</span>
+      </div>
+      <div class="ag-items">
+        <a class="ag-item" href="../../index.html">
+          <span class="ag-icon">🏠</span>
+          <span class="ag-item-text"><span class="ag-item-name">Home</span><span class="ag-item-hint">Landing · index.html</span></span>
+        </a>
+                <a class="ag-item" href="dt-20260310.html"><span class="ag-icon">📅</span><span class="ag-item-text"><span class="ag-item-name">Twin · 2026-03-10</span><span class="ag-item-hint">Dated snapshot</span></span></a>
+        <a class="ag-item" href="dt-20260310-v1.html"><span class="ag-icon">📅</span><span class="ag-item-text"><span class="ag-item-name">Twin · 2026-03-10 v1</span><span class="ag-item-hint">Dated snapshot v1</span></span></a>
+        <a class="ag-item" href="hearing-is-learning.html">
+          <span class="ag-icon">🎹</span>
+          <span class="ag-item-text"><span class="ag-item-name">Hearing Is Learning</span><span class="ag-item-hint">Pentadic musical mastery</span></span>
+        </a>
+        <a class="ag-item" href="mohini-dey.html">
+          <span class="ag-icon">🎸</span>
+          <span class="ag-item-text"><span class="ag-item-name">Mohini Dey</span><span class="ag-item-hint">Learning as Gradient Descent</span></span>
+        </a>
+        <a class="ag-item" href="philosophy.html">
+          <span class="ag-icon">🧠</span>
+          <span class="ag-item-text"><span class="ag-item-name">Philosophy</span><span class="ag-item-hint">Stratigraphic thought</span></span>
+        </a>
+          <a class="ag-item" href="ghosts-phantoms.html">
+          <span class="ag-icon">👻</span>
+          <span class="ag-item-text"><span class="ag-item-name">Ghosts & Phantoms</span><span class="ag-item-hint">There needs no Ghosts, OpenAI!</span></span>
+        </a>
+      <a class="ag-item" href="grammar.html">
+          <span class="ag-icon">📚</span>
+          <span class="ag-item-text"><span class="ag-item-name">Universal Grammar</span><span class="ag-item-hint">Strictly Pentadic</span></span>
+        </a>
+     <a class="ag-item" href="../ui/learning-twin.html">
+          <span class="ag-icon">📚</span>
+          <span class="ag-item-text"><span class="ag-item-name">Learning Twin</span><span class="ag-item-hint">UKB-DT-20260313</span></span>
+        </a>
+<a class="ag-item" href="revolution-televized.html">
+          <span class="ag-icon">📚</span>
+          <span class="ag-item-text"><span class="ag-item-name">Revolution Televized</span><span class="ag-item-hint">UKB-DT-20260313 Ledger</span></span>
+        </a>
+        <a class="ag-item" href="goats-sheeps.html"><span class="ag-icon">🐐</span><span class="ag-item-text"><span class="ag-item-name">Goats & Sheeps</span><span class="ag-item-hint">Apollonian-Dionysian</span></span></a>
+        <a class="ag-item" href="architecture.html"><span class="ag-icon">🏛️</span><span class="ag-item-text"><span class="ag-item-name">Architecture</span><span class="ag-item-hint">UGOAX Round Table</span></span></a>
+        <a class="ag-item" href="pipeline.html"><span class="ag-icon">📊</span><span class="ag-item-text"><span class="ag-item-name">Pipeline</span><span class="ag-item-hint">Data Pipeline</span></span></a>
+        <a class="ag-item" href="pipeline-roundtable.html"><span class="ag-icon">👥</span><span class="ag-item-text"><span class="ag-item-name">Roundtable II</span><span class="ag-item-hint">NPA Roundtable II</span></span></a>
+        <a class="ag-item" href="pipeline-synthetic-demo.html"><span class="ag-icon">🧪</span><span class="ag-item-text"><span class="ag-item-name">Synthetic Demo</span><span class="ag-item-hint">For NPA</span></span></a>
+        <a class="ag-item" href="npa-map.html"><span class="ag-icon">🗺️</span><span class="ag-item-text"><span class="ag-item-name">NPA Map</span><span class="ag-item-hint">NPA Map</span></span></a>
+        <a class="ag-item" href="npa-pipeline.html"><span class="ag-icon">🤖</span><span class="ag-item-text"><span class="ag-item-name">NPA Pipeline</span><span class="ag-item-hint">NPA Pipeline</span></span></a>      
+        <a class="ag-item" href="npa-flask.html"><span class="ag-icon">📱</span><span class="ag-item-text"><span class="ag-item-name">NPA Flask</span><span class="ag-item-hint">NPA Flask</span></span></a>     
+        <a class="ag-item" href="kiti-kya-muwogo.html"><span class="ag-icon">🌱</span><span class="ag-item-text"><span class="ag-item-name">Kiti Kya Muwogo</span><span class="ag-item-hint">Kiti Kya Muwogo</span></span></a>      
+        <a class="ag-item" href="npa-roundtable.html"><span class="ag-icon">👥</span><span class="ag-item-text"><span class="ag-item-name">NPA Roundtable</span><span class="ag-item-hint">NPA Roundtable</span></span></a>      
+        <a class="ag-item" href="miws.html"><span class="ag-icon">📊</span><span class="ag-item-text"><span class="ag-item-name">Men in Womens Sports</span><span class="ag-item-hint">MIWS</span></span></a>      
+        <a class="ag-item" href="setup-olivia.html"><span class="ag-icon">⚙️</span><span class="ag-item-text"><span class="ag-item-name">Setup Olivia</span><span class="ag-item-hint">ER Consent Process</span></span></a>      
+        <a class="ag-item" href="moh.html"><span class="ag-icon">🏥</span><span class="ag-item-text"><span class="ag-item-name">Ministry of Health</span><span class="ag-item-hint">CHEWs</span></span></a>      
+        <a class="ag-item" href="mukutula-nsanja.html"><span class="ag-icon">📅</span><span class="ag-item-text"><span class="ag-item-name">Mukutula Nsanja</span><span class="ag-item-hint">Buganda Calendar</span></span></a>      
+        <a class="ag-item" href="autism-ug.html"><span class="ag-icon">🧠</span><span class="ag-item-text"><span class="ag-item-name">Autism in Uganda</span><span class="ag-item-hint">Autism Awareness</span></span></a>      
+        <a class="ag-item" href="mh-data.html"><span class="ag-icon">🇺🇬</span><span class="ag-item-text"><span class="ag-item-name">Mental Health Data</span><span class="ag-item-hint">Uganda Mental Health</span></span></a>     
+        <a class="ag-item" href="users-abuses-history.html"><span class="ag-icon">📚</span><span class="ag-item-text"><span class="ag-item-name">Uses & Abuses of History</span><span class="ag-item-hint">Untimely Meditations</span></span></a>     
+      </div>
+    </div>
+
+    <!-- ── II · L(θ)  LOSS ── -->
+    <div class="ag-col">
+      <div class="ag-col-head">
+        <span class="ag-step-sym">L(θ)</span>
+        <span class="ag-step-label">Loss · The Problem</span>
+        <span class="ag-step-name">What's Broken</span>
+      </div>
+      <div class="ag-items">
+        <a class="ag-item" href="models.html">
+          <span class="ag-icon">📊</span>
+          <span class="ag-item-text"><span class="ag-item-name">Models</span><span class="ag-item-hint">Loss surfaces</span></span>
+        </a>
+        <a class="ag-item" href="nhanes.html">
+          <span class="ag-icon">📉</span>
+          <span class="ag-item-text"><span class="ag-item-name">Personalized Risk</span><span class="ag-item-hint">NHANES · individual</span></span>
+        </a>
+        <a class="ag-item" href="probe.html">
+          <span class="ag-icon">🔬</span>
+          <span class="ag-item-text"><span class="ag-item-name">Probe</span><span class="ag-item-hint">Diagnostic layer</span></span>
+        </a>
+        <a class="ag-item" href="riddle-00.html">
+          <span class="ag-icon">🌆</span>
+          <span class="ag-item-text"><span class="ag-item-name">Skyline</span><span class="ag-item-hint">Riddle · loss as vista</span></span>
+        </a>
+        <a class="ag-item" href="riddle-01.html">
+          <span class="ag-icon">🧩</span>
+          <span class="ag-item-text"><span class="ag-item-name">Riddle</span><span class="ag-item-hint">Signal vs. noise</span></span>
+        </a>
+        <a class="ag-item" href="metrics-section.html">
+          <span class="ag-icon">📐</span>
+          <span class="ag-item-text"><span class="ag-item-name">Metrics</span><span class="ag-item-hint">Loss measurement section</span></span>
+        </a>
+        <a class="ag-item" href="youtube.html">
+          <span class="ag-icon">📺</span>
+          <span class="ag-item-text"><span class="ag-item-name">YouTube</span><span class="ag-item-hint">Landscape · emotion</span></span>
+        </a>
+        <a class="ag-item" href="https://ukubona-llc.github.io/landscape/">
+          <span class="ag-icon">⛰️</span>
+          <span class="ag-item-text"><span class="ag-item-name">Landscape</span><span class="ag-item-hint">Uganda · depression</span></span>
+        </a>
+        <a class="ag-item" href="dt-20260310-v3.html"><span class="ag-icon">📅</span><span class="ag-item-text"><span class="ag-item-name">Twin · 2026-03-10 v3</span><span class="ag-item-hint">Posthoc vs. A Priori</span></span></a>
+        <a class="ag-item" href="dt-20260310-v4.html"><span class="ag-icon">📅</span><span class="ag-item-text"><span class="ag-item-name">Twin · 2026-03-10 v4</span><span class="ag-item-hint">Bias, Parameters, Error</span></span></a>
+        <a class="ag-item" href="dt-20260311-v1.html"><span class="ag-icon">📅</span><span class="ag-item-text"><span class="ag-item-name">Twin · 2026-03-11 v1</span><span class="ag-item-hint">Pentadic Constitution</span></span></a>
+        <a class="ag-item" href="dt-20260311-v2.html"><span class="ag-icon">📅</span><span class="ag-item-text"><span class="ag-item-name">Twin · 2026-03-11 v2</span><span class="ag-item-hint">The Governed Loop</span></span></a>
+        <a class="ag-item" href="https://ukubona-llc.github.io/debbie/"><span class="ag-icon">📅</span><span class="ag-item-text"><span class="ag-item-name">Twin · 2026-03-11 v4</span><span class="ag-item-hint">Genomic Data Sharing</span></span></a>
+        <a class="ag-item" href="shift-in-loss.html">
+          <span class="ag-icon">📈</span>  
+          <span class="ag-item-text"><span class="ag-item-name">Shift in Loss</span><span class="ag-item-hint">Composite Function · kingdom</span></span>
+        </a>
+        <a class="ag-item" href="blame-escape-on-it.html"><span class="ag-icon">🍺</span><span class="ag-item-text"><span class="ag-item-name">Modal Escape</span><span class="ag-item-hint">Alcohol</span></span></a> 
+        <a class="ag-item" href="blame-no-salience.html"><span class="ag-icon">❗</span><span class="ag-item-text"><span class="ag-item-name">Blame It</span><span class="ag-item-hint">Salience</span></span></a> 
+        <a class="ag-item" href="plus-nonplus-ultra.html"><span class="ag-icon">⚡</span><span class="ag-item-text"><span class="ag-item-name">Plus vs. Non-Plus Ultra</span><span class="ag-item-hint">Phase-Transition</span></span></a> 
+        <a class="ag-item" href="wohltemperierte.html"><span class="ag-icon">🎹</span><span class="ag-item-text"><span class="ag-item-name">Wohltemperierte</span><span class="ag-item-hint">Mathematical Constraint</span></span></a> 
+        <a class="ag-item" href="informed-consent.html"><span class="ag-icon">📝</span><span class="ag-item-text"><span class="ag-item-name">Informed Consent</span><span class="ag-item-hint">Framing Effects</span></span></a> 
+        <a class="ag-item" href="er-consent.html"><span class="ag-icon">📝</span><span class="ag-item-text"><span class="ag-item-name">ER Consent for Surgery</span><span class="ag-item-hint">DT's Wishes</span></span></a> 
+        <a class="ag-item" href="international-diplomacy.html"><span class="ag-icon">🇪🇺</span><span class="ag-item-text"><span class="ag-item-name">International Diplomacy</span><span class="ag-item-hint">Diplomatic Relations</span></span></a>   
+        <a class="ag-item" href="i-had-a-dream.html"><span class="ag-icon">💭</span><span class="ag-item-text"><span class="ag-item-name">I Had A Dream</span><span class="ag-item-hint">Latent Space Entanglement</span></span></a>   
+      </div>
+    </div>
+
+            
+    <!-- ── III · ∇L  GRADIENT / TWINS ── -->
+    <div class="ag-col">
+      <div class="ag-col-head">
+        <span class="ag-step-sym">∇L</span>
+        <span class="ag-step-label">Gradient · Twins</span>
+        <span class="ag-step-name">The Direction</span>
+      </div>
+      <div class="ag-items">
+        <a class="ag-item" href="dt-001.html"><span class="ag-icon">🧬</span><span class="ag-item-text"><span class="ag-item-name">Twin · 001</span><span class="ag-item-hint">Personalized · individual</span></span></a>
+        <a class="ag-item" href="dt-002.html"><span class="ag-icon">🧬</span><span class="ag-item-text"><span class="ag-item-name">Twin · 002</span><span class="ag-item-hint">dt-002 variant</span></span></a>
+        <a class="ag-item" href="dt-003.html"><span class="ag-icon">🧬</span><span class="ag-item-text"><span class="ag-item-name">Twin · 003</span><span class="ag-item-hint">dt-003 variant</span></span></a>
+        <a class="ag-item" href="dt-20260310-v2.html"><span class="ag-icon">📅</span><span class="ag-item-text"><span class="ag-item-name">Twin · 2026-03-10 v2</span><span class="ag-item-hint">Dated snapshot v2</span></span></a>
+        <a class="ag-item" href="https://ukubona-llc.github.io/landscape/"><span class="ag-icon">📅</span><span class="ag-item-text"><span class="ag-item-name">Twin · 2026-03-11 v3</span><span class="ag-item-hint">UCU × Ukubona × UGA Landscape</span></span></a>
+        <a class="ag-item" href="dt-20260311-v3.html"><span class="ag-icon">📅</span><span class="ag-item-text"><span class="ag-item-name">Twin · 2026-03-11 v3</span><span class="ag-item-hint">Gastritis</span></span></a>
+        <a class="ag-item" href="gov.html"><span class="ag-icon">🏛️</span><span class="ag-item-text"><span class="ag-item-name">NPA · Nation</span><span class="ag-item-hint">Government twin</span></span></a>
+        <a class="ag-item" href="cartography-256.html"><span class="ag-icon">🗺️</span><span class="ag-item-text"><span class="ag-item-name">Cartography</span><span class="ag-item-hint">256-district heatmap</span></span></a>
+        <a class="ag-item" href="nvidia-winning.html"><span class="ag-icon">💻</span><span class="ag-item-text"><span class="ag-item-name">Nvidia Winning</span><span class="ag-item-hint">Compute</span></span></a>
+        <a class="ag-item" href="coloring-book.html"><span class="ag-icon">🎨</span><span class="ag-item-text"><span class="ag-item-name">Coloring Book</span><span class="ag-item-hint">Creative · fun</span></span></a>
+        <a class="ag-item" href="k08-dt.html"><span class="ag-icon">🧬</span><span class="ag-item-text"><span class="ag-item-name">K08 Digital Twin</span><span class="ag-item-hint">GTPCI PhD · aim 3</span></span></a>
+      </div>  <!-- ← closes .ag-items -->
+    </div>    <!-- ← closes .ag-col  -->
+
+    <!-- ── IV · −η∇L  INTERVENTION ── -->
+    <div class="ag-col">
+      <div class="ag-col-head">
+        <span class="ag-step-sym">−η∇L</span>
+        <span class="ag-step-label">Descent · Action</span>
+        <span class="ag-step-name">The Intervention</span>
+      </div>
+      <div class="ag-items">
+        <a class="ag-item" href="game.html"><span class="ag-icon">🎮</span><span class="ag-item-text"><span class="ag-item-name">Game</span><span class="ag-item-hint">Stochastic foraging</span></span></a>
+        <a class="ag-item" href="game-x.html"><span class="ag-icon">🕹️</span><span class="ag-item-text"><span class="ag-item-name">Game X</span><span class="ag-item-hint">Extended foraging variant</span></span></a>
+        <a class="ag-item" href="pitch.html"><span class="ag-icon">🎤</span><span class="ag-item-text"><span class="ag-item-name">Pitch</span><span class="ag-item-hint">The ask · the step</span></span></a>
+        <a class="ag-item" href="services-section.html"><span class="ag-icon">🛠️</span><span class="ag-item-text"><span class="ag-item-name">Services</span><span class="ag-item-hint">What we offer</span></span></a>
+        <a class="ag-item" href="ukb-i-000.html"><span class="ag-icon">🚀</span><span class="ag-item-text"><span class="ag-item-name">Onboarding</span><span class="ag-item-hint">First gradient step</span></span></a>
+        <a class="ag-item" href="ukb-i-003.html"><span class="ag-icon">🔧</span><span class="ag-item-text"><span class="ag-item-name">Tools</span><span class="ag-item-hint">Build stack · ukb-i-003</span></span></a>
+        <a class="ag-item placeholder"><span class="ag-icon">⚗️</span><span class="ag-item-text"><span class="ag-item-name">Lab</span><span class="ag-item-hint">Experiments · coming</span></span></a>
+        <a class="ag-item" href="dashboard.html"><span class="ag-icon">🔧</span><span class="ag-item-text"><span class="ag-item-name">Dashboard</span><span class="ag-item-hint">DT · 20260313</span></span></a>
+        <a class="ag-item" href="epistemic-humility.html"><span class="ag-icon">🧠</span><span class="ag-item-text"><span class="ag-item-name">Epistemic Humility</span><span class="ag-item-hint"> Learning · rate</span></span></a>  
+        <a class="ag-item" href="intelligence.html"><span class="ag-icon">🌐</span><span class="ag-item-text"><span class="ag-item-name">Intelligence</span><span class="ag-item-hint"> UB vs UI/UX · backprop</span></span></a>  
+        <a class="ag-item" href="politics.html"><span class="ag-icon">🏛️</span><span class="ag-item-text"><span class="ag-item-name">Politics</span><span class="ag-item-hint">Policy · strategy</span></span></a>  
+        <a class="ag-item" href="ui-llm-api.html"><span class="ag-icon">🤖</span><span class="ag-item-text"><span class="ag-item-name">UI/LLM API</span><span class="ag-item-hint">Oral Tradition · personalized</span></span></a>  
+        <a class="ag-item" href="academic.html"><span class="ag-icon">📚</span><span class="ag-item-text"><span class="ag-item-name">Academic</span><span class="ag-item-hint">Research · publications</span></span></a>  
+        <a class="ag-item" href="prompting-claude.html"><span class="ag-icon">💬</span><span class="ag-item-text"><span class="ag-item-name">Prompting Claude</span><span class="ag-item-hint">Prompt Engineering · ui</span></span></a>  
+        <a class="ag-item" href="full-stack-learning-rates.html"><span class="ag-icon">𝛁</span><span class="ag-item-text"><span class="ag-item-name">Full-Stack Learning Rates</span><span class="ag-item-hint">Digital Twin Suite · Pentadic</span></span></a>   
+      </div>
+    </div>
+
+    <!-- ── V · θ′  UPDATE ── -->
+    <div class="ag-col">
+      <div class="ag-col-head">
+        <span class="ag-step-sym">θ′</span>
+        <span class="ag-step-label">Update · New State</span>
+        <span class="ag-step-name">Where We Go</span>
+      </div>
+      <div class="ag-items">
+        <a class="ag-item" href="goat.html"><span class="ag-icon">🐐</span><span class="ag-item-text"><span class="ag-item-name">GOAT</span><span class="ag-item-hint">Update · rule</span></span></a>
+        <a class="ag-item placeholder"><span class="ag-icon">📡</span><span class="ag-item-text"><span class="ag-item-name">API</span><span class="ag-item-hint">Programmatic · coming</span></span></a>
+        <a class="ag-item" href="evolution.html"><span class="ag-icon">👴🏾</span><span class="ag-item-text"><span class="ag-item-name">Evolution</span><span class="ag-item-hint">Autobio · narrative</span></span></a>  
+        <a class="ag-item" href="digital-twin-suite.html"><span class="ag-icon">🌐</span><span class="ag-item-text"><span class="ag-item-name">Digital Twin Suite</span><span class="ag-item-hint">API Deployment · interact</span></span></a>  
+        <a class="ag-item" href="evolutionary-stack.html"><span class="ag-icon">🔄</span><span class="ag-item-text"><span class="ag-item-name">Evolutionary Stack</span><span class="ag-item-hint">Strategic Mirror · selfie</span></span></a>  
+        <a class="ag-item" href="humans.html"><span class="ag-icon">👥</span><span class="ag-item-text"><span class="ag-item-name">Humans</span><span class="ag-item-hint">Determined vs Free Will</span></span></a>
+        <a class="ag-item" href="dt-20260312-v1.html"><span class="ag-icon">🆕</span><span class="ag-item-text"><span class="ag-item-name">Stratastone Update</span><span class="ag-item-hint">Post Mato</span></span></a>
+        <a class="ag-item" href="ddx.html"><span class="ag-icon">❓</span><span class="ag-item-text"><span class="ag-item-name">Non-Utricarial Pruritus</span><span class="ag-item-hint">Aquagenic</span></span></a>
+        <a class="ag-item" href="claude-api-key.html"><span class="ag-icon">🔑</span><span class="ag-item-text"><span class="ag-item-name">$/Token</span><span class="ag-item-hint">Cost/Benefit</span></span></a>
+        <a class="ag-item" href="https://ukubona-llc.github.io/npa-demo/"><span class="ag-icon">🌐</span><span class="ag-item-text"><span class="ag-item-name">NPA Twin Demo</span><span class="ag-item-hint">Mental Health</span></span></a>
+        <a class="ag-item" href="uga-dt.html"><span class="ag-icon">🇺🇬</span><span class="ag-item-text"><span class="ag-item-name">National Digital Twin</span><span class="ag-item-hint">Uganda</span></span></a>
+        <a class="ag-item" href="landing-page.html"><span class="ag-icon">🇺</span><span class="ag-item-text"><span class="ag-item-name">Landing Page</span><span class="ag-item-hint">UKB</span></span></a>
+        <a class="ag-item" href="ucu-ckd.html"><span class="ag-icon"> 🫁 </span><span class="ag-item-text"><span class="ag-item-name">CKD</span><span class="ag-item-hint">Landscape</span></span></a> 
+        <a class="ag-item" href="ucu-ckd2.html"><span class="ag-icon"> 🫁 </span><span class="ag-item-text"><span class="ag-item-name">CKD2</span><span class="ag-item-hint">Addendum</span></span></a> 
+        <a class="ag-item" href="ucu-ckd3.html"><span class="ag-icon"> 🫁 </span><span class="ag-item-text"><span class="ag-item-name">Nonlossy CKD3</span><span class="ag-item-hint">Recover</span></span></a> 
+        <a class="ag-item" href="ucu-renal.html"><span class="ag-icon"> 🫁 </span><span class="ag-item-text"><span class="ag-item-name">Renal</span><span class="ag-item-hint">Landscape</span></span></a> 
+        <a class="ag-item" href="ckd-map.html"><span class="ag-icon">🫀</span><span class="ag-item-text"><span class="ag-item-name">Kidney Disease in Uganda</span><span class="ag-item-hint">Map</span></span></a> 
+        <a class="ag-item" href="ucu-mental-health.html"><span class="ag-icon"> 🧠</span><span class="ag-item-text"><span class="ag-item-name">Mental Health</span><span class="ag-item-hint">Landscape</span></span></a> 
+        <a class="ag-item" href="ucu-general.html"><span class="ag-icon">🫀</span><span class="ag-item-text"><span class="ag-item-name">Disease Landscape</span><span class="ag-item-hint">General</span></span></a> 
+        <a class="ag-item" href="md-registration.html"><span class="ag-icon">🦀</span><span class="ag-item-text"><span class="ag-item-name">Maryland Registration</span><span class="ag-item-hint">LLC</span></span></a>  
+        <a class="ag-item" href="bigger-picture.html"><span class="ag-icon">🌍</span><span class="ag-item-text"><span class="ag-item-name">Bigger Picture</span><span class="ag-item-hint">Two in One </span></span></a>  
+        <a class="ag-item" href="physics.html"><span class="ag-icon">⚛️</span><span class="ag-item-text"><span class="ag-item-name">Physics</span><span class="ag-item-hint">Medici </span></span></a> 
+        <a class="ag-item" href="ledger.html"><span class="ag-icon">📚</span><span class="ag-item-text"><span class="ag-item-name">Ledger</span><span class="ag-item-hint">Newton </span></span></a>   
+        <a class="ag-item" href="escape-from-alcatraz.html"><span class="ag-icon">🏝️</span><span class="ag-item-text"><span class="ag-item-name">Escape from Alcatraz</span><span class="ag-item-hint">History </span></span></a>   
+     </div>
+    </div>
+
+  </div><!-- /ag-pentad -->       
+</div><!-- /grid-wrap -->
+
+<script>
+/* cursor */
+const cur = document.getElementById('cursor');
+document.addEventListener('mousemove', e => {
+  cur.style.left = e.clientX + 'px';
+  cur.style.top  = e.clientY + 'px';
+}, { passive: true });
+document.querySelectorAll('a, button, .ag-item').forEach(el => {
+  el.addEventListener('mouseenter', () => cur.classList.add('large'));
+  el.addEventListener('mouseleave', () => cur.classList.remove('large'));
+});
+
+/* theme */
+const btn = document.getElementById('themeBtn');
+btn.addEventListener('click', () => {
+  const dark = document.documentElement.getAttribute('data-theme') === 'dark';
+  document.documentElement.setAttribute('data-theme', dark ? 'light' : 'dark');
+  btn.textContent = dark ? '◑ theme' : '◐ theme';
+  try { localStorage.setItem('ukubona-theme', dark ? 'light' : 'dark'); } catch(e) {}
+});
+try {
+  const saved = localStorage.getItem('ukubona-theme');
+  if (saved) {
+    document.documentElement.setAttribute('data-theme', saved);
+    btn.textContent = saved === 'light' ? '◑ theme' : '◐ theme';
+  }
+} catch(e) {}
+
+/* kill any externally-injected floating close buttons — including late ones */
+const KEEP = el => el.classList.contains('cursor') || el.classList.contains('strip') ||
+                   el.tagName === 'NAV' || el.tagName === 'SCRIPT' ||
+                   el.classList.contains('grid-wrap');
+function purgeFixed() {
+  document.querySelectorAll('body > *').forEach(el => {
+    if (KEEP(el)) return;
+    if (getComputedStyle(el).position === 'fixed') el.remove();
+  });
+}
+purgeFixed();
+new MutationObserver(purgeFixed).observe(document.body, { childList: true, subtree: false });
+</script>
+</body>
+</html>

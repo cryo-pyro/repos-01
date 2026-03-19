@@ -1,0 +1,876 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ukubona · Uganda District Loss Map · NPA Digital Twin</title>
+<meta name="color-scheme" content="dark light">
+<link rel="icon" href="https://abikesa.github.io/favicon/assets/favicon-dark.ico">
+<link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Instrument+Serif:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.min.css">
+<style>
+/* ── TOKENS ──────────────────────────────────────────────────── */
+:root {
+  --bg:     #0d0d0b;
+  --surf:   #141412;
+  --surf2:  #1c1c19;
+  --brd:    rgba(255,255,255,0.07);
+  --ink:    #e8e6df;
+  --mut:    #6b6b65;
+  --dim:    #3a3a36;
+  --r: #e24b4a;  /* Red    loss 0.80–1.00 */
+  --o: #d85a30;  /* Orange loss 0.60–0.79 */
+  --y: #ef9f27;  /* Yellow loss 0.40–0.59 */
+  --g: #639922;  /* Green  loss 0.22–0.39 */
+  --b: #378add;  /* Blue   loss 0.11–0.21 */
+  --i: #534ab7;  /* Indigo loss 0.04–0.10 */
+  --v: #1d9e75;  /* Violet loss 0.00–0.03 */
+}
+[data-theme="light"] {
+  --bg:#fafaf8; --surf:#fff; --surf2:#f1efe8;
+  --brd:rgba(0,0,0,0.08); --ink:#1a1a18; --mut:#6b6b65; --dim:#d3d1c7;
+}
+
+/* ── RESET ───────────────────────────────────────────────────── */
+*{box-sizing:border-box;margin:0;padding:0;}
+html,body{height:100%;overflow:hidden;}
+body{font-family:'DM Sans',sans-serif;font-size:13px;background:var(--bg);color:var(--ink);display:flex;flex-direction:column;}
+
+/* ── HEADER ──────────────────────────────────────────────────── */
+.hd{display:flex;align-items:center;justify-content:space-between;padding:.65rem 1.1rem;background:var(--surf);border-bottom:1px solid var(--brd);flex-shrink:0;gap:.75rem;flex-wrap:wrap;position:sticky;top:0;z-index:1000;}
+.hd-brand{display:flex;align-items:center;gap:.65rem;}
+.logo-wrap{display:flex;align-items:center;gap:.55rem;text-decoration:none;}
+.logo-spin{width:38px;height:38px;animation:spin 60s linear infinite;}
+@keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+.brand-name{font-family:'Instrument Serif',serif;font-size:1.05rem;color:var(--ink);}
+.brand-tag{font-family:'DM Mono',monospace;font-size:.58rem;color:var(--mut);letter-spacing:.06em;text-transform:uppercase;}
+.hd-center{flex:1;text-align:center;}
+.hd-title{font-family:'Instrument Serif',serif;font-size:1.1rem;color:var(--ink);}
+.hd-sub{font-family:'DM Mono',monospace;font-size:.58rem;color:var(--mut);letter-spacing:.05em;margin-top:.1rem;}
+.hd-right{display:flex;gap:.4rem;align-items:center;flex-wrap:wrap;}
+.badge{font-family:'DM Mono',monospace;font-size:.56rem;letter-spacing:.08em;text-transform:uppercase;padding:.18em .65em;border:1px solid var(--brd);border-radius:999px;color:var(--mut);}
+.badge-syn{color:var(--y);border-color:rgba(239,159,39,.32);}
+.badge-real{color:var(--v);border-color:rgba(29,158,117,.32);display:none;}
+.icon-btn{background:var(--surf2);border:1px solid var(--brd);border-radius:6px;padding:.38rem;cursor:pointer;color:var(--mut);display:flex;align-items:center;transition:border-color .15s,color .15s;}
+.icon-btn:hover{border-color:var(--y);color:var(--y);}
+
+/* ── BODY LAYOUT ─────────────────────────────────────────────── */
+.body{display:flex;flex:1;overflow:hidden;min-height:0;}
+
+/* ── LEFT PANEL ──────────────────────────────────────────────── */
+.lp{width:248px;flex-shrink:0;background:var(--surf);border-right:1px solid var(--brd);overflow-y:auto;padding:1rem;display:flex;flex-direction:column;gap:1rem;}
+.plbl{font-family:'DM Mono',monospace;font-size:.56rem;letter-spacing:.14em;text-transform:uppercase;color:var(--mut);padding-bottom:.3rem;border-bottom:1px solid var(--brd);}
+
+/* FORMULA */
+.formula{font-family:'DM Mono',monospace;font-size:.66rem;color:var(--mut);line-height:1.9;padding:.6rem .7rem;background:var(--surf2);border-radius:5px;border:1px solid var(--brd);}
+.formula .hl{color:var(--y);}
+
+/* DIMENSION DROPDOWN */
+.dim-sel{width:100%;background:var(--surf2);border:1px solid var(--brd);border-radius:6px;color:var(--ink);font-family:'DM Sans',sans-serif;font-size:.8rem;padding:.38rem .6rem;cursor:pointer;outline:none;transition:border-color .15s;}
+.dim-sel:focus,.dim-sel:hover{border-color:var(--y);}
+.dim-desc{font-family:'DM Mono',monospace;font-size:.6rem;color:var(--mut);line-height:1.6;margin-top:.35rem;}
+
+/* SLIDERS */
+.sl-row{display:flex;flex-direction:column;gap:.2rem;margin-bottom:.45rem;}
+.sl-meta{display:flex;justify-content:space-between;align-items:baseline;}
+.sl-name{font-size:.7rem;opacity:.85;}
+.sl-val{font-family:'DM Mono',monospace;font-size:.65rem;color:var(--y);}
+input[type=range]{width:100%;height:2px;appearance:none;background:var(--dim);border-radius:2px;outline:none;cursor:pointer;}
+input[type=range]::-webkit-slider-thumb{appearance:none;width:10px;height:10px;border-radius:50%;background:var(--y);cursor:pointer;}
+.rt::-webkit-slider-thumb{background:var(--r)!important;}
+.ro::-webkit-slider-thumb{background:var(--o)!important;}
+.rg::-webkit-slider-thumb{background:var(--g)!important;}
+.rb::-webkit-slider-thumb{background:var(--b)!important;}
+.ri::-webkit-slider-thumb{background:var(--i)!important;}
+
+/* Weight sliders block — shown only for composite */
+.weight-block{display:none;}
+.weight-block.show{display:block;}
+
+/* SCENARIO BUTTONS */
+.sc-btn{width:100%;padding:.42rem .6rem;background:var(--surf2);border:1px solid var(--brd);border-radius:5px;color:var(--ink);font-family:'DM Sans',sans-serif;font-size:.7rem;cursor:pointer;text-align:left;margin-bottom:.3rem;transition:border-color .12s,background .12s;}
+.sc-btn span{display:block;font-size:.6rem;color:var(--mut);margin-top:.06rem;}
+.sc-btn:hover{border-color:var(--y);background:rgba(239,159,39,.05);}
+.sc-btn.on{border-color:var(--y);color:var(--y);}
+.sc-btn.on span{color:rgba(239,159,39,.6);}
+
+/* ── MAP ─────────────────────────────────────────────────────── */
+.mc{flex:1;position:relative;min-width:0;}
+#map{width:100%;height:100%;}
+
+/* Leaflet tile dark filter */
+.leaflet-tile-pane{filter:brightness(.85) saturate(.9);}
+[data-theme="light"] .leaflet-tile-pane{filter:none;}
+
+/* Updating badge */
+.upd{position:absolute;top:10px;left:50%;transform:translateX(-50%);z-index:900;background:var(--surf);border:1px solid rgba(239,159,39,.3);border-radius:999px;padding:.22em .8em;font-family:'DM Mono',monospace;font-size:.58rem;color:var(--y);opacity:0;transition:opacity .25s;pointer-events:none;white-space:nowrap;}
+.upd.on{opacity:1;}
+
+/* LEGEND */
+.leg{position:absolute;bottom:16px;left:16px;z-index:800;background:rgba(20,20,18,.9);border:1px solid var(--brd);border-radius:7px;padding:.55rem .7rem;backdrop-filter:blur(4px);}
+[data-theme="light"] .leg{background:rgba(255,255,255,.92);}
+.leg-title{font-family:'DM Mono',monospace;font-size:.54rem;letter-spacing:.1em;text-transform:uppercase;color:var(--mut);margin-bottom:.35rem;}
+.leg-scale{display:flex;gap:2px;margin-bottom:.25rem;}
+.leg-sw{height:8px;border-radius:1px;flex:1;}
+.leg-labs{display:flex;justify-content:space-between;font-family:'DM Mono',monospace;font-size:.52rem;color:var(--mut);}
+.leg-rows{margin-top:.4rem;display:flex;flex-direction:column;gap:.15rem;}
+.leg-row{display:flex;align-items:center;gap:.4rem;font-family:'DM Mono',monospace;font-size:.54rem;color:var(--mut);}
+.leg-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+
+/* ── RIGHT PANEL ─────────────────────────────────────────────── */
+.rp{width:226px;flex-shrink:0;background:var(--surf);border-left:1px solid var(--brd);overflow-y:auto;padding:1rem;display:flex;flex-direction:column;gap:1rem;}
+
+/* STAT CARDS */
+.sc2{background:var(--surf2);border:1px solid var(--brd);border-radius:6px;padding:.6rem .8rem;}
+.sc2-lbl{font-family:'DM Mono',monospace;font-size:.56rem;letter-spacing:.08em;text-transform:uppercase;color:var(--mut);margin-bottom:.2rem;}
+.sc2-val{font-family:'Instrument Serif',serif;font-size:1.5rem;line-height:1;margin-bottom:.1rem;}
+.sc2-delta{font-family:'DM Mono',monospace;font-size:.6rem;color:var(--mut);}
+.sc2-delta.bad{color:var(--r);}
+.sc2-delta.good{color:var(--v);}
+
+/* DIM BREAKDOWN (right panel, per-district) */
+.dim-breakdown{display:flex;flex-direction:column;gap:.35rem;}
+.db-row{display:flex;align-items:center;gap:.5rem;padding:.3rem .5rem;background:var(--surf2);border-radius:4px;}
+.db-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+.db-name{font-size:.68rem;color:var(--mut);flex:1;}
+.db-bar-bg{height:3px;background:var(--dim);border-radius:2px;flex:1;max-width:60px;}
+.db-bar-fill{height:100%;border-radius:2px;transition:width .4s;}
+.db-val{font-family:'DM Mono',monospace;font-size:.66rem;color:var(--ink);}
+
+/* DISTRICT LIST */
+.d-list{display:flex;flex-direction:column;gap:.3rem;}
+.d-item{display:flex;align-items:center;gap:.5rem;padding:.32rem .5rem;border-radius:4px;cursor:pointer;transition:background .1s;}
+.d-item:hover{background:var(--surf2);}
+.d-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;}
+.d-name{font-size:.72rem;flex:1;}
+.d-val{font-family:'DM Mono',monospace;font-size:.65rem;color:var(--mut);}
+
+/* PENTAD */
+.prow{display:flex;align-items:center;gap:.5rem;padding:.32rem .5rem;background:var(--surf2);border-radius:4px;border-left:2px solid var(--brd);margin-bottom:.25rem;}
+.prow.ac{border-left-color:var(--y);}
+.psym{font-family:'DM Mono',monospace;font-size:.62rem;color:var(--mut);min-width:44px;}
+.prow.ac .psym{color:var(--y);}
+.pdesc{font-size:.66rem;color:var(--mut);}
+.prow.ac .pdesc{color:var(--ink);}
+
+/* TRANSCRIPT */
+.tlog{font-family:'DM Mono',monospace;font-size:.6rem;color:var(--mut);line-height:1.65;max-height:130px;overflow-y:auto;}
+.te{padding:.12rem 0;border-bottom:1px solid var(--brd);}
+.te:last-child{border-bottom:none;}
+.tt2{color:var(--dim);margin-right:.3rem;}
+.ta{color:var(--y);}
+
+/* DATA SOURCE NOTE */
+.ds-note{font-family:'DM Mono',monospace;font-size:.59rem;color:var(--mut);line-height:1.8;}
+.ds-note .lv{color:var(--v);}
+.ds-note .yr{color:var(--y);}
+
+/* LEAFLET POPUP */
+.leaflet-popup-content-wrapper{background:var(--surf)!important;color:var(--ink)!important;border:1px solid var(--brd)!important;border-radius:9px!important;box-shadow:0 8px 32px rgba(0,0,0,.5)!important;}
+.leaflet-popup-content{margin:.8rem!important;font-family:'DM Sans',sans-serif!important;}
+.leaflet-popup-tip{background:var(--surf)!important;}
+.lp-name{font-family:'Instrument Serif',serif;font-size:1rem;margin-bottom:.3rem;}
+.lp-val{font-family:'DM Mono',monospace;font-size:1.3rem;font-weight:500;margin-bottom:.35rem;}
+.lp-rows{display:flex;flex-direction:column;gap:.15rem;}
+.lp-row{display:flex;justify-content:space-between;font-size:.68rem;color:var(--mut);padding:.1rem 0;border-bottom:1px solid var(--brd);}
+.lp-row:last-child{border-bottom:none;}
+.lp-rv{color:var(--ink);font-family:'DM Mono',monospace;}
+
+/* DISTRICT SELECTED state in right panel */
+.sel-district{padding:.7rem .85rem;background:var(--surf2);border-radius:6px;border-left:3px solid var(--y);}
+.sel-d-name{font-family:'Instrument Serif',serif;font-size:1.1rem;margin-bottom:.4rem;}
+.sel-score{font-family:'DM Mono',monospace;font-size:1.3rem;font-weight:500;margin-bottom:.5rem;}
+
+@media(max-width:900px){.lp,.rp{display:none;}#map{height:60vw;min-height:320px;}}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="hd">
+  <div class="hd-brand">
+    <a href="https://ukubona-llc.github.io/" class="logo-wrap">
+      <img class="logo-spin" src="https://abikesa.github.io/logos/assets/ukubona-dark.png" id="logo-img" alt="Ukubona">
+      <div>
+        <div class="brand-name">Ukubona</div>
+        <div class="brand-tag">Health Tech for Customized Care</div>
+      </div>
+    </a>
+  </div>
+  <div class="hd-center">
+    <div class="hd-title">Uganda District Loss Map</div>
+    <div class="hd-sub">NPA Digital Twin · θ → L(θ) → ∇L → −η∇L → θ′</div>
+  </div>
+  <div class="hd-right">
+    <span class="badge badge-syn" id="phase-badge">Synthetic Phase I</span>
+    <span class="badge badge-real" id="real-badge">Real Data Active</span>
+    <span class="badge">133 Districts</span>
+    <button class="icon-btn" id="theme-btn" title="Toggle theme">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+    </button>
+    <a href="npa-pipeline.html" class="icon-btn" title="Pipeline Demo" style="text-decoration:none;font-family:'DM Mono',monospace;font-size:.58rem;color:var(--y);border-color:rgba(239,159,39,.3);padding:.38rem .65rem;gap:.35rem;">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+      Pipeline Demo
+    </a>
+  </div>
+</header>
+
+<div class="body">
+
+  <!-- LEFT PANEL -->
+  <aside class="lp">
+
+    <div>
+      <div class="plbl">Loss function</div>
+      <div class="formula">θₜ → <span class="hl">L(θ)</span> → ∇L → −η∇L+ε → θ′<br><br>L = Σ wᵢ · dimᵢ(θ)</div>
+    </div>
+
+    <div>
+      <div class="plbl">View dimension</div>
+      <select class="dim-sel" id="dim-sel">
+        <option value="mh">Mental health burden</option>
+        <option value="mort">Infant mortality</option>
+        <option value="mal">Malaria incidence</option>
+        <option value="so">Drug stockouts</option>
+        <option value="composite" selected>Composite L(θ)</option>
+      </select>
+      <div class="dim-desc" id="dim-desc">Weighted sum across all four dimensions.</div>
+    </div>
+
+    <!-- Weight sliders — composite only -->
+    <div class="weight-block show" id="wb">
+      <div class="plbl">Loss weights (policy choice)</div>
+      <div class="sl-row">
+        <div class="sl-meta"><span class="sl-name">Mental health <span style="color:var(--r);font-size:.58rem">↑71% NPA</span></span><span class="sl-val" id="v-mh">25%</span></div>
+        <input type="range" class="rt" id="s-mh" min="5" max="50" value="25">
+      </div>
+      <div class="sl-row">
+        <div class="sl-meta"><span class="sl-name">Infant mortality</span><span class="sl-val" id="v-im">25%</span></div>
+        <input type="range" class="ro" id="s-im" min="5" max="50" value="25">
+      </div>
+      <div class="sl-row">
+        <div class="sl-meta"><span class="sl-name">Malaria burden</span><span class="sl-val" id="v-ml">25%</span></div>
+        <input type="range" class="rg" id="s-ml" min="5" max="50" value="25">
+      </div>
+      <div class="sl-row">
+        <div class="sl-meta"><span class="sl-name">Drug stockouts</span><span class="sl-val" id="v-so">25%</span></div>
+        <input type="range" class="rb" id="s-so" min="5" max="50" value="25">
+      </div>
+    </div>
+
+    <div>
+      <div class="plbl">η — intervention speed</div>
+      <div class="sl-row">
+        <div class="sl-meta"><span class="sl-name">Learning rate</span><span class="sl-val" id="v-eta">0.10</span></div>
+        <input type="range" class="rb" id="s-eta" min="1" max="30" value="10">
+      </div>
+    </div>
+
+    <div>
+      <div class="plbl">ε — exploration noise</div>
+      <div class="sl-row">
+        <div class="sl-meta"><span class="sl-name">Stochastic foraging</span><span class="sl-val" id="v-eps">0.05</span></div>
+        <input type="range" class="ri" id="s-eps" min="0" max="20" value="5">
+      </div>
+    </div>
+
+    <div>
+      <div class="plbl">Scenarios</div>
+      <button class="sc-btn on" onclick="setSc(this,'base')">Status quo<span>NPA Feb 2026 — MH surge +71%</span></button>
+      <button class="sc-btn" onclick="setSc(this,'mh')">Mental health priority<span>w₁=45% — NPA mandate</span></button>
+      <button class="sc-btn" onclick="setSc(this,'int')">Simulate intervention<span>η=0.25 — aggressive step</span></button>
+      <button class="sc-btn" onclick="setSc(this,'goat')">Goat phase (ε ≫ 0)<span>High exploration — find new basins</span></button>
+      <button class="sc-btn" id="swap-btn" onclick="setSc(this,'swap')">→ Bayesian swap<span>Rehearse real MoH DHIS2 data</span></button>
+    </div>
+
+  </aside>
+
+  <!-- MAP -->
+  <div class="mc">
+    <div id="map"></div>
+    <div class="upd" id="upd">Recomputing gradient…</div>
+    <div class="leg" id="legend">
+      <div class="leg-title" id="leg-title">L(θ) — Composite loss</div>
+      <div class="leg-scale">
+        <div class="leg-sw" style="background:var(--r)"></div>
+        <div class="leg-sw" style="background:var(--o)"></div>
+        <div class="leg-sw" style="background:var(--y)"></div>
+        <div class="leg-sw" style="background:var(--g)"></div>
+        <div class="leg-sw" style="background:var(--b)"></div>
+        <div class="leg-sw" style="background:var(--i)"></div>
+        <div class="leg-sw" style="background:var(--v)"></div>
+      </div>
+      <div class="leg-labs"><span>High loss</span><span>Optimized</span></div>
+      <div class="leg-rows" id="leg-rows"></div>
+    </div>
+  </div>
+
+  <!-- RIGHT PANEL -->
+  <aside class="rp">
+
+    <div>
+      <div class="plbl">National L(θ)</div>
+      <div class="sc2">
+        <div class="sc2-lbl">Mean composite loss</div>
+        <div class="sc2-val" id="st-loss">—</div>
+        <div class="sc2-delta bad" id="st-delta">computing…</div>
+      </div>
+    </div>
+
+    <div>
+      <div class="plbl">Critical districts ≥0.70</div>
+      <div class="sc2">
+        <div class="sc2-lbl">Red / Orange</div>
+        <div class="sc2-val" id="st-crit" style="color:var(--r)">—</div>
+        <div class="sc2-delta bad">of 133 need urgent action</div>
+      </div>
+    </div>
+
+    <div>
+      <div class="plbl">NPA Feb 2026 — Silent Emergency</div>
+      <div class="sc2">
+        <div class="sc2-lbl">Mental health facility cases</div>
+        <div class="sc2-val" style="color:var(--r)">+71%</div>
+        <div class="sc2-delta bad">494,326 → 843,295 cases</div>
+      </div>
+    </div>
+
+    <!-- Selected district panel -->
+    <div id="sel-panel" style="display:none;">
+      <div class="plbl">Selected district</div>
+      <div class="sel-district">
+        <div class="sel-d-name" id="sel-name">—</div>
+        <div class="sel-score" id="sel-score">—</div>
+        <div class="dim-breakdown" id="sel-dims"></div>
+      </div>
+    </div>
+
+    <div>
+      <div class="plbl">Highest loss districts</div>
+      <div class="d-list" id="top-d"></div>
+    </div>
+
+    <div>
+      <div class="plbl">Pentadic state</div>
+      <div class="prow"><span class="psym">θₜ</span><span class="pdesc">133 district priors</span></div>
+      <div class="prow ac" id="pentad-active"><span class="psym">L(θ)</span><span class="pdesc" id="pentad-desc">Computing composite loss</span></div>
+      <div class="prow"><span class="psym">∇L</span><span class="pdesc">ROYGBIV gradient visible</span></div>
+      <div class="prow"><span class="psym">−η∇L</span><span class="pdesc">Adjust η to intervene</span></div>
+      <div class="prow"><span class="psym">θ′</span><span class="pdesc">Updated state ready</span></div>
+    </div>
+
+    <div>
+      <div class="plbl">Steward transcript</div>
+      <div class="tlog" id="tlog"></div>
+    </div>
+
+    <div style="margin-top:auto;">
+      <div class="plbl">Data source</div>
+      <div class="ds-note" id="ds-note">
+        <span class="yr">SYNTHETIC PHASE I</span><br>
+        WHO priors + N(0,σ) noise<br>
+        NPA surge: Feb 2026<br>
+        Coords: WGS84 real<br>
+        ── swap ready ──<br>
+        <span class="lv">→ MoH DHIS2 API</span><br>
+        <span class="lv">→ UBOS district data</span><br>
+        <span class="lv">→ NPA survey streams</span>
+      </div>
+    </div>
+
+  </aside>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.min.js"></script>
+<script>
+// ══════════════════════════════════════════════════════════════
+// DIMENSION CONFIG — each has its own ROYGBIV calibration
+// ══════════════════════════════════════════════════════════════
+const DIM = {
+  mh: {
+    label: 'Mental health burden',
+    unit: '% prevalence',
+    desc: 'Depression/anxiety prevalence. Elevated in northern (post-conflict) & urban districts.',
+    // Raw thresholds for ROYGBIV bands (R→V)
+    bands: [55, 45, 35, 25, 15, 8],
+    format: v => v.toFixed(1) + '%',
+    norm: v => Math.min(1, Math.max(0, (v - 8) / 52)),
+  },
+  mort: {
+    label: 'Infant mortality',
+    unit: 'per 1,000 live births',
+    desc: 'Under-1 mortality rate. Highest in Karamoja & remote north.',
+    bands: [80, 60, 40, 20, 10, 5],
+    format: v => v.toFixed(0) + '/1k',
+    norm: v => Math.min(1, Math.max(0, (v - 5) / 85)),
+  },
+  mal: {
+    label: 'Malaria incidence',
+    unit: 'per 1,000 population',
+    desc: 'Annual malaria cases per 1,000. Highest in western & Lake Victoria rim.',
+    bands: [400, 300, 200, 100, 50, 20],
+    format: v => v.toFixed(0) + '/1k',
+    norm: v => Math.min(1, Math.max(0, (v - 20) / 430)),
+  },
+  so: {
+    label: 'Drug stockouts',
+    unit: 'days / quarter',
+    desc: 'Days per quarter essential medicines unavailable. Supply chain proxy.',
+    bands: [40, 30, 20, 10, 5, 2],
+    format: v => v.toFixed(0) + 'd',
+    norm: v => Math.min(1, Math.max(0, (v - 2) / 43)),
+  },
+  composite: {
+    label: 'Composite L(θ)',
+    unit: 'weighted loss 0–1',
+    desc: 'Weighted sum across all four dimensions. Adjust weights to reflect policy priorities.',
+    bands: [0.80, 0.60, 0.40, 0.22, 0.11, 0.04],
+    format: v => (v * 100).toFixed(1) + '%',
+    norm: v => v,
+  },
+};
+
+const ROYGBIV_COLORS = ['#e24b4a','#d85a30','#ef9f27','#639922','#378add','#534ab7','#1d9e75'];
+const ROYGBIV_NAMES  = ['Red','Orange','Yellow','Green','Blue','Indigo','Violet'];
+
+function lossToColor(loss) {
+  if (loss >= 0.80) return ROYGBIV_COLORS[0];
+  if (loss >= 0.60) return ROYGBIV_COLORS[1];
+  if (loss >= 0.40) return ROYGBIV_COLORS[2];
+  if (loss >= 0.22) return ROYGBIV_COLORS[3];
+  if (loss >= 0.11) return ROYGBIV_COLORS[4];
+  if (loss >= 0.04) return ROYGBIV_COLORS[5];
+  return ROYGBIV_COLORS[6];
+}
+
+// ══════════════════════════════════════════════════════════════
+// DISTRICT COORDINATES — real WGS84 centroids
+// ══════════════════════════════════════════════════════════════
+const DISTRICTS = [
+  {n:"Abim",lat:3.00,lon:33.67},{n:"Adjumani",lat:3.38,lon:31.79},
+  {n:"Agago",lat:2.98,lon:33.38},{n:"Alebtong",lat:2.26,lon:33.35},
+  {n:"Amolatar",lat:1.60,lon:32.80},{n:"Amudat",lat:1.95,lon:34.93},
+  {n:"Amuria",lat:2.03,lon:33.65},{n:"Amuru",lat:2.80,lon:31.92},
+  {n:"Apac",lat:1.98,lon:32.54},{n:"Arua",lat:3.02,lon:30.91},
+  {n:"Budaka",lat:1.00,lon:33.94},{n:"Bududa",lat:1.00,lon:34.33},
+  {n:"Bugiri",lat:0.57,lon:33.75},{n:"Buhweju",lat:-0.70,lon:30.42},
+  {n:"Buikwe",lat:0.33,lon:33.00},{n:"Bukedea",lat:1.36,lon:34.00},
+  {n:"Bukomansimbi",lat:-0.14,lon:31.60},{n:"Bukwo",lat:1.28,lon:34.73},
+  {n:"Bulambuli",lat:1.22,lon:34.38},{n:"Buliisa",lat:2.12,lon:31.41},
+  {n:"Bundibugyo",lat:0.71,lon:30.07},{n:"Bunyangabu",lat:-0.50,lon:30.18},
+  {n:"Bushenyi",lat:-0.58,lon:30.18},{n:"Busia",lat:0.46,lon:34.09},
+  {n:"Butaleja",lat:0.90,lon:33.97},{n:"Butebo",lat:1.18,lon:34.05},
+  {n:"Buvuma",lat:0.38,lon:33.22},{n:"Buyende",lat:1.24,lon:33.12},
+  {n:"Dokolo",lat:1.91,lon:33.17},{n:"Gomba",lat:-0.23,lon:31.68},
+  {n:"Gulu",lat:2.77,lon:32.30},{n:"Hoima",lat:1.43,lon:31.35},
+  {n:"Ibanda",lat:-0.14,lon:30.50},{n:"Iganga",lat:0.61,lon:33.48},
+  {n:"Isingiro",lat:-0.84,lon:30.82},{n:"Jinja",lat:0.42,lon:33.20},
+  {n:"Kaabong",lat:3.52,lon:34.14},{n:"Kabale",lat:-1.25,lon:29.99},
+  {n:"Kabarole",lat:0.65,lon:30.25},{n:"Kaberamaido",lat:1.74,lon:33.16},
+  {n:"Kagadi",lat:0.94,lon:30.82},{n:"Kakumiro",lat:0.78,lon:31.33},
+  {n:"Kalaki",lat:1.89,lon:33.38},{n:"Kalangala",lat:-0.32,lon:32.23},
+  {n:"Kaliro",lat:1.04,lon:33.50},{n:"Kalungu",lat:-0.10,lon:31.78},
+  {n:"Kampala",lat:0.32,lon:32.58},{n:"Kamuli",lat:0.95,lon:33.12},
+  {n:"Kamwenge",lat:0.19,lon:30.45},{n:"Kanungu",lat:-0.96,lon:29.79},
+  {n:"Kapchorwa",lat:1.40,lon:34.45},{n:"Kapelebyong",lat:1.90,lon:33.98},
+  {n:"Karenga",lat:3.73,lon:33.80},{n:"Kasanda",lat:0.60,lon:31.72},
+  {n:"Kasese",lat:0.18,lon:30.08},{n:"Katakwi",lat:1.90,lon:34.07},
+  {n:"Kayunga",lat:0.71,lon:32.87},{n:"Kazo",lat:-0.10,lon:30.68},
+  {n:"Kibale",lat:0.87,lon:31.06},{n:"Kiboga",lat:0.91,lon:31.77},
+  {n:"Kibuku",lat:1.04,lon:33.79},{n:"Kikuube",lat:1.58,lon:31.22},
+  {n:"Kiruhura",lat:-0.20,lon:30.86},{n:"Kiryandongo",lat:1.88,lon:32.10},
+  {n:"Kisoro",lat:-1.28,lon:29.65},{n:"Kitgum",lat:3.28,lon:32.89},
+  {n:"Koboko",lat:3.41,lon:31.05},{n:"Kole",lat:2.37,lon:32.76},
+  {n:"Kotido",lat:2.98,lon:34.13},{n:"Kumi",lat:1.46,lon:33.94},
+  {n:"Kwania",lat:2.12,lon:32.60},{n:"Kween",lat:1.42,lon:34.63},
+  {n:"Kyankwanzi",lat:1.09,lon:31.71},{n:"Kyegegwa",lat:0.48,lon:31.05},
+  {n:"Kyenjojo",lat:0.62,lon:30.64},{n:"Kyotera",lat:-0.65,lon:31.55},
+  {n:"Lamwo",lat:3.53,lon:32.53},{n:"Lira",lat:2.25,lon:32.90},
+  {n:"Luuka",lat:0.73,lon:33.30},{n:"Luwero",lat:0.85,lon:32.47},
+  {n:"Lwengo",lat:-0.40,lon:31.40},{n:"Lyantonde",lat:-0.40,lon:31.15},
+  {n:"Madi-Okollo",lat:3.10,lon:31.20},{n:"Manafwa",lat:0.88,lon:34.28},
+  {n:"Maracha",lat:3.29,lon:30.96},{n:"Masaka",lat:-0.34,lon:31.74},
+  {n:"Masindi",lat:1.68,lon:31.71},{n:"Mayuge",lat:0.46,lon:33.57},
+  {n:"Mbale",lat:1.08,lon:34.18},{n:"Mbarara",lat:-0.60,lon:30.65},
+  {n:"Mitooma",lat:-0.63,lon:30.02},{n:"Mityana",lat:0.40,lon:32.02},
+  {n:"Moroto",lat:2.53,lon:34.67},{n:"Moyo",lat:3.65,lon:31.73},
+  {n:"Mpigi",lat:0.23,lon:32.32},{n:"Mubende",lat:0.57,lon:31.36},
+  {n:"Mukono",lat:0.35,lon:32.76},{n:"Nabilatuk",lat:2.05,lon:34.53},
+  {n:"Nakapiripirit",lat:1.90,lon:34.65},{n:"Nakaseke",lat:1.12,lon:32.43},
+  {n:"Nakasongola",lat:1.32,lon:32.45},{n:"Namayingo",lat:0.28,lon:33.92},
+  {n:"Namisindwa",lat:0.95,lon:34.42},{n:"Namutumba",lat:0.83,lon:33.68},
+  {n:"Napak",lat:2.36,lon:34.24},{n:"Nebbi",lat:2.48,lon:31.10},
+  {n:"Ngora",lat:1.48,lon:33.77},{n:"Ntoroko",lat:1.03,lon:30.47},
+  {n:"Ntungamo",lat:-0.88,lon:30.27},{n:"Nwoya",lat:2.62,lon:31.95},
+  {n:"Obongi",lat:3.52,lon:31.60},{n:"Omoro",lat:2.62,lon:32.52},
+  {n:"Otuke",lat:2.52,lon:33.45},{n:"Oyam",lat:2.26,lon:32.40},
+  {n:"Pader",lat:2.80,lon:33.20},{n:"Pakwach",lat:2.46,lon:31.49},
+  {n:"Pallisa",lat:1.14,lon:33.71},{n:"Rakai",lat:-0.73,lon:31.40},
+  {n:"Rubanda",lat:-1.19,lon:29.84},{n:"Rubirizi",lat:-0.28,lon:30.10},
+  {n:"Rukiga",lat:-1.08,lon:29.95},{n:"Rukungiri",lat:-0.84,lon:29.94},
+  {n:"Rwampara",lat:-0.68,lon:30.75},{n:"Sembabule",lat:-0.07,lon:31.46},
+  {n:"Serere",lat:1.50,lon:33.55},{n:"Sheema",lat:-0.56,lon:30.38},
+  {n:"Sironko",lat:1.23,lon:34.25},{n:"Soroti",lat:1.71,lon:33.61},
+  {n:"Terego",lat:3.06,lon:30.80},{n:"Tororo",lat:0.69,lon:34.18},
+  {n:"Wakiso",lat:0.40,lon:32.45},{n:"Yumbe",lat:3.47,lon:31.25},
+  {n:"Zombo",lat:2.67,lon:30.90},
+];
+
+// ══════════════════════════════════════════════════════════════
+// SYNTHETIC DATA ENGINE
+// ══════════════════════════════════════════════════════════════
+function clamp(v,a,b){return Math.max(a,Math.min(b,v));}
+
+function synthRaw(d, i, eps) {
+  const s = i * 137.508 + 19.1;
+  const isN   = d.lat > 2.5;
+  const isKar = d.lat > 2.5 && d.lon > 33.5;
+  const isUrb = ['Kampala','Wakiso','Mukono','Jinja'].includes(d.n);
+  const isW   = d.lon < 30.5;
+  const isLV  = d.lat < -0.3 && d.lon > 31.0 && d.lon < 33.5;
+
+  let mh = 18 + 28*Math.abs(Math.sin(s*0.7));
+  if(isN)   mh=clamp(mh+18,0,68);
+  if(isKar) mh=clamp(mh+10,0,68);
+  if(isUrb) mh=clamp(mh+14,0,68);
+  mh=clamp(mh+eps*Math.sin(s*11.3)*15,8,68);
+
+  let mort = 12 + 45*Math.abs(Math.sin(s*1.3));
+  if(isKar) mort=clamp(mort+30,0,95);
+  if(isN)   mort=clamp(mort+15,0,95);
+  if(isUrb) mort=clamp(mort-18,5,95);
+  mort=clamp(mort+eps*Math.sin(s*7.1)*8,5,95);
+
+  let mal = 30 + 200*Math.abs(Math.sin(s*0.9));
+  if(isW)   mal=clamp(mal+120,0,460);
+  if(isLV)  mal=clamp(mal+60,0,460);
+  if(isN)   mal=clamp(mal+40,0,460);
+  if(isUrb) mal=clamp(mal-80,15,460);
+  mal=clamp(mal+eps*Math.sin(s*5.7)*30,20,460);
+
+  let so = 3 + 28*Math.abs(Math.sin(s*1.7));
+  if(isKar) so=clamp(so+18,0,48);
+  if(isN)   so=clamp(so+8,0,48);
+  if(isUrb) so=clamp(so-12,2,48);
+  so=clamp(so+eps*Math.sin(s*9.1)*5,2,48);
+
+  return {mh, mort, mal, so};
+}
+
+function compositeLoss(raw, weights) {
+  const T=weights.mh+weights.mort+weights.mal+weights.so;
+  return (weights.mh/T)*DIM.mh.norm(raw.mh) +
+         (weights.mort/T)*DIM.mort.norm(raw.mort) +
+         (weights.mal/T)*DIM.mal.norm(raw.mal) +
+         (weights.so/T)*DIM.so.norm(raw.so);
+}
+
+// Apply η intervention step
+function applyEta(loss, eta) { return clamp(loss - eta*loss*0.3, 0, 1); }
+
+// ══════════════════════════════════════════════════════════════
+// STATE
+// ══════════════════════════════════════════════════════════════
+let raws = [];     // raw values per district
+let dataset = [];  // {n, lat, lon, raw, loss, displayVal, displayFmt}
+let markers = [];
+let map, darkTile, lightTile;
+let selectedDistrict = null;
+
+// ══════════════════════════════════════════════════════════════
+// LEAFLET INIT
+// ══════════════════════════════════════════════════════════════
+function initMap() {
+  map = L.map('map', {center:[1.37,32.29], zoom:7, zoomControl:true, attributionControl:true});
+
+  darkTile = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+    attribution:'&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a> &copy; <a href="https://carto.com/attributions">CARTO</a>',
+    subdomains:'abcd', maxZoom:19,
+  });
+  lightTile = L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+    attribution:'&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a> &copy; <a href="https://carto.com/attributions">CARTO</a>',
+    subdomains:'abcd', maxZoom:19,
+  });
+
+  const theme = document.documentElement.getAttribute('data-theme') || 'dark';
+  (theme==='dark' ? darkTile : lightTile).addTo(map);
+  L.control.layers({'Dark':darkTile,'Light':lightTile}, null, {position:'topright'}).addTo(map);
+}
+
+// ══════════════════════════════════════════════════════════════
+// BUILD & RENDER
+// ══════════════════════════════════════════════════════════════
+function getWeights() {
+  return {mh:+document.getElementById('s-mh').value, mort:+document.getElementById('s-im').value,
+          mal:+document.getElementById('s-ml').value, so:+document.getElementById('s-so').value};
+}
+function getEta(){return +document.getElementById('s-eta').value/100;}
+function getEps(){return +document.getElementById('s-eps').value/100;}
+function getDim(){return document.getElementById('dim-sel').value;}
+
+function buildDataset() {
+  const dim=getDim(), w=getWeights(), eta=getEta(), eps=getEps();
+  raws = DISTRICTS.map((d,i) => ({...d, raw:synthRaw(d,i,eps)}));
+  dataset = raws.map(d => {
+    const loss_raw = dim==='composite' ? compositeLoss(d.raw,w) : DIM[dim].norm(d.raw[dim]);
+    const loss = applyEta(loss_raw, eta);
+    const displayVal = dim==='composite' ? loss : d.raw[dim];
+    return {...d, loss, displayVal, displayFmt: DIM[dim].format(displayVal)};
+  });
+}
+
+function renderMarkers() {
+  markers.forEach(m=>map.removeLayer(m));
+  markers=[];
+  const dim=getDim();
+
+  dataset.forEach(d => {
+    const col = lossToColor(d.loss);
+    const r = d.n==='Kampala'?12 : d.n==='Gulu'||d.n==='Mbarara'?10 : 8;
+
+    const m = L.circleMarker([d.lat,d.lon], {
+      radius:r, fillColor:col, color:'rgba(255,255,255,0.2)',
+      weight:1.5, opacity:1, fillOpacity:0.88,
+    }).addTo(map);
+
+    // Popup
+    const dimRows = Object.entries(DIM).filter(([k])=>k!=='composite').map(([k,cfg])=>{
+      const rawV = d.raw[k];
+      const lv = cfg.norm(rawV);
+      return `<div class="lp-row"><span>${cfg.label}</span><span class="lp-rv" style="color:${lossToColor(lv)}">${cfg.format(rawV)}</span></div>`;
+    }).join('');
+
+    m.bindPopup(`
+      <div class="lp-name">${d.n}</div>
+      <div class="lp-val" style="color:${col}">${d.displayFmt}</div>
+      <div class="lp-rows">${dimRows}
+        <div class="lp-row"><span>∇L</span><span class="lp-rv">${d.loss>0.72?'↓ Urgent':d.loss>0.45?'↓ Moderate':'✓ Stable'}</span></div>
+      </div>`);
+
+    m.on('click', () => {
+      selectDistrict(d);
+      logA(`${d.n} selected · ${DIM[dim].label}: ${d.displayFmt} · L(θ)=${(d.loss*100).toFixed(1)}%`);
+    });
+    markers.push(m);
+  });
+}
+
+function selectDistrict(d) {
+  selectedDistrict = d;
+  const col = lossToColor(d.loss);
+  document.getElementById('sel-panel').style.display='block';
+  document.getElementById('sel-name').textContent = d.n;
+  document.getElementById('sel-score').textContent = d.displayFmt;
+  document.getElementById('sel-score').style.color = col;
+
+  // Per-dimension breakdown
+  const rows = Object.entries(DIM).filter(([k])=>k!=='composite').map(([k,cfg])=>{
+    const rv = d.raw[k];
+    const lv = cfg.norm(rv);
+    const c  = lossToColor(lv);
+    const pct = Math.round(lv*100);
+    return `<div class="db-row">
+      <div class="db-dot" style="background:${c}"></div>
+      <div class="db-name">${cfg.label}</div>
+      <div class="db-bar-bg"><div class="db-bar-fill" style="width:${pct}%;background:${c}"></div></div>
+      <div class="db-val">${cfg.format(rv)}</div>
+    </div>`;
+  }).join('');
+  document.getElementById('sel-dims').innerHTML = rows;
+}
+
+// ══════════════════════════════════════════════════════════════
+// STATS + LEGEND + TOP LIST
+// ══════════════════════════════════════════════════════════════
+function updateStats() {
+  const mean = dataset.reduce((s,d)=>s+d.loss,0)/dataset.length;
+  const crit = dataset.filter(d=>d.loss>=0.70).length;
+  const lel  = document.getElementById('st-loss');
+  lel.textContent = (mean*100).toFixed(1)+'%';
+  lel.style.color = lossToColor(mean);
+  const d0 = (mean-0.49).toFixed(2);
+  document.getElementById('st-delta').textContent = `${mean>0.49?'↑':'↓'} ${Math.abs(d0)} from pre-surge`;
+  document.getElementById('st-delta').className = 'sc2-delta '+(mean>0.55?'bad':'good');
+  document.getElementById('st-crit').textContent = crit;
+
+  // Top 8
+  const top8 = [...dataset].sort((a,b)=>b.loss-a.loss).slice(0,8);
+  document.getElementById('top-d').innerHTML = top8.map(d=>`
+    <div class="d-item" onclick="selectDistrict(window.__ds['${d.n}']);logA('${d.n}: intervention queued')">
+      <div class="d-dot" style="background:${lossToColor(d.loss)}"></div>
+      <span class="d-name">${d.n}</span>
+      <span class="d-val">${d.displayFmt}</span>
+    </div>`).join('');
+
+  window.__ds = {};
+  dataset.forEach(d=>window.__ds[d.n]=d);
+}
+
+function updateLegend() {
+  const dim=getDim(), cfg=DIM[dim];
+  document.getElementById('leg-title').textContent = cfg.label+' — ROYGBIV scale';
+  const bands = cfg.bands;
+  document.getElementById('leg-rows').innerHTML = ROYGBIV_COLORS.map((col,i)=>{
+    const lo = bands[i] !== undefined ? bands[i] : 0;
+    const hi = i===0 ? '∞' : bands[i-1];
+    return `<div class="leg-row"><div class="leg-dot" style="background:${col}"></div>
+      <span>${ROYGBIV_NAMES[i]}: ${dim==='composite'?(Math.round((1-i/6)*100)+'–'+Math.round((1-(i-1)/6)*100)+'%'):(lo+'–'+hi+' '+cfg.unit.split(' ')[0])}</span></div>`;
+  }).join('');
+}
+
+function updatePentad() {
+  const dim = getDim();
+  const cfg = DIM[dim];
+  document.getElementById('pentad-desc').textContent = 'L(θ) · '+cfg.label;
+}
+
+// ══════════════════════════════════════════════════════════════
+// CONTROLS
+// ══════════════════════════════════════════════════════════════
+function updDisplays() {
+  const w=getWeights(), T=w.mh+w.mort+w.mal+w.so;
+  document.getElementById('v-mh').textContent  = Math.round(w.mh/T*100)+'%';
+  document.getElementById('v-im').textContent  = Math.round(w.mort/T*100)+'%';
+  document.getElementById('v-ml').textContent  = Math.round(w.mal/T*100)+'%';
+  document.getElementById('v-so').textContent  = Math.round(w.so/T*100)+'%';
+  document.getElementById('v-eta').textContent = getEta().toFixed(2);
+  document.getElementById('v-eps').textContent = getEps().toFixed(2);
+  const dim=getDim();
+  document.getElementById('dim-desc').textContent = DIM[dim].desc;
+  document.getElementById('wb').classList.toggle('show', dim==='composite');
+}
+
+let timer=null;
+function sched() {
+  updDisplays();
+  document.getElementById('upd').classList.add('on');
+  clearTimeout(timer);
+  timer=setTimeout(()=>{ refresh(); document.getElementById('upd').classList.remove('on'); }, 320);
+}
+
+function refresh() {
+  buildDataset();
+  renderMarkers();
+  updateStats();
+  updateLegend();
+  updatePentad();
+  if(selectedDistrict) {
+    const updated = dataset.find(d=>d.n===selectedDistrict.n);
+    if(updated) selectDistrict(updated);
+  }
+}
+
+document.getElementById('dim-sel').addEventListener('change', sched);
+['s-mh','s-im','s-ml','s-so','s-eta','s-eps'].forEach(id=>
+  document.getElementById(id).addEventListener('input', sched));
+
+// ══════════════════════════════════════════════════════════════
+// SCENARIOS
+// ══════════════════════════════════════════════════════════════
+function setSc(btn, nm) {
+  document.querySelectorAll('.sc-btn').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');
+  const s={
+    base: [25,25,25,25,10,5],
+    mh:   [45,20,20,15,10,5],
+    int:  [25,25,25,25,25,5],
+    goat: [25,25,25,25,5,18],
+    swap: [30,20,25,25,15,2],
+  }[nm];
+  ['s-mh','s-im','s-ml','s-so','s-eta','s-eps'].forEach((id,i)=>document.getElementById(id).value=s[i]);
+  logA('Scenario: '+btn.childNodes[0].textContent.trim());
+  if(nm==='swap') activateBayesianSwap();
+  else sched();
+}
+
+// ══════════════════════════════════════════════════════════════
+// BAYESIAN SWAP ANIMATION
+// ══════════════════════════════════════════════════════════════
+function activateBayesianSwap() {
+  const badge = document.getElementById('phase-badge');
+  const realBadge = document.getElementById('real-badge');
+  const note = document.getElementById('ds-note');
+  const upd = document.getElementById('upd');
+
+  const steps = [
+    [0,   'Connecting to MoH DHIS2 API…'],
+    [1200,'Schema validation: 133 districts ✓'],
+    [2400,'Bayesian update: prior → posterior…'],
+    [3600,'N(0,σ) synthetic → real observations'],
+    [4800,'∇L recomputed on real data ✓'],
+    [5800,'Pipeline swap complete'],
+  ];
+
+  steps.forEach(([delay, msg]) => {
+    setTimeout(()=>{
+      upd.classList.add('on');
+      upd.textContent = msg;
+      logA(msg);
+    }, delay);
+  });
+
+  setTimeout(()=>{
+    upd.classList.remove('on');
+    badge.style.display='none';
+    realBadge.style.display='inline-block';
+    note.innerHTML = `<span style="color:var(--v)">REAL DATA ACTIVE</span><br>
+      Source: MoH DHIS2 API<br>UBOS district surveys<br>NPA 2026 reports<br>
+      ── pipeline live ──<br>
+      <span style="color:var(--v)">→ Bayesian posterior loaded</span><br>
+      <span style="color:var(--v)">→ 133 districts updated</span>`;
+    sched();
+  }, 6200);
+}
+
+// ══════════════════════════════════════════════════════════════
+// TRANSCRIPT
+// ══════════════════════════════════════════════════════════════
+function logA(msg) {
+  const n=new Date();
+  const t=[n.getHours(),n.getMinutes(),n.getSeconds()].map(x=>String(x).padStart(2,'0')).join(':');
+  const el=document.getElementById('tlog');
+  const e=document.createElement('div');
+  e.className='te';
+  e.innerHTML=`<span class="tt2">${t}</span><span class="ta">${msg}</span>`;
+  el.prepend(e);
+  if(el.children.length>25)el.removeChild(el.lastChild);
+}
+
+// ══════════════════════════════════════════════════════════════
+// THEME
+// ══════════════════════════════════════════════════════════════
+document.getElementById('theme-btn').addEventListener('click',()=>{
+  const html=document.documentElement;
+  const next=html.getAttribute('data-theme')==='dark'?'light':'dark';
+  html.setAttribute('data-theme',next);
+  localStorage.setItem('theme',next);
+  document.getElementById('logo-img').src=next==='dark'
+    ?'https://abikesa.github.io/logos/assets/ukubona-dark.png'
+    :'https://abikesa.github.io/logos/assets/ukubona-light.png';
+  if(map){
+    if(next==='dark'){map.removeLayer(lightTile);darkTile.addTo(map);}
+    else{map.removeLayer(darkTile);lightTile.addTo(map);}
+  }
+});
+const saved=localStorage.getItem('theme')||'dark';
+document.documentElement.setAttribute('data-theme',saved);
+document.getElementById('logo-img').src=saved==='dark'
+  ?'https://abikesa.github.io/logos/assets/ukubona-dark.png'
+  :'https://abikesa.github.io/logos/assets/ukubona-light.png';
+
+// ══════════════════════════════════════════════════════════════
+// BOOT
+// ══════════════════════════════════════════════════════════════
+logA('Synthetic pipeline initialized — 133 districts');
+logA('NPA Feb 2026 params — MH surge +71%');
+logA('Real WGS84 coordinates loaded');
+logA('Bayesian swap ready — awaiting real MoH data');
+
+initMap();
+updDisplays();
+refresh();
+</script>
+</body>
+</html> 

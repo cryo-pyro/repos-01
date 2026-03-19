@@ -1,0 +1,1047 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Humans</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=DM+Mono:wght@300;400;500&family=Playfair+Display:ital,wght@0,400;0,900;1,400;1,900&display=swap" rel="stylesheet">
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+html { scroll-behavior: smooth; }
+
+:root {
+  --paper: #f2ede4;
+  --paper-dark: #e8e1d4;
+  --ink: #1a1410;
+  --red: #b02a1a;
+  --red-pale: #d9a89f;
+  --mid: #7a6e62;
+  --faint: rgba(26,20,16,0.12);
+}
+
+body {
+  background: var(--paper);
+  color: var(--ink);
+  font-family: 'Libre Baskerville', serif;
+  overflow-x: hidden;
+}
+
+/* ---- COVER ---- */
+.cover {
+  min-height: 100vh;
+  display: grid;
+  grid-template-rows: 1fr auto;
+  position: relative;
+  background: var(--paper);
+  overflow: hidden;
+}
+
+/* large faint "HUMANS" watermark */
+.cover-watermark {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -52%);
+  font-family: 'Playfair Display', serif;
+  font-weight: 900;
+  font-size: clamp(12rem, 28vw, 22rem);
+  color: transparent;
+  -webkit-text-stroke: 1px rgba(26,20,16,0.07);
+  letter-spacing: -0.04em;
+  white-space: nowrap;
+  user-select: none;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.cover-inner {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  min-height: 100vh;
+}
+
+/* left: title block */
+.cover-left {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding: 6rem 4rem 6rem 6rem;
+  border-right: 1px solid var(--faint);
+}
+
+.cover-eyebrow {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.6rem;
+  letter-spacing: 0.35em;
+  text-transform: uppercase;
+  color: var(--red);
+  margin-bottom: 3rem;
+}
+
+h1.title {
+  font-family: 'Playfair Display', serif;
+  font-weight: 900;
+  font-size: clamp(6rem, 12vw, 11rem);
+  line-height: 0.9;
+  letter-spacing: -0.03em;
+  color: var(--ink);
+  margin-bottom: 3rem;
+}
+
+.title-sub {
+  font-family: 'Playfair Display', serif;
+  font-style: italic;
+  font-size: 1.1rem;
+  color: var(--mid);
+  max-width: 38ch;
+  line-height: 1.7;
+  border-top: 1px solid var(--faint);
+  padding-top: 2rem;
+}
+
+/* right: vertical text + loss formula */
+.cover-right {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 6rem 4rem;
+  position: relative;
+}
+
+.cover-vertical {
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+  transform: rotate(180deg);
+  font-family: 'DM Mono', monospace;
+  font-size: 0.62rem;
+  letter-spacing: 0.3em;
+  color: rgba(26,20,16,0.25);
+  text-transform: uppercase;
+  align-self: flex-end;
+}
+
+.cover-equation {
+  text-align: right;
+}
+
+.eq-label {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.58rem;
+  letter-spacing: 0.25em;
+  color: var(--red);
+  text-transform: uppercase;
+  display: block;
+  margin-bottom: 1rem;
+}
+
+.eq-main {
+  font-family: 'DM Mono', monospace;
+  font-size: 1.1rem;
+  color: var(--ink);
+  line-height: 2;
+}
+
+.eq-main span {
+  display: block;
+  color: var(--mid);
+  font-size: 0.65rem;
+  letter-spacing: 0.1em;
+  margin-top: -0.5rem;
+}
+
+/* scroll cue */
+.cover-scroll {
+  position: absolute;
+  bottom: 3rem;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  font-family: 'DM Mono', monospace;
+  font-size: 0.5rem;
+  letter-spacing: 0.3em;
+  color: rgba(26,20,16,0.3);
+  text-transform: uppercase;
+  z-index: 2;
+}
+
+.scroll-line {
+  width: 1px;
+  height: 48px;
+  background: linear-gradient(to bottom, rgba(26,20,16,0.3), transparent);
+  animation: scrollPulse 2s ease-in-out infinite;
+}
+
+@keyframes scrollPulse {
+  0%, 100% { opacity: 0.3; transform: scaleY(1); }
+  50% { opacity: 0.7; transform: scaleY(1.2); }
+}
+
+/* ---- STRIP ---- */
+.strip {
+  background: var(--ink);
+  color: var(--paper);
+  display: flex;
+  overflow: hidden;
+  white-space: nowrap;
+  border-top: 3px solid var(--red);
+  border-bottom: 3px solid var(--red);
+}
+
+.strip-track {
+  display: flex;
+  gap: 0;
+  animation: stripScroll 30s linear infinite;
+}
+
+.strip-item {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.62rem;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  padding: 0.9rem 2.5rem;
+  border-right: 1px solid rgba(242,237,228,0.1);
+  color: rgba(242,237,228,0.5);
+  flex-shrink: 0;
+}
+
+.strip-item.highlight { color: var(--red); }
+
+@keyframes stripScroll {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+
+/* ---- SECTIONS SHARED ---- */
+.section {
+  padding: 8rem 6rem;
+  position: relative;
+}
+
+.section + .section {
+  border-top: 1px solid var(--faint);
+}
+
+.s-label {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.55rem;
+  letter-spacing: 0.4em;
+  text-transform: uppercase;
+  color: var(--red);
+  margin-bottom: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.s-label::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--faint);
+  max-width: 120px;
+}
+
+h2.s-title {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(2.5rem, 5vw, 4.5rem);
+  font-weight: 400;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  margin-bottom: 4rem;
+}
+
+h2.s-title em {
+  font-style: italic;
+  color: var(--red);
+}
+
+/* ---- PENTAD RINGS ---- */
+.pentad-wrap {
+  display: flex;
+  align-items: flex-start;
+  gap: 6rem;
+}
+
+.pentad-rings {
+  flex-shrink: 0;
+  width: 340px;
+  height: 340px;
+  position: relative;
+}
+
+.ring {
+  position: absolute;
+  border-radius: 50%;
+  border: 1px solid;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.4s;
+}
+
+.ring-5 { inset: 0;           border-color: rgba(26,20,16,0.08); background: rgba(26,20,16,0.015); }
+.ring-4 { inset: 30px;        border-color: rgba(26,20,16,0.1);  background: rgba(26,20,16,0.02);  }
+.ring-3 { inset: 62px;        border-color: rgba(176,42,26,0.2); background: rgba(176,42,26,0.04); }
+.ring-2 { inset: 96px;        border-color: rgba(26,20,16,0.15); background: rgba(26,20,16,0.03);  }
+.ring-1 { inset: 132px;       border-color: var(--red);          background: rgba(176,42,26,0.08); }
+
+.ring-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--red);
+}
+
+.ring-tag {
+  position: absolute;
+  font-family: 'DM Mono', monospace;
+  font-size: 0.52rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.rt-1 { top: 12px;  left: 50%; transform: translateX(-50%); color: rgba(26,20,16,0.3); }
+.rt-2 { top: 42px;  left: 50%; transform: translateX(-50%); color: rgba(26,20,16,0.35); }
+.rt-3 { top: 74px;  left: 50%; transform: translateX(-50%); color: var(--red); font-weight: 500; }
+.rt-4 { top: 108px; left: 50%; transform: translateX(-50%); color: rgba(26,20,16,0.45); }
+.rt-5 { top: 144px; left: 50%; transform: translateX(-50%); color: var(--ink); font-weight: 500; }
+
+.pentad-list {
+  flex: 1;
+}
+
+.p-row {
+  display: grid;
+  grid-template-columns: 1.8rem 1fr 1fr 1fr;
+  gap: 1.5rem;
+  padding: 1.5rem 0;
+  border-bottom: 1px solid var(--faint);
+  align-items: start;
+  transition: background 0.2s;
+}
+
+.p-row:hover { background: rgba(26,20,16,0.02); margin: 0 -1rem; padding-left: 1rem; padding-right: 1rem; }
+
+.p-num {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.6rem;
+  color: var(--red);
+  padding-top: 0.15rem;
+}
+
+.p-word {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.25rem;
+  font-style: italic;
+  line-height: 1.2;
+  color: var(--ink);
+}
+
+.p-word small {
+  display: block;
+  font-family: 'DM Mono', monospace;
+  font-style: normal;
+  font-size: 0.55rem;
+  letter-spacing: 0.15em;
+  color: var(--mid);
+  margin-top: 0.3rem;
+  text-transform: uppercase;
+}
+
+.p-neuro {
+  font-size: 0.82rem;
+  color: var(--mid);
+  line-height: 1.5;
+}
+
+.p-math {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.72rem;
+  color: var(--red);
+  line-height: 1.5;
+}
+
+/* ---- THREE BLIND MEN ---- */
+.books-section {
+  background: var(--ink);
+  color: var(--paper);
+}
+
+.books-section .s-label { color: var(--red-pale); }
+.books-section .s-label::after { background: rgba(242,237,228,0.1); }
+.books-section h2.s-title { color: var(--paper); }
+.books-section h2.s-title em { color: var(--red-pale); }
+
+.books-trio {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0;
+  border: 1px solid rgba(242,237,228,0.08);
+}
+
+.book {
+  padding: 3rem 2.5rem;
+  border-right: 1px solid rgba(242,237,228,0.08);
+  position: relative;
+}
+
+.book:last-child { border-right: none; }
+
+.book-num {
+  font-family: 'Playfair Display', serif;
+  font-size: 5rem;
+  font-weight: 900;
+  color: rgba(242,237,228,0.04);
+  position: absolute;
+  top: 1rem;
+  right: 1.5rem;
+  line-height: 1;
+  user-select: none;
+}
+
+.book-who {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.55rem;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--red-pale);
+  margin-bottom: 0.6rem;
+}
+
+.book-name {
+  font-family: 'Playfair Display', serif;
+  font-style: italic;
+  font-size: 1.3rem;
+  color: var(--paper);
+  margin-bottom: 2rem;
+  line-height: 1.3;
+}
+
+.book-their {
+  font-size: 0.85rem;
+  color: rgba(242,237,228,0.45);
+  font-style: italic;
+  margin-bottom: 1.5rem;
+  line-height: 1.6;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid rgba(242,237,228,0.08);
+}
+
+.book-ours-lbl {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.5rem;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: var(--red-pale);
+  margin-bottom: 0.6rem;
+  opacity: 0.7;
+}
+
+.book-ours {
+  font-size: 0.88rem;
+  color: rgba(242,237,228,0.75);
+  line-height: 1.7;
+}
+
+/* ---- RETRODUCTION TIMELINE ---- */
+.retro-grid {
+  display: grid;
+  grid-template-columns: 200px 1fr;
+  gap: 0;
+  position: relative;
+}
+
+.retro-axis {
+  position: relative;
+  padding-right: 3rem;
+}
+
+.retro-axis-line {
+  position: absolute;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background: var(--faint);
+}
+
+.retro-axis-arrow {
+  position: absolute;
+  right: -5px;
+  top: -12px;
+  font-size: 0.7rem;
+  color: var(--mid);
+}
+
+.retro-axis-label {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.52rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--mid);
+  text-align: right;
+  padding-right: 1.5rem;
+  position: sticky;
+  top: 2rem;
+  margin-top: 1rem;
+}
+
+.retro-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.retro-row {
+  display: grid;
+  grid-template-columns: 200px 1fr;
+  gap: 3rem;
+  padding: 2.5rem 0;
+  border-bottom: 1px solid var(--faint);
+  position: relative;
+  transition: background 0.2s;
+}
+
+.retro-row:hover { background: rgba(176,42,26,0.03); }
+
+.retro-row::before {
+  content: '';
+  position: absolute;
+  left: -31px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--paper);
+  border: 2px solid var(--faint);
+  transition: border-color 0.3s, background 0.3s;
+}
+
+.retro-row:hover::before {
+  border-color: var(--red);
+  background: var(--red);
+}
+
+.retro-time {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.58rem;
+  letter-spacing: 0.1em;
+  color: var(--mid);
+  padding-top: 0.2rem;
+  line-height: 1.6;
+}
+
+.retro-content-name {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.5rem;
+  font-style: italic;
+  margin-bottom: 0.5rem;
+}
+
+.retro-content-body {
+  font-size: 0.88rem;
+  color: var(--mid);
+  line-height: 1.7;
+  max-width: 60ch;
+}
+
+.retro-content-body strong {
+  color: var(--ink);
+  font-weight: 400;
+}
+
+/* ---- PULL QUOTE ---- */
+.pullquote-section {
+  background: var(--red);
+  padding: 8rem 6rem;
+  text-align: center;
+}
+
+.pq-text {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(1.6rem, 3.5vw, 2.8rem);
+  font-weight: 400;
+  font-style: italic;
+  color: var(--paper);
+  line-height: 1.5;
+  max-width: 22ch;
+  margin: 0 auto 2.5rem;
+}
+
+.pq-attribution {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.58rem;
+  letter-spacing: 0.35em;
+  text-transform: uppercase;
+  color: rgba(242,237,228,0.5);
+}
+
+/* ---- MATRIX ---- */
+.matrix-section {}
+
+.matrix-wrap {
+  overflow-x: auto;
+  margin-top: 2rem;
+}
+
+table.big-matrix {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+}
+
+table.big-matrix thead th {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.52rem;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: var(--red);
+  padding: 0.8rem 1.2rem;
+  text-align: left;
+  border-bottom: 2px solid var(--ink);
+  white-space: nowrap;
+}
+
+table.big-matrix tbody tr {
+  border-bottom: 1px solid var(--faint);
+  transition: background 0.2s;
+}
+
+table.big-matrix tbody tr:hover { background: rgba(176,42,26,0.03); }
+
+table.big-matrix td {
+  padding: 1.4rem 1.2rem;
+  vertical-align: top;
+  line-height: 1.6;
+  color: var(--ink);
+}
+
+table.big-matrix td:first-child {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.6rem;
+  color: var(--red);
+  white-space: nowrap;
+}
+
+.td-name {
+  font-family: 'Playfair Display', serif;
+  font-style: italic;
+  font-size: 1.1rem;
+  display: block;
+  margin-bottom: 0.2rem;
+}
+
+.td-op {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.6rem;
+  color: var(--mid);
+}
+
+/* ---- CLOSING ---- */
+.closing {
+  background: var(--paper-dark);
+  padding: 10rem 6rem;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6rem;
+  align-items: center;
+}
+
+.closing-left h2 {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(2.5rem, 5vw, 4.5rem);
+  font-weight: 900;
+  letter-spacing: -0.03em;
+  line-height: 1.0;
+  color: var(--ink);
+  margin-bottom: 2rem;
+}
+
+.closing-left p {
+  font-size: 1rem;
+  color: var(--mid);
+  line-height: 1.8;
+  max-width: 42ch;
+}
+
+.closing-right {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.72rem;
+  line-height: 2.4;
+  color: var(--mid);
+  border-left: 2px solid var(--faint);
+  padding-left: 3rem;
+}
+
+.closing-right strong {
+  color: var(--red);
+  font-weight: 500;
+}
+
+/* ---- FOOTER ---- */
+footer {
+  background: var(--ink);
+  color: rgba(242,237,228,0.4);
+  padding: 2.5rem 6rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-family: 'DM Mono', monospace;
+  font-size: 0.55rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+
+footer a {
+  color: rgba(242,237,228,0.4);
+  text-decoration: none;
+  transition: color 0.3s;
+}
+footer a:hover { color: var(--red-pale); }
+
+footer ul { list-style: none; display: flex; gap: 2rem; }
+
+/* ---- SCROLL FADE ---- */
+.reveal {
+  opacity: 0;
+  transform: translateY(28px);
+  transition: opacity 0.9s ease, transform 0.9s ease;
+}
+.reveal.on { opacity: 1; transform: none; }
+
+/* ---- RESPONSIVE ---- */
+@media (max-width: 860px) {
+  .cover-inner { grid-template-columns: 1fr; }
+  .cover-right { display: none; }
+  .cover-left { padding: 7rem 2rem 5rem; }
+  .section { padding: 5rem 2rem; }
+  .pentad-wrap { flex-direction: column; }
+  .pentad-rings { display: none; }
+  .p-row { grid-template-columns: 1.4rem 1fr 1fr; }
+  .p-math { display: none; }
+  .books-trio { grid-template-columns: 1fr; }
+  .book { border-right: none; border-bottom: 1px solid rgba(242,237,228,0.08); }
+  .retro-row { grid-template-columns: 1fr; gap: 0.5rem; }
+  .closing { grid-template-columns: 1fr; gap: 3rem; padding: 5rem 2rem; }
+  footer { flex-direction: column; gap: 1.5rem; padding: 2rem; }
+  .books-section, .pullquote-section { padding-left: 2rem; padding-right: 2rem; }
+}
+</style>
+</head>
+<body>
+
+<!-- ============ COVER ============ -->
+<div class="cover">
+  <div class="cover-watermark">HUMANS</div>
+  <div class="cover-inner">
+    <div class="cover-left">
+      <p class="cover-eyebrow">Ukubona · Stratigraphic Philosophy · The Loss Function Beneath History</p>
+      <h1 class="title">Hu<br>mans</h1>
+      <p class="title-sub">Phillips catalogues our catastrophes. Harari anatomises our fictions. Sapolsky traces the circuitry underneath every act. They are all looking at the output.<br><br>This is the mechanism.</p>
+    </div>
+    <div class="cover-right">
+      <div class="cover-vertical">Calibrate → Taste → Soul → Mind → Body → Calibrate</div>
+      <div class="cover-equation">
+        <span class="eq-label">The Update Rule</span>
+        <div class="eq-main">
+          θ<sub>t+1</sub> = θ<sub>t</sub> − η∇L
+          <span>Calibrate · Taste · Soul · Mind · Body</span>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="cover-scroll">
+    <div class="scroll-line"></div>
+    scroll
+  </div>
+</div>
+
+<!-- ============ TICKER ============ -->
+<div class="strip">
+  <div class="strip-track">
+    <span class="strip-item highlight">Calibrate</span>
+    <span class="strip-item">θ<sub>t</sub></span>
+    <span class="strip-item">Thalamus</span>
+    <span class="strip-item highlight">Taste</span>
+    <span class="strip-item">L(θ)</span>
+    <span class="strip-item">Amygdala</span>
+    <span class="strip-item highlight">Soul</span>
+    <span class="strip-item">∇L</span>
+    <span class="strip-item">Hippocampus</span>
+    <span class="strip-item highlight">Mind</span>
+    <span class="strip-item">−η∇L</span>
+    <span class="strip-item">Prefrontal Cortex</span>
+    <span class="strip-item highlight">Body</span>
+    <span class="strip-item">θ<sub>t+1</sub></span>
+    <span class="strip-item">Motor Output</span>
+    <span class="strip-item">·</span>
+    <span class="strip-item highlight">Calibrate</span>
+    <span class="strip-item">θ<sub>t</sub></span>
+    <span class="strip-item">Thalamus</span>
+    <span class="strip-item highlight">Taste</span>
+    <span class="strip-item">L(θ)</span>
+    <span class="strip-item">Amygdala</span>
+    <span class="strip-item highlight">Soul</span>
+    <span class="strip-item">∇L</span>
+    <span class="strip-item">Hippocampus</span>
+    <span class="strip-item highlight">Mind</span>
+    <span class="strip-item">−η∇L</span>
+    <span class="strip-item">Prefrontal Cortex</span>
+    <span class="strip-item highlight">Body</span>
+    <span class="strip-item">θ<sub>t+1</sub></span>
+    <span class="strip-item">Motor Output</span>
+    <span class="strip-item">·</span>
+  </div>
+</div>
+
+<!-- ============ PENTAD ============ -->
+<section class="section reveal" id="pentad">
+  <p class="s-label">Section I</p>
+  <h2 class="s-title">The Five Layers<br>of <em>Every Human</em></h2>
+
+  <div class="pentad-wrap">
+    <div class="pentad-rings" aria-hidden="true">
+      <div class="ring ring-5"></div>
+      <div class="ring ring-4"></div>
+      <div class="ring ring-3"></div>
+      <div class="ring ring-2"></div>
+      <div class="ring ring-1"><div class="ring-dot"></div></div>
+      <span class="ring-tag rt-1">Calibrate · Millennia</span>
+      <span class="ring-tag rt-2">Taste · Early Life</span>
+      <span class="ring-tag rt-3">Soul · The Gradient</span>
+      <span class="ring-tag rt-4">Mind · Seconds</span>
+      <span class="ring-tag rt-5">Body · Now</span>
+    </div>
+
+    <div class="pentad-list">
+      <div class="p-row">
+        <span class="p-num">I</span>
+        <div class="p-word">Calibrate<small>UNIV · θ<sub>t</sub></small></div>
+        <div class="p-neuro">Thalamus / Peripheral Nervous System — raw sensory relay, the inherited landscape</div>
+        <div class="p-math">θ<sub>t</sub><br><small style="color:var(--mid)">Initial state vector</small></div>
+      </div>
+      <div class="p-row">
+        <span class="p-num">II</span>
+        <div class="p-word">Taste<small>UB · L(θ)</small></div>
+        <div class="p-neuro">Amygdala / Hormonal System — assigns threat or reward, spikes the loss function</div>
+        <div class="p-math">L(θ)<br><small style="color:var(--mid)">Loss function</small></div>
+      </div>
+      <div class="p-row">
+        <span class="p-num">III</span>
+        <div class="p-word">Soul<small>UKB · ∇L</small></div>
+        <div class="p-neuro">Hippocampus — memory meets emotion; the gradient vector emerges from their tension</div>
+        <div class="p-math">∇L<br><small style="color:var(--mid)">The gradient</small></div>
+      </div>
+      <div class="p-row">
+        <span class="p-num">IV</span>
+        <div class="p-word">Mind<small>UI · −η∇L</small></div>
+        <div class="p-neuro">Prefrontal Cortex — not the pilot; a passenger computing descent on a map it didn't draw</div>
+        <div class="p-math">−η∇L<br><small style="color:var(--mid)">Descent step</small></div>
+      </div>
+      <div class="p-row">
+        <span class="p-num">V</span>
+        <div class="p-word">Body<small>UX · θ<sub>t+1</sub></small></div>
+        <div class="p-neuro">Motor Output — the observable action; most visible, least causal, closes the loop</div>
+        <div class="p-math">θ<sub>t+1</sub><br><small style="color:var(--mid)">Updated state</small></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ BOOKS ============ -->
+<section class="section books-section reveal" id="books">
+  <p class="s-label">Section II</p>
+  <h2 class="s-title">Three Blind<br><em>Men and an Algorithm</em></h2>
+
+  <div class="books-trio">
+    <div class="book">
+      <div class="book-num">1</div>
+      <p class="book-who">Tom Phillips</p>
+      <p class="book-name">Humans: A Brief History of How We F*cked It All Up</p>
+      <p class="book-their">History as comedy of errors — cognitive failures, moral lapses, spectacular stupidity catalogued with wit.</p>
+      <p class="book-ours-lbl">What the algorithm sees</p>
+      <p class="book-ours">The errors are ε — the stochastic noise term without which no system can escape a local minimum. Every catastrophe is the species' distributed R&amp;D running a necessary search function in the dark. The Austrian army attacking itself <em>is</em> the gradient probe. The f*ck up was never a glitch.</p>
+    </div>
+    <div class="book">
+      <div class="book-num">2</div>
+      <p class="book-who">Yuval Noah Harari</p>
+      <p class="book-name">Sapiens: A Brief History of Humankind</p>
+      <p class="book-their">The Cognitive Revolution gave us shared fictions — money, law, religion — that let millions of strangers cooperate.</p>
+      <p class="book-ours-lbl">What the algorithm sees</p>
+      <p class="book-ours">The fictions are UI/UX. Once a high-variance scout finds a better basin, the discovery must be compressed into a transmissible format so the colony can descend without bearing the exploration cost. Harari's fictions are pheromone highways paved over the gradient. They are the Apollonian smoothing of a Dionysian discovery.</p>
+    </div>
+    <div class="book">
+      <div class="book-num">3</div>
+      <p class="book-who">Robert Sapolsky</p>
+      <p class="book-name">Behave + Determined</p>
+      <p class="book-their">Every behavior is the downstream output of a causal chain stretching from milliseconds to millennia. There is no free will — only a very long calculation.</p>
+      <p class="book-ours-lbl">What the algorithm sees</p>
+      <p class="book-ours">Sapolsky is the only one who refused compression. His retroductive method — tracing backwards from behavior through hormones through epigenetics through evolution — is structurally identical to the stratigraphic method. He calls the layers "one second before" instead of Body → Calibrate. Same algorithm, different vocabulary.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ PULL QUOTE ============ -->
+<div class="pullquote-section reveal">
+  <p class="pq-text">"Compression destroys the gradient."</p>
+  <p class="pq-attribution">The core claim · Stratigraphic Civilization</p>
+</div>
+
+<!-- ============ RETRODUCTION ============ -->
+<section class="section reveal" id="retroduction">
+  <p class="s-label">Section III</p>
+  <h2 class="s-title">Why Backwards<br><em>is Necessary</em></h2>
+
+  <p style="max-width:55ch; color:var(--mid); font-style:italic; margin-bottom:4rem; line-height:1.8;">The Body is the only layer immediately visible. It is also the least causal. Both Sapolsky and the stratigraphic method move upstream against time — not by preference, but by mechanical necessity.</p>
+
+  <div style="padding-left: 3rem; border-left: 1px solid var(--faint); position: relative;">
+
+    <div class="retro-row reveal" style="border-bottom: 1px solid var(--faint); padding: 2rem 0 2rem 2rem; display:grid; grid-template-columns: 180px 1fr; gap: 3rem;">
+      <div class="retro-time">Now<br>Milliseconds<br><small>Observable</small></div>
+      <div>
+        <div class="retro-content-name">Body</div>
+        <p class="retro-content-body">The wound. The behavior. The punch. <strong>If you stop here, you blame the hand.</strong> This is where Phillips lives — cataloguing the punch, not the landscape that shaped the fist.</p>
+      </div>
+    </div>
+
+    <div class="retro-row reveal" style="border-bottom: 1px solid var(--faint); padding: 2rem 0 2rem 2rem; display:grid; grid-template-columns: 180px 1fr; gap: 3rem;">
+      <div class="retro-time">Seconds before<br>PFC activation</div>
+      <div>
+        <div class="retro-content-name">Mind</div>
+        <p class="retro-content-body">The PFC "deliberates." But the direction was already set by upstream layers before deliberation began. <strong>The mind arrives late to its own decision.</strong> Sapolsky's <em>Determined</em> is the formal proof.</p>
+      </div>
+    </div>
+
+    <div class="retro-row reveal" style="border-bottom: 1px solid var(--faint); padding: 2rem 0 2rem 2rem; display:grid; grid-template-columns: 180px 1fr; gap: 3rem; background: rgba(176,42,26,0.03);">
+      <div class="retro-time">Minutes → Years<br>Hippocampus fires</div>
+      <div>
+        <div class="retro-content-name" style="color:var(--red)">Soul ←</div>
+        <p class="retro-content-body"><strong>The gradient vector lives here.</strong> Memory meets emotion and a direction emerges — invisible, relational, prior to any thought. This is where most explanations never arrive. Ukubona: to see the direction before the UI smooths it into language.</p>
+      </div>
+    </div>
+
+    <div class="retro-row reveal" style="border-bottom: 1px solid var(--faint); padding: 2rem 0 2rem 2rem; display:grid; grid-template-columns: 180px 1fr; gap: 3rem;">
+      <div class="retro-time">Months → Years<br>Hormones, early life</div>
+      <div>
+        <div class="retro-content-name">Taste</div>
+        <p class="retro-content-body">The loss function formed in amygdalar priming, perinatal stress, epigenetic loading. <strong>The system learned to fear before you could speak.</strong> What Sapolsky calls "hours before" is the body's oldest editorial.</p>
+      </div>
+    </div>
+
+    <div class="retro-row reveal" style="padding: 2rem 0 2rem 2rem; display:grid; grid-template-columns: 180px 1fr; gap: 3rem;">
+      <div class="retro-time">Centuries → Millennia<br>Evolution · Bedrock</div>
+      <div>
+        <div class="retro-content-name">Calibrate</div>
+        <p class="retro-content-body">The θ<sub>t</sub> you inherited. The ecology of your ancestors five hundred years ago. <strong>The landscape set before a single experience was recorded.</strong> Working backwards to here is the only way to prove the "hand" was executing a calculation that started before it existed.</p>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ============ FULL MATRIX ============ -->
+<section class="section reveal" id="matrix" style="background: var(--paper-dark);">
+  <p class="s-label">Section IV</p>
+  <h2 class="s-title">The Integrated<br><em>Matrix</em></h2>
+
+  <div class="matrix-wrap">
+    <table class="big-matrix">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Pentad</th>
+          <th>Neuroanatomy</th>
+          <th>Sapolsky's Timeline</th>
+          <th>Optimization Role</th>
+          <th>In the Canon</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>I</td>
+          <td><span class="td-name">Calibrate</span><span class="td-op">θ<sub>t</sub> · UNIV</span></td>
+          <td>Thalamus / Peripheral NS</td>
+          <td>Milliseconds → Seconds: sensory relay &amp; reflex arcs</td>
+          <td>Raw input vector. The inherited landscape. Initial state before any experience updates the weights.</td>
+          <td>The genome. The ancestral ecology. The geology you did not choose but must operate from.</td>
+        </tr>
+        <tr>
+          <td>II</td>
+          <td><span class="td-name">Taste</span><span class="td-op">L(θ) · UB</span></td>
+          <td>Amygdala / Hormones</td>
+          <td>Seconds → Minutes: emotional valuation, threat/reward</td>
+          <td>Assigns value to inputs. Sets the weights of the loss function. Flags which stimuli cost the most to ignore.</td>
+          <td>Neurodivergence as high-variance taste calibration. Epigenetic maternal stress as prenatal loss-function loading.</td>
+        </tr>
+        <tr>
+          <td>III</td>
+          <td><span class="td-name">Soul</span><span class="td-op">∇L · UKB</span></td>
+          <td>Hippocampus / Memory</td>
+          <td>Minutes → Years: contextual memory &amp; historical weighting</td>
+          <td>The gradient. Emerges from tension between amygdalar signal and hippocampal prior. Invisible, directional, prior to thought.</td>
+          <td>The shaman. The prophet. The neurodivergent scout returning from the noise with the directional vector the tribe will follow — centuries later.</td>
+        </tr>
+        <tr>
+          <td>IV</td>
+          <td><span class="td-name">Mind</span><span class="td-op">−η∇L · UI</span></td>
+          <td>Prefrontal Cortex</td>
+          <td>Seconds → Minutes: planning &amp; executive control</td>
+          <td>Computes the descent. Smooths the raw gradient into planned action. The learning rate applied to a direction already chosen upstream.</td>
+          <td>Harari's shared fictions: laws, currencies, institutions paving the newly discovered gradient into highways others can traverse without paying the exploration cost.</td>
+        </tr>
+        <tr>
+          <td>V</td>
+          <td><span class="td-name">Body</span><span class="td-op">θ<sub>t+1</sub> · UX</span></td>
+          <td>Motor Output / Behavior</td>
+          <td>Milliseconds: muscle contraction, observable act</td>
+          <td>Executes the update. Changes the environment. Closes the loop. The most visible layer; the least causal.</td>
+          <td>Phillips's catastrophes. The Austrian army. The gunpowder palace. Every f*ck up that was never a glitch — it was the stochastic scout probing the gradient at maximum cost.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ============ CLOSING ============ -->
+<div class="closing reveal">
+  <div class="closing-left">
+    <h2>The<br>Audience</h2>
+    <p>Anyone tired of being a parameter in someone else's optimisation loop. AI alignment researchers who want to keep the human in the gradient. Clinicians who refuse to compress a patient to a diagnosis. Technologists building tools that respect composite loss — not just GDP.</p>
+  </div>
+  <div class="closing-right">
+    <div><strong>Phillips</strong> narrates errors</div>
+    <div><strong>Harari</strong> narrates fictions</div>
+    <div><strong>Sapolsky</strong> narrates causation</div>
+    <div style="margin-top:1rem; padding-top:1rem; border-top: 1px solid var(--faint);">
+      <strong>This</strong> is the loss function<br>underneath all three.
+    </div>
+  </div>
+</div>
+
+<!-- ============ FOOTER ============ -->
+<footer>
+  <span>Humans · Ukubona LLC</span>
+  <ul>
+    <li><a href="https://abikesa.github.io/repos-00/assets/html/philosophy.html" target="_blank">Philosophy</a></li>
+    <li><a href="https://ukubona-llc.github.io/repos-00/ukhona/html/stratigraphic-civilization.html" target="_blank">Stratigraphy</a></li>
+    <li><a href="https://abikesa.github.io/repos-00/assets/html/evolution.html" target="_blank">Evolution</a></li>
+  </ul>
+  <span>θ<sub>t+1</sub> = θ<sub>t</sub> − η∇L</span>
+</footer>
+
+<script>
+const obs = new IntersectionObserver(entries => {
+  entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('on'); });
+}, { threshold: 0.08 });
+document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
+</script>
+</body>
+</html>

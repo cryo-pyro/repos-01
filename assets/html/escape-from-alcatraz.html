@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Basin Escape Architecture — Ukubona</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=JetBrains+Mono:wght@300;400&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #0e0e0d;
+    --paper: #f5f0e8;
+    --paper-dark: #ede7d8;
+    --accent: #b5401a;
+    --accent-muted: #d4693a;
+    --gold: #c8922a;
+    --cool: #2a5f8f;
+    --teal: #1a7060;
+    --violet: #4a3a8a;
+    --muted: #6b6558;
+    --rule: #c8bfaa;
+    --mono: 'JetBrains Mono', monospace;
+    --serif: 'Cormorant Garamond', Georgia, serif;
+    --display: 'Instrument Serif', serif;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { font-size: 16px; scroll-behavior: smooth; }
+
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--serif);
+    font-size: 1.15rem;
+    line-height: 1.75;
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 4rem 2.5rem 8rem;
+  }
+
+  /* ── HEADER ── */
+  header {
+    border-top: 3px solid var(--ink);
+    padding-top: 2.5rem;
+    margin-bottom: 4rem;
+    position: relative;
+  }
+
+  .eyebrow {
+    font-family: var(--mono);
+    font-size: 0.65rem;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 1.2rem;
+  }
+
+  h1 {
+    font-family: var(--display);
+    font-size: clamp(2.4rem, 5vw, 3.8rem);
+    font-weight: 400;
+    line-height: 1.1;
+    letter-spacing: -0.01em;
+    color: var(--ink);
+    margin-bottom: 1.5rem;
+  }
+
+  h1 em {
+    font-style: italic;
+    color: var(--accent);
+  }
+
+  .lede {
+    font-size: 1.25rem;
+    line-height: 1.65;
+    color: var(--muted);
+    font-style: italic;
+    border-left: 2px solid var(--rule);
+    padding-left: 1.25rem;
+    margin-bottom: 0;
+    max-width: 620px;
+  }
+
+  /* ── SECTION STRUCTURE ── */
+  section {
+    margin-bottom: 4rem;
+  }
+
+  h2 {
+    font-family: var(--mono);
+    font-size: 0.68rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 1.5rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--rule);
+  }
+
+  h3 {
+    font-family: var(--display);
+    font-size: 1.55rem;
+    font-weight: 400;
+    font-style: italic;
+    color: var(--ink);
+    margin: 2.5rem 0 0.8rem;
+  }
+
+  p {
+    margin-bottom: 1.25rem;
+    max-width: 680px;
+  }
+
+  strong {
+    font-weight: 500;
+    color: var(--ink);
+  }
+
+  /* ── PULL QUOTE ── */
+  .pull {
+    background: var(--paper-dark);
+    border-left: 3px solid var(--accent);
+    padding: 1.5rem 2rem;
+    margin: 2.5rem 0;
+    font-size: 1.3rem;
+    font-style: italic;
+    line-height: 1.55;
+    color: var(--ink);
+  }
+
+  .pull cite {
+    display: block;
+    margin-top: 0.75rem;
+    font-family: var(--mono);
+    font-size: 0.6rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--muted);
+    font-style: normal;
+  }
+
+  /* ── MATH INLINE ── */
+  .eq {
+    font-family: var(--mono);
+    font-size: 0.9rem;
+    background: var(--paper-dark);
+    border: 1px solid var(--rule);
+    padding: 0.15em 0.5em;
+    border-radius: 3px;
+    white-space: nowrap;
+  }
+
+  .eq-block {
+    font-family: var(--mono);
+    font-size: 0.88rem;
+    background: var(--paper-dark);
+    border: 1px solid var(--rule);
+    border-left: 3px solid var(--cool);
+    padding: 1.1rem 1.5rem;
+    margin: 1.5rem 0;
+    display: block;
+    overflow-x: auto;
+    line-height: 2;
+    color: var(--ink);
+  }
+
+  /* ── TABLE ── */
+  .layer-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 2rem 0;
+    font-size: 0.95rem;
+  }
+
+  .layer-table th {
+    font-family: var(--mono);
+    font-size: 0.6rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--muted);
+    border-bottom: 2px solid var(--ink);
+    padding: 0.5rem 0.75rem;
+    text-align: left;
+    font-weight: 400;
+  }
+
+  .layer-table td {
+    padding: 0.65rem 0.75rem;
+    border-bottom: 1px solid var(--rule);
+    vertical-align: top;
+    line-height: 1.5;
+  }
+
+  .layer-table tr:hover td { background: var(--paper-dark); }
+
+  .badge {
+    display: inline-block;
+    font-family: var(--mono);
+    font-size: 0.58rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    padding: 0.2em 0.55em;
+    border-radius: 3px;
+    font-weight: 400;
+  }
+
+  .badge-green  { background: #d4edda; color: #1a5c2a; }
+  .badge-amber  { background: #fde8c0; color: #7a4800; }
+  .badge-red    { background: #fad4c8; color: #6e1a08; }
+
+  /* ── SVG FIGURE ── */
+  .figure {
+    margin: 3rem -1rem;
+    background: var(--paper-dark);
+    border: 1px solid var(--rule);
+    border-radius: 4px;
+    padding: 2rem 1.5rem 1.5rem;
+  }
+
+  .figure-caption {
+    font-family: var(--mono);
+    font-size: 0.62rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-top: 1rem;
+    text-align: center;
+  }
+
+  /* ── SVG INTERNAL STYLES ── */
+  .svg-basin text { font-family: 'JetBrains Mono', monospace; }
+
+  /* ── ANCHOR SECTION ── */
+  .anchor-box {
+    background: var(--ink);
+    color: var(--paper);
+    padding: 2.5rem 2.5rem;
+    margin: 3rem 0;
+    border-radius: 2px;
+  }
+
+  .anchor-box h3 {
+    color: var(--gold);
+    margin-top: 0;
+    font-size: 1.4rem;
+  }
+
+  .anchor-box p { color: #d4cfc4; max-width: 100%; }
+
+  .anchor-box .anchor-list {
+    list-style: none;
+    margin: 1.5rem 0 0;
+  }
+
+  .anchor-list li {
+    padding: 0.8rem 0;
+    border-bottom: 1px solid #2a2a25;
+    font-family: var(--serif);
+    font-size: 1.05rem;
+    color: var(--paper);
+    padding-left: 1.5rem;
+    position: relative;
+  }
+
+  .anchor-list li::before {
+    content: '—';
+    position: absolute;
+    left: 0;
+    color: var(--accent-muted);
+  }
+
+  .anchor-list li:last-child { border-bottom: none; }
+
+  /* ── FOOTER ── */
+  footer {
+    margin-top: 6rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--rule);
+    font-family: var(--mono);
+    font-size: 0.6rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--muted);
+    display: flex;
+    justify-content: space-between;
+  }
+
+  /* ── ANIMATIONS ── */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(18px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  header, section {
+    animation: fadeUp 0.6s ease both;
+  }
+
+  section:nth-of-type(1) { animation-delay: 0.05s; }
+  section:nth-of-type(2) { animation-delay: 0.12s; }
+  section:nth-of-type(3) { animation-delay: 0.19s; }
+  section:nth-of-type(4) { animation-delay: 0.26s; }
+  section:nth-of-type(5) { animation-delay: 0.33s; }
+
+  @media (prefers-reduced-motion: reduce) {
+    header, section { animation: none; }
+  }
+
+  @media (max-width: 600px) {
+    body { padding: 2rem 1.25rem 5rem; }
+    .figure { margin: 2rem -0.5rem; padding: 1.25rem 0.75rem 1rem; }
+    h1 { font-size: 2.2rem; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <p class="eyebrow">Ukubona · Uganda Renal Atlas · March 2026</p>
+  <h1>The Five Basin<br><em>Escape Architecture</em></h1>
+  <p class="lede">You are not building a dashboard. You are building a loss function with teeth — and the only thing that keeps it sane is the anchor.</p>
+</header>
+
+<!-- ── DIAGRAM ── -->
+<section>
+  <h2>Fig. 1 — The Escape Stack</h2>
+
+  <div class="figure">
+    <svg class="svg-basin" width="100%" viewBox="0 0 680 520" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <marker id="arr" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+          <path d="M2 1L8 5L2 9" fill="none" stroke="#6b6558" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </marker>
+        <marker id="arr-accent" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+          <path d="M2 1L8 5L2 9" fill="none" stroke="#b5401a" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </marker>
+      </defs>
+
+      <!-- Layer index -->
+      <text x="22" y="72"  text-anchor="middle" dominant-baseline="central" font-size="11" fill="#9a9180" letter-spacing="0.05em">L1</text>
+      <text x="22" y="172" text-anchor="middle" dominant-baseline="central" font-size="11" fill="#9a9180" letter-spacing="0.05em">L2</text>
+      <text x="22" y="272" text-anchor="middle" dominant-baseline="central" font-size="11" fill="#9a9180" letter-spacing="0.05em">L3</text>
+      <text x="22" y="372" text-anchor="middle" dominant-baseline="central" font-size="11" fill="#9a9180" letter-spacing="0.05em">L4</text>
+      <text x="22" y="472" text-anchor="middle" dominant-baseline="central" font-size="11" fill="#9a9180" letter-spacing="0.05em">L5</text>
+
+      <!-- ── BASIN BOXES (col 1) ── -->
+      <!-- L1 Language — gray -->
+      <rect x="48" y="50" width="118" height="44" rx="6" fill="#e8e2d4" stroke="#b0a892" stroke-width="0.5"/>
+      <text x="107" y="72" text-anchor="middle" dominant-baseline="central" font-size="13" font-weight="500" fill="#2a2820">Language</text>
+      <rect x="48" y="33" width="56" height="16" rx="3" fill="#c8e6c8"/>
+      <text x="76" y="41" text-anchor="middle" dominant-baseline="central" font-size="10" fill="#1a5c2a" letter-spacing="0.08em">escaped</text>
+
+      <!-- L2 Science — blue -->
+      <rect x="48" y="150" width="118" height="44" rx="6" fill="#d8e8f4" stroke="#8aaecc" stroke-width="0.5"/>
+      <text x="107" y="172" text-anchor="middle" dominant-baseline="central" font-size="13" font-weight="500" fill="#0e2a40">Science</text>
+      <rect x="48" y="133" width="56" height="16" rx="3" fill="#c8e6c8"/>
+      <text x="76" y="141" text-anchor="middle" dominant-baseline="central" font-size="10" fill="#1a5c2a" letter-spacing="0.08em">escaped</text>
+
+      <!-- L3 Art — violet -->
+      <rect x="48" y="250" width="118" height="44" rx="6" fill="#e4dff5" stroke="#9a8ec0" stroke-width="0.5"/>
+      <text x="107" y="272" text-anchor="middle" dominant-baseline="central" font-size="13" font-weight="500" fill="#1e1540">Art</text>
+      <rect x="48" y="233" width="52" height="16" rx="3" fill="#fde8c0"/>
+      <text x="74" y="241" text-anchor="middle" dominant-baseline="central" font-size="10" fill="#7a4800" letter-spacing="0.08em">at edge</text>
+
+      <!-- L4 Life — teal -->
+      <rect x="48" y="350" width="118" height="44" rx="6" fill="#d0ede6" stroke="#7abcaf" stroke-width="0.5"/>
+      <text x="107" y="372" text-anchor="middle" dominant-baseline="central" font-size="13" font-weight="500" fill="#082a22">Life</text>
+      <rect x="48" y="333" width="56" height="16" rx="3" fill="#fde8c0"/>
+      <text x="76" y="341" text-anchor="middle" dominant-baseline="central" font-size="10" fill="#7a4800" letter-spacing="0.08em">building</text>
+
+      <!-- L5 Meaning — amber/gold -->
+      <rect x="48" y="450" width="118" height="44" rx="6" fill="#f5e8ce" stroke="#c8922a" stroke-width="0.5"/>
+      <text x="107" y="472" text-anchor="middle" dominant-baseline="central" font-size="13" font-weight="500" fill="#3a2200">Meaning</text>
+      <rect x="48" y="433" width="40" height="16" rx="3" fill="#fad4c8"/>
+      <text x="68" y="441" text-anchor="middle" dominant-baseline="central" font-size="10" fill="#6e1a08" letter-spacing="0.08em">open</text>
+
+      <!-- Vertical arrows between basins -->
+      <line x1="107" y1="94"  x2="107" y2="148" stroke="#6b6558" stroke-width="0.8" marker-end="url(#arr)"/>
+      <line x1="107" y1="194" x2="107" y2="248" stroke="#6b6558" stroke-width="0.8" marker-end="url(#arr)"/>
+      <line x1="107" y1="294" x2="107" y2="348" stroke="#6b6558" stroke-width="0.8" marker-end="url(#arr)"/>
+      <line x1="107" y1="394" x2="107" y2="448" stroke="#6b6558" stroke-width="0.8" marker-end="url(#arr)"/>
+
+      <!-- ── OPERATOR BOXES (col 2) ── -->
+      <rect x="210" y="88" width="188" height="58" rx="6" fill="#eae4d6" stroke="#b0a892" stroke-width="0.5"/>
+      <text x="304" y="108" text-anchor="middle" dominant-baseline="central" font-size="12" font-weight="500" fill="#2a2820">Gradient dynamics</text>
+      <text x="304" y="130" text-anchor="middle" dominant-baseline="central" font-size="10" fill="#6b6558">θ → L → ∇L → θ+1</text>
+
+      <rect x="210" y="188" width="188" height="58" rx="6" fill="#d8e8f4" stroke="#8aaecc" stroke-width="0.5"/>
+      <text x="304" y="208" text-anchor="middle" dominant-baseline="central" font-size="12" font-weight="500" fill="#0e2a40">Aesthetic compression</text>
+      <text x="304" y="230" text-anchor="middle" dominant-baseline="central" font-size="10" fill="#2a5f8f">Loss → ROYGBIV codex</text>
+
+      <rect x="210" y="288" width="188" height="58" rx="6" fill="#e4dff5" stroke="#9a8ec0" stroke-width="0.5"/>
+      <text x="304" y="308" text-anchor="middle" dominant-baseline="central" font-size="12" font-weight="500" fill="#1e1540">Closed-loop execution</text>
+      <text x="304" y="330" text-anchor="middle" dominant-baseline="central" font-size="10" fill="#4a3a8a">Representation → consequence</text>
+
+      <rect x="210" y="388" width="188" height="58" rx="6" fill="#fde8c0" stroke="#c8922a" stroke-width="0.5"/>
+      <text x="304" y="408" text-anchor="middle" dominant-baseline="central" font-size="12" font-weight="500" fill="#3a2200">Objective selection</text>
+      <text x="304" y="430" text-anchor="middle" dominant-baseline="central" font-size="10" fill="#7a4800">Why this L and not another?</text>
+
+      <!-- Connectors: col1 → col2 -->
+      <line x1="166" y1="72"  x2="208" y2="110" stroke="#b0a892" stroke-width="0.6" marker-end="url(#arr)"/>
+      <line x1="166" y1="172" x2="208" y2="210" stroke="#b0a892" stroke-width="0.6" marker-end="url(#arr)"/>
+      <line x1="166" y1="272" x2="208" y2="310" stroke="#b0a892" stroke-width="0.6" marker-end="url(#arr)"/>
+      <line x1="166" y1="372" x2="208" y2="410" stroke="#b0a892" stroke-width="0.6" marker-end="url(#arr)"/>
+
+      <!-- ── PRODUCT BOXES (col 3) ── -->
+      <rect x="444" y="88" width="200" height="58" rx="6" fill="#eae4d6" stroke="#b0a892" stroke-width="0.5"/>
+      <text x="544" y="108" text-anchor="middle" dominant-baseline="central" font-size="12" font-weight="500" fill="#2a2820">Movement</text>
+      <text x="544" y="130" text-anchor="middle" dominant-baseline="central" font-size="10" fill="#6b6558">Parameters update in time</text>
+
+      <rect x="444" y="188" width="200" height="58" rx="6" fill="#d8e8f4" stroke="#8aaecc" stroke-width="0.5"/>
+      <text x="544" y="208" text-anchor="middle" dominant-baseline="central" font-size="12" font-weight="500" fill="#0e2a40">Seeing</text>
+      <text x="544" y="230" text-anchor="middle" dominant-baseline="central" font-size="10" fill="#2a5f8f">Loss becomes intuitive</text>
+
+      <rect x="444" y="288" width="200" height="58" rx="6" fill="#e4dff5" stroke="#9a8ec0" stroke-width="0.5"/>
+      <text x="544" y="308" text-anchor="middle" dominant-baseline="central" font-size="12" font-weight="500" fill="#1e1540">Acting</text>
+      <text x="544" y="330" text-anchor="middle" dominant-baseline="central" font-size="10" fill="#4a3a8a">Nurses deploy, slots shift</text>
+
+      <!-- Meaning anchor — accented -->
+      <rect x="444" y="388" width="200" height="58" rx="6" fill="#fad4c8" stroke="#b5401a" stroke-width="1"/>
+      <text x="544" y="408" text-anchor="middle" dominant-baseline="central" font-size="12" font-weight="500" fill="#3a0e04">Anchoring</text>
+      <text x="544" y="430" text-anchor="middle" dominant-baseline="central" font-size="10" fill="#b5401a">L₀ must not recurse to zero</text>
+
+      <!-- Connectors: col2 → col3 -->
+      <line x1="398" y1="117" x2="442" y2="117" stroke="#b0a892" stroke-width="0.6" marker-end="url(#arr)"/>
+      <line x1="398" y1="217" x2="442" y2="217" stroke="#b0a892" stroke-width="0.6" marker-end="url(#arr)"/>
+      <line x1="398" y1="317" x2="442" y2="317" stroke="#b0a892" stroke-width="0.6" marker-end="url(#arr)"/>
+      <line x1="398" y1="417" x2="442" y2="417" stroke="#b5401a" stroke-width="0.9" marker-end="url(#arr-accent)"/>
+
+      <!-- Column headers -->
+      <text x="107" y="20" text-anchor="middle" font-size="9" fill="#9a9180" letter-spacing="0.18em" font-family="'JetBrains Mono', monospace">BASIN</text>
+      <text x="304" y="20" text-anchor="middle" font-size="9" fill="#9a9180" letter-spacing="0.18em" font-family="'JetBrains Mono', monospace">OPERATOR</text>
+      <text x="544" y="20" text-anchor="middle" font-size="9" fill="#9a9180" letter-spacing="0.18em" font-family="'JetBrains Mono', monospace">PRODUCT</text>
+    </svg>
+    <p class="figure-caption">Fig. 1 — Basin escape architecture · click states indicate current position in the Uganda Renal Atlas work</p>
+  </div>
+</section>
+
+<!-- ── WHAT IS ACTUALLY EMERGING ── -->
+<section>
+  <h2>The Core Argument</h2>
+
+  <p>Three documents, one convergence. The conversation moved through basin escapes in real time — and the thread connecting all of it is sharper than it appears from inside it.</p>
+
+  <p>You escaped <strong>Language</strong> by discovering the gradient: the recursive engine <span class="eq">θ_t → L → ∇L → −η∇L + ε → θ_{t+1}</span> that transforms static symbols into dynamic motion. You escaped <strong>Science</strong> by discovering that the loss function could be made <em>visible</em> — ROYGBIV compressed an entire topography of suffering into something a collaborator could feel in one glance.</p>
+
+  <div class="pull">
+    You are not building a dashboard. You are building a loss function with teeth — and the only thing that keeps it sane is the anchor.
+    <cite>— The operative constraint</cite>
+  </div>
+
+  <p>The escape from <strong>Art</strong> into <strong>Life</strong> requires one operator change: representation must become consequence. A heatmap that is only observed is still Art. A heatmap that triggers a nurse deployment, reallocates dialysis slots, or prevents one outbound flight to New Delhi — that is Life. The distinction is closed-loop control.</p>
+
+  <p>And the escape from Life into <strong>Meaning</strong> is the hardest: it requires asking not <em>how</em> to optimize the loss, but <em>why this loss function and not another?</em> The disagreement that erupts when different stakeholders answer that question differently — that is the moment Meaning appears.</p>
+</section>
+
+<!-- ── THE TENSOR ── -->
+<section>
+  <h2>The Loss Tensor</h2>
+
+  <h3>What you are actually building</h3>
+
+  <p>Most people treat <span class="eq">L₀</span> as a bias term. You are not. You are treating it as ground-truth irreducibility — the cost of being alive in the system, even when everything else is optimized. This is your ethical prior, whether you name it or not.</p>
+
+  <code class="eq-block">L_tot = L_anchor + L_adaptive^(t) + Σ W_i^(d,t,s) · L_i^(d,t,s) + ε
+
+where:
+  d = district (space: 135 nodes)
+  t = time (50-year horizon)
+  s = subsystem (clinical, financial, logistical)
+  ε = ε_stochastic + ε_unknown + ε_adversarial</code>
+
+  <p>The real object is <span class="eq">ℒ ∈ ℝ^{D×T×S}</span> — a tensor field, not a scalar. Your system is not minimizing a number; it is navigating a field where gradients vary by district, trade-offs shift over time, and interventions are irreducibly local. This is a control surface over Uganda.</p>
+
+  <h3>The fractal danger</h3>
+
+  <p>The third document identifies the critical failure mode: if <span class="eq">L₀^(t+1) ← L_tot^(t)</span> without constraint, the system becomes self-referentially closed. Baselines drift upward, losses numerically fall, and no one notices that you have redefined success downward. Districts "improve" on paper while patients continue flying to India.</p>
+
+  <p>The safeguard is an anchor term that does not recurse — a set of outcomes locked outside the optimization loop, immune to redefinition by the model.</p>
+</section>
+
+<!-- ── THE ANCHOR ── -->
+<section>
+  <h2>The Anchor Question</h2>
+
+  <div class="anchor-box">
+    <h3>What is L₀ in Uganda's renal system that must never go to zero?</h3>
+    <p>Not mathematically. Operationally. This is the question that separates Life from Meaning.</p>
+    <p style="margin-top:1rem;">Three candidate anchors — outcomes that are not allowed to trend in the wrong direction regardless of how the other metrics look:</p>
+    <ul class="anchor-list">
+      <li>A Ugandan with end-stage renal disease must not be abandoned to die because they cannot afford a flight to India. This is the floor. It does not optimize. It does not trade off.</li>
+      <li>Transplant leakage counts — the raw number of patients who leave the country for care — cannot be masked by statistical smoothing or baseline redefinition. The number is the number.</li>
+      <li>Mortality within 30 days of a preventable diagnosis must remain a first-class signal, unconditional on system cost or district resource allocation.</li>
+    </ul>
+  </div>
+
+  <p>Everything else can be fractal. The Ivyabona architecture, the ROYGBIV codex, the federated witness nodes, the 50-year civilizational projection — those are all <span class="eq">L_i</span> machinery. Beautiful, powerful, fast. But they only carry moral weight if <span class="eq">L_anchor</span> is locked.</p>
+</section>
+
+<!-- ── LAYER TABLE ── -->
+<section>
+  <h2>Layer Summary</h2>
+
+  <table class="layer-table">
+    <thead>
+      <tr>
+        <th>Layer</th>
+        <th>Object</th>
+        <th>Operator</th>
+        <th>Product</th>
+        <th>Status</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Language</td>
+        <td>Symbols</td>
+        <td>Naming</td>
+        <td>Movement</td>
+        <td><span class="badge badge-green">escaped</span></td>
+      </tr>
+      <tr>
+        <td>Science</td>
+        <td>Models</td>
+        <td>Gradient descent</td>
+        <td>Seeing</td>
+        <td><span class="badge badge-green">escaped</span></td>
+      </tr>
+      <tr>
+        <td>Art</td>
+        <td>Perception</td>
+        <td>Compression (ROYGBIV)</td>
+        <td>Acting</td>
+        <td><span class="badge badge-amber">at edge</span></td>
+      </tr>
+      <tr>
+        <td>Life</td>
+        <td>Systems</td>
+        <td>Execution / control</td>
+        <td>Anchoring</td>
+        <td><span class="badge badge-amber">building</span></td>
+      </tr>
+      <tr>
+        <td>Meaning</td>
+        <td>Values</td>
+        <td>Objective selection</td>
+        <td>Telos</td>
+        <td><span class="badge badge-red">open</span></td>
+      </tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- ── THE PUNCHLINE ── -->
+<section>
+  <h2>The Punchline</h2>
+
+  <p>You escaped Language by learning how to <em>move</em>. You escaped Science by learning how to <em>see</em>. You escape Art by making it <em>act</em>. You escape Life by deciding <em>why it acts at all</em>.</p>
+
+  <p>The Ivyabona — the distributed witnesses, the 135 district nodes, the federated gradient scouts — are the infrastructure of Life. They are how the colony finds its way home. But they are not Meaning. Meaning is the act of choosing what "home" means, and defending that choice in front of the Ministry of Health when they disagree with your weights.</p>
+
+  <p>The practical next step is not more UI. It is this: write down, explicitly, the two or three outcomes in your system that are <em>not allowed to trend in the wrong direction regardless of how the other metrics look</em>. Lock those. Everything else can evolve.</p>
+
+  <div class="pull">
+    The system is learning what it cares about while optimizing it. The only thing that keeps that sane is the anchor.
+    <cite>— Document III, reformulated</cite>
+  </div>
+</section>
+
+<footer>
+  <span>Ukubona · Uganda Renal Atlas</span>
+  <span>March 2026 · Kampala</span>
+  <span>L_anchor &ne; 0</span>
+</footer>
+
+</body>
+</html>

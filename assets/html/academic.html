@@ -1,0 +1,1122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Training Instability in Deep Learning — NeurIPS 2025 Tutorial</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;0,6..72,600;1,6..72,300;1,6..72,400&family=Space+Grotesk:wght@300;400;500&family=Space+Mono:ital,wght@0,400;1,400&display=swap" rel="stylesheet">
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+window.MathJax = {
+  tex: { inlineMath: [['$','$'],['\\(','\\)']], displayMath: [['$$','$$'],['\\[','\\]']] },
+  svg: { fontCache: 'global' }
+};
+</script>
+<script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+
+<style>
+:root {
+  --bg:    #05050a;
+  --bg1:   #0c0c14;
+  --bg2:   #13131e;
+  --bg3:   #1c1c2c;
+  --border:#222235;
+  --dim:   #32324e;
+  --text:  #dcdbe8;
+  --muted: #8585a8;
+  --faint: #44445a;
+
+  --blue:  #4a90e2;
+  --green: #3dba7a;
+  --amber: #e8a838;
+  --red:   #e05050;
+  --purple:#9b6dff;
+  --teal:  #3abfbf;
+}
+
+*{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 16px;
+  line-height: 1.75;
+  overflow-x: hidden;
+}
+
+body::before {
+  content:'';
+  position:fixed;inset:0;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 300 300' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E");
+  pointer-events:none;z-index:1000;
+}
+
+/* ── nav ── */
+.nav {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: rgba(5,5,10,0.92);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+  padding: 0.7rem 2rem;
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  overflow-x: auto;
+}
+.nav-logo {
+  font-family: 'Space Mono', monospace;
+  font-size: 0.65rem;
+  letter-spacing: 0.12em;
+  color: var(--purple);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.nav a {
+  font-size: 0.75rem;
+  color: var(--muted);
+  text-decoration: none;
+  white-space: nowrap;
+  transition: color 0.15s;
+  letter-spacing: 0.04em;
+}
+.nav a:hover { color: var(--text); }
+.nav-sep { color: var(--faint); flex-shrink: 0; }
+
+/* ── hero ── */
+.hero {
+  min-height: 92vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding: 0 2rem 5rem;
+  max-width: 1000px;
+  margin: 0 auto;
+  position: relative;
+}
+
+.hero-glow {
+  position: absolute;
+  top: 10%;
+  left: -20%;
+  width: 70vw;
+  height: 70vh;
+  background: radial-gradient(ellipse, rgba(74,144,226,0.05) 0%, transparent 65%);
+  pointer-events: none;
+}
+
+.hero-eyebrow {
+  font-family: 'Space Mono', monospace;
+  font-size: 0.6rem;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: var(--faint);
+  margin-bottom: 2rem;
+}
+
+.hero-title {
+  font-family: 'Newsreader', serif;
+  font-size: clamp(2.8rem, 7vw, 6.5rem);
+  font-weight: 300;
+  line-height: 1.0;
+  letter-spacing: -0.02em;
+  color: #fff;
+  margin-bottom: 0.2em;
+}
+.hero-title em { font-style: italic; color: var(--blue); }
+
+.hero-authors {
+  font-family: 'Space Mono', monospace;
+  font-size: 0.72rem;
+  color: var(--muted);
+  letter-spacing: 0.08em;
+  margin-top: 1.8rem;
+  line-height: 2;
+}
+.hero-authors span { color: var(--purple); }
+
+.hero-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  margin-top: 1.5rem;
+}
+.tag {
+  font-family: 'Space Mono', monospace;
+  font-size: 0.6rem;
+  letter-spacing: 0.12em;
+  padding: 0.3rem 0.8rem;
+  border-radius: 2px;
+  border: 1px solid;
+}
+.tag-blue   { color: var(--blue);   border-color: rgba(74,144,226,0.3);   background: rgba(74,144,226,0.07); }
+.tag-green  { color: var(--green);  border-color: rgba(61,186,122,0.3);   background: rgba(61,186,122,0.07); }
+.tag-amber  { color: var(--amber);  border-color: rgba(232,168,56,0.3);   background: rgba(232,168,56,0.07); }
+.tag-purple { color: var(--purple); border-color: rgba(155,109,255,0.3);  background: rgba(155,109,255,0.07); }
+
+/* ── page ── */
+.page { max-width: 1000px; margin: 0 auto; padding: 0 2rem 6rem; }
+
+/* ── section ── */
+.section { padding: 4rem 0; border-bottom: 1px solid var(--border); }
+.section:last-of-type { border-bottom: none; }
+
+.sec-label {
+  font-family: 'Space Mono', monospace;
+  font-size: 0.58rem;
+  letter-spacing: 0.26em;
+  text-transform: uppercase;
+  color: var(--faint);
+  margin-bottom: 2rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+.sec-label::after { content:''; flex:1; height:1px; background:var(--border); }
+
+h2 {
+  font-family: 'Newsreader', serif;
+  font-size: clamp(1.7rem, 3.5vw, 2.8rem);
+  font-weight: 300;
+  letter-spacing: -0.01em;
+  color: #fff;
+  margin-bottom: 1.2rem;
+  line-height: 1.15;
+}
+h2 em { font-style: italic; color: var(--blue); }
+
+h3 {
+  font-family: 'Space Mono', monospace;
+  font-size: 0.65rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--blue);
+  margin-bottom: 0.7rem;
+  font-weight: 400;
+  margin-top: 2rem;
+}
+
+p { color: var(--muted); margin-bottom: 1.1rem; font-weight: 300; }
+strong { color: var(--text); font-weight: 500; }
+p:last-child { margin-bottom: 0; }
+
+/* ── math display ── */
+.math {
+  background: var(--bg1);
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  padding: 1.4rem 2rem;
+  margin: 1.6rem 0;
+  text-align: center;
+  font-size: 1.1rem;
+  color: #fff;
+  overflow-x: auto;
+}
+
+/* ── two col ── */
+.two-col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2.5rem;
+  margin: 1.5rem 0;
+}
+@media (max-width: 620px) { .two-col { grid-template-columns: 1fr; } }
+
+/* ── info box ── */
+.info {
+  background: var(--bg1);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--blue);
+  border-radius: 0 3px 3px 0;
+  padding: 1.2rem 1.6rem;
+  margin: 1.5rem 0;
+  font-size: 0.92rem;
+}
+.info p { margin: 0; }
+.info.green  { border-left-color: var(--green); }
+.info.amber  { border-left-color: var(--amber); }
+.info.purple { border-left-color: var(--purple); }
+.info.red    { border-left-color: var(--red); }
+
+.info-label {
+  font-family: 'Space Mono', monospace;
+  font-size: 0.58rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  margin-bottom: 0.5rem;
+}
+.info-label.blue   { color: var(--blue); }
+.info-label.green  { color: var(--green); }
+.info-label.amber  { color: var(--amber); }
+.info-label.purple { color: var(--purple); }
+.info-label.red    { color: var(--red); }
+
+/* ── theorem blocks ── */
+.theorem {
+  background: var(--bg2);
+  border: 1px solid var(--dim);
+  border-radius: 3px;
+  padding: 1.8rem 2rem;
+  margin: 2rem 0;
+  position: relative;
+}
+.theorem::before {
+  content: attr(data-type);
+  position: absolute;
+  top: -0.55rem;
+  left: 1.5rem;
+  background: var(--bg);
+  padding: 0 0.6rem;
+  font-family: 'Space Mono', monospace;
+  font-size: 0.58rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--amber);
+}
+.theorem p { color: var(--text); font-size: 0.92rem; }
+
+/* ── phase diagram (interactive) ── */
+.phase-diagram {
+  background: var(--bg1);
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  padding: 1.5rem;
+  margin: 2rem 0;
+}
+
+.phase-title {
+  font-family: 'Space Mono', monospace;
+  font-size: 0.62rem;
+  letter-spacing: 0.16em;
+  color: var(--faint);
+  margin-bottom: 1.2rem;
+  text-transform: uppercase;
+}
+
+.phase-track {
+  position: relative;
+  height: 3.5rem;
+  background: var(--bg2);
+  border-radius: 3px;
+  overflow: hidden;
+  margin: 0.8rem 0;
+  display: flex;
+  align-items: center;
+}
+
+.phase-bar {
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Space Mono', monospace;
+  font-size: 0.6rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  transition: width 0.6s ease;
+}
+
+.phase-bar.unstable { background: rgba(224,80,80,0.25); border-right: 2px solid var(--red); color: var(--red); }
+.phase-bar.stable   { background: rgba(61,186,122,0.15); color: var(--green); }
+.phase-bar.overflow { background: rgba(232,168,56,0.2); border-right: 2px dashed var(--amber); color: var(--amber); font-size:0.55rem; }
+
+.phase-label {
+  font-family: 'Space Mono', monospace;
+  font-size: 0.62rem;
+  color: var(--muted);
+  display: flex;
+  justify-content: space-between;
+  margin-top: 0.4rem;
+}
+
+.slider-row {
+  display: flex;
+  align-items: center;
+  gap: 1.2rem;
+  margin-top: 1.2rem;
+  font-size: 0.82rem;
+}
+.slider-row label {
+  font-family: 'Space Mono', monospace;
+  font-size: 0.65rem;
+  color: var(--muted);
+  min-width: 120px;
+}
+.slider-row input[type=range] { flex: 1; }
+.slider-val {
+  font-family: 'Space Mono', monospace;
+  font-size: 0.72rem;
+  color: var(--blue);
+  min-width: 40px;
+  text-align: right;
+}
+
+/* ── loss chart ── */
+.chart-shell {
+  background: var(--bg1);
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  padding: 1.5rem;
+  margin: 2rem 0;
+}
+.chart-title {
+  font-family: 'Space Mono', monospace;
+  font-size: 0.62rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--faint);
+  margin-bottom: 1rem;
+}
+
+/* ── stepsize spectrum ── */
+.spectrum {
+  background: var(--bg1);
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  padding: 1.8rem 2rem;
+  margin: 2rem 0;
+  position: relative;
+  overflow: hidden;
+}
+
+.spectrum-track {
+  position: relative;
+  height: 5rem;
+  margin: 1rem 0 2.5rem;
+}
+
+.spectrum-bar {
+  position: absolute;
+  top: 0; bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Space Mono', monospace;
+  font-size: 0.58rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.spectrum-labels {
+  position: absolute;
+  bottom: -2rem;
+  left: 0; right: 0;
+  display: flex;
+  justify-content: space-between;
+  font-family: 'Space Mono', monospace;
+  font-size: 0.6rem;
+  color: var(--faint);
+}
+
+/* ── comparison table ── */
+.comp-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1.5rem 0;
+  font-size: 0.88rem;
+}
+.comp-table th {
+  font-family: 'Space Mono', monospace;
+  font-size: 0.58rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--faint);
+  padding: 0.7rem 1rem;
+  text-align: left;
+  border-bottom: 1px solid var(--dim);
+  font-weight: 400;
+}
+.comp-table td {
+  padding: 0.9rem 1rem;
+  border-bottom: 1px solid var(--border);
+  color: var(--muted);
+  vertical-align: top;
+}
+.comp-table tr:hover td { background: var(--bg1); }
+.comp-table td:first-child { color: var(--text); font-family: 'Space Mono', monospace; font-size: 0.75rem; }
+.comp-table td .better { color: var(--green); font-weight: 500; }
+.comp-table td .worse  { color: var(--red); }
+
+/* ── open problems ── */
+.problems-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1px;
+  background: var(--border);
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  overflow: hidden;
+  margin: 1.5rem 0;
+}
+.prob-card {
+  background: var(--bg1);
+  padding: 1.4rem 1.6rem;
+  transition: background 0.15s;
+}
+.prob-card:hover { background: var(--bg2); }
+.prob-icon { font-size: 1.2rem; margin-bottom: 0.5rem; }
+.prob-title {
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--text);
+  margin-bottom: 0.4rem;
+}
+.prob-body { font-size: 0.82rem; color: var(--muted); line-height: 1.6; }
+@media (max-width: 580px) { .problems-grid { grid-template-columns: 1fr; } }
+
+/* ── summary cards ── */
+.summary-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1px;
+  background: var(--border);
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  overflow: hidden;
+  margin: 2rem 0;
+}
+.sum-card {
+  background: var(--bg1);
+  padding: 1.4rem 1.6rem;
+}
+.sum-num {
+  font-family: 'Newsreader', serif;
+  font-size: 2.5rem;
+  font-weight: 300;
+  color: var(--blue);
+  line-height: 1;
+  margin-bottom: 0.4rem;
+}
+.sum-label {
+  font-family: 'Space Mono', monospace;
+  font-size: 0.6rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--faint);
+  line-height: 1.5;
+}
+@media (max-width: 580px) { .summary-row { grid-template-columns: 1fr; } }
+
+/* ── ref list ── */
+.ref-list { margin: 1.5rem 0; }
+.ref-item {
+  padding: 0.8rem 0;
+  border-bottom: 1px solid var(--border);
+  font-size: 0.82rem;
+  color: var(--muted);
+  display: flex;
+  gap: 1rem;
+}
+.ref-item:last-child { border-bottom: none; }
+.ref-key {
+  font-family: 'Space Mono', monospace;
+  font-size: 0.65rem;
+  color: var(--purple);
+  flex-shrink: 0;
+  width: 90px;
+}
+
+/* ── reveal ── */
+.reveal { opacity:0; transform:translateY(18px); transition: opacity 0.65s ease, transform 0.65s ease; }
+.reveal.visible { opacity:1; transform:translateY(0); }
+
+/* ── footer ── */
+footer {
+  padding: 2rem 0 1rem;
+  text-align: center;
+  font-family: 'Space Mono', monospace;
+  font-size: 0.55rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--faint);
+  border-top: 1px solid var(--border);
+  margin-top: 2rem;
+}
+</style>
+</head>
+<body>
+
+<!-- ── NAV ── -->
+<nav class="nav">
+  <div class="nav-logo">NeurIPS '25</div>
+  <span class="nav-sep">·</span>
+  <a href="#overview">Overview</a>
+  <a href="#why-unstable">Why Unstable</a>
+  <a href="#stepsize-spectrum">Stepsize Spectrum</a>
+  <a href="#part1">Part 1: Optimization</a>
+  <a href="#part2">Part 2: Generalization</a>
+  <a href="#open">Open Problems</a>
+  <a href="#refs">References</a>
+</nav>
+
+<!-- ── HERO ── -->
+<div class="hero">
+  <div class="hero-glow"></div>
+  <div class="hero-eyebrow">NeurIPS 2025 Tutorial · Training Instability in Deep Learning</div>
+  <h1 class="hero-title">
+    Theoretical Insights<br>
+    on Training <em>Instability</em><br>
+    in Deep Learning
+  </h1>
+  <div class="hero-authors">
+    <span>Jingfeng Wu</span> — UC Berkeley &nbsp;&nbsp;
+    <span>Yu-Xiang Wang</span> — UC San Diego &nbsp;&nbsp;
+    <span>Maryam Fazel</span> — University of Washington
+  </div>
+  <div class="hero-tags">
+    <span class="tag tag-blue">Gradient Descent</span>
+    <span class="tag tag-green">Large Stepsizes</span>
+    <span class="tag tag-amber">Training Instability</span>
+    <span class="tag tag-purple">Optimization Theory</span>
+  </div>
+</div>
+
+<div class="page">
+
+<!-- ══════════════════ OVERVIEW ══════════════════ -->
+<div class="section reveal" id="overview">
+  <div class="sec-label">Overview</div>
+  <h2>The Central <em>Paradox</em></h2>
+
+  <p>Every efficient run of gradient descent in deep learning operates with a stepsize large enough to cause instability. This is not a bug — it is the mechanism. The tutorial presents a rigorous theory of why training instability arises, why it is inseparable from efficiency, and how large stepsizes simultaneously <strong>accelerate optimization</strong> and <strong>prevent overfitting</strong>.</p>
+
+  <div class="summary-row">
+    <div class="sum-card">
+      <div class="sum-num">175</div>
+      <div class="sum-label">Slides across<br>two parts</div>
+    </div>
+    <div class="sum-card">
+      <div class="sum-num">3</div>
+      <div class="sum-label">ML examples:<br>logistic, adaptive GD, ℓ₂-reg</div>
+    </div>
+    <div class="sum-card">
+      <div class="sum-num">8</div>
+      <div class="sum-label">Open problems<br>called out explicitly</div>
+    </div>
+  </div>
+
+  <div class="two-col">
+    <div>
+      <h3>Part 1: Optimization</h3>
+      <p>Theory and insights through clean examples. Large stepsizes cause non-monotone loss but achieve <strong>faster convergence</strong> than stable small-stepsize runs. The acceleration is provable, and in key settings matches or beats Nesterov momentum.</p>
+    </div>
+    <div>
+      <h3>Part 2: Generalization</h3>
+      <p>Large stepsizes impose a <strong>sharpness penalty</strong> on the minimizer found, preferring flatter minima that generalize better. Instability during training is not noise — it is the selection mechanism for good solutions.</p>
+    </div>
+  </div>
+</div>
+
+
+<!-- ══════════════════ WHY UNSTABLE ══════════════════ -->
+<div class="section reveal" id="why-unstable">
+  <div class="sec-label">Motivation</div>
+  <h2>Why Loss <em>Spikes</em></h2>
+
+  <p>The gradient descent update $\theta_{t+1} = \theta_t - \eta \cdot \nabla L(\theta_t)$ can fail for four distinct reasons. They are not equally fundamental — and only one of them is inherent.</p>
+
+  <div class="math">$$\theta_{t+1} = \theta_t - \underbrace{\eta}_{\text{stepsize}} \cdot \underbrace{\nabla L(\theta_t)}_{\text{"gradient"}}$$</div>
+
+  <div style="margin: 1.5rem 0; display:flex; flex-direction:column; gap:1px; background:var(--border); border:1px solid var(--border); border-radius:3px; overflow:hidden;">
+    <div style="display:grid;grid-template-columns:160px 1fr;gap:0;">
+      <div style="background:var(--bg2);padding:1rem 1.2rem;font-family:'Space Mono',monospace;font-size:0.65rem;color:var(--amber);letter-spacing:0.1em;text-transform:uppercase;border-right:1px solid var(--border);">Data randomness</div>
+      <div style="background:var(--bg1);padding:1rem 1.2rem;font-size:0.88rem;color:var(--muted);">Unlucky mini-batch draws. <em>Manageable</em> — larger batch size reduces variance.</div>
+    </div>
+    <div style="display:grid;grid-template-columns:160px 1fr;gap:0;">
+      <div style="background:var(--bg2);padding:1rem 1.2rem;font-family:'Space Mono',monospace;font-size:0.65rem;color:var(--amber);letter-spacing:0.1em;text-transform:uppercase;border-right:1px solid var(--border);">Numerical overflow</div>
+      <div style="background:var(--bg1);padding:1rem 1.2rem;font-size:0.88rem;color:var(--muted);">Insufficient floating-point precision. <em>Manageable</em> — use higher precision or gradient clipping.</div>
+    </div>
+    <div style="display:grid;grid-template-columns:160px 1fr;gap:0;">
+      <div style="background:var(--bg2);padding:1rem 1.2rem;font-family:'Space Mono',monospace;font-size:0.65rem;color:var(--amber);letter-spacing:0.1em;text-transform:uppercase;border-right:1px solid var(--border);">Loss landscape</div>
+      <div style="background:var(--bg1);padding:1rem 1.2rem;font-size:0.88rem;color:var(--muted);">Varying layer-wise curvature. <em>Partially manageable</em> — architecture choices matter.</div>
+    </div>
+    <div style="display:grid;grid-template-columns:160px 1fr;gap:0;">
+      <div style="background:var(--bg2);padding:1rem 1.2rem;font-family:'Space Mono',monospace;font-size:0.65rem;color:var(--red);letter-spacing:0.1em;text-transform:uppercase;border-right:1px solid var(--border);">Inherent instability</div>
+      <div style="background:var(--bg1);padding:1rem 1.2rem;font-size:0.88rem;color:var(--text);"><strong>Stepsize / learning rate.</strong> In deep learning, all <em>efficient</em> stepsizes are "large," causing training instability. This is unavoidable if you want to train efficiently.</div>
+    </div>
+  </div>
+
+  <div class="info amber">
+    <div class="info-label amber">Key insight from the sandboxes</div>
+    <p>Even with <strong>no randomness, mild overflow, and a convex landscape</strong> (logistic regression on MNIST), efficient runs of GD are still unstable. Instability is not a pathology of deep learning specifically — it is an inherent property of large-stepsize gradient descent.</p>
+  </div>
+</div>
+
+
+<!-- ══════════════════ STEPSIZE SPECTRUM ══════════════════ -->
+<div class="section reveal" id="stepsize-spectrum">
+  <div class="sec-label">Framework</div>
+  <h2>The <em>Stepsize Spectrum</em></h2>
+
+  <p>The relationship between stepsize $\eta$ and convergence behavior defines three qualitatively distinct regimes. Classical theory covers only the leftmost. Practice lives in the middle. The rightmost is always divergent.</p>
+
+  <div class="spectrum">
+    <div class="phase-title">Stepsize η → convergence behavior</div>
+    <div class="spectrum-track">
+      <div class="spectrum-bar" style="left:0;width:28%;background:rgba(61,186,122,0.15);border-right:2px solid var(--green);color:var(--green);">Stable · monotone ↓</div>
+      <div class="spectrum-bar" style="left:28%;width:42%;background:rgba(232,168,56,0.12);border-right:2px solid var(--amber);color:var(--amber);">Unstable → convergent<br><span style="font-size:0.5rem;opacity:0.7;">practice lives here</span></div>
+      <div class="spectrum-bar" style="left:70%;width:30%;background:rgba(224,80,80,0.12);color:var(--red);">Divergent ✗</div>
+      <div class="spectrum-labels" style="position:absolute;bottom:-1.8rem;left:0;right:0;display:flex;justify-content:space-between;">
+        <span>η → 0</span>
+        <span style="color:var(--green);">η &lt; 2/λ</span>
+        <span style="color:var(--amber);">η ≈ 2/λ  (edge of stability)</span>
+        <span style="color:var(--red);">η → ∞</span>
+      </div>
+    </div>
+    <div style="margin-top:3rem;">
+      <p style="font-size:0.85rem;"><strong>Gradient flow</strong> ($\eta \to 0$): always stable, always converges, never efficient.</p>
+      <p style="font-size:0.85rem;"><strong>Edge of stability</strong> ($\eta \approx 2/\lambda_{max}$): sharpness oscillates around threshold; loss is non-monotone but training succeeds. Cohen et al. (ICLR 2021) showed this is the typical regime for neural network training.</p>
+      <p style="font-size:0.85rem;"><strong>Large stepsize</strong> ($\eta \gg 2/\lambda_{max}$): does not exist for quadratics (always diverges), but <em>can converge</em> for non-quadratic losses like logistic regression. This is the key insight enabling the tutorial's acceleration results.</p>
+    </div>
+  </div>
+
+  <div class="math">$$\text{Descent Lemma: } L(\theta_{t+1}) \leq L(\theta_t) \iff \eta < \frac{2}{\sup\|\nabla^2 L(\cdot)\|}$$</div>
+
+  <p>The descent lemma is the cornerstone of classical optimization theory. It is also what the practice of deep learning systematically violates. The tutorial's contribution is showing that this violation, when controlled, is <em>beneficial</em>.</p>
+</div>
+
+
+<!-- ══════════════════ INTERACTIVE PHASE DEMO ══════════════════ -->
+<div class="section reveal" id="part1">
+  <div class="sec-label">Part 1 — Optimization</div>
+  <h2>Large Stepsizes <em>Accelerate</em></h2>
+
+  <p>The main positive result for optimization: large stepsizes create an unstable phase followed by a stable phase. The instability is transient and productive — the loss descends <em>on average</em> even when it oscillates, and the stable phase converges at rate $O(1/\eta t)$, faster by a factor of $\eta$ than the classical $O(1/t)$.</p>
+
+  <!-- Interactive phase diagram -->
+  <div class="phase-diagram">
+    <div class="phase-title">Phase structure — adjust stepsize η to see training dynamics</div>
+
+    <div class="slider-row">
+      <label>Stepsize η</label>
+      <input type="range" id="eta-slider" min="1" max="20" value="5" step="0.5">
+      <span class="slider-val" id="eta-val">5</span>
+    </div>
+    <div class="slider-row">
+      <label>Dataset size n</label>
+      <input type="range" id="n-slider" min="10" max="200" value="50" step="5">
+      <span class="slider-val" id="n-val">50</span>
+    </div>
+
+    <div style="margin-top:1.5rem;">
+      <div style="font-family:'Space Mono',monospace;font-size:0.6rem;color:var(--faint);margin-bottom:0.5rem;letter-spacing:0.1em;">UNSTABLE PHASE (τ steps)</div>
+      <div class="phase-track">
+        <div class="phase-bar unstable" id="unstable-bar" style="width:35%;">Unstable (τ = Θ(η))</div>
+        <div class="phase-bar stable" id="stable-bar" style="width:65%;">Stable · L = O(1/ηt)</div>
+      </div>
+      <div class="phase-label">
+        <span id="phase-tau">τ ≈ 25 steps</span>
+        <span id="phase-rate">Asymptotic rate: O(1/250)</span>
+      </div>
+    </div>
+
+    <div class="chart-shell" style="margin-top:1.5rem;">
+      <div class="chart-title">Simulated loss trajectory — logistic regression</div>
+      <div style="position:relative;height:220px;">
+        <canvas id="lossChart"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <h3>The Three Effects of Large Stepsize (Logistic Regression)</h3>
+
+  <div class="theorem" data-type="Theorem — Wu, Bartlett, Telgarsky, Yu (COLT 2024)">
+    <p>For GD on separable logistic regression with any stepsize $\eta$:</p>
+    <div class="math" style="margin:1rem 0;">$$\frac{1}{t}\sum_{k=0}^{t-1} L(\theta_k)^2 = \tilde{O}\!\left(\frac{1+\eta^2}{\eta t}\right)$$</div>
+    <p><strong>1. Asymptotic rate</strong> $1/(\eta t)$ → doubling $\eta$ doubles speed.<br>
+    <strong>2. Phase transition</strong> in $\tau = \Theta(\eta)$ steps → longer unstable phase for larger $\eta$.<br>
+    <strong>3. If $T \geq \Theta(n)$ and $\eta = \Theta(T)$</strong>, then $L(\theta_T) = \tilde{O}(1/T^2)$ — matching Nesterov acceleration.</p>
+  </div>
+
+  <div class="info green">
+    <div class="info-label green">The lower bound</div>
+    <p>If $\eta$ is such that $L(\theta_t) \downarrow$ for all $t$ (monotone descent, classical regime), then $L(\theta_t) = \Omega(1/t)$. <strong>Monotone training cannot achieve $O(1/T^2)$.</strong> The instability is not just tolerable — it is necessary for the acceleration.</p>
+  </div>
+
+  <h3>Adaptive Stepsize: Even Faster</h3>
+  <p>The adaptive variant modifies the update to $\theta_{t+1} = \theta_t - \eta \cdot \frac{\nabla L(\theta_t)}{L(\theta_t)}$, adapting to the local curvature of the logistic loss. Ji & Telgarsky (ALT 2021) showed this achieves $L(\theta_t) \leq \exp(-\Theta(t))$ for $\eta = \Theta(1)$ — exponential convergence with a constant stepsize.</p>
+
+  <div class="theorem" data-type="Theorem — Zhang, Wu, Lin, Bartlett (ICML 2025)">
+    <p>For separable data with margin $\gamma$, the large adaptive stepsize achieves:</p>
+    <div class="math" style="margin:1rem 0;">$$L(\bar\theta_t) \leq \exp\!\left(-\Theta(\gamma^2 \eta t)\right)$$</div>
+    <p>For $\eta \to \infty$: <strong>arbitrarily small error in $1/\gamma^2$ steps</strong>. This matches the Perceptron lower bound (Novikoff, 1962) — the adaptive large stepsize is <em>minimax optimal</em>.</p>
+  </div>
+
+  <h3>ℓ₂-Regularization: From O(κ) to O(√κ)</h3>
+
+  <div class="comp-table-wrap">
+    <table class="comp-table">
+      <thead>
+        <tr>
+          <th>Method</th>
+          <th>Stepsize</th>
+          <th>Steps to ε-error</th>
+          <th>Acceleration</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>GD (classical)</td>
+          <td>η = Θ(1)</td>
+          <td>O(κ log 1/ε)</td>
+          <td>—</td>
+        </tr>
+        <tr>
+          <td>Nesterov momentum</td>
+          <td>η = Θ(1)</td>
+          <td><span class="better">O(√κ · log 1/ε)</span></td>
+          <td>Optimal for small η</td>
+        </tr>
+        <tr>
+          <td>GD + large stepsize</td>
+          <td>η = Θ(√κ)</td>
+          <td><span class="better">O(√κ · log 1/ε)</span></td>
+          <td>Matches Nesterov!</td>
+        </tr>
+        <tr>
+          <td>Silver stepsize schedule</td>
+          <td>Variable</td>
+          <td><span class="better">O(1/t<sup>1.27</sup>)</span></td>
+          <td>Super-Nesterov on convex losses</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="info purple">
+    <div class="info-label purple">The valley + basin picture</div>
+    <p>In the ℓ₂-regularized case, training has two phases geometrically: an <strong>unstable "valley"</strong> phase where the parameter overshoots far from the minimizer (‖θ‖ = O(poly(κ))), followed by a <strong>stable "basin"</strong> phase where it contracts back to ‖θ̃‖ = O(ln κ). The large stepsize enables fast traversal of the valley that classical small-stepsize GD cannot achieve.</p>
+  </div>
+</div>
+
+
+<!-- ══════════════════ PART 2 ══════════════════ -->
+<div class="section reveal" id="part2">
+  <div class="sec-label">Part 2 — Generalization</div>
+  <h2>Large Stepsizes <em>Prefer Flat Minima</em></h2>
+
+  <p>The second major theme: training instability is not merely tolerated — it is the mechanism by which SGD selects for generalizable solutions.</p>
+
+  <h3>The Sharpness Penalty</h3>
+  <p>If label-noise SGD converges, under suitable assumptions, the minimizer $\theta_\infty$ satisfies a sharpness penalty:</p>
+  <div class="math">$$\text{tr}(\nabla^2 L(\theta_\infty)) < O(1/\eta)$$</div>
+  <p>Larger stepsize → smaller allowed sharpness → flatter minimizer. The tradeoff is explicit:</p>
+
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--border);border:1px solid var(--border);border-radius:3px;overflow:hidden;margin:1.5rem 0;">
+    <div style="background:var(--bg1);padding:1.3rem 1.5rem;">
+      <div style="font-family:'Space Mono',monospace;font-size:0.6rem;color:var(--red);letter-spacing:0.14em;text-transform:uppercase;margin-bottom:0.5rem;">Large η cost</div>
+      <p style="font-size:0.88rem;margin:0;">Training instability: $L(\theta_t)$ <em>oscillates</em> for $t = 1, 2, \ldots$</p>
+    </div>
+    <div style="background:var(--bg1);padding:1.3rem 1.5rem;">
+      <div style="font-family:'Space Mono',monospace;font-size:0.6rem;color:var(--green);letter-spacing:0.14em;text-transform:uppercase;margin-bottom:0.5rem;">Large η benefit</div>
+      <p style="font-size:0.88rem;margin:0;">Minimizer flatness: $|L(\theta_\infty + \epsilon) - L(\theta_\infty)|$ is small → better generalization.</p>
+    </div>
+  </div>
+
+  <div class="info">
+    <div class="info-label blue">Progressive sharpening & edge of stability</div>
+    <p>Even starting from a point satisfying the descent lemma, sharpness $\|\nabla^2 L\|$ <strong>increases along the GD path</strong> until it hits $2/\eta$ (edge of stability), after which it oscillates around this threshold. This progressive sharpening means every efficient run is pushed to the edge — and held there — by the dynamics of gradient descent itself.</p>
+  </div>
+
+  <h3>Dynamical Stability Perspective</h3>
+  <p>Wu, Ma & E (NeurIPS 2018) showed that if GD with large $\eta$ converges to a stationary point, then in regular cases:</p>
+  <div class="math">$$\|\nabla^2 L(\theta_\infty)\| < \frac{2}{\eta} \quad \text{(sharpness penalty)}$$</div>
+  <p>This is why SGD <em>selects</em> flat minima: sharp minima are dynamically unstable under large-stepsize GD and are therefore never the attractors. The implicit bias toward flat minima is a direct consequence of the training instability.</p>
+</div>
+
+
+<!-- ══════════════════ ALTERNATIVE MENTAL MODEL ══════════════════ -->
+<div class="section reveal">
+  <div class="sec-label">Conceptual Framework</div>
+  <h2>The <em>Alternative</em> Mental Model</h2>
+
+  <p>The standard mental model pairs theory (gradient flow, small η, always stable) with practice (deep learning, large η, sometimes unstable). The gap is treated as something to be apologized for. The tutorial proposes a different framing:</p>
+
+  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--border);border:1px solid var(--border);border-radius:3px;overflow:hidden;margin:2rem 0;text-align:center;">
+    <div style="background:var(--bg1);padding:1.4rem 1rem;">
+      <div style="font-family:'Space Mono',monospace;font-size:0.6rem;color:var(--faint);letter-spacing:0.12em;text-transform:uppercase;margin-bottom:0.6rem;">Linear regression</div>
+      <div style="color:var(--red);font-size:0.85rem;margin-bottom:0.3rem;">Unstable convergence</div>
+      <div style="color:var(--faint);font-size:0.78rem;font-style:italic;">Impossible</div>
+    </div>
+    <div style="background:var(--bg1);padding:1.4rem 1rem;">
+      <div style="font-family:'Space Mono',monospace;font-size:0.6rem;color:var(--faint);letter-spacing:0.12em;text-transform:uppercase;margin-bottom:0.6rem;">Logistic regression</div>
+      <div style="color:var(--green);font-size:0.85rem;margin-bottom:0.3rem;">Unstable convergence</div>
+      <div style="color:var(--green);font-size:0.78rem;">Observable &amp; provable ✓</div>
+    </div>
+    <div style="background:var(--bg1);padding:1.4rem 1rem;">
+      <div style="font-family:'Space Mono',monospace;font-size:0.6rem;color:var(--faint);letter-spacing:0.12em;text-transform:uppercase;margin-bottom:0.6rem;">Deep learning</div>
+      <div style="color:var(--amber);font-size:0.85rem;margin-bottom:0.3rem;">Unstable convergence</div>
+      <div style="color:var(--amber);font-size:0.78rem;">Observed (open theory)</div>
+    </div>
+  </div>
+
+  <p>Logistic regression is the <strong>Rosetta Stone</strong>: complex enough to exhibit the non-quadratic behavior responsible for large-stepsize convergence, simple enough to prove theorems about. The tutorial uses it as the bridge between classical optimization theory (where instability is impossible for convex quadratics) and the observed behavior of deep networks.</p>
+</div>
+
+
+<!-- ══════════════════ OPEN PROBLEMS ══════════════════ -->
+<div class="section reveal" id="open">
+  <div class="sec-label">Open Problems</div>
+  <h2>Eight Open <em>Questions</em></h2>
+
+  <div class="problems-grid">
+    <div class="prob-card">
+      <div class="prob-icon">🤔</div>
+      <div class="prob-title">Functional properties enabling large stepsize</div>
+      <div class="prob-body">What is the precise functional property of the loss that permits large-stepsize convergence? Self-boundedness ($\|\nabla^2 L\| \leq L$) works for logistic regression — what is the general condition?</div>
+    </div>
+    <div class="prob-card">
+      <div class="prob-icon">🤔</div>
+      <div class="prob-title">Trackable trajectory measures</div>
+      <div class="prob-body">Sharpness and local mean are candidates, but neither fully captures the trajectory. What observable measure of the GD path predicts convergence in the unstable regime?</div>
+    </div>
+    <div class="prob-card">
+      <div class="prob-icon">🤔</div>
+      <div class="prob-title">Early-phase feature learning vs NTK</div>
+      <div class="prob-body">Large-stepsize training escapes the Neural Tangent Kernel regime and learns features. A rigorous theory of this early-phase feature learning, especially its dependence on stepsize, is missing.</div>
+    </div>
+    <div class="prob-card">
+      <div class="prob-icon">🤔</div>
+      <div class="prob-title">Large stepsize for SGD and Adam</div>
+      <div class="prob-body">The tutorial's results are for full-batch GD. The analogous theory for mini-batch SGD and for Adam (which has an unclear continuous limit even in the small-stepsize regime) is largely open.</div>
+    </div>
+    <div class="prob-card">
+      <div class="prob-icon">💡</div>
+      <div class="prob-title">Better stepsize schedulers</div>
+      <div class="prob-body">Warmup, cosine decay, and the silver schedule all work empirically. A principled theory of optimal stepsize scheduling — especially how warmup navigates to flatter regions — is missing.</div>
+    </div>
+    <div class="prob-card">
+      <div class="prob-icon">💡</div>
+      <div class="prob-title">Better optimizers</div>
+      <div class="prob-body">Preconditioning and normalization layers change the loss landscape in ways that interact with stepsize. Understanding this joint optimization of architecture and optimizer is an open design problem.</div>
+    </div>
+    <div class="prob-card">
+      <div class="prob-icon">💡</div>
+      <div class="prob-title">Stepsize vs structure interactions</div>
+      <div class="prob-body">Attention mechanisms and network depth create structured loss landscapes. How do large stepsizes interact with these structures — particularly multi-head attention and residual connections?</div>
+    </div>
+    <div class="prob-card">
+      <div class="prob-icon">💡</div>
+      <div class="prob-title">Other instabilities</div>
+      <div class="prob-body">Data quality, numerical precision (FP8/BF16), and gradient norm spikes in LLM pretraining are all forms of instability distinct from pure stepsize-driven oscillation. A unified theory is missing.</div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ══════════════════ REFERENCES ══════════════════ -->
+<div class="section reveal" id="refs">
+  <div class="sec-label">Key References</div>
+  <h2>Selected <em>Bibliography</em></h2>
+
+  <div class="ref-list">
+    <div class="ref-item">
+      <span class="ref-key">COLT 2024</span>
+      <span>Wu, Bartlett, Telgarsky, Yu. "Large stepsize gradient descent for logistic loss: non-monotonicity of the loss improves optimization efficiency."</span>
+    </div>
+    <div class="ref-item">
+      <span class="ref-key">ICML 2025</span>
+      <span>Zhang, Wu, Lin, Bartlett. "Minimax optimal convergence of gradient descent in logistic regression via large and adaptive stepsizes."</span>
+    </div>
+    <div class="ref-item">
+      <span class="ref-key">NeurIPS 2025</span>
+      <span>Wu, Marion, Bartlett. "Large stepsizes accelerate gradient descent for regularized logistic regression."</span>
+    </div>
+    <div class="ref-item">
+      <span class="ref-key">ICLR 2021</span>
+      <span>Cohen, Kaur, Li, Kolter, Talwalkar. "Gradient descent on neural networks typically occurs at the edge of stability."</span>
+    </div>
+    <div class="ref-item">
+      <span class="ref-key">NeurIPS 2018</span>
+      <span>Wu, Ma, E. "How SGD selects the global minima in over-parameterized learning: a dynamical stability perspective."</span>
+    </div>
+    <div class="ref-item">
+      <span class="ref-key">NeurIPS 2021</span>
+      <span>Damian, Ma, Lee. "Label noise SGD provably prefers flat global minimizers."</span>
+    </div>
+    <div class="ref-item">
+      <span class="ref-key">ALT 2021</span>
+      <span>Ji & Telgarsky. "Characterizing the implicit bias via a primal-dual analysis."</span>
+    </div>
+    <div class="ref-item">
+      <span class="ref-key">Math. Prog. 2024</span>
+      <span>Altschuler, Parrilo. "Acceleration by stepsize hedging II: silver stepsize schedule for smooth convex optimization."</span>
+    </div>
+    <div class="ref-item">
+      <span class="ref-key">JMLR 2016</span>
+      <span>Su, Boyd, Candes. "A differential equation for modeling Nesterov's accelerated gradient method: theory and insights."</span>
+    </div>
+    <div class="ref-item">
+      <span class="ref-key">ICLR 2022</span>
+      <span>Gilmer, Ghorbani, Garg, et al. "A loss curvature perspective on training instability in deep learning."</span>
+    </div>
+  </div>
+</div>
+
+<footer>
+  NeurIPS 2025 Tutorial · Jingfeng Wu (UC Berkeley) · Yu-Xiang Wang (UC San Diego) · Maryam Fazel (UW) · Interactive HTML by Ukubona LLC
+</footer>
+
+</div><!-- /page -->
+
+<script>
+/* ── loss chart ── */
+const lossCtx = document.getElementById('lossChart').getContext('2d');
+let lossChart;
+
+function buildLossData(eta, n) {
+  const T = 120;
+  const tau = Math.min(Math.floor(eta * (1 + n/20)), T * 0.6);
+  const labels = Array.from({length:T}, (_,i) => i+1);
+  const data = [];
+  let L = 2.0;
+
+  for (let t = 0; t < T; t++) {
+    if (t < tau) {
+      // unstable phase: oscillating but trending down
+      const osc = Math.sin(t * 1.8) * 0.15 * Math.exp(-t/tau * 0.5);
+      L = L * (1 - 0.04/eta) + osc;
+      L = Math.max(L, 0.05);
+    } else {
+      // stable phase: clean O(1/eta*t) decay
+      const ts = t - tau + 1;
+      L = 1 / (eta * ts * 0.08);
+    }
+    data.push(Math.max(L, 0.001));
+  }
+
+  // compare with small stepsize (classical)
+  const classical = [];
+  let Lc = 2.0;
+  for (let t = 0; t < T; t++) {
+    Lc = 2.0 / (t + 1);
+    classical.push(Lc);
+  }
+
+  return {labels, data, classical, tau};
+}
+
+function renderChart(eta, n) {
+  const {labels, data, classical, tau} = buildLossData(eta, n);
+
+  if (lossChart) lossChart.destroy();
+
+  lossChart = new Chart(lossCtx, {
+    type: 'line',
+    data: {
+      labels,
+      datasets: [
+        {
+          label: `Large η=${eta} (unstable→stable)`,
+          data,
+          borderColor: '#4a90e2',
+          backgroundColor: 'rgba(74,144,226,0.06)',
+          borderWidth: 1.5,
+          pointRadius: 0,
+          fill: true,
+          tension: 0.3
+        },
+        {
+          label: 'Small η (classical, monotone)',
+          data: classical,
+          borderColor: '#8585a8',
+          borderWidth: 1,
+          borderDash: [4,3],
+          pointRadius: 0,
+          fill: false,
+          tension: 0.3
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      interaction: { intersect: false, mode: 'index' },
+      plugins: {
+        legend: {
+          display: true,
+          labels: {
+            color: '#8585a8',
+            font: { family: "'Space Mono', monospace", size: 10 },
+            boxWidth: 12
+          }
+        },
+        tooltip: {
+          backgroundColor: '#0c0c14',
+          borderColor: '#222235',
+          borderWidth: 1,
+          titleColor: '#dcdbe8',
+          bodyColor: '#8585a8',
+          titleFont: { family: "'Space Mono'", size: 10 },
+          bodyFont:  { family: "'Space Mono'", size: 10 },
+          callbacks: {
+            label: ctx => ` ${ctx.dataset.label.split('(')[0].trim()}: ${ctx.parsed.y.toFixed(4)}`
+          }
+        },
+        annotation: {}
+      },
+      scales: {
+        x: {
+          grid: { color: 'rgba(255,255,255,0.04)' },
+          ticks: { color: '#44445a', font: { family: "'Space Mono'", size: 9 }, maxTicksLimit: 8 },
+          title: { display: true, text: 'Step t', color: '#44445a', font: { family: "'Space Mono'", size: 9 } }
+        },
+        y: {
+          type: 'logarithmic',
+          grid: { color: 'rgba(255,255,255,0.04)' },
+          ticks: { color: '#44445a', font: { family: "'Space Mono'", size: 9 } },
+          title: { display: true, text: 'L(θ) [log scale]', color: '#44445a', font: { family: "'Space Mono'", size: 9 } }
+        }
+      }
+    }
+  });
+}
+
+function updatePhase(eta, n) {
+  const tau = Math.min(Math.floor(eta * (1 + n/20)), 60);
+  const total = 100;
+  const pct = Math.round((tau / total) * 100);
+
+  document.getElementById('unstable-bar').style.width = pct + '%';
+  document.getElementById('unstable-bar').textContent = pct > 12 ? `Unstable (τ ≈ ${tau} steps)` : '↑';
+  document.getElementById('stable-bar').style.width = (100 - pct) + '%';
+  document.getElementById('phase-tau').textContent = `τ ≈ ${tau} steps`;
+
+  const rate = (1 / (eta * 50)).toFixed(4);
+  document.getElementById('phase-rate').textContent = `Asymptotic rate: O(1/ηt) ≈ ${rate} at t=50`;
+}
+
+document.getElementById('eta-slider').addEventListener('input', function() {
+  const eta = parseFloat(this.value);
+  const n = parseInt(document.getElementById('n-slider').value);
+  document.getElementById('eta-val').textContent = eta;
+  updatePhase(eta, n);
+  renderChart(eta, n);
+});
+
+document.getElementById('n-slider').addEventListener('input', function() {
+  const n = parseInt(this.value);
+  const eta = parseFloat(document.getElementById('eta-slider').value);
+  document.getElementById('n-val').textContent = n;
+  updatePhase(eta, n);
+  renderChart(eta, n);
+});
+
+// initial render
+renderChart(5, 50);
+updatePhase(5, 50);
+
+/* ── scroll reveal ── */
+const io = new IntersectionObserver(entries => {
+  entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+}, { threshold: 0.05 });
+document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+</script>
+</body>
+</html>

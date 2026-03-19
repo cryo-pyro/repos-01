@@ -1,0 +1,1017 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Convergence · Ukubona Clinical Thesis</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=IBM+Plex+Mono:wght@300;400;500&family=Source+Serif+4:ital,opsz,wght@0,8..60,300;0,8..60,400;0,8..60,600;1,8..60,300;1,8..60,400&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:       #f9f6f0;
+  --paper:    #ffffff;
+  --ink:      #1a1714;
+  --dim:      #7a7268;
+  --border:   #e0dbd2;
+  --rust:     #9b3a1a;
+  --ochre:    #c47a18;
+  --sage:     #3d6b4a;
+  --slate:    #2e4a6a;
+  --crimson:  #8b1a2a;
+  --serif:    "Source Serif 4", Georgia, serif;
+  --display:  "Playfair Display", Georgia, serif;
+  --mono:     "IBM Plex Mono", monospace;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--serif);
+  font-size: 17px;
+  line-height: 1.75;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── MASTHEAD ── */
+#masthead {
+  background: var(--ink);
+  color: #e8e4dc;
+  padding: 72px 60px 60px;
+  position: relative;
+  overflow: hidden;
+}
+#masthead::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    repeating-linear-gradient(90deg, transparent, transparent 59px, rgba(255,255,255,.025) 59px, rgba(255,255,255,.025) 60px),
+    repeating-linear-gradient(0deg,  transparent, transparent 59px, rgba(255,255,255,.025) 59px, rgba(255,255,255,.025) 60px);
+  pointer-events: none;
+}
+.mast-inner { max-width: 860px; margin: 0 auto; position: relative; z-index: 1; }
+.mast-kicker {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: .22em;
+  text-transform: uppercase;
+  color: var(--ochre);
+  margin-bottom: 20px;
+}
+#masthead h1 {
+  font-family: var(--display);
+  font-size: clamp(2.6rem, 5.5vw, 4.4rem);
+  font-weight: 900;
+  line-height: 1.05;
+  letter-spacing: -.02em;
+  margin-bottom: 18px;
+}
+#masthead h1 em { font-style: italic; color: var(--ochre); }
+.mast-sub {
+  font-family: var(--serif);
+  font-size: 1.05rem;
+  font-style: italic;
+  color: #a09888;
+  max-width: 620px;
+  margin-bottom: 44px;
+  line-height: 1.6;
+}
+.mast-theorem {
+  font-family: var(--mono);
+  font-size: 12.5px;
+  color: #6a6058;
+  letter-spacing: .04em;
+  border-top: 1px solid #2e2a24;
+  padding-top: 20px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 20px;
+}
+.mast-theorem .t { color: var(--ochre); }
+
+/* ── NAV ── */
+#toc {
+  background: var(--paper);
+  border-bottom: 1px solid var(--border);
+  position: sticky;
+  top: 0;
+  z-index: 200;
+  padding: 0 60px;
+}
+#toc ul {
+  list-style: none;
+  max-width: 860px;
+  margin: 0 auto;
+  display: flex;
+  overflow-x: auto;
+  gap: 0;
+}
+#toc a {
+  display: block;
+  padding: 14px 16px;
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: .13em;
+  text-transform: uppercase;
+  color: var(--dim);
+  text-decoration: none;
+  border-bottom: 2px solid transparent;
+  white-space: nowrap;
+  transition: color .2s, border-color .2s;
+}
+#toc a:hover { color: var(--rust); border-bottom-color: var(--rust); }
+
+/* ── CONVERGENCE DIAGRAM ── */
+#convergence-diagram {
+  background: var(--ink);
+  padding: 56px 60px;
+}
+.diagram-inner { max-width: 860px; margin: 0 auto; }
+.diagram-title {
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: .24em;
+  text-transform: uppercase;
+  color: #4a4540;
+  margin-bottom: 36px;
+}
+
+.nodes-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 2px;
+  margin-bottom: 2px;
+}
+.node {
+  background: #131110;
+  padding: 20px 18px;
+  border: 1px solid #1e1c18;
+  position: relative;
+  cursor: default;
+  transition: background .2s;
+}
+.node:hover { background: #1a1814; }
+.node-id {
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+.node-title {
+  font-family: var(--display);
+  font-size: 1rem;
+  font-weight: 700;
+  line-height: 1.2;
+  margin-bottom: 6px;
+  color: #d4cfc4;
+}
+.node-meta {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: #504840;
+  line-height: 1.5;
+}
+.node-layer {
+  position: absolute;
+  top: 14px; right: 14px;
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: .1em;
+  color: #302e28;
+}
+
+/* Colour per node role */
+.node.kituuka   .node-id { color: var(--sage); }
+.node.k08       .node-id { color: var(--slate); }
+.node.jama-1    .node-id { color: var(--slate); }
+.node.jama-2    .node-id { color: var(--slate); }
+.node.consent   .node-id { color: var(--rust); }
+.node.debbie    .node-id { color: var(--ochre); }
+
+.convergence-center {
+  background: #0c0b09;
+  padding: 28px 24px;
+  text-align: center;
+  border: 1px solid #1e1c18;
+  margin-bottom: 2px;
+}
+.center-eq {
+  font-family: var(--mono);
+  font-size: 13px;
+  color: var(--ochre);
+  letter-spacing: .05em;
+  margin-bottom: 8px;
+}
+.center-text {
+  font-family: var(--display);
+  font-size: .95rem;
+  font-style: italic;
+  color: #5a5248;
+}
+
+/* ── MAIN ── */
+main { max-width: 860px; margin: 0 auto; padding: 0 60px; }
+
+.section {
+  padding: 72px 0 60px;
+  border-bottom: 1px solid var(--border);
+}
+.section:last-child { border-bottom: none; }
+
+.section-kicker {
+  font-family: var(--mono);
+  font-size: 9.5px;
+  letter-spacing: .22em;
+  text-transform: uppercase;
+  color: var(--rust);
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.section-kicker::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--rust);
+  opacity: .25;
+  max-width: 48px;
+}
+
+h2 {
+  font-family: var(--display);
+  font-size: clamp(1.65rem, 3vw, 2.3rem);
+  font-weight: 700;
+  line-height: 1.18;
+  letter-spacing: -.01em;
+  margin-bottom: 28px;
+  color: var(--ink);
+}
+h2 em { font-style: italic; color: var(--rust); }
+
+h3 {
+  font-family: var(--display);
+  font-size: 1.18rem;
+  font-weight: 700;
+  margin: 40px 0 14px;
+}
+h3 .num { font-family: var(--mono); font-size: 10px; color: var(--rust); margin-right: 8px; }
+
+p { margin-bottom: 18px; max-width: 640px; }
+p:last-child { margin-bottom: 0; }
+
+/* ── CALLOUTS ── */
+.callout {
+  border-left: 3px solid var(--rust);
+  padding: 18px 22px;
+  background: #f3ede4;
+  margin: 32px 0;
+  max-width: 640px;
+}
+.callout.sage  { border-left-color: var(--sage);  background: #edf3ee; }
+.callout.slate { border-left-color: var(--slate); background: #edf0f5; }
+.callout.ochre { border-left-color: var(--ochre); background: #f5f0e4; }
+.callout.dark  { border-left-color: var(--ochre); background: var(--ink); color: #c8c4b8; }
+.callout-label {
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: .2em;
+  text-transform: uppercase;
+  color: var(--rust);
+  margin-bottom: 8px;
+  display: block;
+}
+.callout.sage .callout-label  { color: var(--sage); }
+.callout.slate .callout-label { color: var(--slate); }
+.callout.ochre .callout-label { color: var(--ochre); }
+.callout.dark .callout-label  { color: var(--ochre); }
+.callout blockquote { font-style: italic; color: var(--dim); font-size: 1.02rem; }
+.callout p { margin-bottom: 8px; }
+.callout p:last-child { margin-bottom: 0; }
+
+/* ── LOSS FUNCTION ANATOMY ── */
+.lf-anatomy {
+  margin: 32px 0;
+  max-width: 640px;
+}
+.lf-row {
+  display: grid;
+  grid-template-columns: 44px 1fr;
+  gap: 0;
+  border-bottom: 1px solid var(--border);
+}
+.lf-row:last-child { border-bottom: none; }
+.lf-symbol {
+  font-family: var(--mono);
+  font-size: 13px;
+  color: var(--ochre);
+  padding: 16px 0;
+  align-self: start;
+  padding-top: 18px;
+}
+.lf-content { padding: 14px 0 14px 12px; border-left: 1px solid var(--border); }
+.lf-term {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--rust);
+  margin-bottom: 4px;
+}
+.lf-def { font-size: 14.5px; color: var(--dim); line-height: 1.6; }
+
+/* ── ALIGNMENT TABLE ── */
+.align-table {
+  width: 100%;
+  max-width: 640px;
+  border-collapse: collapse;
+  margin: 28px 0;
+  font-size: 14px;
+}
+.align-table th {
+  font-family: var(--mono);
+  font-size: 9.5px;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--dim);
+  text-align: left;
+  padding: 10px 14px;
+  border-bottom: 2px solid var(--ink);
+  background: #f3ede4;
+}
+.align-table td {
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--border);
+  vertical-align: top;
+}
+.align-table tr:last-child td { border-bottom: none; }
+.align-table tr:hover td { background: #f5f0e8; }
+.align-table .mono { font-family: var(--mono); font-size: 12px; }
+.align-table .rust { color: var(--rust); }
+.align-table .sage { color: var(--sage); }
+.align-table .slate { color: var(--slate); }
+
+/* ── PULL QUOTE ── */
+.pull-quote {
+  font-family: var(--display);
+  font-size: clamp(1.25rem, 2.4vw, 1.65rem);
+  font-style: italic;
+  line-height: 1.35;
+  color: var(--ink);
+  padding: 36px 0;
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  margin: 44px 0;
+  max-width: 560px;
+}
+.pull-quote cite {
+  display: block;
+  font-size: 10px;
+  font-style: normal;
+  font-family: var(--mono);
+  color: var(--dim);
+  letter-spacing: .1em;
+  margin-top: 14px;
+  text-transform: uppercase;
+}
+
+/* ── THESIS STATEMENT ── */
+.thesis {
+  background: var(--ink);
+  color: #e0dbd2;
+  padding: 48px;
+  margin: 44px 0;
+  max-width: 640px;
+}
+.thesis-label {
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: .22em;
+  text-transform: uppercase;
+  color: var(--ochre);
+  margin-bottom: 20px;
+  display: block;
+}
+.thesis-body {
+  font-family: var(--display);
+  font-size: clamp(1.1rem, 2vw, 1.35rem);
+  font-style: italic;
+  line-height: 1.45;
+  color: #e0dbd2;
+}
+.thesis-sub {
+  font-family: var(--serif);
+  font-size: 13.5px;
+  color: #6a6258;
+  margin-top: 20px;
+  line-height: 1.65;
+}
+
+/* ── MATH BLOCK ── */
+.math-block {
+  background: var(--ink);
+  color: #d4cfc4;
+  padding: 22px 26px;
+  font-family: var(--mono);
+  font-size: 12.5px;
+  line-height: 1.75;
+  margin: 28px 0;
+  max-width: 640px;
+  border-left: 3px solid var(--ochre);
+}
+.math-block .comment { color: #3e3830; font-size: 11px; font-style: italic; }
+.math-block .hi { color: var(--ochre); }
+.math-block .lo { color: #7a7268; }
+
+/* ── CITATION ── */
+.cite-block {
+  border: 1px solid var(--border);
+  padding: 16px 20px;
+  margin: 20px 0;
+  max-width: 640px;
+  font-size: 13.5px;
+  line-height: 1.6;
+}
+.cite-block .cite-id {
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  color: var(--slate);
+  margin-bottom: 6px;
+  display: block;
+}
+.cite-block .cite-title { font-style: italic; color: var(--ink); font-size: 14.5px; }
+.cite-block .cite-meta { color: var(--dim); font-size: 12px; margin-top: 5px; }
+.cite-block a { color: var(--slate); text-decoration: none; }
+.cite-block a:hover { text-decoration: underline; }
+
+/* ── DAG FRAME ── */
+.dag-frame {
+  background: #f0ede6;
+  border: 1px solid var(--border);
+  padding: 28px;
+  margin: 28px 0;
+  max-width: 640px;
+  font-family: var(--mono);
+  font-size: 12px;
+  line-height: 1.9;
+  color: var(--dim);
+}
+.dag-frame .dag-title {
+  font-size: 9px;
+  letter-spacing: .2em;
+  text-transform: uppercase;
+  color: var(--ochre);
+  margin-bottom: 14px;
+  display: block;
+}
+.dag-frame .dag-arrow { color: var(--rust); }
+.dag-frame .dag-node { color: var(--ink); font-weight: 500; }
+.dag-frame .dag-label { color: var(--dim); font-size: 10px; }
+
+/* ── FOOTER ── */
+footer {
+  background: var(--ink);
+  color: #4a4540;
+  padding: 48px 60px;
+  font-family: var(--mono);
+  font-size: 11px;
+  line-height: 1.9;
+  letter-spacing: .04em;
+}
+.footer-inner {
+  max-width: 860px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 48px;
+}
+footer h4 { color: var(--ochre); font-size: 9px; letter-spacing: .2em; text-transform: uppercase; margin-bottom: 12px; }
+footer a { color: #605850; text-decoration: none; }
+footer a:hover { color: var(--ochre); }
+
+@media (max-width: 700px) {
+  #masthead, main, #toc, footer, #convergence-diagram { padding-left: 20px; padding-right: 20px; }
+  .nodes-grid { grid-template-columns: 1fr; }
+  .footer-inner { grid-template-columns: 1fr; gap: 32px; }
+  #toc ul { flex-wrap: nowrap; overflow-x: auto; }
+  .thesis { padding: 28px; }
+}
+</style>
+</head>
+<body>
+
+<!-- ══ MASTHEAD ══════════════════════════════════════════════════════ -->
+<header id="masthead">
+  <div class="mast-inner">
+    <p class="mast-kicker">Ukubona LLC · Clinical Thesis · 2026</p>
+    <h1>The <em>Convergence</em></h1>
+    <p class="mast-sub">
+      Six nodes — a surgeon in Kampala, two JAMA papers, one NIH K08 award,
+      a roundtable on mis-specified consent, a genomic data-sharing DAG —
+      meeting at a single irreversible point: the body on the table.
+    </p>
+    <div class="mast-theorem">
+      <span class="t">θ<sub>t</sub></span>
+      <span>→ patient's current state</span>
+      <span class="t">L(θ) = Σ w<sub>i</sub> L<sub>i</sub></span>
+      <span>→ their composite loss, never elicited</span>
+      <span class="t">∇L</span>
+      <span>→ gradient, computed without them</span>
+      <span class="t">−η∇L</span>
+      <span>→ the scalpel</span>
+      <span class="t">θ′ + ε</span>
+      <span>→ the body that wakes up. Or doesn't.</span>
+    </div>
+  </div>
+</header>
+
+<!-- ══ NODE DIAGRAM ═══════════════════════════════════════════════════ -->
+<div id="convergence-diagram">
+  <div class="diagram-inner">
+    <div class="diagram-title">Six convergent nodes · One clinical thesis</div>
+    <div class="nodes-grid">
+
+      <div class="node kituuka">
+        <div class="node-id">Node 01 · Empirical</div>
+        <div class="node-layer">L₁ → L₄</div>
+        <div class="node-title">Kituuka · Makerere</div>
+        <div class="node-meta">
+          GI/HPB surgeon · PhD Bioethics<br>
+          Emergency consent · Urban Uganda<br>
+          Mulago Hospital · 15 yrs<br>
+          <span style="color:#507850">Inadequate disclosure · Poor understanding</span>
+        </div>
+      </div>
+
+      <div class="node k08">
+        <div class="node-id">Node 02 · Quantitative</div>
+        <div class="node-layer">L₁ model</div>
+        <div class="node-title">K08-AG065520</div>
+        <div class="node-meta">
+          NIH Career Development Award<br>
+          Abimereki D. Muzaale · Johns Hopkins<br>
+          Perioperative risk · Older kidney donors<br>
+          <span style="color:#4a6a8a">ESRD · Mortality · Sentinel events</span>
+        </div>
+      </div>
+
+      <div class="node jama-1">
+        <div class="node-id">Node 03 · JAMA 2010</div>
+        <div class="node-layer">PMID 20215610</div>
+        <div class="node-title">Perioperative Mortality · Live Donation</div>
+        <div class="node-meta">
+          Segev, Muzaale et al. · 80,347 donors<br>
+          Surgical mortality: 3.1 per 10,000<br>
+          Black donors: 7.6 per 10,000<br>
+          <span style="color:#4a6a8a">Matched NHANES III · Long-term survival</span>
+        </div>
+      </div>
+
+      <div class="node jama-2">
+        <div class="node-id">Node 04 · JAMA 2014</div>
+        <div class="node-layer">PMID 24519297</div>
+        <div class="node-title">ESRD Risk · Live Donation</div>
+        <div class="node-meta">
+          Muzaale et al. · 96,217 donors<br>
+          15-yr ESRD risk: 30.8 per 10,000 donors<br>
+          vs. 3.9 per 10,000 healthy nondonors<br>
+          <span style="color:#4a6a8a">Lifetime risk: 90 vs 14 per 10,000</span>
+        </div>
+      </div>
+
+      <div class="node consent">
+        <div class="node-id">Node 05 · Philosophical</div>
+        <div class="node-layer">L₁ failure</div>
+        <div class="node-title">Mis-Specified Consent</div>
+        <div class="node-meta">
+          Pardus · Johns Hopkins · Sept 2010<br>
+          "He didn't inform me about anything"<br>
+          Father · 67–70 · 3 spinal surgeries<br>
+          <span style="color:#9b3a1a">Loss function misalignment · ε → violence</span>
+        </div>
+      </div>
+
+      <div class="node debbie">
+        <div class="node-id">Node 06 · Structural</div>
+        <div class="node-layer">L₁ → L₅</div>
+        <div class="node-title">Genomic Data Sharing DAG</div>
+        <div class="node-meta">
+          GST · Principlism · Distributive Justice<br>
+          Individual → Institutional → National → International<br>
+          Community engagement · Power dynamics<br>
+          <span style="color:#c47a18">Equity · Autonomy · Benefit-sharing</span>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="convergence-center">
+      <div class="center-eq">No θ′ without verified L<sub>total</sub> alignment</div>
+      <div class="center-text">Consent is gradient sovereignty — not paperwork, not compliance, not a signature.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ NAV ════════════════════════════════════════════════════════════ -->
+<nav id="toc">
+  <ul>
+    <li><a href="#thesis">Thesis</a></li>
+    <li><a href="#kituuka">Kituuka</a></li>
+    <li><a href="#k08">K08 Papers</a></li>
+    <li><a href="#pardus">Pardus</a></li>
+    <li><a href="#debbie">Debbie DAG</a></li>
+    <li><a href="#ukubona">Ukubona Fix</a></li>
+    <li><a href="#father">The Father</a></li>
+  </ul>
+</nav>
+
+<main>
+
+<!-- ══ SECTION 1: THE THESIS ════════════════════════════════════════ -->
+<section class="section" id="thesis">
+  <div class="section-kicker">Ukubona Clinical Thesis</div>
+  <h2>The Claim in Full</h2>
+
+  <p>Medicine has a structural error. It is not missing data, inadequate training, insufficient regulation, or even negligence in the ordinary sense. It is this: the body on the table is being updated — irreversibly — by an optimizer whose loss function was never verified against the patient's own.</p>
+
+  <div class="thesis">
+    <span class="thesis-label">Thesis</span>
+    <div class="thesis-body">
+      Consent is not agreement. Consent is verified alignment between a patient's values
+      and the trajectory imposed on their body. Everything else is paperwork.
+    </div>
+    <div class="thesis-sub">
+      Every patient arrives as a parameter space (θ<sub>t</sub>) shaped by a calibration history —
+      age, language, culture, prior surgeries, the word "conservative" meaning what it means
+      in their world, not yours. That calibration encodes a loss function they alone can specify.
+      The gradient is their moral direction. The scalpel is the step. The body that wakes up is θ′.
+      No irreversible update without verified L<sub>total</sub> alignment.
+    </div>
+  </div>
+
+  <p>Six independent research trajectories — empirical, quantitative, epidemiological, philosophical, structural, and computational — have been converging on this claim from different directions. They did not plan to meet. They met anyway.</p>
+
+  <div class="lf-anatomy">
+    <div class="lf-row">
+      <div class="lf-symbol">θ<sub>t</sub></div>
+      <div class="lf-content">
+        <div class="lf-term">The Patient</div>
+        <div class="lf-def">The patient's current state: their body, history, vocabulary, priors, fears, values. Not a chart. Not a case. A parameter space shaped by everything that has happened to them.</div>
+      </div>
+    </div>
+    <div class="lf-row">
+      <div class="lf-symbol">L(θ)</div>
+      <div class="lf-content">
+        <div class="lf-term">The Loss Function</div>
+        <div class="lf-def">What they are trying to minimize: dignity, mobility, independence, family burden, fear of irreversible decline. This function is theirs alone to specify. Medicine almost never asks for it.</div>
+      </div>
+    </div>
+    <div class="lf-row">
+      <div class="lf-symbol">∇L</div>
+      <div class="lf-content">
+        <div class="lf-term">The Gradient</div>
+        <div class="lf-def">The direction of steepest improvement in the patient's actual landscape. Currently computed by the surgeon using an institutional loss function the patient never saw. This is the misalignment.</div>
+      </div>
+    </div>
+    <div class="lf-row">
+      <div class="lf-symbol">−η∇L</div>
+      <div class="lf-content">
+        <div class="lf-term">The Scalpel</div>
+        <div class="lf-def">The surgical step. Taken at a learning rate that admits no correction. Driven by an alien gradient. There is no rollback. No retraining. No second pass. This is why the loss function must be verified before, not after.</div>
+      </div>
+    </div>
+    <div class="lf-row">
+      <div class="lf-symbol">θ′ + ε</div>
+      <div class="lf-content">
+        <div class="lf-term">The Aftermath</div>
+        <div class="lf-def">The body that wakes up — or doesn't. The paralysis no one named. The son in the hallway. The gun. ε is not error in the statistical sense. It is the accumulated divergence between the trajectory the optimizer chose and the one the patient needed.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ══ SECTION 2: KITUUKA ════════════════════════════════════════════ -->
+<section class="section" id="kituuka">
+  <div class="section-kicker">Node 01 · Empirical · Makerere University</div>
+  <h2>Kituuka: The <em>Empirical Ground</em></h2>
+
+  <p>Dr. Olivia Kituuka is a GI and Hepato-Pancreato-Biliary surgeon who has worked at Mulago Hospital, Kampala, for over 15 years. She recently completed a PhD in Bioethics at Makerere, supported by the Johns Hopkins Bioethics Institute, on the informed consent process for emergency surgery in urban Uganda.</p>
+
+  <p>Her methods were comprehensive and granular: a cross-sectional survey of patients and next of kin, in-depth interviews, key informant interviews of emergency staff, and direct observation at one public and one private hospital in Kampala. What she found was systematic.</p>
+
+  <div class="callout sage">
+    <span class="callout-label">Kituuka's Core Finding</span>
+    <p>Inadequate disclosure of risks and alternative options, combined with poor patient understanding — not due to stupidity or negligence, but due to a structural failure of the consent process itself. The clinician is unilaterally hijacking the optimization engine. The patient is reduced from a sovereign node to a passive, unweighted constraint.</p>
+  </div>
+
+  <p>The mapping onto the Ukubona framework is exact. When risks and alternatives are omitted, the patient is robbed of agency to assign their personalized weights w<sub>i</sub>. The surgeon silently substitutes an institutional loss function — optimizing for mechanical survival, throughput, and liability — in place of the patient's uncompressed dimensions. The gradient is then computed on the wrong objective. The scalpel moves in the wrong direction.</p>
+
+  <h3><span class="num">§2.1</span> Why Layer 4 Can't Fix a Layer 1 Problem</h3>
+
+  <p>Kituuka's recommendations — national policies, guidelines, education programs — are Layer 4 interventions (Government/Regulatory) attempting to correct Layer 1 failures (Clinical). The structural problem is that policies are static documents written in ministry offices. Surgery is high-velocity gradient descent happening at 2am in an under-resourced trauma bay.</p>
+
+  <div class="callout">
+    <span class="callout-label">The Structural Gap</span>
+    <blockquote>"A guideline written in a ministry office cannot account for the ε of a specific midnight emergency."</blockquote>
+    <p>Layer 4 regulation creates friction in the system (L₄) without solving the clinical loss (L₁). What is needed is not a better form but an antifragile consent architecture — modular, self-rooting, functional in noise. The cassava stick, not the ministry memo.</p>
+  </div>
+
+  <p>This is the exact problem Ukubona's clinical interface is designed to address: a high-bandwidth tool that translates high-dimensional risk into the patient's vocabulary in real time, operable in the chaos of the trauma bay, not requiring a quiet office.</p>
+</section>
+
+
+<!-- ══ SECTION 3: K08 PAPERS ═════════════════════════════════════════ -->
+<section class="section" id="k08">
+  <div class="section-kicker">Nodes 02, 03, 04 · Quantitative · Johns Hopkins</div>
+  <h2>The K08 Papers: <em>Risk Made Visible</em></h2>
+
+  <p>The K08-AG065520 award (Abimereki D. Muzaale, Johns Hopkins) funded the development of perioperative and long-term risk models for older live kidney donors. The two JAMA papers are the empirical foundation of that work.</p>
+
+  <div class="cite-block">
+    <span class="cite-id">PMID 20215610 · JAMA 2010</span>
+    <div class="cite-title">Perioperative Mortality and Long-term Survival Following Live Kidney Donation</div>
+    <div class="cite-meta">Segev DL, Muzaale AD, et al. · JAMA 2010;303(10):959–966 · <a href="https://pubmed.ncbi.nlm.nih.gov/20215610/" target="_blank">doi:10.1001/jama.2010.237</a></div>
+    <div class="cite-meta" style="margin-top:8px;color:#555;">
+      80,347 live donors · Surgical mortality: 3.1/10,000 overall · 7.6/10,000 Black donors ·
+      Long-term survival comparable to matched NHANES III cohort
+    </div>
+  </div>
+
+  <div class="cite-block">
+    <span class="cite-id">PMID 24519297 · JAMA 2014</span>
+    <div class="cite-title">Risk of End-Stage Renal Disease Following Live Kidney Donation</div>
+    <div class="cite-meta">Muzaale AD, Massie AB, et al. · JAMA 2014;311(6):579–586 · <a href="https://pubmed.ncbi.nlm.nih.gov/24519297/" target="_blank">doi:10.1001/jama.2013.285141</a></div>
+    <div class="cite-meta" style="margin-top:8px;color:#555;">
+      96,217 donors · 15-yr ESRD risk: 30.8/10,000 donors vs 3.9/10,000 healthy nondonors ·
+      Lifetime risk: 90/10,000 donors vs 14/10,000 healthy controls
+    </div>
+  </div>
+
+  <h3><span class="num">§3.1</span> Why Probabilities Alone Are Not Consent</h3>
+
+  <p>These papers quantify the stakes with extraordinary precision. They are moral infrastructure in embryo. But they contain a structural incompleteness that the consent framework exposes directly.</p>
+
+  <div class="align-table" style="width:100%;max-width:640px;">
+    <table class="align-table" style="width:100%;">
+      <thead>
+        <tr>
+          <th>Patient</th>
+          <th>15-yr ESRD risk</th>
+          <th>w(independence)</th>
+          <th>w(donor altruism)</th>
+          <th>Decision</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Patient A</td>
+          <td class="mono">30.8 / 10,000</td>
+          <td class="mono sage">0.20</td>
+          <td class="mono sage">0.80</td>
+          <td class="sage">Donate</td>
+        </tr>
+        <tr>
+          <td>Patient B</td>
+          <td class="mono">30.8 / 10,000</td>
+          <td class="mono rust">0.80</td>
+          <td class="mono rust">0.20</td>
+          <td class="rust">Decline</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <p>Same probabilities. Different w<sub>i</sub>. Opposite decisions. The papers produce the number; the consent process must produce the weights. Without weight elicitation, even the most precise risk calculator just produces better-informed misalignment.</p>
+
+  <div class="callout slate">
+    <span class="callout-label">The K08 Implication</span>
+    <p>The K08 risk calculator for ESRD, mortality, and sentinel hospitalization is moral infrastructure only when it pairs probability with preference elicitation. Each datapoint is not just an outcome — it is a life lived under a specific weight configuration. The failure of most risk calculators is that they collapse that into probability and discard the weights that made those outcomes meaningful.</p>
+  </div>
+
+  <h3><span class="num">§3.2</span> The Racial Disparity Signal</h3>
+
+  <p>The 2010 paper reports surgical mortality of 7.6 per 10,000 for Black donors versus 2.6 for white donors — a threefold difference. The 2014 paper shows lifetime ESRD risk of 326 per 10,000 for the general (unscreened) population versus 90 per 10,000 for donors. These are not technical footnotes. They are direct inputs to a consent conversation. A Black patient in their 60s deciding whether to donate a kidney deserves a consent process that surfaces exactly this disparity, in their vocabulary, before the gradient step is taken.</p>
+</section>
+
+
+<!-- ══ SECTION 4: PARDUS ═════════════════════════════════════════════ -->
+<section class="section" id="pardus">
+  <div class="section-kicker">Node 05 · Philosophical · Johns Hopkins · September 2010</div>
+  <h2>The Pardus Event: <em>Terminal ε</em></h2>
+
+  <p>On September 16, 2010 — the same year the first JAMA paper was published, in the same institution — Paul Warren Pardus became distraught after learning his 84-year-old mother Jean Davis had been left paralyzed following spinal surgery intended to relieve compression and improve mobility. Receiving a post-operative update from Dr. David B. Cohen in the hallway, Pardus yelled "You ruined my mother," drew a handgun, and shot the surgeon in the abdomen. He then barricaded himself in his mother's room, fatally shot her, and took his own life. Dr. Cohen survived.</p>
+
+  <div class="callout">
+    <span class="callout-label">The Structural Reading</span>
+    <p>The Pardus case is not a tragedy of grief. It is a breakdown event after prolonged gradient misalignment with no correction channel. The violence is not the system — it's what happens when all feedback channels fail. The surgeon optimized for decompression success and mechanical stability. The patient and family were optimizing for the avoidance of irreversible decline, dignity, and continued mobility. The word "conservative" mapped to two entirely different variables in their respective loss functions. ε accumulated. The only channel left was the gun.</p>
+  </div>
+
+  <p>This is the clinical version of what the NeurIPS tutorial calls accumulated instability with no stepsize scheduler. In optimization, when no correction is applied across training steps, eventually the loss spikes beyond recovery. In surgery, when no loss function alignment is verified before the irreversible step, eventually the divergence finds a channel.</p>
+
+  <div class="pull-quote">
+    "You ruined my mother" is not irrationality. It is a gradient step taken by a system that had no other channel left.
+    <cite>— Informed Consent Roundtable · Ukubona LLC · 2026</cite>
+  </div>
+
+  <h3><span class="num">§4.1</span> The Father: Not Anecdote, But Bedrock</h3>
+
+  <p>The informed-consent roundtable opens with a different case: a father, aged 67–70, who underwent three spinal surgeries across three years in Pretoria and Paris. His account of the consent process: "He didn't inform me about anything. Which one would you prefer? — You don't prefer without information."</p>
+
+  <p>This is not supporting evidence for the thesis. This is the ground truth from which the thesis was built. "Conservative" meant "ordinary operations" in his vocabulary — not the clinical meaning of watchful management. The consent process assumed a shared ontology that did not exist. The baseline parameters were corrupted before the first word of consent was spoken.</p>
+
+  <div class="callout">
+    <span class="callout-label">Layer V Bedrock</span>
+    <p>When a patient's calibration history (θ<sub>t</sub>) is ignored at initialization, the entire downstream process — however technically correct — is operating on a false landscape. The gradient is real. The step is real. But the terrain it's descending is not the patient's terrain. This is not a communication failure. It is an ontological one.</p>
+  </div>
+</section>
+
+
+<!-- ══ SECTION 5: DEBBIE DAG ═════════════════════════════════════════ -->
+<section class="section" id="debbie">
+  <div class="section-kicker">Node 06 · Structural · Genomic Data Sharing</div>
+  <h2>The Debbie DAG: <em>Multi-Level Architecture</em></h2>
+
+  <p>The genomic data sharing framework at ukubona-llc.github.io/debbie provides the multi-level structural picture that the clinical consent argument requires. It maps three theoretical zones — General Systems Theory, Principlism, and Distributive Justice — onto a directed acyclic graph spanning individual, institutional, national, and international levels.</p>
+
+  <div class="dag-frame">
+    <span class="dag-title">DAG Structure (simplified)</span>
+    <div>
+      <span class="dag-node">GST</span>
+      <span class="dag-arrow"> → </span>
+      <span class="dag-node">Awareness · Training · Attitudes · Practices</span>
+      <span class="dag-label">  [structural flow]</span>
+    </div>
+    <div>
+      <span class="dag-node">Principlism</span>
+      <span class="dag-arrow"> → </span>
+      <span class="dag-node">Autonomy · Relational Factors · Community Engagement</span>
+      <span class="dag-label">  [ethical filter]</span>
+    </div>
+    <div>
+      <span class="dag-node">Distributive Justice</span>
+      <span class="dag-arrow"> → </span>
+      <span class="dag-node">Power Dynamics · Equity · Outcome</span>
+      <span class="dag-label">  [equity lens]</span>
+    </div>
+    <div style="margin-top:12px;">
+      <span class="dag-node">Individual</span>
+      <span class="dag-arrow"> → </span>
+      <span class="dag-node">Institutional</span>
+      <span class="dag-arrow"> → </span>
+      <span class="dag-node">National</span>
+      <span class="dag-arrow"> → </span>
+      <span class="dag-node">International</span>
+    </div>
+  </div>
+
+  <p>The Debbie framework was built for genomic data sharing. But it is, at its core, a formalization of the same problem: how do you align the values of individual participants (autonomy, benefit-sharing expectations, fear of re-identification) with institutional practices and national regulatory structures before a decision is made that affects them irreversibly?</p>
+
+  <h3><span class="num">§5.1</span> The Henrietta Lacks Node</h3>
+
+  <p>The framework explicitly names Henrietta Lacks in the Relational Factors node. This is not decorative. Lacks represents the precise failure the entire DAG is designed to prevent: tissue taken without verified consent, used in ways the donor never imagined, benefiting institutions in ways that violated every weight she held. Her cells were a θ′ taken without L<sub>total</sub> alignment. The update was irreversible. The ε is still accumulating.</p>
+
+  <div class="callout ochre">
+    <span class="callout-label">From Genomics to Surgery</span>
+    <p>The Debbie DAG and the surgical consent framework are solving the same structural problem at different timescales and levels. Genomic data sharing is a slow-motion version of surgery: an irreversible extraction from the patient's body, processed through institutional and commercial machinery, generating outcomes the patient never authorized. The consent architecture required is identical. The loss function must be verified before the extraction, not disclosed afterward.</p>
+  </div>
+
+  <h3><span class="num">§5.2</span> LMIC vs HIC: The Disparity Is a Gradient</h3>
+
+  <p>Distributive Justice in the Debbie framework focuses on the power asymmetry between Low- and Middle-Income Countries and High-Income Countries in genomic data sharing. Kituuka's emergency surgery data comes from Uganda — an LMIC hospital system operating under resource constraints that make even a basic consent conversation structurally difficult. The 2010 and 2014 JAMA papers are from the US. The K08 is a US NIH award. The disparity in the surgical risk data itself (Black donors at threefold higher perioperative mortality) connects all three.</p>
+
+  <p>This is not a coincidence. It is the same gradient at multiple scales: who gets to specify the weights, who benefits from the optimization, and who bears the ε.</p>
+</section>
+
+
+<!-- ══ SECTION 6: THE UKUBONA FIX ═══════════════════════════════════ -->
+<section class="section" id="ukubona">
+  <div class="section-kicker">The Fix · Ukubona Digital Twin OS</div>
+  <h2>What the Convergence <em>Demands</em></h2>
+
+  <p>Six research trajectories have converged on the same gap. The gap is not informational — the JAMA papers supply the numbers. It is not regulatory — Kituuka's policy recommendations address the structural level. It is not philosophical — the roundtable provides the framework. The gap is operational: there is no clinical interface that actually pairs probability with preference elicitation, in real time, at the bedside, in the patient's vocabulary.</p>
+
+  <div class="math-block">
+    <span class="comment">// The current consent process</span><br>
+    present_risk_number(patient)<br>
+    get_signature(patient)<br>
+    <span class="comment">// w_i never elicited. Loss function never verified.</span><br>
+    proceed_to_surgery()<br><br>
+    <span class="comment">// The Ukubona consent architecture</span><br>
+    <span class="hi">present_risk_number(patient)          </span><span class="comment">// K08 calculator</span><br>
+    <span class="hi">elicit_weights(patient)               </span><span class="comment">// what matters most</span><br>
+    <span class="hi">verify_loss_alignment(patient, surgeon)</span><span class="comment">// is ∇L shared?</span><br>
+    <span class="hi">if aligned: proceed()                 </span><span class="comment">// gradient sovereignty</span><br>
+    <span class="hi">else: expand_attention_space()        </span><span class="comment">// more information, different frame</span>
+  </div>
+
+  <p>The surgeon's role is not to decide. It is to expand the patient's attention until a real decision becomes possible. This is attention engineering — distinct from informing, recommending, or consenting. The surgeon illuminates the full state-space so the patient can navigate it with their own weights.</p>
+
+  <table class="align-table">
+    <thead>
+      <tr>
+        <th>Current Practice</th>
+        <th>Ukubona Architecture</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Risks disclosed (often incompletely)</td>
+        <td class="sage">K08 risk calculator: ESRD, mortality, sentinel events</td>
+      </tr>
+      <tr>
+        <td>Patient asked to sign</td>
+        <td class="sage">Patient asked to weight: independence vs longevity vs burden</td>
+      </tr>
+      <tr>
+        <td>Surgeon's loss function assumed</td>
+        <td class="sage">Composite L<sub>total</sub> = Σ w<sub>i</sub> L<sub>i</sub> co-constructed</td>
+      </tr>
+      <tr>
+        <td>Checklist completed, weights = 0</td>
+        <td class="sage">No θ′ without verified alignment</td>
+      </tr>
+      <tr>
+        <td>Static form, breaks in trauma bay</td>
+        <td class="sage">Antifragile interface — roots in chaos like a cassava stick</td>
+      </tr>
+      <tr>
+        <td>Pardus possible</td>
+        <td class="sage">ε channeled before it accumulates</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3><span class="num">§6.1</span> The Twin as Moral Memory</h3>
+
+  <p>The clinical twin built on top of the K08 risk calculator is not a decision tool. It is a moral memory: a compressed record of prior bodies, their risk profiles, their decisions, their outcomes — and implicitly, the weight configurations that produced those decisions. Each data point is not just a probability. It is a life lived under a specific w<sub>i</sub> vector.</p>
+
+  <p>The pheromone trail in its most morally serious form: the colony of previous patients, through their outcomes, laying a gradient for the next patient facing the same decision. The digital twin makes that trail visible and navigable — not as paternalistic advice, but as the full state-space from which the patient can choose their own step.</p>
+</section>
+
+
+<!-- ══ SECTION 7: THE FATHER ═════════════════════════════════════════ -->
+<section class="section" id="father">
+  <div class="section-kicker">Origin · Not Anecdote</div>
+  <h2>The Father: Where the <em>Gradient Starts</em></h2>
+
+  <p>The entire architecture of this convergence — the K08 work, the clinical framework, the consent roundtable, the Ukubona OS — begins with one sentence spoken in a hospital in Pretoria or Paris, by a man between 67 and 70 years old who had just undergone his first, or second, or third spinal surgery:</p>
+
+  <div class="pull-quote">
+    "He didn't inform me about anything. Which one would you prefer? — You don't prefer without information."
+    <cite>— Father, 67–70 · Pretoria &amp; Paris · Three spinal surgeries · Informed consent: absent</cite>
+  </div>
+
+  <p>This is not a clinical vignette. It is the ground truth from which the framework was reverse-engineered. The word "conservative" meant "ordinary operations" in his vocabulary. The baseline parameters were corrupted before the first word of consent was spoken. Three irreversible updates were made to his body across three years. The ε is personal and prior to all the mathematics.</p>
+
+  <p>The Ukubona thesis is, at bottom, an answer to that sentence. The K08 calculator is an answer to that sentence. The informed consent roundtable is an answer to that sentence. Dr. Kituuka's PhD is, in the Kampala context, an answer to the same sentence spoken in Luganda by patients at Mulago who were also never asked which one they would prefer.</p>
+
+  <div class="callout dark">
+    <span class="callout-label">The Through-Line</span>
+    <p style="color:#c8c0b4;">The father's three surgeries. The Pardus shooting. Kituuka's findings in Mulago's emergency theatres. The racial mortality disparity in the JAMA papers. Henrietta Lacks. The LMIC/HIC power asymmetry in the Debbie DAG. These are not separate stories. They are the same gradient, measured at different scales, across different bodies, over different decades. The Ukubona OS is the first attempt to build infrastructure that runs that gradient in reverse — from the body, through the loss function, to the patient's verified consent — before the irreversible step is taken.</p>
+  </div>
+</section>
+
+</main>
+
+<!-- ══ FOOTER ══════════════════════════════════════════════════════════ -->
+<footer>
+  <div class="footer-inner">
+    <div>
+      <h4>The Six Nodes</h4>
+      <a href="https://chs.mak.ac.ug/team/olivia-kituuka">Kituuka · Makerere CHS</a><br>
+      <a href="https://pubmed.ncbi.nlm.nih.gov/20215610/">PMID 20215610 · JAMA 2010</a><br>
+      <a href="https://pubmed.ncbi.nlm.nih.gov/24519297/">PMID 24519297 · JAMA 2014</a><br>
+      <a href="https://grantome.com/grant/NIH/K08-AG065520-01">K08-AG065520 · NIH</a><br>
+      <a href="https://abikesa.github.io/repos-00/assets/html/informed-consent.html">Informed Consent Roundtable</a><br>
+      <a href="https://ukubona-llc.github.io/debbie/">Debbie · Genomic DAG</a>
+    </div>
+    <div>
+      <h4>Ukubona</h4>
+      <a href="https://abikesa.github.io/repos-00/assets/html/landing-page.html">Digital Twin OS</a><br>
+      <a href="https://abikesa.github.io/repos-00/assets/html/instability-ukubona.html">Instability Doc</a><br>
+      <a href="mailto:hello@ukubona.io">hello@ukubona.io</a><br><br>
+      Ukubona — to see<br>
+      Kampala · Baltimore<br>
+      MD · MPH · PhDc · Johns Hopkins
+    </div>
+    <div>
+      <h4>The Equation</h4>
+      θ<sub>t</sub> → patient's current state<br>
+      L(θ) = Σ w<sub>i</sub> L<sub>i</sub> → their loss, never elicited<br>
+      ∇L → gradient, computed without them<br>
+      −η∇L → the scalpel<br>
+      θ′ + ε → the body that wakes up<br><br>
+      <span style="color:var(--ochre)">No θ′ without verified L<sub>total</sub> alignment.</span>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

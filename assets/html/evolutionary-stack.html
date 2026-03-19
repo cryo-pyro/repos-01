@@ -1,0 +1,1082 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Digital Twin as Strategic Mirror — Ukubona LLC</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=JetBrains+Mono:wght@300;400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --void: #050507;
+    --deep: #0c0c12;
+    --surface: #13131c;
+    --edge: #1e1e2e;
+    --muted: #3a3a55;
+    --dim: #666688;
+    --text: #c8c8e0;
+    --bright: #e8e8f8;
+    --ghost: rgba(200,200,240,0.06);
+
+    --s1: #1a6fff;   /* sensation — blue */
+    --s2: #ff2e63;   /* emotion — red */
+    --s3: #00cc88;   /* memory — green */
+    --s4: #00c8ff;   /* intelligence — cyan */
+    --s5: #ff8c00;   /* deployment — orange */
+    --gold: #c8a84b;
+    --accent: #00ff9d;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--void);
+    color: var(--text);
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    font-size: 18px;
+    line-height: 1.7;
+    overflow-x: hidden;
+    cursor: crosshair;
+  }
+
+  /* ── GRAIN OVERLAY ── */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='1'/%3E%3C/svg%3E");
+    opacity: 0.03;
+    pointer-events: none;
+    z-index: 1000;
+  }
+
+  /* ── HERO ── */
+  .hero {
+    position: relative;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 80px 40px;
+    overflow: hidden;
+  }
+
+  .hero-bg {
+    position: absolute;
+    inset: 0;
+    background: 
+      radial-gradient(ellipse 60% 50% at 50% 50%, rgba(26,111,255,0.07) 0%, transparent 70%),
+      radial-gradient(ellipse 40% 60% at 20% 80%, rgba(0,204,136,0.04) 0%, transparent 60%),
+      radial-gradient(ellipse 50% 40% at 80% 20%, rgba(255,46,99,0.04) 0%, transparent 60%);
+  }
+
+  .hero-orbit {
+    position: absolute;
+    border-radius: 50%;
+    border: 1px solid rgba(200,200,240,0.04);
+    animation: orbit-spin 40s linear infinite;
+  }
+  .hero-orbit:nth-child(1) { width: 600px; height: 600px; top: 50%; left: 50%; transform: translate(-50%,-50%); animation-duration: 50s; }
+  .hero-orbit:nth-child(2) { width: 900px; height: 900px; top: 50%; left: 50%; transform: translate(-50%,-50%); animation-duration: 80s; animation-direction: reverse; }
+  .hero-orbit:nth-child(3) { width: 1200px; height: 1200px; top: 50%; left: 50%; transform: translate(-50%,-50%); animation-duration: 120s; }
+
+  @keyframes orbit-spin {
+    to { transform: translate(-50%,-50%) rotate(360deg); }
+  }
+
+  .hero-content { position: relative; z-index: 2; max-width: 900px; }
+
+  .ukubona-badge {
+    display: inline-block;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--accent);
+    border: 1px solid rgba(0,255,157,0.3);
+    padding: 6px 16px;
+    border-radius: 2px;
+    margin-bottom: 40px;
+    animation: fade-in 1s ease both;
+  }
+
+  .hero h1 {
+    font-size: clamp(2.8rem, 7vw, 6rem);
+    font-weight: 300;
+    letter-spacing: -0.02em;
+    line-height: 1.1;
+    color: var(--bright);
+    margin-bottom: 20px;
+    animation: fade-up 1s ease 0.2s both;
+  }
+
+  .hero h1 em {
+    font-style: italic;
+    color: var(--gold);
+  }
+
+  .hero-sub {
+    font-size: clamp(1rem, 2vw, 1.25rem);
+    font-weight: 300;
+    color: var(--dim);
+    max-width: 600px;
+    margin: 0 auto 60px;
+    animation: fade-up 1s ease 0.4s both;
+  }
+
+  .stack-preview {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    flex-wrap: wrap;
+    animation: fade-up 1s ease 0.6s both;
+  }
+
+  .stack-pill {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.72rem;
+    padding: 8px 16px;
+    border-radius: 2px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    border: 1px solid;
+    transition: all 0.3s ease;
+    cursor: pointer;
+  }
+  .stack-pill:hover { transform: translateY(-3px); }
+  .pill-1 { color: var(--s1); border-color: rgba(26,111,255,0.3); background: rgba(26,111,255,0.05); }
+  .pill-2 { color: var(--s2); border-color: rgba(255,46,99,0.3); background: rgba(255,46,99,0.05); }
+  .pill-3 { color: var(--s3); border-color: rgba(0,204,136,0.3); background: rgba(0,204,136,0.05); }
+  .pill-4 { color: var(--s4); border-color: rgba(0,200,255,0.3); background: rgba(0,200,255,0.05); }
+  .pill-5 { color: var(--s5); border-color: rgba(255,140,0,0.3); background: rgba(255,140,0,0.05); }
+  .pill-arr { color: var(--muted); border-color: transparent; font-size: 1rem; padding: 8px 4px; }
+
+  @keyframes fade-in { from { opacity: 0; } to { opacity: 1; } }
+  @keyframes fade-up { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+  /* ── SCROLL INDICATOR ── */
+  .scroll-hint {
+    position: absolute;
+    bottom: 40px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.2em;
+    color: var(--muted);
+    animation: pulse 2s ease infinite;
+  }
+  @keyframes pulse { 0%,100% { opacity: 0.4; } 50% { opacity: 1; } }
+
+  /* ── SECTION BASE ── */
+  section {
+    padding: 120px 40px;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  .section-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 16px;
+  }
+
+  h2 {
+    font-size: clamp(1.8rem, 4vw, 3rem);
+    font-weight: 300;
+    color: var(--bright);
+    line-height: 1.2;
+    margin-bottom: 40px;
+  }
+
+  h2 em { font-style: italic; color: var(--gold); }
+
+  p { color: var(--text); margin-bottom: 20px; font-weight: 300; }
+  p strong { color: var(--bright); font-weight: 600; }
+
+  /* ── DIVIDER ── */
+  .divider {
+    width: 100%;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--edge), transparent);
+    margin: 0;
+  }
+
+  /* ── PENTAD DIAGRAM ── */
+  .pentad-wrapper {
+    position: relative;
+    background: var(--deep);
+    border: 1px solid var(--edge);
+    border-radius: 4px;
+    padding: 60px 40px;
+    overflow: hidden;
+  }
+  .pentad-wrapper::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse 80% 60% at 50% 50%, rgba(26,111,255,0.04), transparent);
+  }
+
+  #pentad-svg {
+    width: 100%;
+    max-width: 700px;
+    display: block;
+    margin: 0 auto;
+  }
+
+  .p-node {
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+  .p-node:hover { filter: brightness(1.4) drop-shadow(0 0 12px currentColor); }
+
+  .p-arrow {
+    fill: none;
+    stroke: var(--muted);
+    stroke-width: 1.5;
+    stroke-dasharray: 8 5;
+    animation: dash-flow 4s linear infinite;
+  }
+  @keyframes dash-flow { to { stroke-dashoffset: -52; } }
+
+  /* ── PENTAD NODE CARDS ── */
+  .nodes-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 2px;
+    margin-top: 60px;
+  }
+
+  .node-card {
+    background: var(--deep);
+    border: 1px solid var(--edge);
+    padding: 40px 32px;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.4s ease;
+    cursor: pointer;
+  }
+  .node-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0;
+    width: 3px;
+    height: 100%;
+  }
+  .node-card:hover {
+    transform: translateY(-4px);
+    border-color: var(--muted);
+  }
+  .node-card:hover .node-glow { opacity: 1; }
+
+  .node-glow {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    transition: opacity 0.4s ease;
+  }
+
+  .nc-1::before { background: var(--s1); }
+  .nc-1 .node-glow { background: radial-gradient(ellipse at 20% 20%, rgba(26,111,255,0.08), transparent 60%); }
+  .nc-2::before { background: var(--s2); }
+  .nc-2 .node-glow { background: radial-gradient(ellipse at 20% 20%, rgba(255,46,99,0.08), transparent 60%); }
+  .nc-3::before { background: var(--s3); }
+  .nc-3 .node-glow { background: radial-gradient(ellipse at 20% 20%, rgba(0,204,136,0.08), transparent 60%); }
+  .nc-4::before { background: var(--s4); }
+  .nc-4 .node-glow { background: radial-gradient(ellipse at 20% 20%, rgba(0,200,255,0.08), transparent 60%); }
+  .nc-5::before { background: var(--s5); }
+  .nc-5 .node-glow { background: radial-gradient(ellipse at 20% 20%, rgba(255,140,0,0.08), transparent 60%); }
+
+  .nc-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.2em;
+    color: var(--muted);
+    margin-bottom: 12px;
+  }
+  .nc-title {
+    font-size: 1.5rem;
+    font-weight: 300;
+    color: var(--bright);
+    margin-bottom: 20px;
+    letter-spacing: 0.05em;
+  }
+  .nc-row {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 10px;
+    align-items: baseline;
+  }
+  .nc-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--muted);
+    min-width: 70px;
+    flex-shrink: 0;
+  }
+  .nc-val {
+    font-size: 0.95rem;
+    color: var(--text);
+    font-weight: 300;
+  }
+  .nc-sgd {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.85rem;
+  }
+  .nc-1 .nc-sgd { color: var(--s1); }
+  .nc-2 .nc-sgd { color: var(--s2); }
+  .nc-3 .nc-sgd { color: var(--s3); }
+  .nc-4 .nc-sgd { color: var(--s4); }
+  .nc-5 .nc-sgd { color: var(--s5); }
+  .nc-phil {
+    margin-top: 20px;
+    font-style: italic;
+    font-size: 1rem;
+    color: var(--dim);
+    line-height: 1.5;
+    border-top: 1px solid var(--edge);
+    padding-top: 16px;
+  }
+
+  /* ── QUOTE BLOCK ── */
+  .quote-block {
+    padding: 80px 0;
+    text-align: center;
+  }
+  .quote-text {
+    font-size: clamp(1.6rem, 3.5vw, 2.8rem);
+    font-weight: 300;
+    font-style: italic;
+    color: var(--bright);
+    line-height: 1.3;
+    max-width: 800px;
+    margin: 0 auto 24px;
+  }
+  .quote-attr {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.2em;
+    color: var(--muted);
+  }
+
+  /* ── SGD TABLE ── */
+  .sgd-table-wrap {
+    overflow-x: auto;
+    margin: 40px 0;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.95rem;
+  }
+  thead tr {
+    border-bottom: 1px solid var(--edge);
+  }
+  th {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--muted);
+    padding: 12px 20px;
+    text-align: left;
+    font-weight: 400;
+  }
+  td {
+    padding: 18px 20px;
+    border-bottom: 1px solid rgba(30,30,46,0.8);
+    vertical-align: top;
+    font-weight: 300;
+  }
+  tr:hover td { background: var(--ghost); }
+  .td-phase { color: var(--bright); font-weight: 400; }
+  .td-sgd { font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; }
+  .td-r1 .td-sgd { color: var(--s1); }
+  .td-r2 .td-sgd { color: var(--s2); }
+  .td-r3 .td-sgd { color: var(--s3); }
+  .td-r4 .td-sgd { color: var(--s4); }
+  .td-r5 .td-sgd { color: var(--s5); }
+  .td-uk { font-style: italic; color: var(--dim); }
+
+  /* ── SCALES ── */
+  .scales-row {
+    display: flex;
+    gap: 2px;
+    margin: 40px 0;
+    flex-wrap: wrap;
+  }
+  .scale-box {
+    flex: 1;
+    min-width: 120px;
+    background: var(--deep);
+    border: 1px solid var(--edge);
+    padding: 28px 20px;
+    text-align: center;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+  }
+  .scale-box:hover {
+    border-color: var(--muted);
+    transform: translateY(-4px);
+  }
+  .scale-box::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, var(--s1), var(--s3), var(--s5));
+    transform: scaleX(0);
+    transition: transform 0.3s ease;
+  }
+  .scale-box:hover::after { transform: scaleX(1); }
+  .scale-icon { font-size: 1.6rem; margin-bottom: 10px; }
+  .scale-name {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--dim);
+  }
+
+  /* ── APHORISM STRIP ── */
+  .aphorism-strip {
+    background: var(--surface);
+    border-top: 1px solid var(--edge);
+    border-bottom: 1px solid var(--edge);
+    padding: 60px 40px;
+    text-align: center;
+  }
+  .aphorism-strip p {
+    font-size: clamp(1.2rem, 2.5vw, 2rem);
+    font-style: italic;
+    font-weight: 300;
+    color: var(--bright);
+    max-width: 900px;
+    margin: 0 auto 16px;
+  }
+  .aphorism-strip .by {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.25em;
+    color: var(--muted);
+    font-style: normal;
+  }
+
+  /* ── DICKENS / LOSS SECTION ── */
+  .two-col {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 60px;
+    align-items: start;
+  }
+  @media (max-width: 768px) {
+    .two-col { grid-template-columns: 1fr; gap: 40px; }
+    section { padding: 80px 24px; }
+    .hero { padding: 60px 24px; }
+  }
+
+  .loss-visual {
+    background: var(--deep);
+    border: 1px solid var(--edge);
+    padding: 32px;
+    border-radius: 2px;
+  }
+  .loss-title {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 24px;
+  }
+  .roygbiv {
+    display: flex;
+    height: 8px;
+    border-radius: 2px;
+    overflow: hidden;
+    margin-bottom: 16px;
+  }
+  .roygbiv span { flex: 1; }
+  .heatmap-grid {
+    display: grid;
+    grid-template-columns: repeat(8, 1fr);
+    gap: 3px;
+    margin-top: 24px;
+  }
+  .hm-cell {
+    aspect-ratio: 1;
+    border-radius: 2px;
+    transition: transform 0.2s ease;
+    cursor: pointer;
+  }
+  .hm-cell:hover { transform: scale(1.3); }
+
+  .loss-eq {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.9rem;
+    color: var(--accent);
+    background: var(--void);
+    padding: 20px 24px;
+    border-radius: 2px;
+    margin-top: 24px;
+    border: 1px solid rgba(0,255,157,0.15);
+    line-height: 2;
+  }
+
+  /* ── AI VOICES ── */
+  .voices-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 2px;
+    margin-top: 40px;
+  }
+  .voice-card {
+    background: var(--deep);
+    border: 1px solid var(--edge);
+    padding: 36px 32px;
+    position: relative;
+    overflow: hidden;
+    transition: border-color 0.3s ease;
+  }
+  .voice-card:hover { border-color: var(--muted); }
+  .v-id {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.2em;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .v-dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    display: inline-block;
+  }
+  .voice-card blockquote {
+    font-style: italic;
+    font-size: 1rem;
+    font-weight: 300;
+    color: var(--dim);
+    line-height: 1.6;
+    border-left: 2px solid var(--edge);
+    padding-left: 16px;
+    margin: 0;
+  }
+
+  /* ── CLOSING ── */
+  .closing {
+    min-height: 60vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 120px 40px;
+    background: var(--deep);
+    position: relative;
+    overflow: hidden;
+  }
+  .closing::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse 60% 60% at 50% 50%, rgba(0,255,157,0.04), transparent);
+  }
+  .ukhona {
+    font-size: clamp(3rem, 10vw, 8rem);
+    font-weight: 300;
+    letter-spacing: 0.15em;
+    color: var(--bright);
+    position: relative;
+    animation: glow-pulse 4s ease infinite;
+  }
+  @keyframes glow-pulse {
+    0%,100% { text-shadow: 0 0 40px rgba(0,255,157,0.1); }
+    50% { text-shadow: 0 0 80px rgba(0,255,157,0.2), 0 0 160px rgba(0,255,157,0.05); }
+  }
+  .ukhona-sub {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    letter-spacing: 0.4em;
+    color: var(--muted);
+    margin-top: 20px;
+    text-transform: uppercase;
+  }
+  .loop-closed {
+    margin-top: 60px;
+    font-size: 1.1rem;
+    font-style: italic;
+    color: var(--dim);
+  }
+
+  /* ── TOOLTIP ── */
+  #tooltip {
+    position: fixed;
+    background: rgba(5,5,7,0.98);
+    border: 1px solid var(--edge);
+    color: var(--text);
+    padding: 16px 20px;
+    font-size: 0.88rem;
+    font-weight: 300;
+    pointer-events: none;
+    display: none;
+    z-index: 2000;
+    max-width: 280px;
+    line-height: 1.5;
+    border-radius: 2px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.8);
+  }
+  #tooltip strong {
+    display: block;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 8px;
+    font-weight: 400;
+  }
+
+  /* ── NAV ── */
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 500;
+    padding: 20px 40px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: linear-gradient(to bottom, rgba(5,5,7,0.9), transparent);
+    pointer-events: none;
+  }
+  .nav-logo {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.25em;
+    color: var(--dim);
+    text-transform: uppercase;
+    pointer-events: all;
+  }
+  .nav-tagline {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 0.15em;
+    color: var(--muted);
+    text-transform: uppercase;
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <span class="nav-logo">Ukubona LLC</span>
+  <span class="nav-tagline">To see is to heal</span>
+</nav>
+
+<!-- ── HERO ── -->
+<div class="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-orbit"></div>
+  <div class="hero-orbit"></div>
+  <div class="hero-orbit"></div>
+  <div class="hero-content">
+    <span class="ukubona-badge">Digital Twin Suite</span>
+    <h1>The Strategic<br><em>Mirror</em></h1>
+    <p class="hero-sub">What happens when any system begins to adapt.<br>The pentad is not a framework. It is evolution.</p>
+    <div class="stack-preview">
+      <span class="stack-pill pill-1">Sensation</span>
+      <span class="stack-pill pill-arr">→</span>
+      <span class="stack-pill pill-2">Emotion</span>
+      <span class="stack-pill pill-arr">→</span>
+      <span class="stack-pill pill-3">Memory</span>
+      <span class="stack-pill pill-arr">→</span>
+      <span class="stack-pill pill-4">Intelligence</span>
+      <span class="stack-pill pill-arr">→</span>
+      <span class="stack-pill pill-5">Deployment</span>
+    </div>
+  </div>
+  <div class="scroll-hint">↓ &nbsp; scroll to descend</div>
+</div>
+
+<div class="divider"></div>
+
+<!-- ── PENTAD DIAGRAM ── -->
+<section>
+  <p class="section-label">01 — The Pentadic Architecture</p>
+  <h2>Five phases.<br><em>One loop.</em></h2>
+  <p>An evolutionary stack that scales from molecular ligands to civilizational policy. Sensation is representation of the world. Deployment is the imposition of will upon it — the will-to-power, in Nietzsche's sense. Terraforming.</p>
+
+  <div class="pentad-wrapper">
+    <svg id="pentad-svg" viewBox="0 0 600 580">
+      <defs>
+        <marker id="ah" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+          <polygon points="0 0, 8 3, 0 6" fill="#3a3a55"/>
+        </marker>
+      </defs>
+
+      <!-- Center ring -->
+      <circle cx="300" cy="290" r="80" fill="none" stroke="#1e1e2e" stroke-width="1.5"/>
+      <circle cx="300" cy="290" r="50" fill="none" stroke="#13131c" stroke-width="1"/>
+      <text x="300" y="280" text-anchor="middle" fill="#3a3a55" font-family="'JetBrains Mono',monospace" font-size="9" letter-spacing="2">INDIVIDUAL</text>
+      <text x="300" y="296" text-anchor="middle" fill="#2a2a3a" font-family="'JetBrains Mono',monospace" font-size="8" letter-spacing="1">HOUSEHOLD</text>
+      <text x="300" y="310" text-anchor="middle" fill="#222230" font-family="'JetBrains Mono',monospace" font-size="8" letter-spacing="1">CIVILIZATION</text>
+
+      <!-- Curved arrows (clockwise pentagon) -->
+      <!-- 1→2 -->
+      <path class="p-arrow" d="M 347 108 Q 460 120 498 197" marker-end="url(#ah)"/>
+      <!-- 2→3 -->
+      <path class="p-arrow" d="M 512 253 Q 530 360 468 438" marker-end="url(#ah)"/>
+      <!-- 3→4 -->
+      <path class="p-arrow" d="M 410 468 Q 300 510 190 468" marker-end="url(#ah)"/>
+      <!-- 4→5 -->
+      <path class="p-arrow" d="M 132 438 Q 70 360 88 253" marker-end="url(#ah)"/>
+      <!-- 5→1 -->
+      <path class="p-arrow" d="M 102 197 Q 140 120 253 108" marker-end="url(#ah)"/>
+
+      <!-- Node 1: Sensation (top) -->
+      <g class="p-node" id="pn1" data-tip="Sensation|θ (Current State / Prior)|Sensory receptors, ligands, cortex|To see, blindly. Raw representation of the world.">
+        <circle cx="300" cy="90" r="55" fill="#050a1a" stroke="#1a6fff" stroke-width="2"/>
+        <circle cx="300" cy="90" r="44" fill="none" stroke="rgba(26,111,255,0.2)" stroke-width="1"/>
+        <text x="300" y="84" text-anchor="middle" fill="#1a6fff" font-family="'JetBrains Mono',monospace" font-size="9" letter-spacing="2">01</text>
+        <text x="300" y="102" text-anchor="middle" fill="#c8c8e0" font-size="13" font-family="'Cormorant Garamond',serif" font-weight="300" letter-spacing="1">Sensation</text>
+      </g>
+
+      <!-- Node 2: Emotion (upper right) -->
+      <g class="p-node" id="pn2" data-tip="Emotion|L(θ) — Loss / Salience|Limbic system, amygdala|ROYGBIV heatmap. What hurts? Attention before thought.">
+        <circle cx="510" cy="225" r="55" fill="#1a0510" stroke="#ff2e63" stroke-width="2"/>
+        <circle cx="510" cy="225" r="44" fill="none" stroke="rgba(255,46,99,0.2)" stroke-width="1"/>
+        <text x="510" y="219" text-anchor="middle" fill="#ff2e63" font-family="'JetBrains Mono',monospace" font-size="9" letter-spacing="2">02</text>
+        <text x="510" y="237" text-anchor="middle" fill="#c8c8e0" font-size="13" font-family="'Cormorant Garamond',serif" font-weight="300" letter-spacing="1">Emotion</text>
+      </g>
+
+      <!-- Node 3: Memory (lower right) -->
+      <g class="p-node" id="pn3" data-tip="Memory|∇L(θ) — The Gradient|Hippocampus, stored experience|The Why. Compressing past pain into direction.">
+        <circle cx="440" cy="450" r="55" fill="#001a0e" stroke="#00cc88" stroke-width="2"/>
+        <circle cx="440" cy="450" r="44" fill="none" stroke="rgba(0,204,136,0.2)" stroke-width="1"/>
+        <text x="440" y="444" text-anchor="middle" fill="#00cc88" font-family="'JetBrains Mono',monospace" font-size="9" letter-spacing="2">03</text>
+        <text x="440" y="462" text-anchor="middle" fill="#c8c8e0" font-size="13" font-family="'Cormorant Garamond',serif" font-weight="300" letter-spacing="1">Memory</text>
+      </g>
+
+      <!-- Node 4: Intelligence (lower left) -->
+      <g class="p-node" id="pn4" data-tip="Intelligence|−η∇L — Simulated Step|Prefrontal cortex, planning|Google Maps: calculate routes before committing fuel.">
+        <circle cx="160" cy="450" r="55" fill="#001218" stroke="#00c8ff" stroke-width="2"/>
+        <circle cx="160" cy="450" r="44" fill="none" stroke="rgba(0,200,255,0.2)" stroke-width="1"/>
+        <text x="160" y="444" text-anchor="middle" fill="#00c8ff" font-family="'JetBrains Mono',monospace" font-size="9" letter-spacing="2">04</text>
+        <text x="160" y="462" text-anchor="middle" fill="#c8c8e0" font-size="12" font-family="'Cormorant Garamond',serif" font-weight="300" letter-spacing="1">Intelligence</text>
+      </g>
+
+      <!-- Node 5: Deployment (upper left) -->
+      <g class="p-node" id="pn5" data-tip="Deployment|θ′ — Updated State|Motor system, actuators, policy|Will-to-Power. Terraforming. The loop closes.">
+        <circle cx="90" cy="225" r="55" fill="#1a0800" stroke="#ff8c00" stroke-width="2"/>
+        <circle cx="90" cy="225" r="44" fill="none" stroke="rgba(255,140,0,0.2)" stroke-width="1"/>
+        <text x="90" y="219" text-anchor="middle" fill="#ff8c00" font-family="'JetBrains Mono',monospace" font-size="9" letter-spacing="2">05</text>
+        <text x="90" y="237" text-anchor="middle" fill="#c8c8e0" font-size="12" font-family="'Cormorant Garamond',serif" font-weight="300" letter-spacing="1">Deployment</text>
+      </g>
+
+      <!-- SGD labels (outer) -->
+      <text x="300" y="22" text-anchor="middle" fill="#1a3060" font-family="'JetBrains Mono',monospace" font-size="8">θ</text>
+      <text x="575" y="225" text-anchor="middle" fill="#601020" font-family="'JetBrains Mono',monospace" font-size="8">L(θ)</text>
+      <text x="510" y="545" text-anchor="middle" fill="#004030" font-family="'JetBrains Mono',monospace" font-size="8">∇L(θ)</text>
+      <text x="90" y="545" text-anchor="middle" fill="#003040" font-family="'JetBrains Mono',monospace" font-size="8">−η∇L</text>
+      <text x="25" y="225" text-anchor="middle" fill="#603000" font-family="'JetBrains Mono',monospace" font-size="8">θ′</text>
+    </svg>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ── NODE CARDS ── -->
+<section>
+  <p class="section-label">02 — Phase Breakdown</p>
+  <h2>Biology. Mathematics.<br><em>Philosophy.</em></h2>
+  <div class="nodes-grid">
+
+    <div class="node-card nc-1">
+      <div class="node-glow"></div>
+      <div class="nc-num">01 — SENSATION</div>
+      <div class="nc-title">World Representation</div>
+      <div class="nc-row"><span class="nc-label">Biology</span><span class="nc-val">Receptors, molecular ligands, sensory cortex</span></div>
+      <div class="nc-row"><span class="nc-label">SGD</span><span class="nc-val nc-sgd">θ &nbsp;— Current State / Prior</span></div>
+      <div class="nc-row"><span class="nc-label">Twin</span><span class="nc-val">Data ingestion, sensors, embeddings, baseline priors β</span></div>
+      <p class="nc-phil">"Grounding must precede reasoning. Without raw sensation, the downstream model hallucinates."</p>
+    </div>
+
+    <div class="node-card nc-2">
+      <div class="node-glow"></div>
+      <div class="nc-num">02 — EMOTION</div>
+      <div class="nc-title">Salience Filter</div>
+      <div class="nc-row"><span class="nc-label">Biology</span><span class="nc-val">Limbic system, immediate behavioral response</span></div>
+      <div class="nc-row"><span class="nc-label">SGD</span><span class="nc-val nc-sgd">L(θ) — Loss / Heatmap</span></div>
+      <div class="nc-row"><span class="nc-label">Twin</span><span class="nc-val">ROYGBIV heatmap. Attention weights Σwᵢθᵢ</span></div>
+      <p class="nc-phil">"Not feelings. The cheapest, highest-leverage attention mechanism evolution ever built. Biology solved this with pain before transformers invented softmax."</p>
+    </div>
+
+    <div class="node-card nc-3">
+      <div class="node-glow"></div>
+      <div class="nc-num">03 — MEMORY</div>
+      <div class="nc-title">The Gradient</div>
+      <div class="nc-row"><span class="nc-label">Biology</span><span class="nc-val">Hippocampus, stored experience</span></div>
+      <div class="nc-row"><span class="nc-label">SGD</span><span class="nc-val nc-sgd">∇L(θ) — The Why</span></div>
+      <div class="nc-row"><span class="nc-label">Twin</span><span class="nc-val">Vector memory. Patterns of what mattered.</span></div>
+      <p class="nc-phil">"The heatmap shows what is broken. The gradient shows where to push. Emotion without memory is panic. Memory without emotion is trivia."</p>
+    </div>
+
+    <div class="node-card nc-4">
+      <div class="node-glow"></div>
+      <div class="nc-num">04 — INTELLIGENCE</div>
+      <div class="nc-title">Simulated Step</div>
+      <div class="nc-row"><span class="nc-label">Biology</span><span class="nc-val">Prefrontal cortex, planning</span></div>
+      <div class="nc-row"><span class="nc-label">SGD</span><span class="nc-val nc-sgd">−η∇L — Rehearsal</span></div>
+      <div class="nc-row"><span class="nc-label">Twin</span><span class="nc-val">Synthetic data rehearsal. Calculate all routes before choosing.</span></div>
+      <p class="nc-phil">"The metabolically expensive layer. Google Maps doesn't route you — it calculates every path before you move. Rehearse the consequence. Then commit the energy."</p>
+    </div>
+
+    <div class="node-card nc-5">
+      <div class="node-glow"></div>
+      <div class="nc-num">05 — DEPLOYMENT</div>
+      <div class="nc-title">Will-to-Power</div>
+      <div class="nc-row"><span class="nc-label">Biology</span><span class="nc-val">Motor system, coordinated action</span></div>
+      <div class="nc-row"><span class="nc-label">SGD</span><span class="nc-val nc-sgd">θ′ — Terraform</span></div>
+      <div class="nc-row"><span class="nc-label">Twin</span><span class="nc-val">Actuators, institutional policy, f(σ)</span></div>
+      <p class="nc-phil">"Not a report. A measurably different system. The imposition of the internal model onto the external environment. The loop is closed."</p>
+    </div>
+
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ── SGD TABLE ── -->
+<section>
+  <p class="section-label">03 — The Mathematics of Adaptation</p>
+  <h2>The pentad as<br><em>gradient descent.</em></h2>
+  <p>Every adaptive system — a neuron, a company, a civilization — runs this loop. The Digital Twin makes it computable. The strategic mirror makes it legible.</p>
+
+  <div class="sgd-table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Phase</th>
+          <th>SGD Operator</th>
+          <th>Ukubona Interpretation</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr class="td-r1">
+          <td class="td-phase">Sensation</td>
+          <td class="td-sgd">θ — Current State</td>
+          <td class="td-uk">"To see, blindly." Data exists but is uncomputed. The prior.</td>
+        </tr>
+        <tr class="td-r2">
+          <td class="td-phase">Emotion</td>
+          <td class="td-sgd">L(θ) — The Loss</td>
+          <td class="td-uk">ROYGBIV heatmap. Red = high loss. Salience through pain.</td>
+        </tr>
+        <tr class="td-r3">
+          <td class="td-phase">Memory</td>
+          <td class="td-sgd">∇L(θ) — Gradient</td>
+          <td class="td-uk">"The Why." Compressing past errors into a direction.</td>
+        </tr>
+        <tr class="td-r4">
+          <td class="td-phase">Intelligence</td>
+          <td class="td-sgd">−η∇L — The Step</td>
+          <td class="td-uk">Synthetic rehearsal. Simulate the update before committing.</td>
+        </tr>
+        <tr class="td-r5">
+          <td class="td-phase">Deployment</td>
+          <td class="td-sgd">θ′ — Updated State</td>
+          <td class="td-uk">Terraforming. The will-to-power made executable.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ── APHORISM ── -->
+<div class="aphorism-strip">
+  <p>"I would like to say in one sentence what others say — fail to say — in a book."</p>
+  <span class="by">— Friedrich Nietzsche</span>
+</div>
+
+<div class="divider"></div>
+
+<!-- ── LOSS FUNCTION + DICKENS ── -->
+<section>
+  <p class="section-label">04 — The Composite Loss Function</p>
+  <h2>What Dickens showed.<br><em>What the dashboard proves.</em></h2>
+
+  <div class="two-col">
+    <div>
+      <p>Capitalism optimizes for a single variable: capital gains. Charles Dickens wrote <em>Hard Times</em>, <em>Oliver Twist</em>, <em>Bleak House</em> — devastating critiques of this single-variable optimization — at the <strong>peak of Victorian capitalism</strong>, beloved by the very class they indicted.</p>
+      <p>Nobody called him a communist. They called him a <strong>moralist</strong>. Why? Because he made the loss function visible through <em>narrative</em> rather than algebra. Same diagnosis. Different deployment strategy.</p>
+      <p>Ukubona's move: <strong>what if we gave Dickens a dashboard?</strong></p>
+      <p>The real provocation is not "capitalism is wrong." It is far more threatening: <em>here is exactly what your system is optimizing for, measured, in real time.</em></p>
+      <p>That is what makes legibility dangerous to certain interests. Not the politics — the <strong>visibility</strong>.</p>
+    </div>
+    <div>
+      <div class="loss-visual">
+        <div class="loss-title">Composite Loss Function — L(θ)</div>
+        <div class="roygbiv">
+          <span style="background:#ff0000"></span>
+          <span style="background:#ff6600"></span>
+          <span style="background:#ffcc00"></span>
+          <span style="background:#aacc00"></span>
+          <span style="background:#00cc44"></span>
+          <span style="background:#0066ff"></span>
+          <span style="background:#6600cc"></span>
+        </div>
+        <div style="display:flex;justify-content:space-between;font-family:'JetBrains Mono',monospace;font-size:0.6rem;color:var(--muted);margin-bottom:8px;">
+          <span>HIGH LOSS</span><span>LOW LOSS</span>
+        </div>
+        <div class="heatmap-grid" id="heatmap"></div>
+        <div class="loss-eq">
+          L(θ) = α·Wellbeing<br>
+          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+ β·Sustainability<br>
+          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+ γ·Capital<br>
+          <span style="color:var(--muted);font-size:0.75rem">α, β, γ are the contested weights.<br>This is where politics lives.</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ── SCALES ── -->
+<section>
+  <p class="section-label">05 — Five Scales of Application</p>
+  <h2>Same loop.<br><em>Every level.</em></h2>
+  <p>The pentad applies identically whether the system being optimized is a single metabolic state, a household budget, a firm's strategy, a government's policy, or civilization's algorithm.</p>
+  <div class="scales-row">
+    <div class="scale-box">
+      <div class="scale-icon">◉</div>
+      <div class="scale-name">Individual</div>
+    </div>
+    <div class="scale-box">
+      <div class="scale-icon">◎</div>
+      <div class="scale-name">Household</div>
+    </div>
+    <div class="scale-box">
+      <div class="scale-icon">◈</div>
+      <div class="scale-name">Firm</div>
+    </div>
+    <div class="scale-box">
+      <div class="scale-icon">◇</div>
+      <div class="scale-name">Government</div>
+    </div>
+    <div class="scale-box">
+      <div class="scale-icon">◯</div>
+      <div class="scale-name">Civilization</div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ── AI LOOP ── -->
+<section>
+  <p class="section-label">06 — The Epistemic Experiment</p>
+  <h2>The pentad running<br><em>on the AIs themselves.</em></h2>
+  <p>Five frontier models were fed the same epistemically booby-trapped material. Each traversed the full stack — sensation, salience, recall, synthesis, deployment. The U→G→O→A→X loop was the pentad as live demonstration.</p>
+  <div class="voices-grid">
+    <div class="voice-card">
+      <div class="v-id"><span class="v-dot" style="background:#4285f4"></span><span style="color:#4285f4;font-family:'JetBrains Mono',monospace;font-size:0.65rem;letter-spacing:0.15em">GEMINI</span></div>
+      <blockquote>"You're essentially building a digital architecture out of the exact same stack that evolution used to build us."</blockquote>
+    </div>
+    <div class="voice-card">
+      <div class="v-id"><span class="v-dot" style="background:#10a37f"></span><span style="color:#10a37f;font-family:'JetBrains Mono',monospace;font-size:0.65rem;letter-spacing:0.15em">OPENAI</span></div>
+      <blockquote>"It's effectively a computable Nietzschean cycle, turning subjective concepts like 'imposing will' into measurable, iterative system updates."</blockquote>
+    </div>
+    <div class="voice-card">
+      <div class="v-id"><span class="v-dot" style="background:#c8a84b"></span><span style="color:#c8a84b;font-family:'JetBrains Mono',monospace;font-size:0.65rem;letter-spacing:0.15em">ANTHROPIC</span></div>
+      <blockquote>"The real provocation isn't 'capitalism is wrong.' It's far more threatening: here is exactly what your system is optimizing for, measured, in real time."</blockquote>
+    </div>
+    <div class="voice-card">
+      <div class="v-id"><span class="v-dot" style="background:#ff2e63"></span><span style="color:#ff2e63;font-family:'JetBrains Mono',monospace;font-size:0.65rem;letter-spacing:0.15em">XAI / GROK</span></div>
+      <blockquote>"Framing neurodivergence as the species-level exploration term is both mathematically clean and humane. No valorization, just utility in the optimization loop."</blockquote>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ── QUOTE BLOCK ── -->
+<section>
+  <div class="quote-block">
+    <p class="quote-text">"The colony doesn't need the theory. It needs the artifact. The Digital Twin is that artifact — the pheromone trail that turns a complex philosophical descent into a computable, navigable path."</p>
+    <span class="quote-attr">— Ukubona LLC &nbsp;·&nbsp; Digital Twin Suite Declaration</span>
+  </div>
+</section>
+
+<!-- ── CLOSING ── -->
+<div class="closing">
+  <div class="ukhona">Ukhona.</div>
+  <div class="ukhona-sub">You are here &nbsp;·&nbsp; The loop is closed &nbsp;·&nbsp; To see is to heal</div>
+  <p class="loop-closed">Sensation → Emotion → Memory → Intelligence → Deployment → θ′</p>
+</div>
+
+<div id="tooltip"></div>
+
+<script>
+  // ── Tooltip for pentad nodes ──
+  const tip = document.getElementById('tooltip');
+  document.querySelectorAll('.p-node').forEach(n => {
+    n.addEventListener('mousemove', e => {
+      const parts = n.dataset.tip.split('|');
+      tip.style.display = 'block';
+      tip.style.left = (e.clientX + 20) + 'px';
+      tip.style.top = (e.clientY - 10) + 'px';
+      tip.innerHTML = `<strong>${parts[0]}</strong>
+        <div style="margin-bottom:6px;font-family:'JetBrains Mono',monospace;font-size:0.75rem;color:var(--accent)">${parts[1]}</div>
+        <div style="margin-bottom:4px;color:var(--dim);font-size:0.85rem">${parts[2]}</div>
+        <div style="font-style:italic;color:var(--text);font-size:0.9rem">${parts[3]}</div>`;
+    });
+    n.addEventListener('mouseleave', () => tip.style.display = 'none');
+  });
+
+  // ── Heatmap generation ──
+  const hm = document.getElementById('heatmap');
+  const colors = [
+    '#ff0000','#ff2200','#ff4400','#ff6600','#ff8800',
+    '#ffaa00','#ffcc00','#ddcc00','#bbcc00','#99cc00',
+    '#77cc00','#55bb00','#33aa00','#119900','#008844',
+    '#006644','#004488','#0022aa','#0000cc','#220088',
+    '#440066','#660044','#332244','#111122','#0a0a14',
+    '#0c1020','#0f1428','#121830','#151c38','#181f40',
+    '#0d1535','#0a1228'
+  ];
+  for (let i = 0; i < 32; i++) {
+    const c = document.createElement('div');
+    c.className = 'hm-cell';
+    const ci = Math.floor((i / 31) * (colors.length - 1));
+    c.style.background = colors[ci];
+    c.title = i < 12 ? 'High loss — intervention needed' : i < 22 ? 'Moderate — monitor' : 'Low loss — stable';
+    hm.appendChild(c);
+  }
+
+  // ── Subtle parallax on hero orbits ──
+  window.addEventListener('mousemove', e => {
+    const ox = (e.clientX / window.innerWidth - 0.5) * 20;
+    const oy = (e.clientY / window.innerHeight - 0.5) * 20;
+    document.querySelectorAll('.hero-orbit').forEach((o, i) => {
+      const f = (i + 1) * 0.3;
+      o.style.transform = `translate(calc(-50% + ${ox*f}px), calc(-50% + ${oy*f}px))`;
+    });
+  });
+</script>
+</body>
+</html>

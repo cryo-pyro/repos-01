@@ -1,0 +1,1043 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Governance-Aware Loss · Clinical Digital Twin · Ukubona LLC</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=Source+Serif+4:ital,opsz,wght@0,8..60,300;0,8..60,400;0,8..60,600;1,8..60,300;1,8..60,400&family=IBM+Plex+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0d0d0f;
+    --surface: #141418;
+    --surface2: #1a1a20;
+    --border: rgba(255,255,255,0.07);
+    --text: #e8e6e0;
+    --text-dim: #8a8780;
+    --text-muted: #4a4845;
+    --gold: #c9a84c;
+    --gold-dim: rgba(201,168,76,0.15);
+    --red: #c0392b;
+    --red-dim: rgba(192,57,43,0.12);
+    --blue: #2e6da4;
+    --blue-dim: rgba(46,109,164,0.12);
+    --green: #27ae60;
+    --green-dim: rgba(39,174,96,0.1);
+    --orange: #e67e22;
+    --orange-dim: rgba(230,126,34,0.12);
+    --accent: #7c6fcd;
+    --accent-dim: rgba(124,111,205,0.1);
+
+    /* five-voice colors */
+    --voice-u: #c9a84c;
+    --voice-g: #2e6da4;
+    --voice-o: #c0392b;
+    --voice-a: #27ae60;
+    --voice-x: #7c6fcd;
+  }
+
+  [data-theme="light"] {
+    --bg: #f7f5f0;
+    --surface: #ffffff;
+    --surface2: #f0ece4;
+    --border: rgba(0,0,0,0.08);
+    --text: #1a1814;
+    --text-dim: #5a5650;
+    --text-muted: #9a9890;
+    --gold-dim: rgba(160,120,20,0.08);
+    --red-dim: rgba(192,57,43,0.06);
+    --blue-dim: rgba(46,109,164,0.06);
+    --green-dim: rgba(39,174,96,0.06);
+    --orange-dim: rgba(230,126,34,0.06);
+    --accent-dim: rgba(100,90,180,0.06);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Source Serif 4', Georgia, serif;
+    font-size: 17px;
+    line-height: 1.75;
+    transition: background 0.3s, color 0.3s;
+  }
+
+  /* ── THEME TOGGLE ── */
+  .theme-toggle {
+    position: fixed;
+    top: 1.25rem;
+    right: 1.25rem;
+    z-index: 100;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--text-dim);
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.08em;
+    padding: 0.4rem 0.75rem;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .theme-toggle:hover { color: var(--gold); border-color: var(--gold); }
+
+  /* ── LAYOUT ── */
+  .page { max-width: 780px; margin: 0 auto; padding: 0 2rem 6rem; }
+
+  /* ── MASTHEAD ── */
+  .masthead {
+    padding: 3.5rem 0 2rem;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 0.5rem;
+  }
+  .brand {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.72rem;
+    letter-spacing: 0.14em;
+    color: var(--gold);
+    text-transform: uppercase;
+    margin-bottom: 1rem;
+  }
+  .doc-id {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.68rem;
+    letter-spacing: 0.1em;
+    color: var(--text-muted);
+  }
+
+  /* ── CHAIN (five-voice bar) ── */
+  .chain {
+    display: flex;
+    gap: 0;
+    margin: 1.5rem 0 2rem;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.68rem;
+    letter-spacing: 0.06em;
+    overflow: hidden;
+    border: 1px solid var(--border);
+  }
+  .chain-node {
+    flex: 1;
+    padding: 0.55rem 0.5rem;
+    text-align: center;
+    color: rgba(255,255,255,0.7);
+    font-weight: 500;
+  }
+  .cn-u { background: rgba(201,168,76,0.18); color: var(--voice-u); }
+  .cn-g { background: rgba(46,109,164,0.18); color: var(--voice-g); }
+  .cn-o { background: rgba(192,57,43,0.18); color: var(--voice-o); }
+  .cn-a { background: rgba(39,174,96,0.18); color: var(--voice-a); }
+  .cn-x { background: rgba(124,111,205,0.18); color: var(--voice-x); }
+  [data-theme="light"] .chain-node { color: rgba(0,0,0,0.7); }
+
+  /* ── TITLE ── */
+  h1.title {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-size: clamp(1.6rem, 4vw, 2.4rem);
+    font-weight: 900;
+    line-height: 1.2;
+    color: var(--text);
+    margin-bottom: 0.6rem;
+  }
+  .subtitle {
+    font-family: 'Source Serif 4', serif;
+    font-style: italic;
+    font-size: 1.05rem;
+    color: var(--text-dim);
+    margin-bottom: 2rem;
+    font-weight: 300;
+  }
+
+  /* ── SEC RULE ── */
+  .sec-rule {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin: 3rem 0 1.5rem;
+  }
+  .sec-num {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.68rem;
+    letter-spacing: 0.12em;
+    color: var(--gold);
+    white-space: nowrap;
+  }
+  .sec-line {
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  /* ── SECTIONS ── */
+  h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.35rem;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 1rem;
+    line-height: 1.3;
+  }
+  h3 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.05rem;
+    font-weight: 700;
+    font-style: italic;
+    color: var(--text-dim);
+    margin: 1.5rem 0 0.6rem;
+  }
+  p { margin-bottom: 1rem; }
+
+  /* ── EQUATION BLOCKS ── */
+  .eq-block {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--gold);
+    padding: 1.25rem 1.5rem;
+    margin: 1.5rem 0;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.88rem;
+    line-height: 1.9;
+    overflow-x: auto;
+  }
+  .eq-block .eq-label {
+    font-size: 0.62rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--gold);
+    display: block;
+    margin-bottom: 0.5rem;
+  }
+  .eq-block .eq-math {
+    color: var(--text);
+    font-weight: 400;
+  }
+  .eq-block .eq-sub {
+    font-size: 0.78rem;
+    color: var(--text-dim);
+    margin-top: 0.4rem;
+  }
+
+  /* ── PENTAD STRIP ── */
+  .pentad-strip {
+    display: flex;
+    align-items: stretch;
+    gap: 0;
+    margin: 2rem 0;
+    border: 1px solid var(--border);
+    overflow: hidden;
+  }
+  .pentad-stage {
+    flex: 1;
+    padding: 1rem 0.75rem;
+    text-align: center;
+    border-right: 1px solid var(--border);
+    position: relative;
+  }
+  .pentad-stage:last-child { border-right: none; }
+  .ps-symbol {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 1.1rem;
+    font-weight: 500;
+    display: block;
+    margin-bottom: 0.35rem;
+  }
+  .ps-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.62rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    display: block;
+    margin-bottom: 0.3rem;
+  }
+  .ps-bio {
+    font-family: 'Source Serif 4', serif;
+    font-size: 0.72rem;
+    font-style: italic;
+    color: var(--text-muted);
+  }
+  .ps-θ  { background: var(--blue-dim);   border-top: 2px solid var(--blue); }
+  .ps-L  { background: var(--red-dim);    border-top: 2px solid var(--red); }
+  .ps-∇L { background: var(--orange-dim); border-top: 2px solid var(--orange); }
+  .ps-a  { background: var(--gold-dim);   border-top: 2px solid var(--gold); }
+  .ps-θp { background: var(--green-dim);  border-top: 2px solid var(--green); }
+  .ps-θ .ps-symbol  { color: var(--blue); }
+  .ps-L .ps-symbol  { color: var(--red); }
+  .ps-∇L .ps-symbol { color: var(--orange); }
+  .ps-a .ps-symbol  { color: var(--gold); }
+  .ps-θp .ps-symbol { color: var(--green); }
+
+  /* ── STACK VIS (governance table) ── */
+  .stack-vis {
+    margin: 1.5rem 0;
+    border: 1px solid var(--border);
+    overflow: hidden;
+  }
+  .sv-header {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr 1fr;
+    background: var(--surface2);
+    border-bottom: 1px solid var(--border);
+  }
+  .sv-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr 1fr;
+    border-bottom: 1px solid var(--border);
+  }
+  .sv-row:last-child { border-bottom: none; }
+  .sv-cell {
+    padding: 0.75rem 1rem;
+    font-size: 0.83rem;
+    line-height: 1.45;
+    border-right: 1px solid var(--border);
+  }
+  .sv-cell:last-child { border-right: none; }
+  .sv-header .sv-cell {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--gold);
+    font-weight: 500;
+  }
+  .sv-mono {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.78rem;
+    color: var(--text-dim);
+  }
+  .sv-tag-blue  { color: var(--blue); font-family: 'IBM Plex Mono', monospace; font-size: 0.78rem; }
+  .sv-tag-red   { color: var(--red); font-family: 'IBM Plex Mono', monospace; font-size: 0.78rem; }
+  .sv-tag-gold  { color: var(--gold); font-family: 'IBM Plex Mono', monospace; font-size: 0.78rem; }
+  .sv-tag-green { color: var(--green); font-family: 'IBM Plex Mono', monospace; font-size: 0.78rem; }
+  .sv-tag-acc   { color: var(--accent); font-family: 'IBM Plex Mono', monospace; font-size: 0.78rem; }
+
+  /* ── CIPHER GRID (equation decomposition) ── */
+  .cipher-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1px;
+    background: var(--border);
+    border: 1px solid var(--border);
+    margin: 1.5rem 0;
+  }
+  .cg-cell {
+    background: var(--surface);
+    padding: 1.1rem 1.25rem;
+  }
+  .cg-term {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 1rem;
+    font-weight: 500;
+    display: block;
+    margin-bottom: 0.35rem;
+  }
+  .cg-bio {
+    font-size: 0.78rem;
+    font-style: italic;
+    color: var(--text-dim);
+    margin-bottom: 0.35rem;
+    display: block;
+  }
+  .cg-gov {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    font-family: 'IBM Plex Mono', monospace;
+  }
+  .cg-β  { border-top: 2px solid var(--blue); }
+  .cg-w  { border-top: 2px solid var(--orange); }
+  .cg-ε  { border-top: 2px solid var(--red); }
+  .cg-R  { border-top: 2px solid var(--accent); }
+  .cg-β .cg-term  { color: var(--blue); }
+  .cg-w .cg-term  { color: var(--orange); }
+  .cg-ε .cg-term  { color: var(--red); }
+  .cg-R .cg-term  { color: var(--accent); }
+
+  /* ── MODEL STAMP ── */
+  .model-stamp {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    padding: 1.25rem 1.5rem;
+    margin: 2rem 0;
+    display: flex;
+    gap: 1.5rem;
+    align-items: flex-start;
+  }
+  .ms-icon {
+    font-size: 1.8rem;
+    flex-shrink: 0;
+    margin-top: 0.1rem;
+  }
+  .ms-body { flex: 1; }
+  .ms-title {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 0.4rem;
+  }
+  .ms-text {
+    font-size: 0.9rem;
+    color: var(--text-dim);
+    line-height: 1.6;
+  }
+
+  /* ── PASSCODE VIZ ── */
+  .passcode-viz {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.78rem;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    padding: 1.2rem 1.5rem;
+    margin: 1.5rem 0;
+    line-height: 2;
+    overflow-x: auto;
+  }
+  .pv-gate    { color: var(--gold); }
+    .pv-open  { color: var(--green); }
+    .pv-close { color: var(--red); }
+    .pv-val   { color: var(--accent); }
+    .pv-dim   { color: var(--text-muted); }
+
+  /* ── SCROLL FADE ── */
+  .fade-in {
+    opacity: 0;
+    transform: translateY(18px);
+    transition: opacity 0.55s ease, transform 0.55s ease;
+  }
+  .fade-in.visible {
+    opacity: 1;
+    transform: none;
+  }
+
+  /* ── FOOTER ── */
+  footer {
+    margin-top: 5rem;
+    padding-top: 2rem;
+    border-top: 1px solid var(--border);
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.68rem;
+    letter-spacing: 0.07em;
+    color: var(--text-muted);
+    line-height: 1.9;
+  }
+
+  /* ── HIGHLIGHT BLOCK ── */
+  .insight-block {
+    background: var(--gold-dim);
+    border: 1px solid rgba(201,168,76,0.2);
+    border-left: 3px solid var(--gold);
+    padding: 1.1rem 1.5rem;
+    margin: 1.75rem 0;
+    font-style: italic;
+    color: var(--text-dim);
+    font-size: 0.95rem;
+  }
+
+  .voice-tag {
+    display: inline-block;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.1em;
+    font-style: normal;
+    padding: 0.15rem 0.55rem;
+    margin-right: 0.5rem;
+    font-weight: 500;
+  }
+  .vt-u { background: rgba(201,168,76,0.15); color: var(--voice-u); }
+  .vt-g { background: rgba(46,109,164,0.15); color: var(--voice-g); }
+  .vt-o { background: rgba(192,57,43,0.15); color: var(--voice-o); }
+  .vt-a { background: rgba(39,174,96,0.15); color: var(--voice-a); }
+  .vt-x { background: rgba(124,111,205,0.15); color: var(--voice-x); }
+
+  /* loop diagram */
+  .loop-diagram {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.78rem;
+    line-height: 2.1;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    padding: 1.5rem 2rem;
+    margin: 1.75rem 0;
+    overflow-x: auto;
+    white-space: pre;
+    color: var(--text-dim);
+  }
+  .ld-θ  { color: var(--blue); }
+  .ld-L  { color: var(--red); }
+  .ld-∇  { color: var(--orange); }
+  .ld-a  { color: var(--gold); }
+  .ld-θp { color: var(--green); }
+  .ld-gov { color: var(--accent); }
+
+  @media (max-width: 600px) {
+    .pentad-strip { flex-wrap: wrap; }
+    .pentad-stage { min-width: 48%; border-bottom: 1px solid var(--border); }
+    .cipher-grid { grid-template-columns: 1fr; }
+    .sv-header, .sv-row { grid-template-columns: 1fr 1fr; }
+    .sv-row .sv-cell:nth-child(3),
+    .sv-row .sv-cell:nth-child(4),
+    .sv-header .sv-cell:nth-child(3),
+    .sv-header .sv-cell:nth-child(4) { display: none; }
+    .model-stamp { flex-direction: column; gap: 0.75rem; }
+  }
+</style>
+</head>
+<body>
+
+<button class="theme-toggle" onclick="toggleTheme()">◐ toggle</button>
+
+<div class="page">
+
+  <!-- MASTHEAD -->
+  <header class="masthead fade-in">
+    <div class="brand">Ukubona LLC · Clinical Digital Twin</div>
+    <div class="doc-id">LD-DT-05 · Governance-Aware Loss · Mar 2026</div>
+
+    <div class="chain">
+      <div class="chain-node cn-u">θ · State</div>
+      <div class="chain-node cn-g">L · Loss</div>
+      <div class="chain-node cn-o">∇L · Gradient</div>
+      <div class="chain-node cn-a">−η∇L · Action</div>
+      <div class="chain-node cn-x">θ′ · Update</div>
+    </div>
+
+    <h1 class="title">The Governed Loop:<br>Subsumption of the Debbie Framework into the Clinical Digital Twin Pentad</h1>
+    <p class="subtitle">How consent, equity, trust, and platform reliability become parameters of gradient descent — not prose constraints appended after the fact.</p>
+  </header>
+
+  <!-- 01: THE PROBLEM -->
+  <div class="sec-rule fade-in">
+    <span class="sec-num">01</span>
+    <div class="sec-line"></div>
+  </div>
+
+  <section class="fade-in">
+    <h2>The Problem: Two Separate Languages</h2>
+    <p>The clinical digital twin is a recursive learning system. Its core architecture is the pentad:</p>
+
+    <div class="pentad-strip">
+      <div class="pentad-stage ps-θ">
+        <span class="ps-symbol">θ</span>
+        <span class="ps-label">State</span>
+        <span class="ps-bio">patient / model / organism</span>
+      </div>
+      <div class="pentad-stage ps-L">
+        <span class="ps-symbol">L</span>
+        <span class="ps-label">Loss</span>
+        <span class="ps-bio">disease burden / error</span>
+      </div>
+      <div class="pentad-stage ps-∇L">
+        <span class="ps-symbol">∇L</span>
+        <span class="ps-label">Gradient</span>
+        <span class="ps-bio">learning signal</span>
+      </div>
+      <div class="pentad-stage ps-a">
+        <span class="ps-symbol">−η∇L</span>
+        <span class="ps-label">Action</span>
+        <span class="ps-bio">intervention / update</span>
+      </div>
+      <div class="pentad-stage ps-θp">
+        <span class="ps-symbol">θ′</span>
+        <span class="ps-label">Update</span>
+        <span class="ps-bio">new twin state</span>
+      </div>
+    </div>
+
+    <p>The Debbie framework — consent, equity, trust, platform reliability — has until now been described in a different language: principlist ethics, policy nodes, governance prose. It sits alongside the pentad rather than inside it.</p>
+
+    <p>This document resolves that separation. Every Debbie node becomes a mathematical operator inside the loss function. Ethics becomes the loss surface. The system cannot optimize without satisfying governance constraints — not because a reviewer checks it afterward, but because the gradient itself is shaped by them.</p>
+
+    <div class="insight-block">
+      The key move: ethics enters at <em>L</em>, not at <em>θ′</em>. Governance is not an audit of outcomes. It is a constraint on the loss surface over which descent occurs.
+    </div>
+  </section>
+
+  <!-- 02: BIOLOGICAL FOUNDATION -->
+  <div class="sec-rule fade-in">
+    <span class="sec-num">02</span>
+    <div class="sec-line"></div>
+  </div>
+
+  <section class="fade-in">
+    <h2>The Biological Foundation: Vogelstein's Triad</h2>
+
+    <p>The starting point is Vogelstein's model of cancer causation. Disease burden decomposes into three drivers:</p>
+
+    <div class="eq-block">
+      <span class="eq-label">Biological Loss — Vogelstein Triad</span>
+      <span class="eq-math">L_bio(θ) = β + Σᵢ wᵢθᵢ + ε</span>
+      <div class="eq-sub">
+        β = hereditary baseline · wθ = exposures · ε = replication error (bad luck)
+      </div>
+    </div>
+
+    <div class="cipher-grid">
+      <div class="cg-cell cg-β">
+        <span class="cg-term">β · Heredity</span>
+        <span class="cg-bio">Baseline risk inherited from germline. The intercept you start with before environment acts.</span>
+        <span class="cg-gov">Fixed by family history. Cannot be modified by SGD.</span>
+      </div>
+      <div class="cg-cell cg-w">
+        <span class="cg-term">wᵢθᵢ · Exposure</span>
+        <span class="cg-bio">Environmental factors amplified by weights. Carcinogens, diet, occupation, geography.</span>
+        <span class="cg-gov">Modifiable. The gradient descends primarily here.</span>
+      </div>
+      <div class="cg-cell cg-ε">
+        <span class="cg-term">ε · Replication Error</span>
+        <span class="cg-bio">Stochastic bad luck — mutations arising from normal DNA replication failures. Vogelstein's noise.</span>
+        <span class="cg-gov">Irreducible biological variance. Cannot be zeroed.</span>
+      </div>
+      <div class="cg-cell cg-R">
+        <span class="cg-term">L_bio → SGD</span>
+        <span class="cg-bio">The loss surface over which the twin descends toward remission or risk reduction.</span>
+        <span class="cg-gov">θ_{t+1} = θ_t − η∇L_bio</span>
+      </div>
+    </div>
+
+    <p>This is correct as far as it goes. But it is not a governed loss. The biological model is agnostic about whose genome it is using, where the exposure data came from, or whether the institution running the gradient descent can be trusted. The Debbie framework is the operator that resolves all three.</p>
+  </section>
+
+  <!-- 03: THE UNIFIED LOSS -->
+  <div class="sec-rule fade-in">
+    <span class="sec-num">03</span>
+    <div class="sec-line"></div>
+  </div>
+
+  <section class="fade-in">
+    <h2>The Unified Governance-Aware Loss</h2>
+
+    <p>The complete loss function for the clinical digital twin collapses the Vogelstein triad and the Debbie governance framework into a single expression:</p>
+
+    <div class="eq-block">
+      <span class="eq-label">Unified Loss — Governance-Aware Clinical Twin</span>
+      <span class="eq-math">L_twin(θ) = 𝕀_consent · [ β_pop + Σᵢ αᵢ wᵢ θᵢ + (ε_bio + σ²_platform) ] + λ_trust R(θ)</span>
+      <div class="eq-sub">
+        𝕀_consent ∈ {0,1} · β_pop = population prior · αᵢ = equity coefficient · σ²_platform = institutional variance · λ_trust R(θ) = trust regularizer
+      </div>
+    </div>
+
+    <p>This is the same image you uploaded — the diagram titled <em>Clinical Digital Twin: AI, Optimization, and Evolution by Natural Selection</em> — expressed as a single equation. Every element of that diagram is now a parameter:</p>
+
+    <div class="stack-vis">
+      <div class="sv-header">
+        <div class="sv-cell">Diagram Element</div>
+        <div class="sv-cell">Equation Term</div>
+        <div class="sv-cell">Biological Layer</div>
+        <div class="sv-cell">Governance Layer</div>
+      </div>
+      <div class="sv-row">
+        <div class="sv-cell">Consent / Access Gate</div>
+        <div class="sv-cell sv-tag-blue">𝕀_consent</div>
+        <div class="sv-cell">Germline access</div>
+        <div class="sv-cell">Autonomy (Principlism)</div>
+      </div>
+      <div class="sv-row">
+        <div class="sv-cell">Disease Burden</div>
+        <div class="sv-cell sv-tag-blue">β_pop</div>
+        <div class="sv-cell">Hereditary baseline</div>
+        <div class="sv-cell">Population prior (GST)</div>
+      </div>
+      <div class="sv-row">
+        <div class="sv-cell">Prediction Error</div>
+        <div class="sv-cell sv-tag-gold">αᵢ wᵢ θᵢ</div>
+        <div class="sv-cell">Exposure · weights</div>
+        <div class="sv-cell">Equity coefficient (Justice)</div>
+      </div>
+      <div class="sv-row">
+        <div class="sv-cell">Fitness Score / Noise</div>
+        <div class="sv-cell sv-tag-red">ε_bio + σ²_platform</div>
+        <div class="sv-cell">Replication error</div>
+        <div class="sv-cell">Platform variance (Practices)</div>
+      </div>
+      <div class="sv-row">
+        <div class="sv-cell">Gradient / Selection</div>
+        <div class="sv-cell sv-tag-red">∇L_twin</div>
+        <div class="sv-cell">Learning signal</div>
+        <div class="sv-cell">Trust penalty T ∈ [0,1]</div>
+      </div>
+      <div class="sv-row">
+        <div class="sv-cell">−η∇L</div>
+        <div class="sv-cell sv-tag-gold">−η_reg ∇L_twin</div>
+        <div class="sv-cell">Intervention step</div>
+        <div class="sv-cell">Regulatory throttle on η</div>
+      </div>
+      <div class="sv-row">
+        <div class="sv-cell">Updated State θ′</div>
+        <div class="sv-cell sv-tag-green">θ_{t+1}</div>
+        <div class="sv-cell">New clinical state</div>
+        <div class="sv-cell">Population learning Δ_sys</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 04: EACH TERM UNPACKED -->
+  <div class="sec-rule fade-in">
+    <span class="sec-num">04</span>
+    <div class="sec-line"></div>
+  </div>
+
+  <section class="fade-in">
+    <h2>Each Term, Unpacked</h2>
+
+    <h3>𝕀_consent — The Consent Gate (Autonomy)</h3>
+    <p>This is not an advisory principle. It is a binary operator that multiplies the entire governed loss. If consent is revoked, the loss collapses to the trust regularizer alone — the system cannot compute gradients over germline data. Autonomy becomes a hard constraint on the optimization manifold, not a checkbox.</p>
+
+    <div class="passcode-viz">
+<span class="pv-dim">consent_gate(token) →</span>
+  <span class="pv-gate">if</span> token.valid <span class="pv-gate">and</span> not token.expired:
+    <span class="pv-open">𝕀 = 1</span>  <span class="pv-dim"># germline features active in L</span>
+  <span class="pv-gate">else</span>:
+    <span class="pv-close">𝕀 = 0</span>  <span class="pv-dim"># L collapses → no germline gradient</span>
+    </div>
+
+    <h3>β_pop — Population Prior (System-Level Epidemiology)</h3>
+    <p>The biological β is hereditary — it is fixed and family-specific. But the twin must be anchored to something larger. Without β_pop, twins trained on local family data can drift away from global epidemiology. β_pop is the Bayesian prior that prevents this drift. It is updated by the population twin network via federated gradient aggregation — β_pop^{t+1} = β_pop^t − η · (1/N) Σ ∇Lᵢ — and broadcast back to every registered twin.</p>
+
+    <h3>αᵢ — Equity Coefficient (Distributive Justice)</h3>
+    <p>The exposure weights wᵢ are biologically correct but distributionally unfair. If exposure data is drawn predominantly from high-income country populations, the gradient will be systematically biased against LMIC biology. The equity coefficient corrects this:</p>
+
+    <div class="eq-block">
+      <span class="eq-label">Equity Coefficient</span>
+      <span class="eq-math">αᵢ = f(population_representation)</span>
+      <div class="eq-sub">
+        αᵢ &lt; 1 if overrepresented (HIC) · αᵢ &gt; 1 if underrepresented (LMIC) · αᵢ = 1.0 if balanced
+      </div>
+    </div>
+
+    <p>This is not a post-hoc correction. The equity coefficient is inside the loss. The twin literally cannot achieve minimum loss while ignoring underrepresented populations.</p>
+
+    <h3>ε_bio + σ²_platform — Split Noise Floor</h3>
+    <p>Vogelstein's ε is biological bad luck — mutations arising from normal replication error. But in any real clinical implementation, there is a second noise source: the institution. Sequencing error, genomic literacy, training quality of staff, laboratory practices. These must be separated:</p>
+
+    <div class="eq-block">
+      <span class="eq-label">Decomposed Noise</span>
+      <span class="eq-math">ε_total = ε_bio + σ²_platform</span>
+      <div class="eq-sub">
+        ε_bio = inherent replication stochasticity (irreducible) · σ²_platform = institutional noise (reducible via training)
+      </div>
+    </div>
+
+    <p>If the system cannot distinguish these, every sequencing error becomes a candidate cancer driver. The twin mistakes technical noise for biological signal and initiates treatment cascades on phantom mutations — which is precisely the phantom-cause failure mode documented in LD-DT-01.</p>
+
+    <h3>λ_trust R(θ) — Trust Regularizer (Relational Node)</h3>
+    <p>This is the most important Debbie addition. Community trust is not merely a soft social factor. Low trust means exposure data is underreported, selection effects are amplified, and the gradient over environmental features is systematically noisy. The trust regularizer formalizes this:</p>
+
+    <div class="eq-block">
+      <span class="eq-label">Trust Regularizer</span>
+      <span class="eq-math">R(θ) = Σⱼ (1 − Tⱼ) θⱼ²</span>
+      <div class="eq-sub">
+        Tⱼ ∈ [0,1] = community trust index for feature j · low T → high penalty → weak influence on gradient
+      </div>
+    </div>
+
+    <p>Where T is high, the system learns aggressively from that data source. Where T is low, the penalty term suppresses that feature's influence — not by excluding it, but by increasing the cost of relying on it. Trust becomes a continuous dial on learning rate per feature.</p>
+  </section>
+
+  <!-- 05: PENTAD MAPPING -->
+  <div class="sec-rule fade-in">
+    <span class="sec-num">05</span>
+    <div class="sec-line"></div>
+  </div>
+
+  <section class="fade-in">
+    <h2>Mapping Governance onto the Pentad</h2>
+
+    <p>Each Debbie node now attaches to a specific stage of the recursive loop. Nothing floats.</p>
+
+    <div class="stack-vis">
+      <div class="sv-header">
+        <div class="sv-cell">Pentad Stage</div>
+        <div class="sv-cell">Equation</div>
+        <div class="sv-cell">Biological Meaning</div>
+        <div class="sv-cell">Debbie Layer</div>
+      </div>
+      <div class="sv-row">
+        <div class="sv-cell"><span class="sv-tag-blue">θ · State</span></div>
+        <div class="sv-cell sv-mono">𝕀_consent · θ_genome + θ_exposure + θ_clinical</div>
+        <div class="sv-cell">Patient state vector</div>
+        <div class="sv-cell">Autonomy gate + Relational context</div>
+      </div>
+      <div class="sv-row">
+        <div class="sv-cell"><span class="sv-tag-red">L · Loss</span></div>
+        <div class="sv-cell sv-mono">β_pop + Σαwθ + ε_bio + σ²_plat + λ_trust R(θ)</div>
+        <div class="sv-cell">Disease burden</div>
+        <div class="sv-cell">All governance operators converge here</div>
+      </div>
+      <div class="sv-row">
+        <div class="sv-cell"><span class="sv-tag-gold">∇L · Gradient</span></div>
+        <div class="sv-cell sv-mono">T · ∂L/∂θ</div>
+        <div class="sv-cell">Learning signal</div>
+        <div class="sv-cell">Trust penalty T ∈ [0,1] damps gradient</div>
+      </div>
+      <div class="sv-row">
+        <div class="sv-cell"><span class="sv-tag-gold">−η∇L · Action</span></div>
+        <div class="sv-cell sv-mono">−η_reg · T · ∇L</div>
+        <div class="sv-cell">Clinical intervention</div>
+        <div class="sv-cell">Regulatory throttle on learning rate</div>
+      </div>
+      <div class="sv-row">
+        <div class="sv-cell"><span class="sv-tag-green">θ′ · Update</span></div>
+        <div class="sv-cell sv-mono">θ_t − η T ∇L + Δ_sys</div>
+        <div class="sv-cell">New twin state</div>
+        <div class="sv-cell">Population learning · equity updates · platform calibration</div>
+      </div>
+    </div>
+
+    <p>The Δ_sys term at θ′ is what makes this a population-learning system rather than just a personal twin. It incorporates: updated population prior from federated gradient aggregation; revised equity weights from updated representation statistics; recalibrated platform variance from institutional quality assessments. The twin is never frozen. It learns from every other twin in the network while keeping raw patient data local.</p>
+  </section>
+
+  <!-- 06: THE LOOP DIAGRAM -->
+  <div class="sec-rule fade-in">
+    <span class="sec-num">06</span>
+    <div class="sec-line"></div>
+  </div>
+
+  <section class="fade-in">
+    <h2>The Governed Recursion</h2>
+
+    <p>This is the architecture the uploaded diagram was pointing toward — now with every arrow labeled as a mathematical operator:</p>
+
+    <div class="loop-diagram"><span class="ld-θ">┌────────────────────────────────────┐
+│         SYSTEM STATE  θ_t          │
+│  genome · exposures · phenotype    │
+│  context · history                 │
+└──────────────┬─────────────────────┘</span>
+               │
+               │ <span class="ld-gov">𝕀_consent  (Autonomy Gate)</span>
+               ▼
+<span class="ld-L">┌────────────────────────────────────────────────┐
+│          GOVERNANCE-AWARE LOSS                 │
+│                                                │
+│  L(θ) = β_pop                                 │
+│         + Σ αᵢ wᵢ θᵢ                          │
+│         + ε_bio  +  σ²_platform               │
+│         + λ_trust R(θ)                         │
+│                                                │
+│  ← Disease Burden ─── Prediction Error ─→     │
+└──────────────┬─────────────────────────────────┘</span>
+               │
+               │ <span class="ld-gov">T · ∂L/∂θ   (Trust-Dampened Gradient)</span>
+               ▼
+<span class="ld-∇">┌────────────────────────────────────┐
+│       JUSTICE-WEIGHTED LEARNING    │
+│                                    │
+│   action = −η_reg · T · ∇L        │
+│                                    │
+│   η = regulatory throttle          │
+│   T = community trust ∈ [0,1]     │
+└──────────────┬─────────────────────┘</span>
+               │
+               ▼
+<span class="ld-a">┌────────────────────────────────────┐
+│    CLINICAL INTERVENTION           │
+│                                    │
+│   therapy · diagnostics            │
+│   screening · monitoring           │
+└──────────────┬─────────────────────┘</span>
+               │
+               ▼
+<span class="ld-θp">┌────────────────────────────────────┐
+│      UPDATED STATE  θ_{t+1}        │
+│                                    │
+│  θ_t − η T ∇L  +  Δ_sys           │
+│                                    │
+│  Δ_sys = population prior update   │
+│        + equity weight revision    │
+│        + platform recalibration    │
+└──────────────┬─────────────────────┘</span>
+               │
+               └──────────────────── <span class="ld-gov">RECURSION</span></div>
+
+    <div class="model-stamp">
+      <div class="ms-icon">∞</div>
+      <div class="ms-body">
+        <div class="ms-title">Structural Isomorphism</div>
+        <div class="ms-text">This loop is mathematically identical to three other well-studied systems simultaneously: <strong>Darwinian evolution</strong> (organism state → fitness → selection gradient → adaptation → next generation), <strong>reinforcement learning</strong> (state → reward → policy gradient → action → new state), and <strong>control theory</strong> (state → error → correction → updated state). Your clinical digital twin is not a metaphor of these systems. It instantiates the same abstract optimization structure.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 07: KEY INSIGHT -->
+  <div class="sec-rule fade-in">
+    <span class="sec-num">07</span>
+    <div class="sec-line"></div>
+  </div>
+
+  <section class="fade-in">
+    <h2>The Radical Move: Ethics Inside the Gradient</h2>
+
+    <p>Most ethical AI frameworks operate post-hoc. They audit outcomes after the system has already trained. They add consent forms upstream of an otherwise unchanged optimization process. They append bias corrections to deployed models as patches.</p>
+
+    <p>This architecture does something structurally different. It makes ethics part of gradient descent. The system cannot achieve minimum loss while violating governance constraints — not because a regulator checks it, but because the loss surface is shaped by those constraints from the start.</p>
+
+    <div class="stack-vis">
+      <div class="sv-header">
+        <div class="sv-cell">Framework</div>
+        <div class="sv-cell">Where Ethics Enters</div>
+        <div class="sv-cell">Mechanism</div>
+        <div class="sv-cell">Failure Mode</div>
+      </div>
+      <div class="sv-row">
+        <div class="sv-cell">Standard AI Ethics</div>
+        <div class="sv-cell sv-tag-red">θ′ (post-hoc)</div>
+        <div class="sv-cell">Audit outcomes after training</div>
+        <div class="sv-cell">Bias already baked in; correction is cosmetic</div>
+      </div>
+      <div class="sv-row">
+        <div class="sv-cell">Principlist Bioethics</div>
+        <div class="sv-cell sv-tag-gold">θ (pre-hoc)</div>
+        <div class="sv-cell">Consent forms upstream of unchanged optimization</div>
+        <div class="sv-cell">Ethics decoupled from learning dynamics</div>
+      </div>
+      <div class="sv-row">
+        <div class="sv-cell">Ukubona Governance Loss</div>
+        <div class="sv-cell sv-tag-green">L (concurrent)</div>
+        <div class="sv-cell">Ethics encoded as loss surface operators</div>
+        <div class="sv-cell">Cannot optimize without satisfying constraints</div>
+      </div>
+    </div>
+
+    <div class="insight-block">
+      The consent gate is not a lock on the front door. It is a zero in the objective function. The equity coefficient is not a correction to the output. It is a curvature modification to the loss surface. The trust regularizer is not a warning label. It is a penalty term that the optimizer must reduce.
+    </div>
+
+    <p>Expressed in one sentence for publication:</p>
+
+    <div class="eq-block">
+      <span class="eq-label">One-Sentence Architecture Description</span>
+      <span class="eq-math">The clinical digital twin is a recursive optimization system in which disease burden is minimized via stochastic gradient descent on a governance-aware loss function integrating heredity, exposure, replication error, and ethical constraints as mathematical operators.</span>
+    </div>
+  </section>
+
+  <!-- 08: POPULATION NETWORK -->
+  <div class="sec-rule fade-in">
+    <span class="sec-num">08</span>
+    <div class="sec-line"></div>
+  </div>
+
+  <section class="fade-in">
+    <h2>Population Twin Network: Federated Governed Descent</h2>
+
+    <p>A single governed twin is useful. The population network is transformative. Each twin optimizes L_twin locally, then contributes its gradient to the population prior update:</p>
+
+    <div class="eq-block">
+      <span class="eq-label">Population Prior Update</span>
+      <span class="eq-math">β_pop^{t+1} = β_pop^t − η · (1/N) · Σᵢ ∇Lᵢ_twin</span>
+      <div class="eq-sub">
+        N twins · local gradients only · raw patient data never leaves local twin · privacy preserved
+      </div>
+    </div>
+
+    <p>Only gradients move. Raw patient data stays local. This is governed federated learning — every twin learns from the population, and the population learns from every twin, under the same consent, equity, and trust constraints that govern individual twins. The equity coefficient now operates at scale: underrepresented populations contribute disproportionately to β_pop, correcting the historic overfit to HIC biology.</p>
+
+    <div class="model-stamp">
+      <div class="ms-icon">🌍</div>
+      <div class="ms-body">
+        <div class="ms-title">Why Population Scale Matters</div>
+        <div class="ms-text">Rare diseases: one institution sees too few cases. LMIC biology: lost in HIC-dominated training data. Phantom cause loops: only detectable as statistical outliers across a population. Platform drift: only identifiable by comparing σ²_platform across institutions. All four problems require N &gt;&gt; 1 twins learning together under a shared governed loss.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 09: SYNTHESIS -->
+  <div class="sec-rule fade-in">
+    <span class="sec-num">09</span>
+    <div class="sec-line"></div>
+  </div>
+
+  <section class="fade-in">
+    <h2>What Has Been Unified</h2>
+
+    <p>Three historically separate literatures are now connected by a single recursive equation:</p>
+
+    <div class="stack-vis">
+      <div class="sv-header">
+        <div class="sv-cell">Field</div>
+        <div class="sv-cell">Contribution</div>
+        <div class="sv-cell">Pentad Stage</div>
+        <div class="sv-cell">Key Term</div>
+      </div>
+      <div class="sv-row">
+        <div class="sv-cell">Cancer Biology (Vogelstein)</div>
+        <div class="sv-cell">β + Σwθ + ε as disease model</div>
+        <div class="sv-cell sv-tag-red">L</div>
+        <div class="sv-cell sv-mono">β_pop + Σαwθ + ε_bio</div>
+      </div>
+      <div class="sv-row">
+        <div class="sv-cell">Machine Learning (SGD)</div>
+        <div class="sv-cell">Recursive parameter update via gradient</div>
+        <div class="sv-cell sv-tag-gold">∇L → action → θ′</div>
+        <div class="sv-cell sv-mono">−η T ∇L_twin</div>
+      </div>
+      <div class="sv-row">
+        <div class="sv-cell">Bioethics (Debbie / Principlism)</div>
+        <div class="sv-cell">Consent, equity, trust, platform governance</div>
+        <div class="sv-cell sv-tag-blue">θ + L</div>
+        <div class="sv-cell sv-mono">𝕀 · α · σ² · λ_trust</div>
+      </div>
+      <div class="sv-row">
+        <div class="sv-cell">Epidemiology</div>
+        <div class="sv-cell">Population-level disease priors</div>
+        <div class="sv-cell sv-tag-green">θ′ → θ</div>
+        <div class="sv-cell sv-mono">β_pop via federated ∇L</div>
+      </div>
+      <div class="sv-row">
+        <div class="sv-cell">Evolution (Darwinian)</div>
+        <div class="sv-cell">Fitness landscape descent as adaptation</div>
+        <div class="sv-cell sv-tag-acc">All five stages</div>
+        <div class="sv-cell sv-mono">θ → L → ∇L → a → θ′</div>
+      </div>
+    </div>
+
+    <div class="insight-block">
+      <span class="voice-tag vt-x">X</span>The framework does not analogize the digital twin to evolution. The pentad is the same abstract optimization structure — minimization of a loss (fitness) function via gradient (selection) with state update (adaptation) — instantiated in clinical medicine. The analogy is the identity.
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="fade-in">
+    <div>Ukubona LLC · LD-DT-05 · Mar 2026 · Kampala / Baltimore</div>
+    <div style="margin-top:0.4rem;">
+      L_twin(θ) = 𝕀_consent · [ β_pop + Σαwθ + ε_bio + σ²_platform ] + λ_trust R(θ)
+    </div>
+    <div style="margin-top:0.4rem;">
+      Supersedes: LD-DT-01 (phantom cause) · LD-DT-02 (observation model) · Debbie governance prose
+    </div>
+    <div style="margin-top:0.4rem;">
+      θ → L_twin → ∇L_twin → −η_reg T ∇L_twin → θ_{t+1} → recursion
+    </div>
+  </footer>
+
+</div>
+
+<script>
+function toggleTheme() {
+  const root = document.documentElement;
+  const current = root.getAttribute('data-theme');
+  root.setAttribute('data-theme', current === 'light' ? 'dark' : 'light');
+  localStorage.setItem('ukubona-theme', current === 'light' ? 'dark' : 'light');
+}
+
+// Restore saved theme
+(function() {
+  const saved = localStorage.getItem('ukubona-theme');
+  if (saved === 'light') document.documentElement.setAttribute('data-theme', 'light');
+})();
+
+// Scroll-triggered fade-in
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      e.target.classList.add('visible');
+      observer.unobserve(e.target);
+    }
+  });
+}, { threshold: 0.08, rootMargin: '0px 0px -40px 0px' });
+
+document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+</script>
+</body>
+</html>

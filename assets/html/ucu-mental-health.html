@@ -1,0 +1,632 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Uganda Mental Health Landscape · Ukubona LLC × UCU</title>
+<meta name="color-scheme" content="dark light">
+<link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.min.css">
+<style>
+:root {
+  --bg:#0a0a10; --surf:#12121c; --surf2:#1a1a26;
+  --brd:rgba(180,160,255,0.10); --ink:#ede9ff; --mut:#7070a0; --dim:#2a2a40;
+  --r:#e84060; --o:#e0703a; --y:#d4a820; --g:#4aaa60; --b:#3a80d4; --i:#6040c0; --v:#40c0a0;
+  --accent:#b080ff; --accent2:#60c8ff;
+}
+[data-theme="light"] {
+  --bg:#f6f4ff; --surf:#fff; --surf2:#eeebff;
+  --brd:rgba(100,80,200,0.12); --ink:#1a1a30; --mut:#6060a0; --dim:#d0cce8;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+html,body{height:100%;overflow:hidden;}
+body{font-family:'DM Sans',sans-serif;font-size:13px;background:var(--bg);color:var(--ink);display:flex;flex-direction:column;}
+
+/* HEADER */
+.hd{display:flex;align-items:center;justify-content:space-between;padding:.6rem 1.1rem;background:var(--surf);border-bottom:1px solid var(--brd);flex-shrink:0;gap:.75rem;flex-wrap:wrap;position:sticky;top:0;z-index:1000;}
+.logo-wrap{display:flex;align-items:center;gap:.5rem;text-decoration:none;}
+.brand-name{font-family:'Cormorant Garamond',serif;font-size:1.15rem;color:var(--ink);letter-spacing:.03em;}
+.brand-tag{font-family:'DM Mono',monospace;font-size:.52rem;color:var(--mut);letter-spacing:.1em;text-transform:uppercase;}
+.hd-center{flex:1;text-align:center;}
+.hd-title{font-family:'Cormorant Garamond',serif;font-size:1.2rem;font-style:italic;color:var(--ink);}
+.hd-sub{font-family:'DM Mono',monospace;font-size:.54rem;color:var(--mut);letter-spacing:.06em;margin-top:.1rem;}
+.hd-right{display:flex;gap:.4rem;align-items:center;flex-wrap:wrap;}
+.badge{font-family:'DM Mono',monospace;font-size:.54rem;letter-spacing:.08em;text-transform:uppercase;padding:.18em .65em;border:1px solid var(--brd);border-radius:999px;color:var(--mut);}
+.badge-npa{color:var(--accent);border-color:rgba(176,128,255,.3);}
+.icon-btn{background:var(--surf2);border:1px solid var(--brd);border-radius:6px;padding:.38rem;cursor:pointer;color:var(--mut);display:flex;align-items:center;transition:border-color .15s,color .15s;}
+.icon-btn:hover{border-color:var(--accent);color:var(--accent);}
+
+/* LAYOUT */
+.body{display:flex;flex:1;overflow:hidden;min-height:0;}
+.lp{width:248px;flex-shrink:0;background:var(--surf);border-right:1px solid var(--brd);overflow-y:auto;padding:1rem;display:flex;flex-direction:column;gap:.9rem;}
+.plbl{font-family:'DM Mono',monospace;font-size:.54rem;letter-spacing:.14em;text-transform:uppercase;color:var(--mut);padding-bottom:.3rem;border-bottom:1px solid var(--brd);}
+
+/* CONDITION SELECTOR */
+.cond-grid{display:flex;flex-direction:column;gap:.35rem;}
+.cond-btn{width:100%;text-align:left;padding:.5rem .7rem;background:var(--surf2);border:1px solid var(--brd);border-radius:6px;color:var(--ink);cursor:pointer;font-family:'DM Sans',sans-serif;font-size:.72rem;transition:border-color .12s,background .12s;display:flex;align-items:center;gap:.5rem;}
+.cond-btn:hover{border-color:var(--accent);background:rgba(176,128,255,.06);}
+.cond-btn.on{border-color:var(--accent);background:rgba(176,128,255,.1);color:var(--accent);}
+.cond-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+.cond-sub{font-size:.6rem;color:var(--mut);display:block;margin-top:.05rem;}
+.cond-btn.on .cond-sub{color:rgba(176,128,255,.65);}
+
+.formula{font-family:'DM Mono',monospace;font-size:.63rem;color:var(--mut);line-height:1.9;padding:.6rem .7rem;background:var(--surf2);border-radius:5px;border:1px solid var(--brd);}
+.formula .hl{color:var(--accent);}
+.formula .hl2{color:var(--accent2);}
+
+.sl-row{display:flex;flex-direction:column;gap:.2rem;margin-bottom:.45rem;}
+.sl-meta{display:flex;justify-content:space-between;align-items:baseline;}
+.sl-name{font-size:.68rem;opacity:.85;}
+.sl-val{font-family:'DM Mono',monospace;font-size:.63rem;color:var(--accent);}
+input[type=range]{width:100%;height:2px;appearance:none;background:var(--dim);border-radius:2px;outline:none;cursor:pointer;}
+input[type=range]::-webkit-slider-thumb{appearance:none;width:10px;height:10px;border-radius:50%;background:var(--accent);cursor:pointer;}
+.rr::-webkit-slider-thumb{background:var(--r)!important;}
+.ro::-webkit-slider-thumb{background:var(--o)!important;}
+.rg::-webkit-slider-thumb{background:var(--g)!important;}
+.rb::-webkit-slider-thumb{background:var(--b)!important;}
+
+.sc-btn{width:100%;padding:.4rem .6rem;background:var(--surf2);border:1px solid var(--brd);border-radius:5px;color:var(--ink);font-family:'DM Sans',sans-serif;font-size:.68rem;cursor:pointer;text-align:left;margin-bottom:.28rem;transition:border-color .12s,background .12s;}
+.sc-btn span{display:block;font-size:.57rem;color:var(--mut);margin-top:.05rem;}
+.sc-btn:hover{border-color:var(--accent);background:rgba(176,128,255,.05);}
+.sc-btn.on{border-color:var(--accent);color:var(--accent);}
+.sc-btn.on span{color:rgba(176,128,255,.6);}
+
+/* MAP */
+.mc{flex:1;position:relative;min-width:0;}
+#map{width:100%;height:100%;}
+.leaflet-tile-pane{filter:brightness(.80) saturate(.7) hue-rotate(20deg);}
+[data-theme="light"] .leaflet-tile-pane{filter:none;}
+.upd{position:absolute;top:10px;left:50%;transform:translateX(-50%);z-index:900;background:var(--surf);border:1px solid rgba(176,128,255,.4);border-radius:999px;padding:.22em .8em;font-family:'DM Mono',monospace;font-size:.56rem;color:var(--accent);opacity:0;transition:opacity .25s;pointer-events:none;white-space:nowrap;}
+.upd.on{opacity:1;}
+
+/* LEGEND */
+.leg{position:absolute;bottom:16px;left:16px;z-index:800;background:rgba(10,10,16,.9);border:1px solid var(--brd);border-radius:7px;padding:.55rem .7rem;backdrop-filter:blur(4px);}
+[data-theme="light"] .leg{background:rgba(255,255,255,.92);}
+.leg-title{font-family:'DM Mono',monospace;font-size:.52rem;letter-spacing:.1em;text-transform:uppercase;color:var(--mut);margin-bottom:.3rem;}
+.leg-scale{display:flex;gap:2px;margin-bottom:.22rem;}
+.leg-sw{height:8px;border-radius:1px;flex:1;}
+.leg-labs{display:flex;justify-content:space-between;font-family:'DM Mono',monospace;font-size:.5rem;color:var(--mut);}
+.leg-rows{margin-top:.35rem;display:flex;flex-direction:column;gap:.13rem;}
+.leg-row{display:flex;align-items:center;gap:.4rem;font-family:'DM Mono',monospace;font-size:.52rem;color:var(--mut);}
+.leg-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;}
+
+/* RIGHT PANEL */
+.rp{width:228px;flex-shrink:0;background:var(--surf);border-left:1px solid var(--brd);overflow-y:auto;padding:1rem;display:flex;flex-direction:column;gap:.9rem;}
+.sc2{background:var(--surf2);border:1px solid var(--brd);border-radius:6px;padding:.6rem .8rem;}
+.sc2-lbl{font-family:'DM Mono',monospace;font-size:.54rem;letter-spacing:.08em;text-transform:uppercase;color:var(--mut);margin-bottom:.2rem;}
+.sc2-val{font-family:'Cormorant Garamond',serif;font-size:1.55rem;line-height:1;margin-bottom:.1rem;}
+.sc2-delta{font-family:'DM Mono',monospace;font-size:.58rem;color:var(--mut);}
+.sc2-delta.bad{color:var(--r);}
+.sc2-delta.good{color:var(--v);}
+.d-list{display:flex;flex-direction:column;gap:.28rem;}
+.d-item{display:flex;align-items:center;gap:.5rem;padding:.3rem .5rem;border-radius:4px;cursor:pointer;transition:background .1s;}
+.d-item:hover{background:var(--surf2);}
+.d-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;}
+.d-name{font-size:.7rem;flex:1;}
+.d-val{font-family:'DM Mono',monospace;font-size:.63rem;color:var(--mut);}
+.prow{display:flex;align-items:center;gap:.5rem;padding:.3rem .5rem;background:var(--surf2);border-radius:4px;border-left:2px solid var(--brd);margin-bottom:.22rem;}
+.prow.ac{border-left-color:var(--accent);}
+.psym{font-family:'DM Mono',monospace;font-size:.6rem;color:var(--mut);min-width:40px;}
+.prow.ac .psym{color:var(--accent);}
+.pdesc{font-size:.64rem;color:var(--mut);}
+.prow.ac .pdesc{color:var(--ink);}
+.tlog{font-family:'DM Mono',monospace;font-size:.58rem;color:var(--mut);line-height:1.6;max-height:120px;overflow-y:auto;}
+.te{padding:.1rem 0;border-bottom:1px solid var(--brd);}
+.te:last-child{border-bottom:none;}
+.tt2{color:var(--dim);margin-right:.3rem;}
+.ta{color:var(--accent);}
+.ds-note{font-family:'DM Mono',monospace;font-size:.57rem;color:var(--mut);line-height:1.8;}
+.ds-note .lv{color:var(--v);}
+.ds-note .yr{color:var(--accent);}
+.sel-panel{padding:.7rem .85rem;background:var(--surf2);border-radius:6px;border-left:3px solid var(--accent);}
+.sel-d-name{font-family:'Cormorant Garamond',serif;font-size:1.05rem;margin-bottom:.35rem;}
+.sel-score{font-family:'DM Mono',monospace;font-size:1.2rem;font-weight:500;margin-bottom:.45rem;}
+.dim-breakdown{display:flex;flex-direction:column;gap:.3rem;}
+.db-row{display:flex;align-items:center;gap:.5rem;padding:.28rem .4rem;background:var(--surf);border-radius:4px;}
+.db-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;}
+.db-name{font-size:.65rem;color:var(--mut);flex:1;}
+.db-bar-bg{height:3px;background:var(--dim);border-radius:2px;flex:1;max-width:55px;}
+.db-bar-fill{height:100%;border-radius:2px;transition:width .4s;}
+.db-val{font-family:'DM Mono',monospace;font-size:.63rem;color:var(--ink);}
+
+/* POPUP */
+.leaflet-popup-content-wrapper{background:var(--surf)!important;color:var(--ink)!important;border:1px solid var(--brd)!important;border-radius:9px!important;box-shadow:0 8px 32px rgba(0,0,0,.6)!important;}
+.leaflet-popup-content{margin:.8rem!important;font-family:'DM Sans',sans-serif!important;}
+.leaflet-popup-tip{background:var(--surf)!important;}
+.lp-name{font-family:'Cormorant Garamond',serif;font-size:1rem;margin-bottom:.3rem;font-style:italic;}
+.lp-val{font-family:'DM Mono',monospace;font-size:1.2rem;font-weight:500;margin-bottom:.3rem;}
+.lp-rows{display:flex;flex-direction:column;gap:.12rem;}
+.lp-row{display:flex;justify-content:space-between;font-size:.66rem;color:var(--mut);padding:.1rem 0;border-bottom:1px solid var(--brd);}
+.lp-row:last-child{border-bottom:none;}
+.lp-rv{color:var(--ink);font-family:'DM Mono',monospace;}
+
+/* NPA BANNER */
+.npa-banner{background:linear-gradient(90deg,rgba(176,128,255,.12),rgba(96,200,255,.08));border:1px solid rgba(176,128,255,.25);border-radius:5px;padding:.55rem .7rem;font-family:'DM Mono',monospace;font-size:.58rem;line-height:1.7;}
+.npa-banner strong{color:var(--accent);display:block;margin-bottom:.2rem;font-size:.6rem;letter-spacing:.08em;text-transform:uppercase;}
+
+@media(max-width:900px){.lp,.rp{display:none;}}
+</style>
+</head>
+<body>
+
+<header class="hd">
+  <div style="display:flex;align-items:center;gap:.5rem;">
+    <a href="https://ukubona-llc.github.io/" class="logo-wrap">
+      <svg width="32" height="32" viewBox="0 0 32 32"><circle cx="16" cy="16" r="14" fill="none" stroke="var(--accent)" stroke-width="1.5" opacity=".5"/><circle cx="16" cy="16" r="8" fill="none" stroke="var(--accent)" stroke-width="1"/><circle cx="16" cy="16" r="3" fill="var(--accent)" opacity=".8"/><line x1="16" y1="2" x2="16" y2="6" stroke="var(--accent)" stroke-width="1.2" opacity=".4"/><line x1="16" y1="26" x2="16" y2="30" stroke="var(--accent)" stroke-width="1.2" opacity=".4"/><line x1="2" y1="16" x2="6" y2="16" stroke="var(--accent)" stroke-width="1.2" opacity=".4"/><line x1="26" y1="16" x2="30" y2="16" stroke="var(--accent)" stroke-width="1.2" opacity=".4"/></svg>
+      <div><div class="brand-name">Ukubona</div><div class="brand-tag">LLC × UCU</div></div>
+    </a>
+  </div>
+  <div class="hd-center">
+    <div class="hd-title">Uganda Mental Health Landscape</div>
+    <div class="hd-sub">Depression · Anxiety · Suicide · PTSD · Psychosis — District Loss Map · 135 Districts</div>
+  </div>
+  <div class="hd-right">
+    <span class="badge badge-npa">NPA Priority 2026</span>
+    <span class="badge">Synthetic Phase I</span>
+    <button class="icon-btn" id="theme-btn" title="Toggle theme">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+    </button>
+    <a href="https://ukubona-llc.github.io/landscape/" class="icon-btn" style="text-decoration:none;font-family:'DM Mono',monospace;font-size:.55rem;color:var(--accent);border-color:rgba(176,128,255,.25);padding:.38rem .6rem;">← Atlas</a>
+  </div>
+</header>
+
+<div class="body">
+  <aside class="lp">
+    <div>
+      <div class="plbl">Mental health condition</div>
+      <div class="cond-grid" id="cond-grid">
+        <button class="cond-btn on" onclick="setCond(this,'dep')" data-cond="dep">
+          <div class="cond-dot" style="background:#b080ff"></div>
+          <div><span>Depression</span><span class="cond-sub">MDD · 4.5% Uganda est.</span></div>
+        </button>
+        <button class="cond-btn" onclick="setCond(this,'anx')" data-cond="anx">
+          <div class="cond-dot" style="background:#60c8ff"></div>
+          <div><span>Anxiety disorders</span><span class="cond-sub">GAD · 3.8% est.</span></div>
+        </button>
+        <button class="cond-btn" onclick="setCond(this,'sui')" data-cond="sui">
+          <div class="cond-dot" style="background:#e84060"></div>
+          <div><span>Suicide risk</span><span class="cond-sub">ASR · 11.2/100k est.</span></div>
+        </button>
+        <button class="cond-btn" onclick="setCond(this,'ptsd')" data-cond="ptsd">
+          <div class="cond-dot" style="background:#d4a820"></div>
+          <div><span>PTSD</span><span class="cond-sub">Northern Uganda post-conflict</span></div>
+        </button>
+        <button class="cond-btn" onclick="setCond(this,'psy')" data-cond="psy">
+          <div class="cond-dot" style="background:#4aaa60"></div>
+          <div><span>Psychosis / Schizophrenia</span><span class="cond-sub">Severe MH · 0.9% est.</span></div>
+        </button>
+        <button class="cond-btn" onclick="setCond(this,'composite')" data-cond="composite">
+          <div class="cond-dot" style="background:#ff8840"></div>
+          <div><span>Composite L(θ)</span><span class="cond-sub">Weighted MH burden index</span></div>
+        </button>
+      </div>
+    </div>
+
+    <div>
+      <div class="npa-banner">
+        <strong>🏛 NPA 2026 Priority</strong>
+        National Planning Authority identified mental health as Uganda's #1 public health research gap. This platform is the proof-of-concept for district-level surveillance and NPA partnership.
+      </div>
+    </div>
+
+    <div>
+      <div class="plbl">Loss function</div>
+      <div class="formula">θₜ → <span class="hl">L(θ)</span> → ∇L → −η∇L → θ′<br><br>L = Σ wᵢ · <span class="hl2">condᵢ</span>(θ)<br><br><span style="color:var(--r)">N.Uganda PTSD 4× Central</span><br><span style="color:var(--b)">Kampala depression rising</span></div>
+    </div>
+
+    <div>
+      <div class="plbl">Composite weights (policy)</div>
+      <div class="sl-row">
+        <div class="sl-meta"><span class="sl-name">Depression</span><span class="sl-val" id="v-dep">30%</span></div>
+        <input type="range" class="rr" id="s-dep" min="5" max="55" value="30">
+      </div>
+      <div class="sl-row">
+        <div class="sl-meta"><span class="sl-name">Anxiety</span><span class="sl-val" id="v-anx">25%</span></div>
+        <input type="range" class="ro" id="s-anx" min="5" max="50" value="25">
+      </div>
+      <div class="sl-row">
+        <div class="sl-meta"><span class="sl-name">Suicide risk</span><span class="sl-val" id="v-sui">20%</span></div>
+        <input type="range" class="rr" id="s-sui" min="5" max="45" value="20">
+      </div>
+      <div class="sl-row">
+        <div class="sl-meta"><span class="sl-name">PTSD</span><span class="sl-val" id="v-ptsd">15%</span></div>
+        <input type="range" class="rb" id="s-ptsd" min="5" max="40" value="15">
+      </div>
+      <div class="sl-row">
+        <div class="sl-meta"><span class="sl-name">Psychosis</span><span class="sl-val" id="v-psy">10%</span></div>
+        <input type="range" class="rg" id="s-psy" min="5" max="30" value="10">
+      </div>
+    </div>
+
+    <div>
+      <div class="plbl">η — intervention speed</div>
+      <div class="sl-row">
+        <div class="sl-meta"><span class="sl-name">Learning rate</span><span class="sl-val" id="v-eta">0.10</span></div>
+        <input type="range" class="rb" id="s-eta" min="1" max="30" value="10">
+      </div>
+    </div>
+
+    <div>
+      <div class="plbl">Scenarios</div>
+      <button class="sc-btn on" onclick="setSc(this,'base')">Status quo<span>NPA baseline · N. Uganda PTSD gradient active</span></button>
+      <button class="sc-btn" onclick="setSc(this,'dep')">Depression priority<span>w₁=50% — MOH mental health strategy</span></button>
+      <button class="sc-btn" onclick="setSc(this,'north')">Post-conflict north<span>PTSD weight 45% · Acholi, Lango subregions</span></button>
+      <button class="sc-btn" onclick="setSc(this,'urban')">Urban mental health<span>Kampala, Wakiso, Jinja anxiety surge</span></button>
+      <button class="sc-btn" onclick="setSc(this,'npa')">NPA Submission<span>Equity lens · all conditions weighted equally</span></button>
+    </div>
+  </aside>
+
+  <div class="mc">
+    <div id="map"></div>
+    <div class="upd" id="upd">Recomputing gradient…</div>
+    <div class="leg">
+      <div class="leg-title" id="leg-title">L(θ) — Composite MH loss</div>
+      <div class="leg-scale">
+        <div class="leg-sw" style="background:#e84060"></div>
+        <div class="leg-sw" style="background:#e0703a"></div>
+        <div class="leg-sw" style="background:#d4a820"></div>
+        <div class="leg-sw" style="background:#4aaa60"></div>
+        <div class="leg-sw" style="background:#3a80d4"></div>
+        <div class="leg-sw" style="background:#6040c0"></div>
+        <div class="leg-sw" style="background:#40c0a0"></div>
+      </div>
+      <div class="leg-labs"><span>High loss / gap</span><span>Optimized</span></div>
+      <div class="leg-rows" id="leg-rows"></div>
+    </div>
+  </div>
+
+  <aside class="rp">
+    <div>
+      <div class="plbl">National L(θ)</div>
+      <div class="sc2">
+        <div class="sc2-lbl">Mean MH composite loss</div>
+        <div class="sc2-val" id="st-loss">—</div>
+        <div class="sc2-delta bad" id="st-delta">computing…</div>
+      </div>
+    </div>
+    <div>
+      <div class="sc2">
+        <div class="sc2-lbl">Critical districts ≥0.70</div>
+        <div class="sc2-val" id="st-crit" style="color:var(--r)">—</div>
+        <div class="sc2-delta bad">need urgent MH resources</div>
+      </div>
+    </div>
+    <div>
+      <div class="sc2">
+        <div class="sc2-lbl">N. Uganda PTSD signal</div>
+        <div class="sc2-val" style="color:var(--r)">4.2×</div>
+        <div class="sc2-delta bad">vs Central region · post-LRA conflict</div>
+      </div>
+    </div>
+    <div>
+      <div class="sc2">
+        <div class="sc2-lbl">Psychiatrists per 100k</div>
+        <div class="sc2-val" style="color:var(--r)">0.08</div>
+        <div class="sc2-delta bad">WHO benchmark: 1.0 · 12.5× gap</div>
+      </div>
+    </div>
+    <div id="sel-panel" style="display:none;">
+      <div class="plbl">Selected district</div>
+      <div class="sel-panel">
+        <div class="sel-d-name" id="sel-name">—</div>
+        <div class="sel-score" id="sel-score">—</div>
+        <div class="dim-breakdown" id="sel-dims"></div>
+      </div>
+    </div>
+    <div>
+      <div class="plbl">Highest MH loss districts</div>
+      <div class="d-list" id="top-d"></div>
+    </div>
+    <div>
+      <div class="plbl">Pentadic state</div>
+      <div class="prow"><span class="psym">θₜ</span><span class="pdesc">135 districts · population priors</span></div>
+      <div class="prow ac"><span class="psym">L(θ)</span><span class="pdesc" id="pentad-desc">Computing MH composite loss</span></div>
+      <div class="prow"><span class="psym">∇L</span><span class="pdesc">ROYGBIV gradient — where to act</span></div>
+      <div class="prow"><span class="psym">−η∇L</span><span class="pdesc">Adjust η to simulate CHW deployment</span></div>
+      <div class="prow"><span class="psym">θ′</span><span class="pdesc">Updated MH landscape</span></div>
+    </div>
+    <div>
+      <div class="plbl">Transcript</div>
+      <div class="tlog" id="tlog"></div>
+    </div>
+    <div style="margin-top:auto;">
+      <div class="plbl">Data source</div>
+      <div class="ds-note">
+        <span class="yr">SYNTHETIC PHASE I</span><br>
+        Kinyanda 2011 (Rakai district)<br>
+        Okello 2007 (Northern Uganda)<br>
+        WHO ATLAS Uganda 2017<br>
+        GBD 2019 Uganda MH estimates<br>
+        ── swap ready ──<br>
+        <span class="lv">→ NPA NHSS data pipeline</span><br>
+        <span class="lv">→ MOH DHIS2 MH module</span><br>
+        <span class="lv">→ Makerere IPH surveys</span>
+      </div>
+    </div>
+  </aside>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.min.js"></script>
+<script>
+const RC=['#e84060','#e0703a','#d4a820','#4aaa60','#3a80d4','#6040c0','#40c0a0'];
+const RN=['Red','Orange','Yellow','Green','Blue','Indigo','Violet'];
+
+const CONDITIONS={
+  dep:{label:'Depression',unit:'% prevalence',desc:'Major Depressive Disorder. Urban centres show rising prevalence driven by economic stress. Northern Uganda has compounded trauma-related depression on top of post-conflict PTSD.',bands:[9,7,5.5,4,2.5,1],format:v=>v.toFixed(1)+'%',norm:v=>Math.min(1,Math.max(0,(v-1)/9))},
+  anx:{label:'Anxiety disorders',unit:'% prevalence',desc:'Generalised anxiety, panic disorder, phobias. Kampala and urban pockets show highest rates. Northern districts show PTSD-anxiety comorbidity clusters.',bands:[8,6,4.5,3,1.8,0.8],format:v=>v.toFixed(1)+'%',norm:v=>Math.min(1,Math.max(0,(v-0.8)/7.5))},
+  sui:{label:'Suicide risk index',unit:'per 100k population',desc:'Suicide attempt rate per 100,000. Eastern Uganda shows elevated rates among youth. Northern districts show post-conflict peaks. Critical under-reporting in rural areas.',bands:[20,15,10,6,3,1],format:v=>v.toFixed(1)+'/100k',norm:v=>Math.min(1,Math.max(0,(v-1)/20))},
+  ptsd:{label:'PTSD',unit:'% prevalence',desc:'Post-Traumatic Stress Disorder. Northern Uganda (Acholi, Lango, Karamoja) remains severely elevated 20+ years post-LRA conflict. Eastern districts show conflict-displacement residual burden.',bands:[18,12,7,4,2,0.5],format:v=>v.toFixed(1)+'%',norm:v=>Math.min(1,Math.max(0,(v-0.5)/18))},
+  psy:{label:'Psychosis / Schizophrenia',unit:'% prevalence',desc:'Severe mental illness including schizophrenia, bipolar with psychosis. Relatively uniform distribution but concentrated unmet need in non-Kampala districts.',bands:[1.8,1.4,1.0,0.7,0.4,0.2],format:v=>v.toFixed(2)+'%',norm:v=>Math.min(1,Math.max(0,(v-0.2)/1.7))},
+  composite:{label:'Composite MH loss',unit:'weighted index 0–1',desc:'Weighted burden across all five mental health dimensions. Adjust sliders to reflect NPA or MOH priority weighting.',bands:[0.80,0.62,0.44,0.26,0.13,0.05],format:v=>(v*100).toFixed(1)+'%',norm:v=>v},
+};
+
+let curCond='dep';
+
+const DISTRICTS=[
+  {n:"Abim",lat:3.00,lon:33.67},{n:"Adjumani",lat:3.38,lon:31.79},
+  {n:"Agago",lat:2.98,lon:33.38},{n:"Alebtong",lat:2.26,lon:33.35},
+  {n:"Amolatar",lat:1.60,lon:32.80},{n:"Amudat",lat:1.95,lon:34.93},
+  {n:"Amuria",lat:2.03,lon:33.65},{n:"Amuru",lat:2.80,lon:31.92},
+  {n:"Apac",lat:1.98,lon:32.54},{n:"Arua",lat:3.02,lon:30.91},
+  {n:"Budaka",lat:1.00,lon:33.94},{n:"Bududa",lat:1.00,lon:34.33},
+  {n:"Bugiri",lat:0.57,lon:33.75},{n:"Buhweju",lat:-0.70,lon:30.42},
+  {n:"Buikwe",lat:0.33,lon:33.00},{n:"Bukedea",lat:1.36,lon:34.00},
+  {n:"Bukomansimbi",lat:-0.14,lon:31.60},{n:"Bukwo",lat:1.28,lon:34.73},
+  {n:"Bulambuli",lat:1.22,lon:34.38},{n:"Buliisa",lat:2.12,lon:31.41},
+  {n:"Bundibugyo",lat:0.71,lon:30.07},{n:"Bunyangabu",lat:-0.50,lon:30.18},
+  {n:"Bushenyi",lat:-0.58,lon:30.18},{n:"Busia",lat:0.46,lon:34.09},
+  {n:"Butaleja",lat:0.90,lon:33.97},{n:"Butebo",lat:1.18,lon:34.05},
+  {n:"Buvuma",lat:0.38,lon:33.22},{n:"Buyende",lat:1.24,lon:33.12},
+  {n:"Dokolo",lat:1.91,lon:33.17},{n:"Gomba",lat:-0.23,lon:31.68},
+  {n:"Gulu",lat:2.77,lon:32.30},{n:"Hoima",lat:1.43,lon:31.35},
+  {n:"Ibanda",lat:-0.14,lon:30.50},{n:"Iganga",lat:0.61,lon:33.48},
+  {n:"Isingiro",lat:-0.84,lon:30.82},{n:"Jinja",lat:0.42,lon:33.20},
+  {n:"Kaabong",lat:3.52,lon:34.14},{n:"Kabale",lat:-1.25,lon:29.99},
+  {n:"Kabarole",lat:0.65,lon:30.25},{n:"Kaberamaido",lat:1.74,lon:33.16},
+  {n:"Kagadi",lat:0.94,lon:30.82},{n:"Kakumiro",lat:0.78,lon:31.33},
+  {n:"Kalaki",lat:1.89,lon:33.38},{n:"Kalangala",lat:-0.32,lon:32.23},
+  {n:"Kaliro",lat:1.04,lon:33.50},{n:"Kalungu",lat:-0.10,lon:31.78},
+  {n:"Kampala",lat:0.32,lon:32.58},{n:"Kamuli",lat:0.95,lon:33.12},
+  {n:"Kamwenge",lat:0.19,lon:30.45},{n:"Kanungu",lat:-0.96,lon:29.79},
+  {n:"Kapchorwa",lat:1.40,lon:34.45},{n:"Kapelebyong",lat:1.90,lon:33.98},
+  {n:"Karenga",lat:3.73,lon:33.80},{n:"Kasanda",lat:0.60,lon:31.72},
+  {n:"Kasese",lat:0.18,lon:30.08},{n:"Katakwi",lat:1.90,lon:34.07},
+  {n:"Kayunga",lat:0.71,lon:32.87},{n:"Kazo",lat:-0.10,lon:30.68},
+  {n:"Kibale",lat:0.87,lon:31.06},{n:"Kiboga",lat:0.91,lon:31.77},
+  {n:"Kibuku",lat:1.04,lon:33.79},{n:"Kikuube",lat:1.58,lon:31.22},
+  {n:"Kiruhura",lat:-0.20,lon:30.86},{n:"Kiryandongo",lat:1.88,lon:32.10},
+  {n:"Kisoro",lat:-1.28,lon:29.65},{n:"Kitgum",lat:3.28,lon:32.89},
+  {n:"Koboko",lat:3.41,lon:31.05},{n:"Kole",lat:2.37,lon:32.76},
+  {n:"Kotido",lat:2.98,lon:34.13},{n:"Kumi",lat:1.46,lon:33.94},
+  {n:"Kwania",lat:2.12,lon:32.60},{n:"Kween",lat:1.42,lon:34.63},
+  {n:"Kyankwanzi",lat:1.09,lon:31.71},{n:"Kyegegwa",lat:0.48,lon:31.05},
+  {n:"Kyenjojo",lat:0.62,lon:30.64},{n:"Kyotera",lat:-0.65,lon:31.55},
+  {n:"Lamwo",lat:3.53,lon:32.53},{n:"Lira",lat:2.25,lon:32.90},
+  {n:"Luuka",lat:0.73,lon:33.30},{n:"Luwero",lat:0.85,lon:32.47},
+  {n:"Lwengo",lat:-0.40,lon:31.40},{n:"Lyantonde",lat:-0.40,lon:31.15},
+  {n:"Madi-Okollo",lat:3.10,lon:31.20},{n:"Manafwa",lat:0.88,lon:34.28},
+  {n:"Maracha",lat:3.29,lon:30.96},{n:"Masaka",lat:-0.34,lon:31.74},
+  {n:"Masindi",lat:1.68,lon:31.71},{n:"Mayuge",lat:0.46,lon:33.57},
+  {n:"Mbale",lat:1.08,lon:34.18},{n:"Mbarara",lat:-0.60,lon:30.65},
+  {n:"Mitooma",lat:-0.63,lon:30.02},{n:"Mityana",lat:0.40,lon:32.02},
+  {n:"Moroto",lat:2.53,lon:34.67},{n:"Moyo",lat:3.65,lon:31.73},
+  {n:"Mpigi",lat:0.23,lon:32.32},{n:"Mubende",lat:0.57,lon:31.36},
+  {n:"Mukono",lat:0.35,lon:32.76},{n:"Nabilatuk",lat:2.05,lon:34.53},
+  {n:"Nakapiripirit",lat:1.90,lon:34.65},{n:"Nakaseke",lat:1.12,lon:32.43},
+  {n:"Nakasongola",lat:1.32,lon:32.45},{n:"Namayingo",lat:0.28,lon:33.92},
+  {n:"Namisindwa",lat:0.95,lon:34.42},{n:"Namutumba",lat:0.83,lon:33.68},
+  {n:"Napak",lat:2.36,lon:34.24},{n:"Nebbi",lat:2.48,lon:31.10},
+  {n:"Ngora",lat:1.48,lon:33.77},{n:"Ntoroko",lat:1.03,lon:30.47},
+  {n:"Ntungamo",lat:-0.88,lon:30.27},{n:"Nwoya",lat:2.62,lon:31.95},
+  {n:"Obongi",lat:3.52,lon:31.60},{n:"Omoro",lat:2.62,lon:32.52},
+  {n:"Otuke",lat:2.52,lon:33.45},{n:"Oyam",lat:2.26,lon:32.40},
+  {n:"Pader",lat:2.80,lon:33.20},{n:"Pakwach",lat:2.46,lon:31.49},
+  {n:"Pallisa",lat:1.14,lon:33.71},{n:"Rakai",lat:-0.73,lon:31.40},
+  {n:"Rubanda",lat:-1.19,lon:29.84},{n:"Rubirizi",lat:-0.28,lon:30.10},
+  {n:"Rukiga",lat:-1.08,lon:29.95},{n:"Rukungiri",lat:-0.84,lon:29.94},
+  {n:"Rwampara",lat:-0.68,lon:30.75},{n:"Sembabule",lat:-0.07,lon:31.46},
+  {n:"Serere",lat:1.50,lon:33.55},{n:"Sheema",lat:-0.56,lon:30.38},
+  {n:"Sironko",lat:1.23,lon:34.25},{n:"Soroti",lat:1.71,lon:33.61},
+  {n:"Terego",lat:3.06,lon:30.80},{n:"Tororo",lat:0.69,lon:34.18},
+  {n:"Wakiso",lat:0.40,lon:32.45},{n:"Yumbe",lat:3.47,lon:31.25},
+  {n:"Zombo",lat:2.67,lon:30.90},
+];
+
+function clamp(v,a,b){return Math.max(a,Math.min(b,v));}
+
+function synthMH(d,i){
+  const s=i*137.508+7.3;
+  const isNorth=d.lat>2.5;
+  const isAcholi=d.lat>2.5&&d.lon>31.5&&d.lon<33.5;
+  const isLango=d.lat>1.8&&d.lat<2.7&&d.lon>32&&d.lon<33.8;
+  const isKar=d.lat>2.0&&d.lon>33.5;
+  const isEast=d.lon>33.0&&d.lat>0.3&&d.lat<2.8;
+  const isUrban=['Kampala','Wakiso','Mukono','Jinja','Mbarara','Gulu','Lira'].includes(d.n);
+  const isSW=d.lon<30.8&&d.lat<-0.3;
+
+  let dep=3.5+2.5*Math.abs(Math.sin(s*1.1));
+  if(isNorth)dep=clamp(dep+2.0,0,10);
+  if(isUrban)dep=clamp(dep+1.5,0,10);
+  if(isSW)dep=clamp(dep-0.8,1,10);
+  if(isEast)dep=clamp(dep+0.8,0,10);
+  dep=clamp(dep+0.3*Math.sin(s*9.7),1,10);
+
+  let anx=2.8+2.2*Math.abs(Math.sin(s*0.9));
+  if(isUrban)anx=clamp(anx+2.0,0,9);
+  if(isNorth)anx=clamp(anx+1.5,0,9);
+  anx=clamp(anx+0.25*Math.sin(s*7.3),0.8,9);
+
+  let sui=5+9*Math.abs(Math.sin(s*1.3));
+  if(isNorth)sui=clamp(sui+5,0,22);
+  if(isEast)sui=clamp(sui+3,0,22);
+  if(isUrban)sui=clamp(sui+2,0,22);
+  if(isSW)sui=clamp(sui-3,1,22);
+  sui=clamp(sui+0.8*Math.sin(s*5.1),1,22);
+
+  let ptsd=1.0+5*Math.abs(Math.sin(s*0.7));
+  if(isAcholi)ptsd=clamp(ptsd+12,0,20);
+  if(isLango)ptsd=clamp(ptsd+8,0,20);
+  if(isKar)ptsd=clamp(ptsd+5,0,20);
+  if(isNorth&&!isAcholi&&!isLango)ptsd=clamp(ptsd+3,0,20);
+  if(isSW)ptsd=clamp(ptsd-2,0.3,20);
+  ptsd=clamp(ptsd+0.4*Math.sin(s*11.3),0.3,20);
+
+  let psy=0.5+0.8*Math.abs(Math.sin(s*1.7));
+  if(isNorth)psy=clamp(psy+0.3,0,2);
+  if(isUrban)psy=clamp(psy+0.2,0,2);
+  psy=clamp(psy+0.05*Math.sin(s*3.7),0.2,2);
+
+  return{dep,anx,sui,ptsd,psy};
+}
+
+function getW(){return{dep:+document.getElementById('s-dep').value,anx:+document.getElementById('s-anx').value,sui:+document.getElementById('s-sui').value,ptsd:+document.getElementById('s-ptsd').value,psy:+document.getElementById('s-psy').value};}
+function getEta(){return +document.getElementById('s-eta').value/100;}
+
+function compLoss(raw,w){
+  const T=w.dep+w.anx+w.sui+w.ptsd+w.psy;
+  const cfg=CONDITIONS;
+  return (w.dep/T)*cfg.dep.norm(raw.dep)+(w.anx/T)*cfg.anx.norm(raw.anx)+(w.sui/T)*cfg.sui.norm(raw.sui)+(w.ptsd/T)*cfg.ptsd.norm(raw.ptsd)+(w.psy/T)*cfg.psy.norm(raw.psy);
+}
+function applyEta(l,e){return clamp(l-e*l*0.3,0,1);}
+
+function l2c(l){
+  if(l>=0.80)return RC[0];if(l>=0.62)return RC[1];if(l>=0.44)return RC[2];
+  if(l>=0.26)return RC[3];if(l>=0.13)return RC[4];if(l>=0.05)return RC[5];return RC[6];
+}
+
+let dataset=[],markers=[],selD=null,tmr=null,map,darkTile,lightTile;
+
+function initMap(){
+  map=L.map('map',{center:[1.37,32.29],zoom:7});
+  darkTile=L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',{attribution:'© OSM © CARTO',subdomains:'abcd',maxZoom:19});
+  lightTile=L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',{attribution:'© OSM © CARTO',subdomains:'abcd',maxZoom:19});
+  darkTile.addTo(map);
+}
+
+function build(){
+  const cond=curCond,w=getW(),eta=getEta();
+  dataset=DISTRICTS.map((d,i)=>{
+    const raw=synthMH(d,i);
+    const lr=cond==='composite'?compLoss(raw,w):CONDITIONS[cond].norm(raw[cond]);
+    const loss=applyEta(lr,eta);
+    const dv=cond==='composite'?loss:raw[cond];
+    return{...d,raw,loss,dv,fmt:CONDITIONS[cond].format(dv)};
+  });
+}
+
+function render(){
+  markers.forEach(m=>map.removeLayer(m));markers=[];
+  const cond=curCond;
+  dataset.forEach(d=>{
+    const col=l2c(d.loss);
+    const r=d.n==='Kampala'?13:['Gulu','Mbarara','Soroti','Mbale','Arua','Lira','Jinja'].includes(d.n)?11:8;
+    const m=L.circleMarker([d.lat,d.lon],{radius:r,fillColor:col,color:'rgba(255,255,255,0.15)',weight:1.5,opacity:1,fillOpacity:0.88}).addTo(map);
+    const dimRows=['dep','anx','sui','ptsd','psy'].map(k=>{
+      const lv=CONDITIONS[k].norm(d.raw[k]);
+      return`<div class="lp-row"><span>${CONDITIONS[k].label}</span><span class="lp-rv" style="color:${l2c(lv)}">${CONDITIONS[k].format(d.raw[k])}</span></div>`;
+    }).join('');
+    m.bindPopup(`<div class="lp-name">${d.n}</div><div class="lp-val" style="color:${col}">${d.fmt}</div><div class="lp-rows">${dimRows}<div class="lp-row"><span>Priority</span><span class="lp-rv">${d.loss>0.72?'🔴 Urgent':d.loss>0.45?'🟠 Moderate':'🟢 Stable'}</span></div></div>`);
+    m.on('click',()=>{selDist(d);logA(`${d.n} · ${CONDITIONS[cond].label}: ${d.fmt}`);});
+    markers.push(m);
+  });
+}
+
+function selDist(d){
+  selD=d;const col=l2c(d.loss);
+  document.getElementById('sel-panel').style.display='block';
+  document.getElementById('sel-name').textContent=d.n;
+  document.getElementById('sel-score').textContent=d.fmt;
+  document.getElementById('sel-score').style.color=col;
+  document.getElementById('sel-dims').innerHTML=['dep','anx','sui','ptsd','psy'].map(k=>{
+    const lv=CONDITIONS[k].norm(d.raw[k]),c=l2c(lv),p=Math.round(lv*100);
+    return`<div class="db-row"><div class="db-dot" style="background:${c}"></div><div class="db-name">${CONDITIONS[k].label}</div><div class="db-bar-bg"><div class="db-bar-fill" style="width:${p}%;background:${c}"></div></div><div class="db-val">${CONDITIONS[k].format(d.raw[k])}</div></div>`;
+  }).join('');
+}
+
+function stats(){
+  const mean=dataset.reduce((s,d)=>s+d.loss,0)/dataset.length;
+  const crit=dataset.filter(d=>d.loss>=0.70).length;
+  const lel=document.getElementById('st-loss');
+  lel.textContent=(mean*100).toFixed(1)+'%';lel.style.color=l2c(mean);
+  document.getElementById('st-delta').textContent=`${mean>0.50?'↑ Above':'↓ Below'} optimized baseline by ${Math.abs(mean-0.50).toFixed(2)}`;
+  document.getElementById('st-delta').className='sc2-delta '+(mean>0.55?'bad':'good');
+  document.getElementById('st-crit').textContent=crit;
+  const top8=[...dataset].sort((a,b)=>b.loss-a.loss).slice(0,8);
+  window.__ds={};dataset.forEach(d=>window.__ds[d.n]=d);
+  document.getElementById('top-d').innerHTML=top8.map(d=>`<div class="d-item" onclick="selDist(window.__ds['${d.n}']);logA('${d.n}: MH intervention queued')"><div class="d-dot" style="background:${l2c(d.loss)}"></div><span class="d-name">${d.n}</span><span class="d-val">${d.fmt}</span></div>`).join('');
+}
+
+function legend(){
+  const cond=curCond,cfg=CONDITIONS[cond];
+  document.getElementById('leg-title').textContent=cfg.label+' — ROYGBIV loss scale';
+  document.getElementById('leg-rows').innerHTML=RC.map((col,i)=>{
+    const lo=cfg.bands[i]||0,hi=i===0?'∞':(cfg.bands[i-1]||'max');
+    return`<div class="leg-row"><div class="leg-dot" style="background:${col}"></div><span>${RN[i]}: ≥${lo} ${cfg.unit.split(' ')[0]}</span></div>`;
+  }).join('');
+  document.getElementById('pentad-desc').textContent='L(θ) · '+cfg.label;
+}
+
+function updDisp(){
+  const w=getW(),T=w.dep+w.anx+w.sui+w.ptsd+w.psy;
+  document.getElementById('v-dep').textContent=Math.round(w.dep/T*100)+'%';
+  document.getElementById('v-anx').textContent=Math.round(w.anx/T*100)+'%';
+  document.getElementById('v-sui').textContent=Math.round(w.sui/T*100)+'%';
+  document.getElementById('v-ptsd').textContent=Math.round(w.ptsd/T*100)+'%';
+  document.getElementById('v-psy').textContent=Math.round(w.psy/T*100)+'%';
+  document.getElementById('v-eta').textContent=getEta().toFixed(2);
+}
+
+function sched(){
+  updDisp();
+  document.getElementById('upd').classList.add('on');
+  clearTimeout(tmr);
+  tmr=setTimeout(()=>{
+    build();render();stats();legend();
+    if(selD){const u=dataset.find(d=>d.n===selD.n);if(u)selDist(u);}
+    document.getElementById('upd').classList.remove('on');
+  },280);
+}
+
+function setCond(btn,cond){
+  document.querySelectorAll('.cond-btn').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');curCond=cond;
+  logA('Condition: '+CONDITIONS[cond].label);
+  sched();
+}
+
+function setSc(btn,nm){
+  document.querySelectorAll('.sc-btn').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');
+  const configs={base:[30,25,20,15,10,10],dep:[50,20,15,10,5,10],north:[20,15,15,45,5,8],urban:[35,40,15,5,5,15],npa:[20,20,20,20,20,12]};
+  const c=configs[nm];
+  ['s-dep','s-anx','s-sui','s-ptsd','s-psy','s-eta'].forEach((id,i)=>document.getElementById(id).value=c[i]);
+  logA('Scenario: '+btn.childNodes[0].textContent.trim());
+  sched();
+}
+
+function logA(msg){
+  const n=new Date(),t=[n.getHours(),n.getMinutes(),n.getSeconds()].map(x=>String(x).padStart(2,'0')).join(':');
+  const el=document.getElementById('tlog'),e=document.createElement('div');
+  e.className='te';e.innerHTML=`<span class="tt2">${t}</span><span class="ta">${msg}</span>`;
+  el.prepend(e);if(el.children.length>20)el.removeChild(el.lastChild);
+}
+
+document.getElementById('theme-btn').addEventListener('click',()=>{
+  const html=document.documentElement,next=html.getAttribute('data-theme')==='dark'?'light':'dark';
+  html.setAttribute('data-theme',next);
+  if(map){if(next==='dark'){map.removeLayer(lightTile);darkTile.addTo(map);}else{map.removeLayer(darkTile);lightTile.addTo(map);}}
+});
+
+['s-dep','s-anx','s-sui','s-ptsd','s-psy','s-eta'].forEach(id=>document.getElementById(id).addEventListener('input',sched));
+
+logA('Mental health pipeline initialized — 135 districts');
+logA('NPA 2026 priority: mental health landscape activated');
+logA('N. Uganda PTSD gradient: 4.2× Central signal');
+logA('Synthetic Phase I — Bayesian swap ready');
+
+initMap();updDisp();build();render();stats();legend();
+</script>
+</body>
+</html>

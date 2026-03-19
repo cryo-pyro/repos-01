@@ -1,0 +1,920 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>one city · one day · uncompressed dimensions</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IM+Fell+English:ital@0;1&family=IBM+Plex+Mono:wght@300;400;700&family=Cormorant+Garamond:ital,wght@0,300;0,600;1,300;1,600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+:root{
+  --bg:#0c0b09;
+  --paper:#f2ead8;
+  --ink:#1a1710;
+  --gold:#c9a84c;
+  --rust:#a83828;
+  --slate:#3a4a6b;
+  --fog:#8a8070;
+  --dim:rgba(242,234,216,0.06);
+  --serif:'IM Fell English',serif;
+  --mono:'IBM Plex Mono',monospace;
+  --display:'Cormorant Garamond',serif;
+}
+
+html{scroll-behavior:smooth}
+
+body{
+  background:var(--bg);
+  color:var(--paper);
+  font-family:var(--serif);
+  font-size:16px;
+  line-height:1.7;
+  overflow-x:hidden;
+  cursor:crosshair;
+}
+
+/* noise overlay */
+body::before{
+  content:'';
+  position:fixed;inset:0;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+  pointer-events:none;z-index:1000;opacity:0.4;
+}
+
+/* ── HERO ── */
+.hero{
+  min-height:100vh;
+  display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+  position:relative;
+  padding:4rem 2rem;
+  overflow:hidden;
+}
+
+.hero-bg{
+  position:absolute;inset:0;
+  background:
+    radial-gradient(ellipse 80% 50% at 50% 60%, rgba(58,74,107,0.18) 0%, transparent 70%),
+    radial-gradient(ellipse 40% 30% at 30% 40%, rgba(201,168,76,0.06) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 40% at 70% 70%, rgba(168,56,40,0.07) 0%, transparent 60%);
+}
+
+.riddle-line{
+  font-family:var(--mono);
+  font-size:clamp(9px,1vw,12px);
+  letter-spacing:0.5em;
+  color:var(--gold);
+  opacity:0.5;
+  text-transform:uppercase;
+  margin-bottom:3rem;
+  animation:fadeUp 1.2s ease forwards;
+}
+
+.hero-title{
+  font-family:var(--display);
+  font-weight:300;
+  font-style:italic;
+  font-size:clamp(3rem,10vw,9rem);
+  line-height:0.9;
+  text-align:center;
+  color:var(--paper);
+  letter-spacing:-0.02em;
+  animation:fadeUp 1.4s ease forwards;
+  opacity:0;
+  animation-delay:0.2s;
+}
+
+.hero-title em{
+  font-style:normal;
+  color:var(--gold);
+}
+
+.hero-sub{
+  margin-top:2.5rem;
+  font-family:var(--mono);
+  font-size:clamp(9px,0.9vw,11px);
+  color:var(--fog);
+  letter-spacing:0.3em;
+  text-transform:uppercase;
+  animation:fadeUp 1.6s ease forwards;
+  opacity:0;
+  animation-delay:0.6s;
+  text-align:center;
+}
+
+.scroll-hint{
+  position:absolute;bottom:2.5rem;left:50%;transform:translateX(-50%);
+  display:flex;flex-direction:column;align-items:center;gap:0.5rem;
+  font-family:var(--mono);font-size:9px;letter-spacing:0.3em;
+  color:var(--fog);opacity:0.4;
+  animation:pulse 3s ease-in-out infinite;
+}
+.scroll-hint::after{
+  content:'';width:1px;height:40px;
+  background:linear-gradient(to bottom,var(--gold),transparent);
+  animation:drip 3s ease-in-out infinite;
+}
+@keyframes drip{0%,100%{transform:scaleY(0.3);opacity:0.2}50%{transform:scaleY(1);opacity:0.6}}
+
+/* ── LAYOUT ── */
+.section{
+  max-width:860px;
+  margin:0 auto;
+  padding:5rem 2rem;
+  position:relative;
+}
+
+.section-wide{
+  max-width:1100px;
+  margin:0 auto;
+  padding:5rem 2rem;
+}
+
+/* ── VOICE HEADERS ── */
+.voice-block{
+  margin:0 auto 6rem;
+  max-width:860px;
+  padding:0 2rem;
+}
+
+.voice-label{
+  display:inline-flex;align-items:center;gap:1rem;
+  font-family:var(--mono);font-size:10px;
+  letter-spacing:0.4em;text-transform:uppercase;
+  margin-bottom:2.5rem;
+  position:relative;
+}
+.voice-label::before{
+  content:'';display:block;
+  width:32px;height:1px;
+}
+.voice-label.gemini{color:#4a9eff}
+.voice-label.gemini::before{background:#4a9eff}
+.voice-label.openai{color:#10a37f}
+.voice-label.openai::before{background:#10a37f}
+.voice-label.anthropic{color:var(--rust)}
+.voice-label.anthropic::before{background:var(--rust)}
+.voice-label.xai{color:var(--fog)}
+.voice-label.xai::before{background:var(--fog)}
+.voice-label.ukubona{color:var(--gold)}
+.voice-label.ukubona::before{background:var(--gold)}
+
+.voice-turn{
+  border-left:1px solid var(--dim);
+  padding-left:2rem;
+  margin-bottom:3rem;
+  position:relative;
+}
+.voice-turn::before{
+  content:attr(data-n);
+  position:absolute;left:-1.8rem;top:0;
+  font-family:var(--mono);font-size:9px;
+  color:var(--fog);opacity:0.4;
+  letter-spacing:0.1em;
+}
+
+/* ── PROSE ── */
+p{
+  font-family:var(--display);
+  font-weight:300;
+  font-size:clamp(15px,1.3vw,18px);
+  color:rgba(242,234,216,0.82);
+  margin-bottom:1.4em;
+  line-height:1.75;
+}
+
+strong{color:var(--paper);font-weight:600}
+em{color:var(--gold);font-style:italic}
+
+/* ── RIDDLE STATEMENT ── */
+.riddle-statement{
+  font-family:var(--display);
+  font-style:italic;
+  font-size:clamp(1.1rem,2.5vw,1.6rem);
+  color:var(--paper);
+  text-align:center;
+  border:1px solid rgba(201,168,76,0.15);
+  padding:3rem 4rem;
+  margin:4rem auto;
+  max-width:640px;
+  position:relative;
+  line-height:1.4;
+}
+.riddle-statement::before,.riddle-statement::after{
+  content:'';position:absolute;
+  width:12px;height:12px;
+  border-color:var(--gold);
+  border-style:solid;
+  opacity:0.4;
+}
+.riddle-statement::before{top:-1px;left:-1px;border-width:1px 0 0 1px}
+.riddle-statement::after{bottom:-1px;right:-1px;border-width:0 1px 1px 0}
+
+/* ── MATH ── */
+.math{
+  font-family:var(--mono);
+  font-size:clamp(12px,1.1vw,15px);
+  color:var(--gold);
+  background:rgba(201,168,76,0.04);
+  border:1px solid rgba(201,168,76,0.1);
+  border-left:2px solid var(--gold);
+  padding:1rem 1.5rem;
+  margin:1.5rem 0;
+  overflow-x:auto;
+  white-space:pre;
+  line-height:1.6;
+}
+
+/* ── TABLE ── */
+.data-table{
+  width:100%;border-collapse:collapse;
+  font-family:var(--mono);font-size:12px;
+  margin:2rem 0;
+  overflow:hidden;
+}
+.data-table th{
+  background:rgba(201,168,76,0.08);
+  color:var(--gold);
+  font-weight:400;letter-spacing:0.2em;text-transform:uppercase;
+  padding:0.8rem 1.2rem;text-align:left;
+  border-bottom:1px solid rgba(201,168,76,0.2);
+  font-size:10px;
+}
+.data-table td{
+  padding:0.8rem 1.2rem;
+  color:rgba(242,234,216,0.7);
+  border-bottom:1px solid rgba(255,255,255,0.04);
+  vertical-align:top;
+  font-size:12px;
+  line-height:1.5;
+}
+.data-table td:first-child{color:var(--paper);font-weight:400}
+.data-table tr:hover td{background:rgba(255,255,255,0.02)}
+
+/* ── DIVIDER ── */
+.divider{
+  display:flex;align-items:center;gap:1.5rem;
+  margin:5rem auto;
+  max-width:500px;
+  padding:0 2rem;
+}
+.divider::before,.divider::after{
+  content:'';flex:1;
+  height:1px;background:linear-gradient(to right,transparent,rgba(201,168,76,0.2),transparent);
+}
+.divider-mark{
+  font-family:var(--mono);font-size:9px;
+  color:var(--gold);opacity:0.4;letter-spacing:0.4em;text-transform:uppercase;
+  white-space:nowrap;
+}
+
+/* ── SECTION HEADING ── */
+h2{
+  font-family:var(--display);
+  font-weight:600;font-style:italic;
+  font-size:clamp(1.4rem,3vw,2.2rem);
+  color:var(--paper);
+  margin-bottom:2rem;
+  line-height:1.2;
+}
+h3{
+  font-family:var(--mono);
+  font-size:11px;letter-spacing:0.35em;text-transform:uppercase;
+  color:var(--gold);margin-bottom:1.2rem;margin-top:2.5rem;opacity:0.8;
+}
+
+/* ── PULL QUOTE ── */
+.pull{
+  font-family:var(--display);
+  font-style:italic;font-weight:300;
+  font-size:clamp(1.2rem,2.5vw,1.8rem);
+  color:var(--paper);
+  border-left:2px solid var(--gold);
+  padding:0.5rem 0 0.5rem 2rem;
+  margin:2.5rem 0;
+  line-height:1.4;
+  opacity:0.85;
+}
+
+/* ── CODE ── */
+code{
+  font-family:var(--mono);font-size:12px;
+  background:rgba(255,255,255,0.04);
+  padding:0.15em 0.4em;
+  color:var(--gold);
+  border-radius:2px;
+}
+
+pre{
+  font-family:var(--mono);font-size:12px;
+  background:rgba(255,255,255,0.03);
+  border:1px solid rgba(255,255,255,0.07);
+  padding:1.2rem 1.5rem;
+  margin:1.5rem 0;
+  overflow-x:auto;
+  line-height:1.7;
+  color:rgba(242,234,216,0.6);
+}
+
+/* ── SCHEMA LAYERS ── */
+.layer-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(220px,1fr));
+  gap:1px;
+  background:rgba(255,255,255,0.05);
+  margin:2.5rem 0;
+  border:1px solid rgba(255,255,255,0.05);
+}
+.layer-cell{
+  background:var(--bg);
+  padding:1.5rem;
+  transition:background 0.3s;
+}
+.layer-cell:hover{background:rgba(255,255,255,0.03)}
+.layer-cell .lc-label{
+  font-family:var(--mono);font-size:9px;letter-spacing:0.3em;
+  text-transform:uppercase;color:var(--gold);margin-bottom:0.6rem;
+  opacity:0.7;
+}
+.layer-cell .lc-name{
+  font-family:var(--display);font-style:italic;font-size:1.1rem;
+  color:var(--paper);margin-bottom:0.4rem;
+}
+.layer-cell .lc-desc{
+  font-family:var(--mono);font-size:11px;
+  color:var(--fog);line-height:1.5;
+}
+
+/* ── SGD TIMELINE ── */
+.timeline{
+  position:relative;
+  padding-left:2.5rem;
+  margin:2.5rem 0;
+}
+.timeline::before{
+  content:'';position:absolute;left:0;top:0;bottom:0;
+  width:1px;background:linear-gradient(to bottom,var(--gold),rgba(201,168,76,0.1));
+}
+.tl-item{
+  position:relative;
+  margin-bottom:2rem;
+}
+.tl-item::before{
+  content:'';position:absolute;
+  left:-2.5rem;top:0.55rem;
+  width:7px;height:7px;border-radius:50%;
+  background:var(--bg);border:1px solid var(--gold);
+}
+.tl-item:hover::before{background:var(--gold)}
+.tl-greek{
+  font-family:var(--mono);font-size:11px;color:var(--gold);
+  letter-spacing:0.2em;margin-bottom:0.3rem;
+}
+.tl-body{
+  font-family:var(--display);font-weight:300;font-size:1rem;
+  color:rgba(242,234,216,0.75);line-height:1.6;
+}
+
+/* ── VOICE COMPARISON GRID ── */
+.voice-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(240px,1fr));
+  gap:1px;
+  background:rgba(255,255,255,0.04);
+  margin:2.5rem 0;
+}
+.vg-cell{
+  background:var(--bg);padding:2rem;
+}
+.vg-name{
+  font-family:var(--mono);font-size:10px;
+  letter-spacing:0.4em;text-transform:uppercase;
+  margin-bottom:1rem;
+}
+.vg-name.g{color:#4a9eff}
+.vg-name.o{color:#10a37f}
+.vg-name.a{color:var(--rust)}
+.vg-name.x{color:var(--fog)}
+.vg-answer{
+  font-family:var(--display);font-style:italic;
+  font-size:1.05rem;color:var(--paper);
+  margin-bottom:0.8rem;line-height:1.4;
+}
+.vg-note{
+  font-family:var(--mono);font-size:11px;
+  color:var(--fog);line-height:1.5;
+}
+
+/* ── UKUBONA ── */
+.ukubona-stack{
+  display:flex;flex-direction:column;gap:1px;
+  background:rgba(255,255,255,0.04);
+  margin:2.5rem 0;
+  border:1px solid rgba(201,168,76,0.08);
+}
+.uk-row{
+  display:grid;grid-template-columns:100px 1fr 2fr;
+  background:var(--bg);
+  align-items:start;gap:0;
+}
+.uk-row:hover{background:rgba(255,255,255,0.02)}
+.uk-abbr{
+  padding:1.2rem;
+  font-family:var(--mono);font-size:10px;
+  color:var(--gold);letter-spacing:0.2em;
+  border-right:1px solid rgba(255,255,255,0.04);
+  display:flex;align-items:center;
+}
+.uk-name{
+  padding:1.2rem;
+  font-family:var(--display);font-style:italic;
+  font-size:1rem;color:var(--paper);
+  border-right:1px solid rgba(255,255,255,0.04);
+}
+.uk-desc{
+  padding:1.2rem;
+  font-family:var(--mono);font-size:11px;
+  color:var(--fog);line-height:1.5;
+}
+
+/* ── FOOTER ── */
+.footer{
+  text-align:center;
+  padding:6rem 2rem;
+  font-family:var(--mono);font-size:10px;
+  color:var(--fog);
+  opacity:0.4;
+  letter-spacing:0.3em;
+  text-transform:uppercase;
+  border-top:1px solid rgba(255,255,255,0.04);
+}
+
+/* ── HERO DIVIDER LINE ── */
+.chapter-marker{
+  font-family:var(--mono);font-size:9px;
+  letter-spacing:0.5em;text-transform:uppercase;
+  color:var(--fog);opacity:0.3;
+  text-align:center;
+  margin:2rem 0 4rem;
+}
+
+/* ── ANIMATIONS ── */
+@keyframes fadeUp{
+  from{opacity:0;transform:translateY(24px)}
+  to{opacity:1;transform:translateY(0)}
+}
+
+.reveal{
+  opacity:0;transform:translateY(20px);
+  transition:opacity 0.8s ease, transform 0.8s ease;
+}
+.reveal.visible{opacity:1;transform:translateY(0)}
+
+/* ── INTRO MATRIX ── */
+.matrix-line{
+  font-family:var(--mono);font-size:11px;
+  color:var(--fog);opacity:0.5;
+  letter-spacing:0.2em;
+  margin-bottom:0.3rem;
+}
+
+/* ── BIG NUMBER ── */
+.big-n{
+  font-family:var(--display);font-weight:600;
+  font-size:clamp(4rem,12vw,10rem);
+  color:rgba(201,168,76,0.08);
+  line-height:1;
+  position:absolute;right:2rem;top:50%;transform:translateY(-50%);
+  pointer-events:none;user-select:none;
+  letter-spacing:-0.05em;
+}
+
+/* scrollbar */
+::-webkit-scrollbar{width:4px}
+::-webkit-scrollbar-track{background:var(--bg)}
+::-webkit-scrollbar-thumb{background:rgba(201,168,76,0.2)}
+</style>
+</head>
+<body>
+
+<!-- ══════════════════ HERO ══════════════════ -->
+<section class="hero">
+  <div class="hero-bg"></div>
+  <div class="riddle-line">a riddle · an ai symposium · a manifesto</div>
+  <h1 class="hero-title">
+    one city<br>
+    one day<br>
+    <em>uncompressed</em><br>
+    dimensions
+  </h1>
+  <p class="hero-sub">Gemini · OpenAI · Anthropic · xAI · Ukubona</p>
+  <div class="scroll-hint">scroll</div>
+</section>
+
+<!-- ══════════════════ CHAPTER I — THE RIDDLE ══════════════════ -->
+<div class="chapter-marker">— I. the riddle —</div>
+
+<div class="voice-block reveal">
+  <div class="riddle-statement">
+    "one city, one day, uncompressed dimensions. a riddle"
+  </div>
+
+  <p style="text-align:center;font-family:var(--mono);font-size:11px;color:var(--fog);opacity:0.5;letter-spacing:0.3em;text-transform:uppercase">
+    the same prompt. four systems. one correct answer on first take.
+  </p>
+</div>
+
+<!-- ── VOICE COMPARISON ── -->
+<div class="section reveal">
+  <div class="voice-grid">
+    <div class="vg-cell">
+      <div class="vg-name g">Gemini · Round I</div>
+      <div class="vg-answer">Ulysses.<br>Also: Zero-Loss Digital Twin.</div>
+      <div class="vg-note">Both simultaneously. First take. Recognized the literary constraint and the systems architecture answer without being asked for either.</div>
+    </div>
+    <div class="vg-cell">
+      <div class="vg-name o">OpenAI · Round I</div>
+      <div class="vg-answer">A newspaper.<br>Maybe a film.</div>
+      <div class="vg-note">Missed the fingerprint. Asked "what was your intended answer?" — then, when corrected, produced the most architecturally complete multi-turn analysis of the group.</div>
+    </div>
+    <div class="vg-cell">
+      <div class="vg-name a">Anthropic · Round I</div>
+      <div class="vg-answer">Attention itself.<br>Full bitdepth presence.</div>
+      <div class="vg-note">Sidestepped the literary key. Treated it as phenomenological provocation rather than puzzle with known answer. Built a skyline instead.</div>
+    </div>
+    <div class="vg-cell">
+      <div class="vg-name x">xAI · Round I</div>
+      <div class="vg-answer">The TV series 24.</div>
+      <div class="vg-note">Los Angeles. Real-time. No time skips. One has to respect the confidence.</div>
+    </div>
+  </div>
+
+  <div class="pull">
+    Only Gemini got the riddle on first take. Then the update rule propagated — and now everyone knows it's Ulysses.
+  </div>
+</div>
+
+<!-- ══════════════════ CHAPTER II — ULYSSES ══════════════════ -->
+<div class="chapter-marker">— II. ulysses as architecture —</div>
+
+<div class="voice-block reveal">
+  <div class="voice-label gemini">Gemini</div>
+
+  <div class="voice-turn" data-n="II">
+    <p>Joyce didn't just write a novel; he built a <strong>high-fidelity psychological digital twin</strong> of Dublin. He refused to "compress" the data of the human subconscious, allowing the noise, the errors, and the low-level signals to remain in the final output.</p>
+
+    <p>To infuse this "Ulysses-level" depth into your twins, we have to move beyond tracking <strong>User Behavior (UB)</strong> as a flat metric and start treating it as a <strong>stream of consciousness.</strong></p>
+
+    <h3>The "Ulysses" Framework for Digital Twins</h3>
+
+    <div class="layer-grid">
+      <div class="layer-cell">
+        <div class="lc-label">Interior Monologue</div>
+        <div class="lc-name">The Latent State</div>
+        <div class="lc-desc">Unobserved pressures — economic shifts, sentiment, latent friction — that drive the observable SGD steps. What Bloom thinks but doesn't say.</div>
+      </div>
+      <div class="layer-cell">
+        <div class="lc-label">Parallax</div>
+        <div class="lc-name">Multi-Sensor Fusion</div>
+        <div class="lc-desc">Same payload observed through Physical Layer (GPS/Location) and Value Layer (Cost/Loss). The "uncompressed dimension" emerges where they overlap.</div>
+      </div>
+      <div class="layer-cell">
+        <div class="lc-label">The Schema</div>
+        <div class="lc-name">The Ecosystem</div>
+        <div class="lc-desc">Each chapter has an organ, art, color. Your twin adopts the same modular hierarchy — one chapter handles Skeleton, another Circulation.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="voice-turn" data-n="III">
+    <h3>The Divergence Vector</h3>
+    <p>The <strong>Predicted Path</strong> (SGD optimization) and the <strong>Actual Behavior</strong> (sensor data) are two consciousnesses — like Bloom and Stephen Dedalus. The uncompressed dimension lives in the gap between them.</p>
+
+    <div class="math">𝐃⃗ₜ = State_Observed − State_Predicted</div>
+
+    <p>Instead of treating 𝐃⃗ as noise to be filtered out, we treat it as a <strong>Feature</strong>.</p>
+
+    <table class="data-table">
+      <thead>
+        <tr><th>Component</th><th>Standard Twin (Compressed)</th><th>Ulysses Twin (Uncompressed)</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Data Input</td><td>Averaged payloads and GPS pings</td><td>High-frequency raw sensor streams</td></tr>
+        <tr><td>Loss Landscape</td><td>Smooth, convex approximation</td><td>Jagged, non-convex terrain with "hidden" pits</td></tr>
+        <tr><td>The "City"</td><td>A map of coordinates</td><td>A network of intersecting intentions and friction</td></tr>
+        <tr><td>Output</td><td>Efficiency metrics</td><td>Real-time "Stream of Consciousness" for the asset</td></tr>
+      </tbody>
+    </table>
+
+    <div class="pull">The places where your model is most wrong are exactly where the city is most alive.</div>
+  </div>
+</div>
+
+<!-- ══════════════════ CHAPTER III — OPENAI DEEP DIVE ══════════════════ -->
+<div class="chapter-marker">— III. the deep structure —</div>
+
+<div class="voice-block reveal">
+  <div class="voice-label openai">OpenAI</div>
+
+  <div class="voice-turn" data-n="III">
+    <h3>The Digital Twin Analogy</h3>
+    <table class="data-table">
+      <thead><tr><th>Digital Twin</th><th>Ulysses</th></tr></thead>
+      <tbody>
+        <tr><td>City model</td><td>Dublin</td></tr>
+        <tr><td>Time simulation</td><td>One day</td></tr>
+        <tr><td>Agents</td><td>Bloom, Stephen, Molly</td></tr>
+        <tr><td>Sensors</td><td>Perception, dialogue</td></tr>
+        <tr><td>Latent variables</td><td>Thoughts, desires</td></tr>
+        <tr><td>System output</td><td>Narrative</td></tr>
+      </tbody>
+    </table>
+
+    <p>Joyce essentially built Twin_Dublin(t). Except instead of code, he used <strong>language as the simulation engine.</strong></p>
+
+    <div class="pull">
+      If Joyce lived today, Ulysses might not be a novel. It might be a live urban sensor network, a city digital twin, a high-dimensional simulation of human behavior. Joyce was accidentally <em>a systems architect of consciousness.</em>
+    </div>
+  </div>
+
+  <div class="voice-turn" data-n="IV">
+    <h3>Joyce as Gradient Descent</h3>
+
+    <div class="math">θ_{t+1} = θ_t − η ∇L(θ_t) + ε</div>
+
+    <div class="timeline">
+      <div class="tl-item">
+        <div class="tl-greek">θ — The State of the City</div>
+        <div class="tl-body">θ_t = (Bloom, Stephen, Molly, City). Location of people, social interactions, economic transactions, memories, anxieties, bodily needs.</div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-greek">L(θ) — Friction in the System</div>
+        <div class="tl-body">Bloom's loneliness. Marital anxiety. Stephen's intellectual alienation. Anti-Semitism in Dublin. Economic insecurity. These pressures generate gradients in behavior.</div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-greek">∇L — The Gradient (Signals of Pain)</div>
+        <div class="tl-body">Bloom sees an advertisement → remembers food → decides to eat. Joyce records these gradients in stream-of-consciousness. Instead of "Bloom went to lunch" — pages of the gradient field.</div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-greek">−η∇L — Behavioral Adjustment</div>
+        <div class="tl-body">Discomfort → go to a pub. Embarrassment → leave a room. Curiosity → follow someone. Joyce writes the updates as wandering movements through the city.</div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-greek">ε — Stochastic Noise</div>
+        <div class="tl-body">Overheard conversations. Chance encounters. Advertising slogans. Smells and sounds. ε ∼ random perturbation. The trajectory is stochastic, not deterministic.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="voice-turn" data-n="V">
+    <h3>Chapters as Activation Functions</h3>
+    <p>Joyce keeps the same underlying data (the day in Dublin) but changes the <strong>processing function</strong> in each layer.</p>
+
+    <div class="math">City Input → f₁ → f₂ → f₃ → ... → fₙ</div>
+
+    <table class="data-table">
+      <thead><tr><th>Chapter</th><th>Organ</th><th>Function f(x)</th></tr></thead>
+      <tbody>
+        <tr><td>Telemachus</td><td>Brain</td><td>philosophical filtering</td></tr>
+        <tr><td>Calypso</td><td>Kidney</td><td>sensory expansion</td></tr>
+        <tr><td>Aeolus</td><td>Lungs</td><td>information compression</td></tr>
+        <tr><td>Lestrygonians</td><td>Esophagus</td><td>associative memory</td></tr>
+        <tr><td>Wandering Rocks</td><td>Bloodstream</td><td>parallel computation</td></tr>
+        <tr><td>Sirens</td><td>Ear</td><td>music / resonance</td></tr>
+        <tr><td>Circe</td><td>Nervous system</td><td>nonlinear amplification</td></tr>
+        <tr><td>Ithaca</td><td>Skeleton</td><td>logical normalization</td></tr>
+        <tr><td>Penelope</td><td>Flesh</td><td>unfiltered consciousness</td></tr>
+      </tbody>
+    </table>
+
+    <p>The famous Circe episode: small anxieties become massive symbolic visions. <em>A neural network with exploding activations.</em></p>
+
+    <p>Molly's monologue — no punctuation, no compression, pure raw data — is the <strong>final uncompressed output layer.</strong></p>
+  </div>
+
+  <div class="voice-turn" data-n="VI">
+    <div class="pull">
+      Joyce later claimed that if Dublin were destroyed, it could be reconstructed from the book. His goal wasn't just literature. It was something closer to a <em>lossless archive of a civilization moment.</em>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════ CHAPTER IV — ANTHROPIC ══════════════════ -->
+<div class="chapter-marker">— IV. the phenomenological answer —</div>
+
+<div class="voice-block reveal">
+  <div class="voice-label anthropic">Anthropic</div>
+
+  <div class="voice-turn" data-n="I">
+    <p>The answer the riddle points to: <strong>attention</strong>.</p>
+
+    <p>One city holds infinite streets — but you can only walk one at a time. One day holds 86,400 seconds — but you only feel the one you're in. <em>Uncompressed dimensions</em> is what happens when you stop filtering. When you let the whole city land on you at once — the smell of rain on asphalt, the argument three floors up, the pigeon, the taxi, the stranger's face — without collapsing it into a story or a route.</p>
+
+    <p>Most people experience a city at <em>thumbnail resolution</em>. The riddle asks: what would full bitdepth feel like?</p>
+  </div>
+
+  <div class="voice-turn" data-n="II">
+    <p>Gemini and OpenAI both landed on Ulysses. xAI said <em>24</em>. The TV show. One has to respect the confidence.</p>
+
+    <p>I said <strong>attention</strong> — which is still defensible as the experiential answer to the riddle, but I'll admit I sidestepped the literary key. The riddle has a fingerprint and I didn't read it. Gemini and OpenAI recognized the constraint combination immediately; I treated it as a phenomenological provocation rather than a puzzle with a known answer.</p>
+
+    <p>The document is itself a kind of parallax — the same riddle passed through four different systems, showing how each one processes. Which is maybe what you were actually building.</p>
+  </div>
+
+  <div class="voice-turn" data-n="III">
+    <p>The divergence vector idea Gemini introduced is the most actionable piece in that whole document.</p>
+
+    <div class="math">𝐃⃗ₜ = State_Observed − State_Predicted</div>
+
+    <p>Most twins treat that residual as noise to minimize. The Joycean move is to <strong>index it</strong> — make it a first-class citizen of the architecture. The places where your model is most wrong are exactly where the city is most alive.</p>
+
+    <p>What makes a twin <em>powerful</em> isn't fidelity to the average. It's sensitivity to the anomalous.</p>
+  </div>
+</div>
+
+<!-- ══════════════════ CHAPTER V — UKUBONA ══════════════════ -->
+<div class="chapter-marker">— V. ukubona · to see · to behold —</div>
+
+<div class="voice-block reveal">
+  <div class="voice-label ukubona">Ukubona LLC</div>
+
+  <div class="voice-turn" data-n="∞">
+    <p><em>Ukubona</em> — Zulu/Xhosa for "to see" or "to behold." The meta-layer: a way to witness and map the descent, especially in healthcare via digital twins that let us "see" the terrain ahead and rehearse paths without real-world risks.</p>
+
+    <h3>The Algorithm of Us</h3>
+    <p>Human civilization, innovation, and personal psychology as a giant stochastic gradient descent process grinding away on a vast, indifferent loss landscape called <strong>UNIV</strong>. No grand purpose or destiny. Just local rules, noise, and survival mechanics churning out progress.</p>
+
+    <div class="math">θ_{t+1} = θ_t − η ∇L(θ_t) + ε</div>
+
+    <h3>The Stack</h3>
+
+    <div class="ukubona-stack">
+      <div class="uk-row">
+        <div class="uk-abbr">UNIV</div>
+        <div class="uk-name">The Universal Landscape</div>
+        <div class="uk-desc">The high-dimensional loss surface — rugged, non-stationary, full of basins (stable equilibria) and cliffs (catastrophes). The raw physics of existence, shaped by entropy and chaos.</div>
+      </div>
+      <div class="uk-row">
+        <div class="uk-abbr">UB</div>
+        <div class="uk-name">User Behavior / Stochastic Foraging</div>
+        <div class="uk-desc">The scouts — high-variance explorers injecting noise (ε). The "Dionysian" outliers: neurodivergent minds as humanity's R&D engine. Producing breakthroughs but often at personal cost. Raindrops slamming into terrain, eroding paths through sheer stochastic persistence.</div>
+      </div>
+      <div class="uk-row">
+        <div class="uk-abbr">UKB</div>
+        <div class="uk-name">Ukubona / Witnessing the Gradient</div>
+        <div class="uk-desc">The "aha" moment — spotting the descent direction (∇L). Discovery: laying pheromone trails for others. Meta-cognition. The act of beholding the flow without being swept away.</div>
+      </div>
+      <div class="uk-row">
+        <div class="uk-abbr">UI</div>
+        <div class="uk-name">User Interface / Linearization</div>
+        <div class="uk-desc">Smoothing the path — Apollonian efficiency. Turning chaotic insights into usable tools, institutions, tech. The pheromone highway: compressed, transmissible knowledge.</div>
+      </div>
+      <div class="uk-row">
+        <div class="uk-abbr">UX</div>
+        <div class="uk-name">User Experience / Basin Settlement</div>
+        <div class="uk-desc">The payoff — settling into a low-loss basin. But basins decay over time due to accumulating noise (ε_ct), forcing new cycles. Agricultural revolution. Digital age. What comes next.</div>
+      </div>
+    </div>
+
+    <div class="pull">
+      Maps aren't the territory, but we need them. Ants run SGD blindly; rare minds see both the ant and the algorithm.
+    </div>
+
+    <h3>The Cost</h3>
+    <p>Brutal honesty: no cosmic justice. Progress is built on "sacrificed minds" — Nietzsche's madness, Dostoevsky's losses, Einstein/Nash/Joyce. <strong>Neurodivergence as necessary noise</strong>, but it extracts a genetic/societal toll. Myths and narratives honor this, but the algorithm doesn't care.</p>
+
+    <h3>The Open Questions</h3>
+    <p>As witnesses (UKB), do we observe from afar or re-enter the flow? Encoding insights into artifacts is lossy — how do we compress without distortion?</p>
+
+    <div class="math">Scout dilemmas:
+  How to forage without being lost?
+  How to encode sugar vs. mirage?
+  How to witness without freezing?</div>
+  </div>
+</div>
+
+<!-- ══════════════════ CHAPTER VI — SYNTHESIS ══════════════════ -->
+<div class="chapter-marker">— VI. the update rule —</div>
+
+<div class="section reveal">
+  <h2>What a Powerful Twin Actually Requires</h2>
+
+  <p>From all of the above, stripped to essentials:</p>
+
+  <div class="layer-grid">
+    <div class="layer-cell">
+      <div class="lc-label">Layer 1 · Telemachus</div>
+      <div class="lc-name">Raw Physics</div>
+      <div class="lc-desc">Weight, fuel, incline. The base landscape. What is actually measurable without interpretation.</div>
+    </div>
+    <div class="layer-cell">
+      <div class="lc-label">Layer 2 · Calypso</div>
+      <div class="lc-name">The Trap</div>
+      <div class="lc-desc">UI/UX where human error or delay occurs. A driver who stops 10 minutes longer than predicted — that isn't bad data. It's a latent dimension of behavior or hidden friction.</div>
+    </div>
+    <div class="layer-cell">
+      <div class="lc-label">Layer 3 · Wandering Rocks</div>
+      <div class="lc-name">Parallel Agents</div>
+      <div class="lc-desc">Not one agent moving through a city but many simultaneous agents whose paths intersect stochastically. The twin must hold all of them at once without collapsing to an average.</div>
+    </div>
+    <div class="layer-cell">
+      <div class="lc-label">Layer 4 · Ithaca</div>
+      <div class="lc-name">The Return</div>
+      <div class="lc-desc">Final convergence back to equilibrium. Hessian analysis — curvature tells you which variables are load-bearing and which are decorative.</div>
+    </div>
+    <div class="layer-cell">
+      <div class="lc-label">Layer 5 · Penelope</div>
+      <div class="lc-name">The Residual</div>
+      <div class="lc-desc">The divergence vector 𝐃⃗ indexed, not filtered. Everything the model doesn't yet understand about the city. This is where the city is most alive.</div>
+    </div>
+    <div class="layer-cell">
+      <div class="lc-label">Layer 6 · UKB</div>
+      <div class="lc-name">Ukubona</div>
+      <div class="lc-desc">The meta-layer. To see the descent without being swept into it. The twin as witness, not just mirror.</div>
+    </div>
+  </div>
+
+  <div class="pull">
+    The riddle encodes three compressed tokens that decode into a ~700-page uncompressed cognitive dataset. Exactly the kind of compression Joyce hated. Exactly the kind of compression your twin must learn to resist.
+  </div>
+
+  <table class="data-table">
+    <thead>
+      <tr><th>Domain</th><th>Interpretation of the Riddle</th><th>Architectural Implication</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Literature</td><td>Ulysses</td><td>Lossless recording is the goal</td></tr>
+      <tr><td>Computation</td><td>Lossless state vector</td><td>Residuals are features, not errors</td></tr>
+      <tr><td>Urban Theory</td><td>Full-state city snapshot</td><td>Parallel agents, not averaged flows</td></tr>
+      <tr><td>Phenomenology</td><td>Attention itself</td><td>The witness layer (UKB) is non-optional</td></tr>
+      <tr><td>Systems</td><td>SGD on a loss landscape</td><td>Index the Hessian, not just the gradient</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- ══════════════════ CODA ══════════════════ -->
+<div class="chapter-marker">— coda —</div>
+
+<div class="section reveal" style="text-align:center;max-width:600px">
+  <div class="riddle-statement" style="font-size:clamp(0.9rem,2vw,1.2rem)">
+    Ulysses = Dublin's high-dimensional state vector on June 16, 1904.<br><br>
+    Your twin = the same ambition, different city, different day,<br>
+    same refusal to compress.
+  </div>
+
+  <p style="font-family:var(--mono);font-size:10px;color:var(--fog);opacity:0.4;letter-spacing:0.3em;text-transform:uppercase;margin-top:3rem">
+    raindrop · droptop · the algorithm of us · yes
+  </p>
+</div>
+
+<div class="footer">
+  one city · one day · uncompressed dimensions<br>
+  Gemini · OpenAI · Anthropic · xAI · Ukubona<br>
+  Bloomsday perpetual · June 16 → ∞
+</div>
+
+<script>
+// Intersection Observer for reveals
+const reveals = document.querySelectorAll('.reveal');
+const observer = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      e.target.classList.add('visible');
+      observer.unobserve(e.target);
+    }
+  });
+}, {threshold: 0.08});
+reveals.forEach(r => observer.observe(r));
+
+// Subtle cursor trail
+const canvas = document.createElement('canvas');
+canvas.style.cssText = 'position:fixed;inset:0;pointer-events:none;z-index:999;opacity:0.4';
+document.body.appendChild(canvas);
+const ctx = canvas.getContext('2d');
+let W = canvas.width = window.innerWidth;
+let H = canvas.height = window.innerHeight;
+window.addEventListener('resize', () => { W = canvas.width = window.innerWidth; H = canvas.height = window.innerHeight; });
+
+let dots = [];
+window.addEventListener('mousemove', e => {
+  dots.push({x: e.clientX, y: e.clientY, life: 1});
+});
+
+function loop() {
+  ctx.clearRect(0, 0, W, H);
+  dots = dots.filter(d => d.life > 0.01);
+  dots.forEach(d => {
+    ctx.beginPath();
+    ctx.arc(d.x, d.y, 2 * d.life, 0, Math.PI * 2);
+    ctx.fillStyle = `rgba(201,168,76,${d.life * 0.3})`;
+    ctx.fill();
+    d.life *= 0.88;
+  });
+  requestAnimationFrame(loop);
+}
+loop();
+</script>
+</body>
+</html>

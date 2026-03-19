@@ -1,0 +1,1507 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pentad → Phantom Cause → Cascade</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@200;400;700;900&family=Instrument+Serif:ital@0;1&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+
+<script>
+MathJax = {
+  tex: { inlineMath: [['$','$']], displayMath: [['$$','$$']] },
+  options: { skipHtmlTags: ['script','noscript','style'] }
+};
+</script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js" async></script>
+
+<style>
+/* ═══════════════════════════════════════
+   CUSTOM PROPERTIES — THE WHOLE PALETTE
+═══════════════════════════════════════ */
+:root {
+  --void:      #080a0e;
+  --deep:      #0e1118;
+  --surface:   #141820;
+  --raised:    #1c2230;
+  --border:    #2a3348;
+  --dim:       #3d4f6b;
+  --muted:     #6b7fa0;
+  --body:      #a8b8d0;
+  --bright:    #d8e4f0;
+  --white:     #f0f4fa;
+
+  --parasite:  #ff3d2e;   /* cause — threat red */
+  --signal:    #00d4aa;   /* signal — teal */
+  --gradient:  #f0a500;   /* gradient — amber */
+  --descent:   #7c5cfc;   /* descent — violet */
+  --home:      #2de370;   /* homeostasis — green */
+  --phantom:   #ff6bca;   /* phantom/unwarranted — hot pink */
+
+  --font-display: 'Unbounded', sans-serif;
+  --font-body:    'Instrument Serif', Georgia, serif;
+  --font-mono:    'DM Mono', monospace;
+
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-spring:   cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* ═══════════════════════════════════════
+   RESET & BASE
+═══════════════════════════════════════ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { scroll-behavior: smooth; font-size: 16px; }
+
+body {
+  background: var(--void);
+  color: var(--body);
+  font-family: var(--font-body);
+  font-size: 1.1rem;
+  line-height: 1.8;
+  overflow-x: hidden;
+  cursor: crosshair;
+}
+
+/* ═══════════════════════════════════════
+   ANIMATED BACKGROUND — MESH GRADIENT
+═══════════════════════════════════════ */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 80% 60% at 10% 20%, rgba(255,61,46,0.06) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 80% at 90% 80%, rgba(124,92,252,0.07) 0%, transparent 60%),
+    radial-gradient(ellipse 50% 50% at 50% 50%, rgba(0,212,170,0.04) 0%, transparent 70%);
+  animation: mesh-drift 18s ease-in-out infinite alternate;
+  pointer-events: none;
+  z-index: 0;
+}
+
+@keyframes mesh-drift {
+  0%   { background-position: 0% 0%, 100% 100%, 50% 50%; }
+  100% { background-position: 20% 30%, 80% 60%, 60% 40%; }
+}
+
+/* Scanlines */
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(0,0,0,0.12) 2px,
+    rgba(0,0,0,0.12) 4px
+  );
+  pointer-events: none;
+  z-index: 9998;
+  opacity: 0.4;
+}
+
+/* ═══════════════════════════════════════
+   SCROLLBAR
+═══════════════════════════════════════ */
+::-webkit-scrollbar { width: 3px; }
+::-webkit-scrollbar-track { background: var(--void); }
+::-webkit-scrollbar-thumb { background: var(--gradient); }
+
+/* ═══════════════════════════════════════
+   PROGRESS
+═══════════════════════════════════════ */
+#progress {
+  position: fixed;
+  top: 0; left: 0;
+  height: 2px;
+  width: 0%;
+  background: linear-gradient(90deg, var(--parasite), var(--gradient), var(--phantom), var(--descent), var(--home));
+  z-index: 9999;
+  transition: width 0.05s linear;
+  box-shadow: 0 0 12px currentColor;
+}
+
+/* ═══════════════════════════════════════
+   NAV
+═══════════════════════════════════════ */
+nav {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 2.5rem;
+  background: rgba(8,10,14,0.85);
+  backdrop-filter: blur(20px) saturate(1.4);
+  border-bottom: 1px solid var(--border);
+  z-index: 1000;
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+}
+
+.nav-id { color: var(--gradient); }
+.nav-subtitle { color: var(--dim); }
+
+/* ═══════════════════════════════════════
+   HERO
+═══════════════════════════════════════ */
+.hero {
+  position: relative;
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: 8rem 6vw 6rem;
+  z-index: 1;
+  overflow: hidden;
+}
+
+/* Big background glyph */
+.hero-glyph {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-display);
+  font-size: clamp(18vw, 30vw, 400px);
+  font-weight: 900;
+  color: transparent;
+  -webkit-text-stroke: 1px rgba(255,61,46,0.07);
+  user-select: none;
+  pointer-events: none;
+  letter-spacing: -0.05em;
+  animation: glyph-breathe 8s ease-in-out infinite;
+}
+
+@keyframes glyph-breathe {
+  0%, 100% { transform: scale(1) rotate(-2deg); opacity: 0.8; }
+  50%       { transform: scale(1.03) rotate(0deg); opacity: 1; }
+}
+
+.hero-content {
+  position: relative;
+  z-index: 2;
+  max-width: 900px;
+}
+
+.hero-eyebrow {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--parasite);
+  margin-bottom: 2rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.hero-eyebrow::before {
+  content: '';
+  display: inline-block;
+  width: 40px;
+  height: 1px;
+  background: var(--parasite);
+}
+
+.hero h1 {
+  font-family: var(--font-display);
+  font-weight: 200;
+  font-size: clamp(2.2rem, 5.5vw, 5.5rem);
+  line-height: 1.05;
+  color: var(--white);
+  letter-spacing: -0.03em;
+  margin-bottom: 1.5rem;
+}
+
+.hero h1 .word-cause  { color: var(--parasite); font-weight: 700; }
+.hero h1 .word-effect { color: var(--signal);   }
+.hero h1 .word-grad   { color: var(--gradient); }
+.hero h1 .word-desc   { color: var(--descent);  }
+.hero h1 .word-home   { color: var(--home);     }
+.hero h1 .word-phant  {
+  color: var(--phantom);
+  text-decoration: line-through;
+  text-decoration-color: rgba(255,107,202,0.4);
+}
+
+.hero-lede {
+  font-family: var(--font-body);
+  font-style: italic;
+  font-size: 1.3rem;
+  color: var(--muted);
+  max-width: 55ch;
+  line-height: 1.6;
+  border-left: 2px solid var(--phantom);
+  padding-left: 1.5rem;
+  margin-top: 2rem;
+}
+
+/* Scroll cue */
+.scroll-cue {
+  position: absolute;
+  bottom: 3rem;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  letter-spacing: 0.2em;
+  color: var(--dim);
+  animation: cue-bounce 2s ease-in-out infinite;
+}
+
+.scroll-cue::after {
+  content: '';
+  width: 1px;
+  height: 40px;
+  background: linear-gradient(to bottom, var(--dim), transparent);
+}
+
+@keyframes cue-bounce {
+  0%, 100% { transform: translateX(-50%) translateY(0); }
+  50%       { transform: translateX(-50%) translateY(6px); }
+}
+
+/* ═══════════════════════════════════════
+   MAIN CONTENT
+═══════════════════════════════════════ */
+main {
+  position: relative;
+  z-index: 1;
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 0 5vw 8rem;
+}
+
+/* ═══════════════════════════════════════
+   PENTAD VISUAL — HORIZONTAL FLOW
+═══════════════════════════════════════ */
+.pentad-map {
+  position: relative;
+  margin: 6rem 0;
+  padding: 4rem 0;
+}
+
+.pentad-track {
+  display: flex;
+  align-items: stretch;
+  gap: 0;
+  position: relative;
+}
+
+/* Connecting line */
+.pentad-track::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 0; right: 0;
+  height: 1px;
+  background: linear-gradient(90deg,
+    var(--parasite),
+    var(--signal),
+    var(--gradient),
+    var(--descent),
+    var(--home)
+  );
+  transform: translateY(-50%);
+  z-index: 0;
+}
+
+.pentad-node {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  position: relative;
+  z-index: 1;
+  cursor: pointer;
+}
+
+.pentad-node:hover .node-card {
+  transform: translateY(-8px) scale(1.04);
+}
+
+.node-symbol {
+  font-family: var(--font-display);
+  font-size: 1.8rem;
+  font-weight: 900;
+  line-height: 1;
+  background: var(--deep);
+  border: 1px solid currentColor;
+  border-radius: 50%;
+  width: 64px;
+  height: 64px;
+  display: grid;
+  place-items: center;
+  transition: box-shadow 0.3s, transform 0.3s;
+  letter-spacing: -0.05em;
+}
+
+.pentad-node:hover .node-symbol {
+  box-shadow: 0 0 30px currentColor;
+}
+
+.node-card {
+  background: var(--raised);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1.2rem 1rem;
+  text-align: center;
+  transition: transform 0.4s var(--ease-spring), box-shadow 0.4s;
+  min-height: 120px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 0.4rem;
+  width: 100%;
+}
+
+.node-label {
+  font-family: var(--font-mono);
+  font-size: 0.58rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--dim);
+}
+
+.node-name {
+  font-family: var(--font-display);
+  font-size: 0.75rem;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.node-desc {
+  font-family: var(--font-body);
+  font-size: 0.78rem;
+  font-style: italic;
+  color: var(--muted);
+  line-height: 1.4;
+}
+
+/* Arrow between nodes */
+.pentad-arrow {
+  display: flex;
+  align-items: center;
+  padding: 0 0.4rem;
+  margin-top: -68px; /* align with circle center */
+  font-family: var(--font-mono);
+  font-size: 0.9rem;
+  color: var(--border);
+  z-index: 2;
+  flex-shrink: 0;
+}
+
+/* Node accent colors */
+.node-cause  .node-symbol { color: var(--parasite); }
+.node-cause  .node-name   { color: var(--parasite); }
+.node-cause  .node-card   { border-color: rgba(255,61,46,0.3); }
+.node-cause:hover .node-card { box-shadow: 0 16px 48px rgba(255,61,46,0.2); }
+
+.node-effect .node-symbol { color: var(--signal); }
+.node-effect .node-name   { color: var(--signal); }
+.node-effect .node-card   { border-color: rgba(0,212,170,0.3); }
+.node-effect:hover .node-card { box-shadow: 0 16px 48px rgba(0,212,170,0.2); }
+
+.node-grad   .node-symbol { color: var(--gradient); }
+.node-grad   .node-name   { color: var(--gradient); }
+.node-grad   .node-card   { border-color: rgba(240,165,0,0.3); }
+.node-grad:hover .node-card { box-shadow: 0 16px 48px rgba(240,165,0,0.2); }
+
+.node-desc-n .node-symbol { color: var(--descent); }
+.node-desc-n .node-name   { color: var(--descent); }
+.node-desc-n .node-card   { border-color: rgba(124,92,252,0.3); }
+.node-desc-n:hover .node-card { box-shadow: 0 16px 48px rgba(124,92,252,0.2); }
+
+.node-home   .node-symbol { color: var(--home); }
+.node-home   .node-name   { color: var(--home); }
+.node-home   .node-card   { border-color: rgba(45,227,112,0.3); }
+.node-home:hover .node-card { box-shadow: 0 16px 48px rgba(45,227,112,0.2); }
+
+/* ═══════════════════════════════════════
+   SECTION HEADERS
+═══════════════════════════════════════ */
+.section-header {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: center;
+  gap: 1.5rem;
+  margin: 7rem 0 3rem;
+}
+
+.section-number {
+  font-family: var(--font-display);
+  font-size: 5rem;
+  font-weight: 900;
+  line-height: 1;
+  color: transparent;
+  -webkit-text-stroke: 1px var(--border);
+  letter-spacing: -0.05em;
+  user-select: none;
+}
+
+.section-title-group {}
+
+.section-kicker {
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  margin-bottom: 0.4rem;
+}
+
+.section-title {
+  font-family: var(--font-display);
+  font-size: clamp(1.4rem, 3vw, 2.2rem);
+  font-weight: 700;
+  color: var(--white);
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+}
+
+/* ═══════════════════════════════════════
+   BODY TEXT
+═══════════════════════════════════════ */
+.prose {
+  max-width: 72ch;
+  color: var(--body);
+}
+
+.prose p {
+  margin-bottom: 1.4rem;
+  font-size: 1.1rem;
+  line-height: 1.85;
+}
+
+.prose p + p { text-indent: 1.5em; }
+
+.prose strong {
+  color: var(--white);
+  font-style: normal;
+}
+
+.prose em { color: var(--muted); }
+
+/* ═══════════════════════════════════════
+   PHANTOM CASCADE — CENTRAL VISUAL
+═══════════════════════════════════════ */
+.cascade-container {
+  margin: 5rem 0;
+  position: relative;
+  perspective: 1000px;
+}
+
+.cascade-title {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: var(--phantom);
+  margin-bottom: 2.5rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.cascade-title::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(90deg, var(--phantom), transparent);
+}
+
+.cascade-layers {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  position: relative;
+}
+
+.cascade-layer {
+  display: grid;
+  grid-template-columns: 180px 1fr;
+  align-items: stretch;
+  min-height: 80px;
+  position: relative;
+  transition: transform 0.3s var(--ease-out-expo);
+}
+
+.cascade-layer:hover {
+  transform: translateX(8px);
+  z-index: 10;
+}
+
+/* vertical connector */
+.cascade-layer::before {
+  content: '';
+  position: absolute;
+  left: 179px;
+  top: 0; bottom: 0;
+  width: 1px;
+  background: var(--border);
+}
+
+.cascade-layer:last-child::before { height: 50%; }
+
+.layer-tag {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding: 1rem 1.5rem 1rem 0;
+  gap: 0.8rem;
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--dim);
+  text-align: right;
+}
+
+.layer-tag .tag-symbol {
+  font-family: var(--font-display);
+  font-size: 1.1rem;
+  font-weight: 900;
+  flex-shrink: 0;
+}
+
+.layer-body {
+  padding: 1.2rem 2rem;
+  border-left: none;
+  position: relative;
+}
+
+/* Horizontal dot connector */
+.layer-body::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 50%;
+  width: 20px;
+  height: 1px;
+  background: currentColor;
+  transform: translateY(-50%);
+  opacity: 0.4;
+}
+
+.layer-body::after {
+  content: '';
+  position: absolute;
+  left: -4px;
+  top: 50%;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: currentColor;
+  transform: translateY(-50%);
+  box-shadow: 0 0 12px currentColor;
+}
+
+.layer-body .layer-heading {
+  font-family: var(--font-display);
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  margin-bottom: 0.3rem;
+}
+
+.layer-body .layer-text {
+  font-family: var(--font-body);
+  font-size: 0.95rem;
+  line-height: 1.6;
+  color: var(--muted);
+}
+
+/* Layer accent colors */
+.layer-cause  { color: var(--parasite); }
+.layer-effect { color: var(--signal);   }
+.layer-grad   { color: var(--gradient); }
+.layer-desc   { color: var(--descent);  }
+.layer-home   { color: var(--home);     }
+
+/* PHANTOM layer — special treatment */
+.layer-phantom {
+  color: var(--phantom);
+  background: linear-gradient(90deg, rgba(255,107,202,0.04), transparent);
+  border-radius: 0 8px 8px 0;
+  margin: 0.5rem 0;
+  animation: phantom-pulse 3s ease-in-out infinite;
+}
+
+@keyframes phantom-pulse {
+  0%, 100% { background: linear-gradient(90deg, rgba(255,107,202,0.04), transparent); }
+  50%       { background: linear-gradient(90deg, rgba(255,107,202,0.08), transparent); }
+}
+
+.layer-phantom .layer-tag { color: var(--phantom); }
+
+/* ═══════════════════════════════════════
+   EQUATION BLOCKS
+═══════════════════════════════════════ */
+.eq {
+  position: relative;
+  margin: 2.5rem 0;
+  padding: 1.8rem 2rem 1.8rem 4rem;
+  background: var(--surface);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.eq::before {
+  content: '=';
+  position: absolute;
+  left: 0; top: 0; bottom: 0;
+  width: 40px;
+  display: grid;
+  place-items: center;
+  font-family: var(--font-display);
+  font-size: 1rem;
+  font-weight: 900;
+  color: var(--deep);
+  background: var(--gradient);
+}
+
+.eq-label {
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--dim);
+  margin-bottom: 0.8rem;
+}
+
+/* ═══════════════════════════════════════
+   SPLIT COMPARISON — CAUSE vs PHANTOM
+═══════════════════════════════════════ */
+.split-compare {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2px;
+  margin: 4rem 0;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.split-panel {
+  padding: 2.5rem 2rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.split-panel::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  opacity: 0.06;
+}
+
+.split-real {
+  background: var(--surface);
+  border: 1px solid rgba(255,61,46,0.2);
+}
+.split-real::before { background: var(--parasite); }
+
+.split-phantom {
+  background: var(--surface);
+  border: 1px solid rgba(255,107,202,0.2);
+}
+.split-phantom::before { background: var(--phantom); }
+
+.split-badge {
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  padding: 4px 10px;
+  border-radius: 2px;
+  display: inline-block;
+  margin-bottom: 1.2rem;
+}
+
+.split-real    .split-badge { background: rgba(255,61,46,0.15);  color: var(--parasite); }
+.split-phantom .split-badge { background: rgba(255,107,202,0.15); color: var(--phantom); }
+
+.split-panel h3 {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 1.1rem;
+  letter-spacing: -0.02em;
+  margin-bottom: 1rem;
+  line-height: 1.2;
+}
+.split-real h3 { color: var(--parasite); }
+.split-phantom h3 { color: var(--phantom); }
+
+.split-panel ul {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+}
+
+.split-panel li {
+  font-size: 0.9rem;
+  line-height: 1.5;
+  color: var(--muted);
+  padding-left: 1rem;
+  position: relative;
+}
+
+.split-panel li::before {
+  content: '→';
+  position: absolute;
+  left: 0;
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  opacity: 0.5;
+}
+
+/* ═══════════════════════════════════════
+   CASCADE TABLE — DISEASE EXAMPLES
+═══════════════════════════════════════ */
+.cascade-table-wrap {
+  margin: 3rem 0;
+  overflow-x: auto;
+}
+
+table.cascade-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0 4px;
+  font-size: 0.88rem;
+}
+
+.cascade-table thead th {
+  font-family: var(--font-mono);
+  font-size: 0.58rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--dim);
+  padding: 0.6rem 1.2rem;
+  text-align: left;
+  border-bottom: 1px solid var(--border);
+}
+
+.cascade-table tbody tr {
+  background: var(--surface);
+  transition: background 0.2s, transform 0.2s;
+  cursor: default;
+}
+
+.cascade-table tbody tr:hover {
+  background: var(--raised);
+  transform: scale(1.005);
+}
+
+.cascade-table tbody td {
+  padding: 0.9rem 1.2rem;
+  vertical-align: middle;
+  color: var(--muted);
+  line-height: 1.4;
+}
+
+.cascade-table tbody td:first-child {
+  font-family: var(--font-display);
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--bright);
+  letter-spacing: 0.02em;
+  border-left: 3px solid var(--phantom);
+}
+
+.cascade-table tbody tr.has-real td:first-child { border-color: var(--parasite); }
+.cascade-table tbody tr.low-weight td:first-child { border-color: var(--gradient); }
+
+/* ═══════════════════════════════════════
+   CALLOUT CARDS
+═══════════════════════════════════════ */
+.callout-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.5rem;
+  margin: 3rem 0;
+}
+
+.callout {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1.8rem;
+  position: relative;
+  overflow: hidden;
+  transition: border-color 0.3s, transform 0.3s var(--ease-spring);
+}
+
+.callout:hover {
+  transform: translateY(-4px);
+}
+
+.callout::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+  background: currentColor;
+}
+
+.callout-c1 { color: var(--phantom); }
+.callout-c1:hover { border-color: rgba(255,107,202,0.4); box-shadow: 0 12px 40px rgba(255,107,202,0.1); }
+
+.callout-c2 { color: var(--gradient); }
+.callout-c2:hover { border-color: rgba(240,165,0,0.4); box-shadow: 0 12px 40px rgba(240,165,0,0.1); }
+
+.callout-c3 { color: var(--descent); }
+.callout-c3:hover { border-color: rgba(124,92,252,0.4); box-shadow: 0 12px 40px rgba(124,92,252,0.1); }
+
+.callout-icon {
+  font-size: 1.8rem;
+  margin-bottom: 1rem;
+  display: block;
+}
+
+.callout h4 {
+  font-family: var(--font-display);
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: var(--white);
+  margin-bottom: 0.6rem;
+}
+
+.callout p {
+  font-size: 0.88rem;
+  line-height: 1.6;
+  color: var(--muted);
+}
+
+/* ═══════════════════════════════════════
+   INLINE HIGHLIGHTS
+═══════════════════════════════════════ */
+.hl-red    { color: var(--parasite); font-weight: 700; }
+.hl-teal   { color: var(--signal);   font-weight: 700; }
+.hl-amber  { color: var(--gradient); font-weight: 700; }
+.hl-violet { color: var(--descent);  font-weight: 700; }
+.hl-green  { color: var(--home);     font-weight: 700; }
+.hl-pink   { color: var(--phantom);  font-weight: 700; }
+
+.strike-through {
+  text-decoration: line-through;
+  text-decoration-color: var(--phantom);
+  color: var(--dim);
+}
+
+/* Inline code */
+code {
+  font-family: var(--font-mono);
+  font-size: 0.82em;
+  background: var(--raised);
+  color: var(--gradient);
+  padding: 1px 6px;
+  border-radius: 3px;
+  border: 1px solid var(--border);
+}
+
+/* ═══════════════════════════════════════
+   PULL QUOTE
+═══════════════════════════════════════ */
+.pull-quote {
+  position: relative;
+  margin: 4rem 0;
+  padding: 2rem 2.5rem;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.pull-quote::before {
+  content: '"';
+  position: absolute;
+  top: -1rem;
+  left: 1.5rem;
+  font-family: var(--font-display);
+  font-size: 8rem;
+  font-weight: 900;
+  line-height: 1;
+  color: var(--phantom);
+  opacity: 0.12;
+  pointer-events: none;
+}
+
+.pull-quote blockquote {
+  font-family: var(--font-body);
+  font-style: italic;
+  font-size: 1.4rem;
+  line-height: 1.55;
+  color: var(--bright);
+  max-width: 55ch;
+  position: relative;
+  z-index: 1;
+}
+
+.pull-quote cite {
+  display: block;
+  margin-top: 1rem;
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--dim);
+  font-style: normal;
+}
+
+/* ═══════════════════════════════════════
+   RESPONSE SECTION — THE PROVOCATION ANSWER
+═══════════════════════════════════════ */
+.response-block {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+  margin: 4rem 0;
+}
+
+.response-header {
+  background: var(--raised);
+  padding: 1.2rem 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--border);
+}
+
+.response-tag {
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--signal);
+}
+
+.response-body {
+  padding: 2.5rem 2.5rem;
+}
+
+/* ═══════════════════════════════════════
+   DIVIDER
+═══════════════════════════════════════ */
+.rule {
+  border: none;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--border), transparent);
+  margin: 4rem 0;
+}
+
+/* ═══════════════════════════════════════
+   SCROLL REVEAL ANIMATION
+═══════════════════════════════════════ */
+.fade-up {
+  opacity: 0;
+  transform: translateY(24px);
+  transition: opacity 0.7s var(--ease-out-expo), transform 0.7s var(--ease-out-expo);
+}
+.fade-up.in { opacity: 1; transform: translateY(0); }
+
+.fade-up:nth-child(2) { transition-delay: 0.08s; }
+.fade-up:nth-child(3) { transition-delay: 0.16s; }
+.fade-up:nth-child(4) { transition-delay: 0.24s; }
+.fade-up:nth-child(5) { transition-delay: 0.32s; }
+
+/* ═══════════════════════════════════════
+   FOOTER
+═══════════════════════════════════════ */
+footer {
+  border-top: 1px solid var(--border);
+  padding: 3rem 5vw;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 2rem;
+  flex-wrap: wrap;
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--dim);
+  position: relative;
+  z-index: 1;
+}
+
+footer .f-title { color: var(--gradient); font-size: 0.75rem; }
+footer .f-eq    { color: var(--phantom); font-size: 0.7rem; }
+
+/* ═══════════════════════════════════════
+   RESPONSIVE
+═══════════════════════════════════════ */
+@media (max-width: 768px) {
+  .pentad-track { flex-direction: column; }
+  .pentad-track::before { width: 1px; height: 100%; left: 32px; top: 0; background: linear-gradient(180deg, var(--parasite), var(--home)); }
+  .pentad-node { flex-direction: row; align-items: flex-start; }
+  .pentad-arrow { margin-top: 0; margin-left: 22px; }
+  .split-compare { grid-template-columns: 1fr; }
+  .section-number { font-size: 3rem; }
+  .hero h1 { font-size: 2rem; }
+}
+</style>
+</head>
+<body>
+
+<div id="progress"></div>
+
+<nav>
+  <span class="nav-id">Pentad Provocation</span>
+  <span class="nav-subtitle">Cause → Effect → ∇ → −η∇ → θ′ · Phantom Cascade Analysis</span>
+</nav>
+
+<!-- ═══════ HERO ═══════ -->
+<section class="hero">
+  <div class="hero-glyph" aria-hidden="true">β</div>
+  <div class="hero-content">
+    <div class="hero-eyebrow">Provocation Response · LD-DT-01</div>
+    <h1>
+      <span class="word-cause">Cause</span> →
+      <span class="word-effect">Effect</span> →
+      <span class="word-grad">∇</span> →
+      <span class="word-desc">−η∇</span> →
+      <span class="word-home">θ′</span>
+      <br>
+      but what if <span class="word-phant">cause = ∅</span>?
+    </h1>
+    <p class="hero-lede">
+      The pentad evolved to track a parasite. Remove the parasite, leave the machinery running — and you haven't achieved silence. You've manufactured a ghost.
+    </p>
+  </div>
+  <div class="scroll-cue">scroll</div>
+</section>
+
+<!-- ═══════ MAIN ═══════ -->
+<main>
+
+  <!-- ── SECTION 1: THE PENTAD REFRAMED ── -->
+  <div class="section-header fade-up">
+    <span class="section-number">01</span>
+    <div class="section-title-group">
+      <div class="section-kicker" style="color:var(--parasite)">The Pentad, Reframed</div>
+      <h2 class="section-title">Yes. Cause → Effect → Gradient → Descent → Homeostasis.</h2>
+    </div>
+  </div>
+
+  <!-- PENTAD MAP -->
+  <div class="pentad-map fade-up">
+    <div class="pentad-track">
+      <div class="pentad-node node-cause">
+        <div class="node-symbol">θ</div>
+        <div class="node-card">
+          <span class="node-label">State</span>
+          <span class="node-name">Cause / Baseline</span>
+          <span class="node-desc">The world as it is. Parasite, pathogen, cold air. The thing that actually happened.</span>
+        </div>
+      </div>
+
+      <div class="pentad-arrow">→</div>
+
+      <div class="pentad-node node-effect">
+        <div class="node-symbol">L</div>
+        <div class="node-card">
+          <span class="node-label">Loss</span>
+          <span class="node-name">Effect / Error</span>
+          <span class="node-desc">Itch, inflammation, fever. The system's registered complaint about the world.</span>
+        </div>
+      </div>
+
+      <div class="pentad-arrow">→</div>
+
+      <div class="pentad-node node-grad">
+        <div class="node-symbol">∇L</div>
+        <div class="node-card">
+          <span class="node-label">Gradient</span>
+          <span class="node-name">Rate of Error</span>
+          <span class="node-desc">How fast the error is growing. dT/dt. The urgency signal. Direction of steepest pain.</span>
+        </div>
+      </div>
+
+      <div class="pentad-arrow">→</div>
+
+      <div class="pentad-node node-desc-n">
+        <div class="node-symbol" style="font-size:1.1rem">−η∇</div>
+        <div class="node-card">
+          <span class="node-label">Correction</span>
+          <span class="node-name">Gradient Descent</span>
+          <span class="node-desc">The robe. The scratch. The immune response. Moving opposite the gradient.</span>
+        </div>
+      </div>
+
+      <div class="pentad-arrow">→</div>
+
+      <div class="pentad-node node-home">
+        <div class="node-symbol">θ′</div>
+        <div class="node-card">
+          <span class="node-label">Update</span>
+          <span class="node-name">Homeostasis</span>
+          <span class="node-desc">The new equilibrium. Parasite gone. Temperature stable. Threat resolved. Rest.</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="prose fade-up">
+    <p>You're right that this is the pentad's <span class="hl-red">evolutionary intent</span> made legible. The system was built around a <em>real cause</em> — the parasite in the gut, the pathogen on the skin, the predator at the edge of the clearing. The itch is downstream of that. It exists because scratching <em>worked</em>: it removed the larvae, disrupted the biofilm, made the organism attend to a real threat.</p>
+
+    <p>The entire cascade — loss, gradient, descent, equilibrium — is <em>calibrated to a world where cause is real</em>. The loop assumes something to push back against. That's its original logic.</p>
+  </div>
+
+  <hr class="rule">
+
+  <!-- ── SECTION 2: THE PHANTOM ── -->
+  <div class="section-header fade-up">
+    <span class="section-number">02</span>
+    <div class="section-title-group">
+      <div class="section-kicker" style="color:var(--phantom)">The Phantom Problem</div>
+      <h2 class="section-title">Remove Cause. Watch What Survives.</h2>
+    </div>
+  </div>
+
+  <div class="prose fade-up">
+    <p>Here's your provocation sharpened into a scalpel: <span class="hl-pink">what happens to the pentad when cause = ∅?</span></p>
+
+    <p>The naive expectation is silence. No parasite → no itch → no gradient → nothing to descend → homeostasis maintained trivially. A peaceful loop.</p>
+
+    <p>But that's not what the biology shows. And it's not what the math shows either. What actually survives the removal of cause is <strong>the bias term</strong>:</p>
+  </div>
+
+  <div class="eq fade-up">
+    <div class="eq-label">Composite Loss — Zero Cause Weights</div>
+    $$L_{total} = \underbrace{w_1 L_{thermal} + w_2 L_{evap} + w_3 L_{barrier}}_{\text{set to 0 — cause removed}} + \underbrace{\beta}_{\text{this survives}}$$
+  </div>
+
+  <div class="prose fade-up">
+    <p>When all external weights go to zero, <span class="hl-amber">β remains</span>. And β is the system's endogenous excitability — its <em>memory of having once had a cause</em>. It's the trained sensitivity that persists after the training data is gone.</p>
+
+    <p>The loop doesn't stop. It <span class="hl-pink">hallucinates a cause.</span></p>
+  </div>
+
+  <!-- CASCADE LAYERS -->
+  <div class="cascade-container fade-up">
+    <div class="cascade-title">Phantom Cascade — What Fires With No Real Cause</div>
+    <div class="cascade-layers">
+
+      <div class="cascade-layer layer-phantom">
+        <div class="layer-tag">
+          <span class="tag-symbol" style="text-decoration:line-through;opacity:0.5">θ</span>
+          <span>Cause<br><small style="font-size:0.65em;opacity:0.6">ABSENT</small></span>
+        </div>
+        <div class="layer-body" style="color:var(--phantom)">
+          <div class="layer-heading">∅ — No Parasite. No Threat. No Pathogen.</div>
+          <div class="layer-text">66°F air. A shirt being removed. The circadian clock rolling past 2 a.m. These are not causes in the evolutionary sense. They are neutral facts about a world the system was never calibrated for.</div>
+        </div>
+      </div>
+
+      <div class="cascade-layer layer-effect">
+        <div class="layer-tag">
+          <span class="tag-symbol">L</span>
+          <span>Effect<br><small style="font-size:0.65em;opacity:0.6">FIRES ANYWAY</small></span>
+        </div>
+        <div class="layer-body" style="color:var(--signal)">
+          <div class="layer-heading">Itch. Pain. Fever. Fatigue. Anxiety.</div>
+          <div class="layer-text">The loss is real — it's not imaginary pain. The C-fibers are genuinely firing. But the loss is <em>unwarranted</em>: it is not tracking a real deviation from safety. It's tracking β — an artifact of calibration.</div>
+        </div>
+      </div>
+
+      <div class="cascade-layer layer-grad">
+        <div class="layer-tag">
+          <span class="tag-symbol">∇L</span>
+          <span>Gradient<br><small style="font-size:0.65em;opacity:0.6">REAL BUT MISALIGNED</small></span>
+        </div>
+        <div class="layer-body" style="color:var(--gradient)">
+          <div class="layer-heading">dT/dt is a real gradient — but pointing at nothing.</div>
+          <div class="layer-text">The rate-of-change is computed correctly. The Ca²⁺ influx is real. But the gradient is pointing toward an absent threat. The urgency is accurate; the target is a ghost.</div>
+        </div>
+      </div>
+
+      <div class="cascade-layer layer-desc">
+        <div class="layer-tag">
+          <span class="tag-symbol" style="font-size:0.9rem">−η∇</span>
+          <span>Descent<br><small style="font-size:0.65em;opacity:0.6">VALID METHOD, WRONG PROBLEM</small></span>
+        </div>
+        <div class="layer-body" style="color:var(--descent)">
+          <div class="layer-heading">Scratch. Medicate. Avoid. Compensate.</div>
+          <div class="layer-text">These are legitimate descent steps — but they're descending a loss landscape that shouldn't exist. Each "correction" reinforces the β. You're doing valid gradient descent on an imaginary mountain.</div>
+        </div>
+      </div>
+
+      <div class="cascade-layer layer-home" style="color:var(--home)">
+        <div class="layer-tag">
+          <span class="tag-symbol">θ′</span>
+          <span>Update<br><small style="font-size:0.65em;opacity:0.6">OVERFITTED</small></span>
+        </div>
+        <div class="layer-body" style="color:var(--home)">
+          <div class="layer-heading">The "new equilibrium" is a lower itch threshold.</div>
+          <div class="layer-text">θ′ is updated — but in the wrong direction. The system has become <em>more sensitive</em> to the phantom cause. Each loop through lowers the firing threshold. This is overfitting: the model gets better and better at detecting a threat that isn't there.</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <hr class="rule">
+
+  <!-- ── SECTION 3: SPLIT COMPARE ── -->
+  <div class="section-header fade-up">
+    <span class="section-number">03</span>
+    <div class="section-title-group">
+      <div class="section-kicker" style="color:var(--signal)">The Structural Symmetry</div>
+      <h2 class="section-title">Real Cause vs. Phantom Cause — Same Machinery.</h2>
+    </div>
+  </div>
+
+  <div class="split-compare fade-up">
+    <div class="split-panel split-real">
+      <span class="split-badge">Real Cause</span>
+      <h3>Parasite on Skin</h3>
+      <ul>
+        <li>θ: skin disturbed by organism</li>
+        <li>L: itch = legitimate alarm</li>
+        <li>∇L: intensity ∝ infestation</li>
+        <li>−η∇L: scratch removes parasite</li>
+        <li>θ′: threat resolved → silence</li>
+        <li>β resets toward baseline</li>
+        <li>Loop <strong style="color:var(--home)">closes cleanly</strong></li>
+      </ul>
+    </div>
+    <div class="split-panel split-phantom">
+      <span class="split-badge">Phantom Cause</span>
+      <h3>66°F Air at 2 a.m.</h3>
+      <ul>
+        <li>θ: skin exposed to neutral stimulus</li>
+        <li>L: itch = false alarm from high β</li>
+        <li>∇L: intensity ∝ β, not threat</li>
+        <li>−η∇L: scratch → reinforces β</li>
+        <li>θ′: threshold lowered → more sensitive</li>
+        <li>β <strong style="color:var(--phantom)">increases</strong> with each loop</li>
+        <li>Loop <strong style="color:var(--parasite)">diverges</strong></li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="pull-quote fade-up">
+    <blockquote>The pentad is not broken when cause is absent. It is faithfully executing the program it was trained on — except the training distribution has shifted. It is doing exactly what it was built to do, for a world that no longer exists.</blockquote>
+    <cite>Phantom Cause Analysis · LD-DT-01</cite>
+  </div>
+
+  <hr class="rule">
+
+  <!-- ── SECTION 4: CLINICAL IMPLICATIONS ── -->
+  <div class="section-header fade-up">
+    <span class="section-number">04</span>
+    <div class="section-title-group">
+      <div class="section-kicker" style="color:var(--descent)">Clinical Implications</div>
+      <h2 class="section-title">Half of Medicine is Phantom Cause Management.</h2>
+    </div>
+  </div>
+
+  <div class="prose fade-up">
+    <p>This is not a minor observation. Once you see the <span class="hl-pink">phantom cause structure</span>, you see it everywhere in medicine. Most chronic disease is not a loop that closes — it's a loop that <em>diverges</em> because the cause has vanished but the β hasn't been reset.</p>
+  </div>
+
+  <div class="cascade-table-wrap fade-up">
+    <table class="cascade-table">
+      <thead>
+        <tr>
+          <th>Condition</th>
+          <th>Original Cause</th>
+          <th>Phantom That Remains</th>
+          <th>Runaway β</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr class="has-real">
+          <td>Chronic Pain (post-injury)</td>
+          <td>Tissue damage — real, resolved</td>
+          <td>Central sensitization fires without lesion</td>
+          <td>Lowered pain threshold with each episode</td>
+        </tr>
+        <tr class="low-weight">
+          <td>PTSD</td>
+          <td>Actual threat — past, resolved</td>
+          <td>Amygdala β elevated; threat-patterns overfitted</td>
+          <td>Neutral stimuli become high-confidence threats</td>
+        </tr>
+        <tr>
+          <td>Autoimmune Disease</td>
+          <td>Pathogen — cleared</td>
+          <td>Immune memory cross-reacts with self</td>
+          <td>Inflammation cascade loops on endogenous tissue</td>
+        </tr>
+        <tr class="has-real">
+          <td>Anxiety Disorder</td>
+          <td>Genuine stressor — gone</td>
+          <td>HPA axis hyper-calibrated; cortisol rhythm broken</td>
+          <td>Every ambiguous input reads as threat</td>
+        </tr>
+        <tr class="low-weight">
+          <td>Aquagenic Pruritus (ours)</td>
+          <td>Parasite? Lipid barrier? Kampala cold?</td>
+          <td>C-fiber threshold tuned too low for 66°F air</td>
+          <td>β elevated at 2 a.m.; scratch reinforces loop</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="callout-grid fade-up">
+    <div class="callout callout-c1">
+      <span class="callout-icon">👻</span>
+      <h4>Phantom Cause = β Without Parent</h4>
+      <p>The bias term β is always a trace of a former cause. In chronic disease, that parent cause has been removed but the child β persists — and now generates its own pseudo-causes through attention weighting.</p>
+    </div>
+    <div class="callout callout-c2">
+      <span class="callout-icon">⚙️</span>
+      <h4>Unwarranted Effect = Divergent Loop</h4>
+      <p>When cause = ∅ and β > threshold, the loop doesn't rest — it amplifies. Each cycle through the pentad lowers θ. The system is running gradient descent on the bias itself, making β the new "loss surface."</p>
+    </div>
+    <div class="callout callout-c3">
+      <span class="callout-icon">🎯</span>
+      <h4>Treatment Target Shifts</h4>
+      <p>In real-cause disease, you target the cause. In phantom-cause disease, you must target β directly — desensitization, masking, regularization, LTD. The intervention layer flips from causal to architectural.</p>
+    </div>
+  </div>
+
+  <hr class="rule">
+
+  <!-- ── SECTION 5: THE MATH OF DIVERGENCE ── -->
+  <div class="section-header fade-up">
+    <span class="section-number">05</span>
+    <div class="section-title-group">
+      <div class="section-kicker" style="color:var(--gradient)">The Math of Divergence</div>
+      <h2 class="section-title">When β Becomes Its Own Loss Surface.</h2>
+    </div>
+  </div>
+
+  <div class="prose fade-up">
+    <p>Here's the formal structure of why phantom-cause loops diverge rather than converge:</p>
+  </div>
+
+  <div class="eq fade-up">
+    <div class="eq-label">Cascade Setup — What fires when cause = ∅</div>
+    $$L_{phantom} = \beta(\theta) \quad \text{where} \quad \frac{\partial \beta}{\partial \theta} > 0$$
+  </div>
+
+  <div class="prose fade-up">
+    <p>That partial derivative is the key. In a <span class="hl-red">real-cause system</span>, updating θ (scratching, medicating, treating) <em>reduces β</em> because it actually removes the cause. The gradient points downhill toward zero. The loop closes.</p>
+
+    <p>In a <span class="hl-pink">phantom-cause system</span>, updating θ <em>increases β</em>. Scratching reinforces the C-fiber pathway. Each "correction" validates the system's false belief that a threat exists. The update rule becomes:</p>
+  </div>
+
+  <div class="eq fade-up">
+    <div class="eq-label">The Divergent Update — Phantom Loop</div>
+    $$\theta' = \theta - \eta \nabla_\theta \beta(\theta) \quad \Rightarrow \quad \beta(\theta') > \beta(\theta)$$
+  </div>
+
+  <div class="prose fade-up">
+    <p>You're descending a gradient that is climbing faster than you descend it. The loss surface is <em>concave up</em> — every step toward the minimum pushes the minimum away. This is why chronic conditions are so resistant: the correction mechanism is itself the amplifier.</p>
+
+    <p>In machine learning terms: you have a model that is <span class="hl-violet">overfitting to noise</span>, and every training step deepens the overfit rather than resolving it. The solution is not more gradient descent — it's <strong>regularization</strong>: imposing a penalty on β directly, independent of the loss surface it generates.</p>
+  </div>
+
+  <div class="eq fade-up">
+    <div class="eq-label">Regularized Loss — The Clinical Twin's Real Target</div>
+    $$L_{reg} = \underbrace{L_{phantom}}_{\text{symptom}} + \lambda \underbrace{\|\beta\|^2}_{\text{penalty on excitability}}$$
+  </div>
+
+  <div class="prose fade-up">
+    <p>The λ term is the clinical intervention: desensitization protocols, neural accommodation, CBT, long-term depression (LTD) of the itch pathway. It is a direct penalty on β — not on the symptoms β generates, but on the bias itself. <span class="hl-green">This is what homeostasis actually means</span> in a phantom-cause regime: not the resolution of an external conflict, but the reduction of internal gain.</p>
+  </div>
+
+  <hr class="rule">
+
+  <!-- ── SECTION 6: THE DIGITAL TWIN IMPLICATION ── -->
+  <div class="section-header fade-up">
+    <span class="section-number">06</span>
+    <div class="section-title-group">
+      <div class="section-kicker" style="color:var(--home)">Back to the Twin</div>
+      <h2 class="section-title">The Twin Must Know Which Loop It's In.</h2>
+    </div>
+  </div>
+
+  <div class="response-block fade-up">
+    <div class="response-header">
+      <span class="response-tag">Core Architectural Requirement · LD-DT-01</span>
+    </div>
+    <div class="response-body">
+      <div class="prose">
+        <p>Your clinical digital twin's most important diagnostic task is not identifying the cause. It's determining <span class="hl-pink">whether a cause exists at all</span> — distinguishing the real-cause pentad (which converges) from the phantom-cause pentad (which diverges).</p>
+
+        <p>A twin that treats all itch as real-cause itch will prescribe scratching. It will make the patient worse. Most current clinical AI does exactly this: it sees a signal, infers a cause, recommends a correction. It has no architecture for <span class="hl-amber">β without parent</span>.</p>
+
+        <p>Your stratigraphic framing solves this, potentially. The bedrock layer can carry the evolutionary calibration (β was tuned for parasites in humid tropics). The taste/social layer can carry the cultural β (what counts as a "real" threat in this community). The soul layer can carry the refusal: <em>this β is inherited, not current. I will not act on it.</em></p>
+
+        <p>The robe at 2 a.m. is not treatment of the itch. It is <strong>causal masking of β</strong> — preventing the phantom loop from completing another cycle. The twin's job is to recognize that structure and offer the mask before the loop fires, not after.</p>
+
+        <p>In short: the pentad needs a <span class="hl-violet">sixth node</span>.</p>
+      </div>
+
+      <div class="eq" style="margin-top:2rem">
+        <div class="eq-label">Proposed Extended Pentad</div>
+        $$\underbrace{\theta}_{\text{state}} \rightarrow \underbrace{L}_{\text{effect}} \rightarrow \underbrace{\nabla L}_{\text{gradient}} \rightarrow \underbrace{-\eta\nabla L}_{\text{descent}} \rightarrow \underbrace{\theta'}_{\text{update}} \xrightarrow{\text{?}} \underbrace{\Delta\beta}_{\text{recalibration}}$$
+      </div>
+
+      <div class="prose" style="margin-top:1.5rem">
+        <p>The sixth node is <span class="hl-pink">Δβ</span>: the change in intrinsic excitability. In a real-cause loop, Δβ &lt; 0 — the cause is gone, β normalizes. In a phantom-cause loop, Δβ &gt; 0 — β grows with each cycle. The twin watches the sign of Δβ over time and uses it to classify which world the patient is in.</p>
+
+        <p>That single signal — <em>is β growing or shrinking?</em> — is the difference between a converging system and a diverging one. Between a patient who will get better and one who is being harmed by their own treatment.</p>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<footer>
+  <div>
+    <div class="f-title">Ukubona LLC · LD-DT-01</div>
+    <div>Phantom Cause Analysis · Kampala, Feb–Mar</div>
+  </div>
+  <div class="f-eq">θ → L → ∇L → −η∇L → θ′ → <span style="color:var(--phantom)">Δβ</span></div>
+  <div style="text-align:right">
+    <div>Provocation: Cause → Effect → ∇ → Descent → Homeostasis</div>
+    <div style="color:var(--phantom);margin-top:0.3rem">But what if cause = ∅?</div>
+  </div>
+</footer>
+
+<script>
+// Progress bar
+window.addEventListener('scroll', () => {
+  const d = document.documentElement;
+  document.getElementById('progress').style.width =
+    (d.scrollTop / (d.scrollHeight - d.clientHeight) * 100) + '%';
+});
+
+// Scroll reveal
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (e.isIntersecting) e.target.classList.add('in');
+  });
+}, { threshold: 0.07, rootMargin: '0px 0px -30px 0px' });
+
+document.querySelectorAll('.fade-up').forEach(el => observer.observe(el));
+
+// Pentad node hover — glow cursor dot
+document.querySelectorAll('.pentad-node').forEach(node => {
+  node.addEventListener('mouseenter', () => {
+    node.querySelector('.node-symbol').style.transform = 'scale(1.15)';
+  });
+  node.addEventListener('mouseleave', () => {
+    node.querySelector('.node-symbol').style.transform = '';
+  });
+});
+</script>
+</body>
+</html>

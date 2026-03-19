@@ -1,0 +1,839 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Uganda District Loss Map — Ukubona LLC</title>
+<meta name="color-scheme" content="dark light">
+
+<link rel="icon" href="https://abikesa.github.io/favicon/assets/favicon-dark.ico">
+<link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.min.css">
+
+<style>
+:root {
+  --bg:     #0a0a0f;
+  --bg2:    #151520;
+  --bg3:    #1a1a28;
+  --card:   #1f1f2e;
+  --brd:    #2a2a3a;
+  --ink:    #e8e8f0;
+  --ink2:   #a0a0b8;
+  --ink3:   #707088;
+  --acc:    #5b7fff;
+  --acc2:   #7c9aff;
+  --shad:   rgba(0,0,0,0.5);
+  /* ROYGBIV */
+  --r: #e24b4a;
+  --o: #d85a30;
+  --y: #ef9f27;
+  --g: #639922;
+  --b: #378add;
+  --i: #534ab7;
+  --v: #1d9e75;
+}
+[data-theme="light"] {
+  --bg:#fff; --bg2:#f8f9fa; --bg3:#f0f1f3; --card:#fff;
+  --brd:#e0e0e8; --ink:#1a1a28; --ink2:#4a4a5e; --ink3:#707088;
+  --acc:#4a65cc; --acc2:#5b7fff; --shad:rgba(0,0,0,0.1);
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var(--ink);line-height:1.6;-webkit-font-smoothing:antialiased;overflow-x:hidden;}
+
+/* SCROLL BAR */
+.scroll-bar{position:fixed;top:0;left:0;width:100%;height:3px;background:var(--bg3);z-index:10000;}
+.scroll-prog{height:100%;background:linear-gradient(90deg,var(--acc),var(--acc2));width:0%;transition:width .1s;}
+
+/* HEADER */
+header{background:linear-gradient(135deg,var(--bg3),var(--bg));border-bottom:1px solid var(--brd);padding:.85rem 1rem;position:sticky;top:0;z-index:1000;backdrop-filter:blur(10px);}
+.hd{max-width:1600px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap;}
+.logo-wrap{display:flex;align-items:center;gap:.75rem;text-decoration:none;}
+.logo-rotor{width:52px;height:52px;flex-shrink:0;}
+.logo-rotor img{width:100%;height:100%;animation:spin 60s linear infinite;}
+@keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+.brand{display:flex;flex-direction:column;}
+.brand-name{font-size:1rem;font-weight:700;color:var(--ink);letter-spacing:-.02em;}
+.brand-tag{font-size:.65rem;color:var(--ink2);letter-spacing:.02em;}
+.hd-center{flex:1;text-align:center;}
+.hd-title{font-size:1.2rem;font-weight:700;color:var(--ink);letter-spacing:-.02em;}
+.hd-sub{font-size:.75rem;color:var(--ink2);margin-top:.15rem;}
+.hd-actions{display:flex;gap:.6rem;align-items:center;}
+.theme-btn{background:var(--card);border:1px solid var(--brd);border-radius:8px;padding:.45rem;cursor:pointer;color:var(--ink2);display:flex;align-items:center;transition:all .2s;}
+.theme-btn:hover{border-color:var(--acc);color:var(--acc);}
+.home-btn{background:linear-gradient(135deg,var(--acc),var(--acc2));color:#fff;padding:.45rem .9rem;border-radius:8px;text-decoration:none;font-weight:600;font-size:.78rem;display:flex;align-items:center;gap:.4rem;transition:transform .2s,box-shadow .2s;}
+.home-btn:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(91,127,255,.3);}
+
+/* STATS BANNER */
+.stats-band{background:linear-gradient(135deg,var(--bg2),var(--bg3));border-bottom:1px solid var(--brd);padding:1rem;}
+.stats-inner{max-width:1600px;margin:0 auto;display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:.85rem;}
+.stat{text-align:center;padding:.85rem;background:var(--card);border-radius:10px;border:1px solid var(--brd);transition:transform .2s,box-shadow .2s;}
+.stat:hover{transform:translateY(-2px);box-shadow:0 8px 16px var(--shad);}
+.stat-val{font-size:1.6rem;font-weight:800;color:var(--acc);margin-bottom:.15rem;}
+.stat-lbl{font-size:.75rem;color:var(--ink2);font-weight:500;}
+.stat-ctx{font-size:.63rem;color:var(--ink3);margin-top:.15rem;}
+
+/* DIMENSION SELECTOR */
+.dim-bar{max-width:1600px;margin:.85rem auto 0;padding:0 1rem;}
+.dim-inner{background:var(--card);border:1px solid var(--brd);border-radius:12px;padding:.85rem 1.1rem;display:flex;align-items:center;gap:1.1rem;flex-wrap:wrap;}
+.dim-label{font-size:.72rem;font-weight:600;color:var(--ink2);text-transform:uppercase;letter-spacing:.08em;white-space:nowrap;}
+.dim-select{background:var(--bg3);border:1px solid var(--brd);border-radius:8px;color:var(--ink);font-family:'Inter',sans-serif;font-size:.85rem;font-weight:500;padding:.42rem .9rem;cursor:pointer;transition:border-color .2s;outline:none;}
+.dim-select:hover,.dim-select:focus{border-color:var(--acc);}
+.dim-desc{font-size:.72rem;color:var(--ink3);flex:1;min-width:180px;}
+
+/* WEIGHT CONTROLS — only shown for composite */
+.weight-controls{display:none;gap:1rem;flex-wrap:wrap;align-items:center;margin-top:.6rem;padding-top:.6rem;border-top:1px solid var(--brd);width:100%;}
+.weight-controls.show{display:flex;}
+.wc-label{font-size:.68rem;color:var(--ink3);text-transform:uppercase;letter-spacing:.07em;}
+.wc-row{display:flex;align-items:center;gap:.5rem;}
+.wc-name{font-size:.72rem;color:var(--ink2);min-width:90px;}
+.wc-val{font-family:monospace;font-size:.7rem;color:var(--y);min-width:28px;}
+input[type=range]{height:3px;appearance:none;background:#2a2a3a;border-radius:2px;outline:none;cursor:pointer;width:90px;}
+input[type=range]::-webkit-slider-thumb{appearance:none;width:11px;height:11px;border-radius:50%;cursor:pointer;}
+.wrt::-webkit-slider-thumb{background:var(--r)!important;}
+.wro::-webkit-slider-thumb{background:var(--o)!important;}
+.wrg::-webkit-slider-thumb{background:var(--g)!important;}
+.wrb::-webkit-slider-thumb{background:var(--b)!important;}
+
+/* MAIN GRID */
+.main{max-width:1600px;margin:.85rem auto;padding:0 1rem;display:grid;grid-template-columns:1fr 370px;gap:1.1rem;}
+
+/* MAP SECTION */
+.map-wrap{background:var(--card);border-radius:14px;border:1px solid var(--brd);overflow:hidden;box-shadow:0 8px 32px var(--shad);}
+.map-hd{padding:1rem 1.1rem;background:linear-gradient(135deg,var(--bg2),var(--bg3));border-bottom:1px solid var(--brd);}
+.map-hd-title{font-size:1rem;font-weight:700;color:var(--ink);margin-bottom:.25rem;display:flex;align-items:center;gap:.5rem;}
+.map-hd-sub{font-size:.75rem;color:var(--ink2);}
+#map{width:100%;height:520px;background:var(--bg3);}
+
+/* ROYGBIV LEGEND */
+.leg{padding:1rem 1.1rem;background:var(--bg2);border-top:1px solid var(--brd);}
+.leg-title{font-size:.75rem;font-weight:600;color:var(--ink);margin-bottom:.7rem;}
+.leg-items{display:flex;gap:.85rem;flex-wrap:wrap;}
+.leg-item{display:flex;align-items:center;gap:.4rem;font-size:.66rem;color:var(--ink2);}
+.leg-sw{width:22px;height:12px;border-radius:3px;border:1px solid rgba(255,255,255,0.08);}
+
+/* RIGHT PANEL */
+.rpanel{background:var(--card);border-radius:14px;border:1px solid var(--brd);overflow:hidden;box-shadow:0 8px 32px var(--shad);position:sticky;top:90px;max-height:calc(100vh - 110px);display:flex;flex-direction:column;}
+.rp-hd{padding:1rem 1.1rem;background:linear-gradient(135deg,var(--bg2),var(--bg3));border-bottom:1px solid var(--brd);}
+.rp-title{font-size:.95rem;font-weight:700;color:var(--ink);display:flex;align-items:center;gap:.5rem;}
+.rp-body{flex:1;overflow-y:auto;}
+.placeholder{text-align:center;color:var(--ink3);font-size:.8rem;padding:3rem 1.5rem;}
+.d-info{padding:1.1rem;}
+.d-name{font-size:1.4rem;font-weight:800;color:var(--ink);margin-bottom:.85rem;}
+
+/* ROYGBIV SCORE DISPLAY */
+.score-box{border-radius:10px;padding:1.25rem;text-align:center;margin-bottom:1rem;}
+.score-val{font-size:2.8rem;font-weight:900;color:#fff;line-height:1;}
+.score-sub{font-size:.78rem;color:rgba(255,255,255,.85);margin-top:.35rem;}
+.score-loss{font-family:monospace;font-size:.8rem;color:rgba(255,255,255,.7);margin-top:.2rem;}
+
+/* PER-DIMENSION BREAKDOWN */
+.dim-grid{display:grid;gap:.6rem;margin-bottom:1rem;}
+.dim-row{background:var(--bg2);border:1px solid var(--brd);border-radius:7px;padding:.6rem .8rem;display:flex;align-items:center;gap:.7rem;}
+.dim-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;}
+.dim-row-name{font-size:.72rem;color:var(--ink2);flex:1;}
+.dim-row-val{font-family:monospace;font-size:.8rem;color:var(--ink);font-weight:600;}
+.dim-bar-bg{height:4px;background:var(--bg3);border-radius:2px;flex:1;max-width:70px;}
+.dim-bar-fill{height:100%;border-radius:2px;transition:width .4s;}
+
+/* NOTES */
+.notes-box{background:var(--bg2);border-left:3px solid var(--acc);border-radius:0 7px 7px 0;padding:.75rem 1rem;}
+.notes-lbl{font-size:.63rem;color:var(--ink3);text-transform:uppercase;letter-spacing:.07em;margin-bottom:.3rem;}
+.notes-txt{font-size:.78rem;color:var(--ink2);line-height:1.55;}
+
+/* DISTRICT GRID BELOW */
+.dgrid-section{max-width:1600px;margin:.85rem auto 2rem;padding:0 1rem;}
+.dgrid-wrap{background:var(--card);border-radius:14px;border:1px solid var(--brd);padding:1.25rem;box-shadow:0 8px 32px var(--shad);}
+.dgrid-hd{margin-bottom:1rem;}
+.dgrid-title{font-size:1.2rem;font-weight:700;color:var(--ink);margin-bottom:.3rem;}
+.dgrid-sub{font-size:.78rem;color:var(--ink2);}
+.dgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:.85rem;}
+.dcard{background:var(--bg2);border:1px solid var(--brd);border-radius:10px;padding:.85rem;cursor:pointer;transition:all .2s;}
+.dcard:hover{transform:translateY(-3px);box-shadow:0 10px 20px var(--shad);border-color:var(--acc);}
+.dcard-hd{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:.5rem;}
+.dcard-name{font-size:.9rem;font-weight:700;color:var(--ink);}
+.dcard-val{font-size:1.2rem;font-weight:800;padding:.2rem .6rem;border-radius:5px;background:rgba(91,127,255,.1);color:var(--acc);}
+.dcard-meta{font-size:.65rem;color:var(--ink3);}
+
+/* FOOTER */
+footer{background:linear-gradient(135deg,var(--bg3),var(--bg));border-top:1px solid var(--brd);padding:1.75rem 1rem 1.25rem;}
+.ft{max-width:1600px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:2rem;}
+.ft-sec h3{font-size:.9rem;font-weight:700;color:var(--ink);margin-bottom:.6rem;}
+.ft-sec p,.ft-sec a{font-size:.78rem;color:var(--ink2);text-decoration:none;line-height:1.6;display:block;margin-bottom:.25rem;}
+.ft-sec a:hover{color:var(--acc);}
+.ft-bot{max-width:1600px;margin:.85rem auto 0;padding-top:.85rem;border-top:1px solid var(--brd);text-align:center;font-size:.65rem;color:var(--ink3);}
+
+/* LEAFLET overrides */
+.leaflet-popup-content-wrapper{background:var(--card)!important;color:var(--ink)!important;border:1px solid var(--brd)!important;border-radius:10px!important;box-shadow:0 8px 32px var(--shad)!important;}
+.leaflet-popup-content{margin:.85rem!important;font-family:'Inter',sans-serif!important;}
+.leaflet-popup-tip{background:var(--card)!important;}
+.lp-name{font-size:1rem;font-weight:700;margin-bottom:.35rem;}
+.lp-val{font-size:1.4rem;font-weight:800;margin-bottom:.3rem;}
+.lp-meta{font-size:.72rem;color:var(--ink2);line-height:1.5;}
+
+/* RESPONSIVE */
+@media(max-width:1100px){.main{grid-template-columns:1fr;}.rpanel{position:relative;top:0;max-height:none;}}
+@media(max-width:768px){#map{height:420px;}.ft{grid-template-columns:1fr;}.hd{flex-direction:column;align-items:flex-start;}.hd-center{text-align:left;}}
+</style>
+</head>
+<body>
+
+<div class="scroll-bar"><div class="scroll-prog" id="sp"></div></div>
+
+<header>
+  <div class="hd">
+    <a href="https://ukubona-llc.github.io/" class="logo-wrap">
+      <div class="logo-rotor">
+        <img id="logo-img" src="https://abikesa.github.io/logos/assets/ukubona-dark.png" alt="Ukubona">
+      </div>
+      <div class="brand">
+        <div class="brand-name">Ukubona LLC</div>
+        <div class="brand-tag">Health Tech for Customized Care</div>
+      </div>
+    </a>
+    <div class="hd-center">
+      <div class="hd-title">Uganda District Loss Map</div>
+      <div class="hd-sub">Synthetic Phase I · 133 Districts · θ → L(θ) → ∇L → −η∇L → θ′</div>
+    </div>
+    <div class="hd-actions">
+      <button class="theme-btn" id="theme-btn" title="Toggle theme">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+      </button>
+      <a href="https://ukubona-llc.github.io/" class="home-btn">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+        Home
+      </a>
+    </div>
+  </div>
+</header>
+
+<!-- STATS -->
+<div class="stats-band">
+  <div class="stats-inner">
+    <div class="stat"><div class="stat-val">133</div><div class="stat-lbl">Districts</div><div class="stat-ctx">All Uganda admin units</div></div>
+    <div class="stat"><div class="stat-val">+71%</div><div class="stat-lbl">MH Surge</div><div class="stat-ctx">NPA Feb 2026 report</div></div>
+    <div class="stat"><div class="stat-val" id="stat-mean">—</div><div class="stat-lbl">Mean L(θ)</div><div class="stat-ctx">Composite loss</div></div>
+    <div class="stat"><div class="stat-val" id="stat-crit">—</div><div class="stat-lbl">Critical districts</div><div class="stat-ctx">Loss ≥ 0.70 (Red/Orange)</div></div>
+    <div class="stat"><div class="stat-val">Synthetic</div><div class="stat-lbl">Data Phase</div><div class="stat-ctx">Bayesian swap ready</div></div>
+  </div>
+</div>
+
+<!-- DIMENSION SELECTOR -->
+<div class="dim-bar">
+  <div class="dim-inner">
+    <span class="dim-label">View dimension</span>
+    <select class="dim-select" id="dim-sel">
+      <option value="mh">Mental health burden</option>
+      <option value="mort">Infant mortality</option>
+      <option value="mal">Malaria incidence</option>
+      <option value="so">Drug stockouts</option>
+      <option value="composite" selected>Composite L(θ) — all dimensions</option>
+    </select>
+    <span class="dim-desc" id="dim-desc">Weighted composite loss across all four dimensions. Adjust weights below.</span>
+
+    <!-- Composite weight sliders — only shown when composite selected -->
+    <div class="weight-controls show" id="wc">
+      <span class="wc-label">Weights (policy choice):</span>
+      <div class="wc-row">
+        <span class="wc-name" style="color:var(--r)">Mental health</span>
+        <input type="range" class="wrt" id="w-mh" min="5" max="50" value="25">
+        <span class="wc-val" id="wv-mh">25%</span>
+      </div>
+      <div class="wc-row">
+        <span class="wc-name" style="color:var(--o)">Infant mort.</span>
+        <input type="range" class="wro" id="w-im" min="5" max="50" value="25">
+        <span class="wc-val" id="wv-im">25%</span>
+      </div>
+      <div class="wc-row">
+        <span class="wc-name" style="color:var(--g)">Malaria</span>
+        <input type="range" class="wrg" id="w-ml" min="5" max="50" value="25">
+        <span class="wc-val" id="wv-ml">25%</span>
+      </div>
+      <div class="wc-row">
+        <span class="wc-name" style="color:var(--b)">Stockouts</span>
+        <input type="range" class="wrb" id="w-so" min="5" max="50" value="25">
+        <span class="wc-val" id="wv-so">25%</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MAIN GRID -->
+<div class="main">
+
+  <!-- MAP -->
+  <div class="map-wrap">
+    <div class="map-hd">
+      <div class="map-hd-title">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></svg>
+        Interactive District Map
+      </div>
+      <div class="map-hd-sub" id="map-sub">Tap any district to view detailed loss data — ROYGBIV: Red = high loss → Violet = optimized</div>
+    </div>
+    <div id="map"></div>
+    <div class="leg">
+      <div class="leg-title" id="leg-title">L(θ) — Composite loss gradient</div>
+      <div class="leg-items" id="leg-items">
+        <!-- populated by JS -->
+      </div>
+    </div>
+  </div>
+
+  <!-- RIGHT PANEL -->
+  <div class="rpanel">
+    <div class="rp-hd">
+      <div class="rp-title">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        District Details
+      </div>
+    </div>
+    <div class="rp-body" id="rp-body">
+      <div class="placeholder">
+        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="margin:0 auto 1rem;display:block;opacity:.3"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+        <p>Tap a district marker on the map to see detailed data</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- DISTRICTS GRID -->
+<div class="dgrid-section">
+  <div class="dgrid-wrap">
+    <div class="dgrid-hd">
+      <div class="dgrid-title">All Districts — Ranked by Current Dimension</div>
+      <div class="dgrid-sub" id="grid-sub">Sorted highest to lowest loss</div>
+    </div>
+    <div class="dgrid" id="dgrid"></div>
+  </div>
+</div>
+
+<footer>
+  <div class="ft">
+    <div class="ft-sec">
+      <h3>About This Map</h3>
+      <p>Synthetic Phase I data calibrated to NPA Uganda parameters. Mental health surge: +71% (494,326 → 843,295 cases, Feb 2026 NPA report). ROYGBIV loss gradient: Red = high loss, Violet = optimized. Bayesian swap ready — replace synthetic with MoH DHIS2 / UBOS real data streams.</p>
+    </div>
+    <div class="ft-sec">
+      <h3>Pipeline</h3>
+      <a href="pipeline-roundtable.html">← UGOAX Roundtable Transcript</a>
+      <a href="pipeline.html">← Pipeline Doctrine (Synthesis)</a>
+      <a href="gov.html">← NPA Meeting Notes (Ivan Lule)</a>
+      <a href="https://ukubona-llc.github.io/">Ukubona LLC Home</a>
+    </div>
+  </div>
+  <div class="ft-bot">© 2026 Ukubona LLC · θ → L(θ) → ∇L → −η∇L → θ′ · To see is to learn</div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.min.js"></script>
+<script>
+// ── ROYGBIV SCALE ─────────────────────────────────────────────────────────────
+// Each dimension has its own calibrated breakpoints.
+// Loss 0→1 maps to Violet→Red.
+
+const ROYGBIV = [
+  {color:'#e24b4a', label:'Red',    lo:0.80, hi:1.00},
+  {color:'#d85a30', label:'Orange', lo:0.60, hi:0.80},
+  {color:'#ef9f27', label:'Yellow', lo:0.40, hi:0.60},
+  {color:'#639922', label:'Green',  lo:0.22, hi:0.40},
+  {color:'#378add', label:'Blue',   lo:0.11, hi:0.22},
+  {color:'#534ab7', label:'Indigo', lo:0.04, hi:0.11},
+  {color:'#1d9e75', label:'Violet', lo:0.00, hi:0.04},
+];
+
+// Per-dimension calibration: raw value → normalised loss 0–1
+const DIM_CONFIG = {
+  mh: {
+    label: 'Mental health burden',
+    unit: '% prevalence',
+    desc: 'Depression/anxiety prevalence from facility-based studies.',
+    // ROYGBIV breakpoints in raw units (prevalence %)
+    breaks: [8, 15, 25, 35, 45, 55],  // boundaries for V,I,B,G,Y,O,R
+    format: v => v.toFixed(1) + '%',
+    normalize: v => Math.min(1, Math.max(0, (v - 8) / (60 - 8))),
+  },
+  mort: {
+    label: 'Infant mortality',
+    unit: 'per 1,000 live births',
+    desc: 'Under-1 mortality rate per 1,000 live births.',
+    breaks: [5, 10, 20, 40, 60, 80],
+    format: v => v.toFixed(0) + '/1k',
+    normalize: v => Math.min(1, Math.max(0, (v - 5) / (90 - 5))),
+  },
+  mal: {
+    label: 'Malaria incidence',
+    unit: 'per 1,000 population',
+    desc: 'Annual malaria cases per 1,000. High in western and northern districts.',
+    breaks: [20, 50, 100, 200, 300, 400],
+    format: v => v.toFixed(0) + '/1k',
+    normalize: v => Math.min(1, Math.max(0, (v - 20) / (450 - 20))),
+  },
+  so: {
+    label: 'Drug stockouts',
+    unit: 'days per quarter',
+    desc: 'Days per quarter essential medicines unavailable at facility level.',
+    breaks: [2, 5, 10, 20, 30, 40],
+    format: v => v.toFixed(0) + 'd',
+    normalize: v => Math.min(1, Math.max(0, (v - 2) / (45 - 2))),
+  },
+};
+
+const DIM_DESCS = {
+  mh:        'Depression/anxiety prevalence — elevated in northern (post-conflict) and urban districts.',
+  mort:      'Under-1 mortality rate per 1,000 live births — highest in Karamoja and remote north.',
+  mal:       'Annual malaria cases per 1,000 — highest in western districts and Lake Victoria rim.',
+  so:        'Days per quarter essential medicines are unavailable — proxy for supply chain health.',
+  composite: 'Weighted composite loss across all four dimensions. Adjust weights in the controls above.',
+};
+
+function lossToColor(loss) {
+  for (const s of ROYGBIV) {
+    if (loss >= s.lo) return s.color;
+  }
+  return ROYGBIV[ROYGBIV.length-1].color;
+}
+
+// ── DISTRICT DATA ─────────────────────────────────────────────────────────────
+const DISTRICTS = [
+  {n:"Abim",         lat:3.00, lon:33.67},
+  {n:"Adjumani",     lat:3.38, lon:31.79},
+  {n:"Agago",        lat:2.98, lon:33.38},
+  {n:"Alebtong",     lat:2.26, lon:33.35},
+  {n:"Amolatar",     lat:1.60, lon:32.80},
+  {n:"Amudat",       lat:1.95, lon:34.93},
+  {n:"Amuria",       lat:2.03, lon:33.65},
+  {n:"Amuru",        lat:2.80, lon:31.92},
+  {n:"Apac",         lat:1.98, lon:32.54},
+  {n:"Arua",         lat:3.02, lon:30.91},
+  {n:"Budaka",       lat:1.00, lon:33.94},
+  {n:"Bududa",       lat:1.00, lon:34.33},
+  {n:"Bugiri",       lat:0.57, lon:33.75},
+  {n:"Buhweju",      lat:-0.70,lon:30.42},
+  {n:"Buikwe",       lat:0.33, lon:33.00},
+  {n:"Bukedea",      lat:1.36, lon:34.00},
+  {n:"Bukomansimbi", lat:-0.14,lon:31.60},
+  {n:"Bukwo",        lat:1.28, lon:34.73},
+  {n:"Bulambuli",    lat:1.22, lon:34.38},
+  {n:"Buliisa",      lat:2.12, lon:31.41},
+  {n:"Bundibugyo",   lat:0.71, lon:30.07},
+  {n:"Bunyangabu",   lat:-0.50,lon:30.18},
+  {n:"Bushenyi",     lat:-0.58,lon:30.18},
+  {n:"Busia",        lat:0.46, lon:34.09},
+  {n:"Butaleja",     lat:0.90, lon:33.97},
+  {n:"Butebo",       lat:1.18, lon:34.05},
+  {n:"Buvuma",       lat:0.38, lon:33.22},
+  {n:"Buyende",      lat:1.24, lon:33.12},
+  {n:"Dokolo",       lat:1.91, lon:33.17},
+  {n:"Gomba",        lat:-0.23,lon:31.68},
+  {n:"Gulu",         lat:2.77, lon:32.30},
+  {n:"Hoima",        lat:1.43, lon:31.35},
+  {n:"Ibanda",       lat:-0.14,lon:30.50},
+  {n:"Iganga",       lat:0.61, lon:33.48},
+  {n:"Isingiro",     lat:-0.84,lon:30.82},
+  {n:"Jinja",        lat:0.42, lon:33.20},
+  {n:"Kaabong",      lat:3.52, lon:34.14},
+  {n:"Kabale",       lat:-1.25,lon:29.99},
+  {n:"Kabarole",     lat:0.65, lon:30.25},
+  {n:"Kaberamaido",  lat:1.74, lon:33.16},
+  {n:"Kagadi",       lat:0.94, lon:30.82},
+  {n:"Kakumiro",     lat:0.78, lon:31.33},
+  {n:"Kalaki",       lat:1.89, lon:33.38},
+  {n:"Kalangala",    lat:-0.32,lon:32.23},
+  {n:"Kaliro",       lat:1.04, lon:33.50},
+  {n:"Kalungu",      lat:-0.10,lon:31.78},
+  {n:"Kampala",      lat:0.32, lon:32.58},
+  {n:"Kamuli",       lat:0.95, lon:33.12},
+  {n:"Kamwenge",     lat:0.19, lon:30.45},
+  {n:"Kanungu",      lat:-0.96,lon:29.79},
+  {n:"Kapchorwa",    lat:1.40, lon:34.45},
+  {n:"Kapelebyong",  lat:1.90, lon:33.98},
+  {n:"Karenga",      lat:3.73, lon:33.80},
+  {n:"Kasanda",      lat:0.60, lon:31.72},
+  {n:"Kasese",       lat:0.18, lon:30.08},
+  {n:"Katakwi",      lat:1.90, lon:34.07},
+  {n:"Kayunga",      lat:0.71, lon:32.87},
+  {n:"Kazo",         lat:-0.10,lon:30.68},
+  {n:"Kibale",       lat:0.87, lon:31.06},
+  {n:"Kiboga",       lat:0.91, lon:31.77},
+  {n:"Kibuku",       lat:1.04, lon:33.79},
+  {n:"Kikuube",      lat:1.58, lon:31.22},
+  {n:"Kiruhura",     lat:-0.20,lon:30.86},
+  {n:"Kiryandongo",  lat:1.88, lon:32.10},
+  {n:"Kisoro",       lat:-1.28,lon:29.65},
+  {n:"Kitgum",       lat:3.28, lon:32.89},
+  {n:"Koboko",       lat:3.41, lon:31.05},
+  {n:"Kole",         lat:2.37, lon:32.76},
+  {n:"Kotido",       lat:2.98, lon:34.13},
+  {n:"Kumi",         lat:1.46, lon:33.94},
+  {n:"Kwania",       lat:2.12, lon:32.60},
+  {n:"Kween",        lat:1.42, lon:34.63},
+  {n:"Kyankwanzi",   lat:1.09, lon:31.71},
+  {n:"Kyegegwa",     lat:0.48, lon:31.05},
+  {n:"Kyenjojo",     lat:0.62, lon:30.64},
+  {n:"Kyotera",      lat:-0.65,lon:31.55},
+  {n:"Lamwo",        lat:3.53, lon:32.53},
+  {n:"Lira",         lat:2.25, lon:32.90},
+  {n:"Luuka",        lat:0.73, lon:33.30},
+  {n:"Luwero",       lat:0.85, lon:32.47},
+  {n:"Lwengo",       lat:-0.40,lon:31.40},
+  {n:"Lyantonde",    lat:-0.40,lon:31.15},
+  {n:"Madi-Okollo",  lat:3.10, lon:31.20},
+  {n:"Manafwa",      lat:0.88, lon:34.28},
+  {n:"Maracha",      lat:3.29, lon:30.96},
+  {n:"Masaka",       lat:-0.34,lon:31.74},
+  {n:"Masindi",      lat:1.68, lon:31.71},
+  {n:"Mayuge",       lat:0.46, lon:33.57},
+  {n:"Mbale",        lat:1.08, lon:34.18},
+  {n:"Mbarara",      lat:-0.60,lon:30.65},
+  {n:"Mitooma",      lat:-0.63,lon:30.02},
+  {n:"Mityana",      lat:0.40, lon:32.02},
+  {n:"Moroto",       lat:2.53, lon:34.67},
+  {n:"Moyo",         lat:3.65, lon:31.73},
+  {n:"Mpigi",        lat:0.23, lon:32.32},
+  {n:"Mubende",      lat:0.57, lon:31.36},
+  {n:"Mukono",       lat:0.35, lon:32.76},
+  {n:"Nabilatuk",    lat:2.05, lon:34.53},
+  {n:"Nakapiripirit",lat:1.90, lon:34.65},
+  {n:"Nakaseke",     lat:1.12, lon:32.43},
+  {n:"Nakasongola",  lat:1.32, lon:32.45},
+  {n:"Namayingo",    lat:0.28, lon:33.92},
+  {n:"Namisindwa",   lat:0.95, lon:34.42},
+  {n:"Namutumba",    lat:0.83, lon:33.68},
+  {n:"Napak",        lat:2.36, lon:34.24},
+  {n:"Nebbi",        lat:2.48, lon:31.10},
+  {n:"Ngora",        lat:1.48, lon:33.77},
+  {n:"Ntoroko",      lat:1.03, lon:30.47},
+  {n:"Ntungamo",     lat:-0.88,lon:30.27},
+  {n:"Nwoya",        lat:2.62, lon:31.95},
+  {n:"Obongi",       lat:3.52, lon:31.60},
+  {n:"Omoro",        lat:2.62, lon:32.52},
+  {n:"Otuke",        lat:2.52, lon:33.45},
+  {n:"Oyam",         lat:2.26, lon:32.40},
+  {n:"Pader",        lat:2.80, lon:33.20},
+  {n:"Pakwach",      lat:2.46, lon:31.49},
+  {n:"Pallisa",      lat:1.14, lon:33.71},
+  {n:"Rakai",        lat:-0.73,lon:31.40},
+  {n:"Rubanda",      lat:-1.19,lon:29.84},
+  {n:"Rubirizi",     lat:-0.28,lon:30.10},
+  {n:"Rukiga",       lat:-1.08,lon:29.95},
+  {n:"Rukungiri",    lat:-0.84,lon:29.94},
+  {n:"Rwampara",     lat:-0.68,lon:30.75},
+  {n:"Sembabule",    lat:-0.07,lon:31.46},
+  {n:"Serere",       lat:1.50, lon:33.55},
+  {n:"Sheema",       lat:-0.56,lon:30.38},
+  {n:"Sironko",      lat:1.23, lon:34.25},
+  {n:"Soroti",       lat:1.71, lon:33.61},
+  {n:"Terego",       lat:3.06, lon:30.80},
+  {n:"Tororo",       lat:0.69, lon:34.18},
+  {n:"Wakiso",       lat:0.40, lon:32.45},
+  {n:"Yumbe",        lat:3.47, lon:31.25},
+  {n:"Zombo",        lat:2.67, lon:30.90},
+];
+
+// ── SYNTHETIC DATA ENGINE ─────────────────────────────────────────────────────
+function clamp(v,a,b){return Math.max(a,Math.min(b,v));}
+
+function synthRaw(d, i) {
+  const s = i * 137.508 + 19.1;
+  const isN   = d.lat > 2.5;
+  const isKar = d.lat > 2.5 && d.lon > 33.5;
+  const isUrb = ['Kampala','Wakiso','Mukono','Jinja'].includes(d.n);
+  const isW   = d.lon < 30.5;
+  const isSE  = d.lat < -0.3 && d.lon > 31.0 && d.lon < 33.5; // Lake Victoria rim
+
+  // Mental health (% prevalence)
+  let mh = 18 + 28 * Math.abs(Math.sin(s * 0.7));
+  if (isN)   mh = clamp(mh + 18, 0, 68);
+  if (isKar) mh = clamp(mh + 10, 0, 68);
+  if (isUrb) mh = clamp(mh + 14, 0, 68); // urban stress paradox
+  mh = clamp(mh + Math.sin(s * 3.1) * 4, 8, 68);
+
+  // Infant mortality (per 1000)
+  let mort = 12 + 45 * Math.abs(Math.sin(s * 1.3));
+  if (isKar) mort = clamp(mort + 30, 0, 95);
+  if (isN)   mort = clamp(mort + 15, 0, 95);
+  if (isUrb) mort = clamp(mort - 18, 5, 95);
+  mort = clamp(mort + Math.sin(s * 5.7) * 5, 5, 95);
+
+  // Malaria (per 1000)
+  let mal = 30 + 200 * Math.abs(Math.sin(s * 0.9));
+  if (isW)   mal = clamp(mal + 120, 0, 460);
+  if (isSE)  mal = clamp(mal + 60, 0, 460);
+  if (isN)   mal = clamp(mal + 40, 0, 460);
+  if (isUrb) mal = clamp(mal - 80, 15, 460);
+  mal = clamp(mal + Math.sin(s * 7.3) * 20, 20, 460);
+
+  // Drug stockouts (days/qtr)
+  let so = 3 + 28 * Math.abs(Math.sin(s * 1.7));
+  if (isKar) so = clamp(so + 18, 0, 48);
+  if (isN)   so = clamp(so + 8, 0, 48);
+  if (isUrb) so = clamp(so - 12, 2, 48);
+  so = clamp(so + Math.sin(s * 9.1) * 3, 2, 48);
+
+  return { mh, mort, mal, so };
+}
+
+function computeLoss(raw, weights) {
+  const W = Object.values(weights);
+  const T = W.reduce((a,b)=>a+b, 0);
+  const cfg = DIM_CONFIG;
+  return (
+    (weights.mh   / T) * cfg.mh.normalize(raw.mh)   +
+    (weights.mort / T) * cfg.mort.normalize(raw.mort) +
+    (weights.mal  / T) * cfg.mal.normalize(raw.mal)   +
+    (weights.so   / T) * cfg.so.normalize(raw.so)
+  );
+}
+
+function getWeights() {
+  return {
+    mh:   +document.getElementById('w-mh').value,
+    mort: +document.getElementById('w-im').value,
+    mal:  +document.getElementById('w-ml').value,
+    so:   +document.getElementById('w-so').value,
+  };
+}
+
+// Generate full dataset
+let RAWS = DISTRICTS.map((d,i) => ({ ...d, raw: synthRaw(d, i) }));
+
+function buildDataset(dim, weights) {
+  return RAWS.map(d => {
+    let loss, displayVal, displayFmt;
+    const cfg = DIM_CONFIG[dim];
+    if (dim === 'composite') {
+      loss = computeLoss(d.raw, weights);
+      displayVal = loss;
+      displayFmt = (loss * 100).toFixed(1) + '%';
+    } else {
+      displayVal = d.raw[dim];
+      loss = cfg.normalize(displayVal);
+      displayFmt = cfg.format(displayVal);
+    }
+    return { ...d, loss, displayVal, displayFmt };
+  });
+}
+
+// ── LEAFLET MAP ───────────────────────────────────────────────────────────────
+let map, darkLayer, lightLayer, markers = [], currentData = [];
+
+function initMap() {
+  map = L.map('map', { center: [1.37, 32.29], zoom: 7, zoomControl: true, attributionControl: true });
+
+  darkLayer = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>',
+    subdomains: 'abcd', maxZoom: 19,
+  });
+
+  lightLayer = L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>',
+    subdomains: 'abcd', maxZoom: 19,
+  });
+
+  const theme = document.documentElement.getAttribute('data-theme') || 'dark';
+  (theme === 'dark' ? darkLayer : lightLayer).addTo(map);
+  L.control.layers({'Dark': darkLayer, 'Light': lightLayer}, null, {position:'topright'}).addTo(map);
+}
+
+function renderMarkers(data) {
+  markers.forEach(m => map.removeLayer(m));
+  markers = [];
+
+  data.forEach(d => {
+    const col = lossToColor(d.loss);
+    const r = d.n === 'Kampala' ? 13 : Math.max(7, 10 - d.loss * 3);
+
+    const m = L.circleMarker([d.lat, d.lon], {
+      radius: r,
+      fillColor: col,
+      color: 'rgba(255,255,255,0.25)',
+      weight: 1.5,
+      opacity: 1,
+      fillOpacity: 0.88,
+    }).addTo(map);
+
+    const dim = document.getElementById('dim-sel').value;
+    const dimLabel = dim === 'composite' ? 'L(θ)' : DIM_CONFIG[dim]?.label || '';
+    const unit = dim === 'composite' ? '' : ' ' + (DIM_CONFIG[dim]?.unit || '');
+
+    m.bindPopup(`
+      <div class="lp-name">${d.n}</div>
+      <div class="lp-val" style="color:${col}">${d.displayFmt}</div>
+      <div class="lp-meta">
+        <strong>${dimLabel}</strong>${unit}<br>
+        Loss: <strong>${(d.loss * 100).toFixed(1)}%</strong><br>
+        ${d.loss > 0.72 ? '↓ Urgent intervention' : d.loss > 0.45 ? '↓ Moderate gradient' : '✓ Stable basin'}
+      </div>
+    `);
+
+    m.on('click', () => showDistrict(d));
+    markers.push(m);
+  });
+
+  updateStats(data);
+  renderGrid(data);
+}
+
+// ── RIGHT PANEL ───────────────────────────────────────────────────────────────
+function showDistrict(d) {
+  const dim = document.getElementById('dim-sel').value;
+  const col = lossToColor(d.loss);
+
+  const dimRows = Object.entries(DIM_CONFIG).map(([key, cfg]) => {
+    const rawVal = d.raw[key];
+    const l = cfg.normalize(rawVal);
+    const c = lossToColor(l);
+    const pct = Math.round(l * 100);
+    return `
+      <div class="dim-row">
+        <div class="dim-dot" style="background:${c}"></div>
+        <div class="dim-row-name">${cfg.label}</div>
+        <div class="dim-bar-bg"><div class="dim-bar-fill" style="width:${pct}%;background:${c}"></div></div>
+        <div class="dim-row-val">${cfg.format(rawVal)}</div>
+      </div>`;
+  }).join('');
+
+  const gradLabel = d.loss > 0.72 ? '↓ Urgent' : d.loss > 0.45 ? '↓ Moderate' : '✓ Stable';
+
+  document.getElementById('rp-body').innerHTML = `
+    <div class="d-info">
+      <div class="d-name">${d.n}</div>
+      <div class="score-box" style="background:${col}">
+        <div class="score-val">${d.displayFmt}</div>
+        <div class="score-sub">${dim === 'composite' ? 'Composite L(θ)' : DIM_CONFIG[dim]?.label}</div>
+        <div class="score-loss">∇L: ${gradLabel}</div>
+      </div>
+      <div class="dim-grid">${dimRows}</div>
+      <div class="notes-box">
+        <div class="notes-lbl">Context</div>
+        <div class="notes-txt">
+          Region: ${d.lat > 2.5 ? 'North' : d.lat < -0.5 ? 'South-West' : d.lon > 33.5 ? 'East/Karamoja' : d.lon < 30.8 ? 'West' : 'Central'}.
+          ${d.n === 'Kampala' ? 'Urban stress paradox: high MH burden despite better health infrastructure.' : ''}
+          ${d.lat > 2.5 && d.lon > 33.5 ? 'Karamoja sub-region — highest composite burden in Uganda.' : ''}
+          Loss L(θ) = ${(d.loss * 100).toFixed(1)}%.
+          Synthetic Phase I — Bayesian swap ready for real MoH DHIS2 data.
+        </div>
+      </div>
+    </div>`;
+}
+
+// ── STATS ─────────────────────────────────────────────────────────────────────
+function updateStats(data) {
+  const mean = data.reduce((s,d)=>s+d.loss,0)/data.length;
+  const crit = data.filter(d=>d.loss>=0.70).length;
+  document.getElementById('stat-mean').textContent = (mean*100).toFixed(1)+'%';
+  document.getElementById('stat-crit').textContent = crit;
+}
+
+// ── GRID ──────────────────────────────────────────────────────────────────────
+function renderGrid(data) {
+  const dim = document.getElementById('dim-sel').value;
+  const sorted = [...data].sort((a,b)=>b.loss-a.loss);
+  document.getElementById('grid-sub').textContent =
+    `${dim === 'composite' ? 'Composite L(θ)' : DIM_CONFIG[dim]?.label} — sorted highest to lowest loss`;
+
+  document.getElementById('dgrid').innerHTML = sorted.map(d => {
+    const col = lossToColor(d.loss);
+    return `
+      <div class="dcard" style="border-left:4px solid ${col}" onclick="showDistrict(window.__districts['${d.n}']);window.scrollTo({top:0,behavior:'smooth'})">
+        <div class="dcard-hd">
+          <div class="dcard-name">${d.n}</div>
+          <div class="dcard-val" style="color:${col};background:${col}18">${d.displayFmt}</div>
+        </div>
+        <div class="dcard-meta">L(θ) = ${(d.loss*100).toFixed(1)}% · ${d.loss>0.72?'↓ Urgent':d.loss>0.45?'↓ Moderate':'✓ Stable'}</div>
+      </div>`;
+  }).join('');
+
+  // Store for onclick lookup
+  window.__districts = {};
+  data.forEach(d => window.__districts[d.n] = d);
+}
+
+// ── LEGEND ────────────────────────────────────────────────────────────────────
+function renderLegend(dim) {
+  const cfg = DIM_CONFIG[dim];
+  const breaks = cfg?.breaks || [];
+  const labels = dim === 'composite'
+    ? ROYGBIV.map((s,i) => `${s.label} (${Math.round(s.lo*100)}–${Math.round(s.hi*100)}%)`)
+    : ROYGBIV.map((s,i) => {
+        const lo = breaks[ROYGBIV.length - 1 - i] ?? 0;
+        const hi = breaks[ROYGBIV.length - i] ?? '∞';
+        return `${s.label} (${lo}–${hi === '∞' ? '∞' : hi}${cfg.unit.split(' ')[0]})`;
+      });
+
+  document.getElementById('leg-title').textContent =
+    dim === 'composite' ? 'L(θ) — Composite loss gradient' : `${cfg.label} — ROYGBIV scale`;
+
+  document.getElementById('leg-items').innerHTML = ROYGBIV.map((s,i) => `
+    <div class="leg-item">
+      <div class="leg-sw" style="background:${s.color}"></div>
+      <span>${s.label}: ${dim === 'composite' ? Math.round(s.lo*100)+'–'+Math.round(s.hi*100)+'%' :
+        (breaks[ROYGBIV.length-1-i] ?? 0)+'–'+(breaks[ROYGBIV.length-i] ?? '∞')+(cfg?.unit.split(' ')[0]??'')}</span>
+    </div>`).join('');
+}
+
+// ── UPDATE ALL ────────────────────────────────────────────────────────────────
+function refresh() {
+  const dim = document.getElementById('dim-sel').value;
+  const weights = getWeights();
+  document.getElementById('wc').classList.toggle('show', dim === 'composite');
+  document.getElementById('dim-desc').textContent = DIM_DESCS[dim] || '';
+
+  // Update weight display
+  if (dim === 'composite') {
+    const T = Object.values(weights).reduce((a,b)=>a+b,0);
+    document.getElementById('wv-mh').textContent  = Math.round(weights.mh/T*100)+'%';
+    document.getElementById('wv-im').textContent  = Math.round(weights.mort/T*100)+'%';
+    document.getElementById('wv-ml').textContent  = Math.round(weights.mal/T*100)+'%';
+    document.getElementById('wv-so').textContent  = Math.round(weights.so/T*100)+'%';
+  }
+
+  currentData = buildDataset(dim, weights);
+  renderLegend(dim);
+  renderMarkers(currentData);
+}
+
+// ── THEME ─────────────────────────────────────────────────────────────────────
+document.getElementById('theme-btn').addEventListener('click', () => {
+  const html = document.documentElement;
+  const next = html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+  html.setAttribute('data-theme', next);
+  localStorage.setItem('theme', next);
+  document.getElementById('logo-img').src =
+    next === 'dark'
+      ? 'https://abikesa.github.io/logos/assets/ukubona-dark.png'
+      : 'https://abikesa.github.io/logos/assets/ukubona-light.png';
+  if (map) {
+    if (next === 'dark') { map.removeLayer(lightLayer); darkLayer.addTo(map); }
+    else                 { map.removeLayer(darkLayer);  lightLayer.addTo(map); }
+  }
+});
+
+// Restore theme
+const saved = localStorage.getItem('theme') || 'dark';
+document.documentElement.setAttribute('data-theme', saved);
+document.getElementById('logo-img').src =
+  saved === 'dark'
+    ? 'https://abikesa.github.io/logos/assets/ukubona-dark.png'
+    : 'https://abikesa.github.io/logos/assets/ukubona-light.png';
+
+// ── SCROLL PROGRESS ───────────────────────────────────────────────────────────
+window.addEventListener('scroll', () => {
+  const prog = window.scrollY / (document.documentElement.scrollHeight - window.innerHeight) * 100;
+  document.getElementById('sp').style.width = prog + '%';
+});
+
+// ── EVENTS ────────────────────────────────────────────────────────────────────
+document.getElementById('dim-sel').addEventListener('change', refresh);
+['w-mh','w-im','w-ml','w-so'].forEach(id =>
+  document.getElementById(id).addEventListener('input', refresh)
+);
+
+// ── BOOT ──────────────────────────────────────────────────────────────────────
+initMap();
+// Default: composite selected
+document.getElementById('dim-sel').value = 'composite';
+refresh();
+</script>
+</body>
+</html>

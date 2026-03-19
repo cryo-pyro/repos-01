@@ -1,0 +1,740 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ukubona · NPA Data Pipeline Demo</title>
+<meta name="color-scheme" content="dark light">
+<link rel="icon" href="https://abikesa.github.io/favicon/assets/favicon-dark.ico">
+<link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Instrument+Serif:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.min.css">
+<style>
+:root{
+  --bg:#0d0d0b; --surf:#141412; --surf2:#1c1c19;
+  --brd:rgba(255,255,255,0.07); --ink:#e8e6df; --mut:#6b6b65; --dim:#3a3a36;
+  --r:#e24b4a; --o:#d85a30; --y:#ef9f27; --g:#639922;
+  --b:#378add; --i:#534ab7; --v:#1d9e75;
+  --pipeline-w:340px;
+}
+[data-theme="light"]{
+  --bg:#fafaf8; --surf:#fff; --surf2:#f1efe8;
+  --brd:rgba(0,0,0,0.08); --ink:#1a1a18; --mut:#6b6b65; --dim:#d3d1c7;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+html,body{height:100%;overflow:hidden;}
+body{font-family:'DM Sans',sans-serif;font-size:13px;background:var(--bg);color:var(--ink);display:flex;flex-direction:column;}
+
+/* HEADER */
+.hd{display:flex;align-items:center;justify-content:space-between;padding:.6rem 1rem;background:var(--surf);border-bottom:1px solid var(--brd);flex-shrink:0;gap:.5rem;flex-wrap:wrap;}
+.hd-brand{display:flex;align-items:center;gap:.55rem;text-decoration:none;}
+.logo-spin{width:34px;height:34px;animation:spin 60s linear infinite;}
+@keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+.brand-name{font-family:'Instrument Serif',serif;font-size:1rem;color:var(--ink);}
+.brand-tag{font-family:'DM Mono',monospace;font-size:.56rem;color:var(--mut);letter-spacing:.06em;text-transform:uppercase;}
+.hd-center{flex:1;text-align:center;}
+.hd-title{font-family:'Instrument Serif',serif;font-size:1.05rem;color:var(--ink);}
+.hd-sub{font-family:'DM Mono',monospace;font-size:.56rem;color:var(--mut);letter-spacing:.05em;margin-top:.08rem;}
+.hd-right{display:flex;gap:.35rem;align-items:center;}
+.badge{font-family:'DM Mono',monospace;font-size:.54rem;letter-spacing:.08em;text-transform:uppercase;padding:.17em .6em;border:1px solid var(--brd);border-radius:999px;color:var(--mut);}
+.badge-y{color:var(--y);border-color:rgba(239,159,39,.32);}
+.badge-v{color:var(--v);border-color:rgba(29,158,117,.32);}
+.icon-btn{background:var(--surf2);border:1px solid var(--brd);border-radius:6px;padding:.35rem .65rem;cursor:pointer;color:var(--mut);display:flex;align-items:center;gap:.35rem;font-family:'DM Mono',monospace;font-size:.56rem;transition:border-color .15s,color .15s;text-decoration:none;}
+.icon-btn:hover{border-color:var(--y);color:var(--y);}
+
+/* BODY */
+.body{display:flex;flex:1;overflow:hidden;min-height:0;}
+
+/* PIPELINE MONITOR PANEL */
+.pm{width:var(--pipeline-w);flex-shrink:0;background:var(--surf);border-right:1px solid var(--brd);display:flex;flex-direction:column;overflow:hidden;}
+.pm-hd{padding:.75rem 1rem;border-bottom:1px solid var(--brd);flex-shrink:0;}
+.pm-title{font-family:'DM Mono',monospace;font-size:.6rem;letter-spacing:.14em;text-transform:uppercase;color:var(--mut);margin-bottom:.5rem;}
+/* Pipeline stage indicator */
+.stages{display:flex;flex-direction:column;gap:.3rem;}
+.stage{display:flex;align-items:center;gap:.6rem;padding:.3rem .45rem;border-radius:4px;border-left:2px solid var(--dim);}
+.stage.active{border-left-color:var(--y);background:rgba(239,159,39,.04);}
+.stage.done{border-left-color:var(--v);}
+.stage.error{border-left-color:var(--r);}
+.st-dot{width:6px;height:6px;border-radius:50%;background:var(--dim);flex-shrink:0;}
+.stage.active .st-dot{background:var(--y);animation:pulse 1s infinite;}
+.stage.done  .st-dot{background:var(--v);}
+.stage.error .st-dot{background:var(--r);}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
+.st-name{font-family:'DM Mono',monospace;font-size:.62rem;color:var(--mut);flex:1;}
+.stage.active .st-name{color:var(--y);}
+.stage.done   .st-name{color:var(--v);}
+.st-status{font-family:'DM Mono',monospace;font-size:.58rem;color:var(--dim);}
+.stage.active .st-status{color:rgba(239,159,39,.6);}
+.stage.done   .st-status{color:rgba(29,158,117,.6);}
+
+/* SOURCE TOGGLE — θ (the prior, inherited) */
+.src-block{background:var(--surf2);border:1px solid var(--brd);border-radius:6px;padding:.5rem .65rem;margin-bottom:.7rem;}
+.src-block-lbl{font-family:'DM Mono',monospace;font-size:.54rem;letter-spacing:.12em;text-transform:uppercase;color:var(--mut);margin-bottom:.4rem;display:flex;align-items:center;justify-content:space-between;}
+.src-theta{font-size:.72rem;color:var(--i);font-family:'DM Mono',monospace;}
+.src-toggle{display:flex;border:1px solid var(--brd);border-radius:5px;overflow:hidden;}
+.src-btn{flex:1;padding:.3rem .4rem;background:transparent;border:none;border-right:1px solid var(--brd);font-family:'DM Mono',monospace;font-size:.6rem;color:var(--mut);cursor:pointer;text-align:center;transition:background .15s,color .15s;}
+.src-btn:last-child{border-right:none;}
+.src-btn:hover{background:rgba(255,255,255,.04);}
+.src-btn.on-syn{background:rgba(239,159,39,.1);color:var(--y);}
+.src-btn.on-real{background:rgba(29,158,117,.1);color:var(--v);}
+.src-note{font-family:'DM Mono',monospace;font-size:.57rem;color:var(--mut);margin-top:.3rem;line-height:1.5;}
+.src-note .sy{color:rgba(239,159,39,.65);}
+.src-note .re{color:rgba(29,158,117,.65);}
+
+/* DEMO MODES */
+.modes{display:flex;flex-direction:column;gap:.3rem;margin-top:.6rem;}
+.mode-btn{padding:.38rem .55rem;background:var(--surf2);border:1px solid var(--brd);border-radius:4px;color:var(--ink);font-family:'DM Sans',sans-serif;font-size:.7rem;cursor:pointer;text-align:left;transition:border-color .12s;}
+.mode-btn span{display:block;font-size:.6rem;color:var(--mut);margin-top:.05rem;}
+.mode-btn:hover{border-color:var(--y);}
+.mode-btn.on{border-color:var(--y);color:var(--y);}
+
+/* EVENT LOG */
+.log-wrap{flex:1;overflow:hidden;display:flex;flex-direction:column;border-top:1px solid var(--brd);}
+.log-hd{padding:.5rem 1rem;border-bottom:1px solid var(--brd);flex-shrink:0;display:flex;align-items:center;justify-content:space-between;}
+.log-title{font-family:'DM Mono',monospace;font-size:.56rem;letter-spacing:.12em;text-transform:uppercase;color:var(--mut);}
+.log-live{display:flex;align-items:center;gap:.35rem;font-family:'DM Mono',monospace;font-size:.54rem;color:var(--v);}
+.live-dot{width:5px;height:5px;border-radius:50%;background:var(--v);animation:pulse 1.5s infinite;}
+.event-log{flex:1;overflow-y:auto;padding:.5rem .75rem;font-family:'DM Mono',monospace;font-size:.6rem;line-height:1.7;color:var(--mut);}
+.ev{padding:.1rem 0;border-bottom:1px solid var(--brd);display:flex;gap:.5rem;}
+.ev:last-child{border-bottom:none;}
+.ev-t{color:var(--dim);flex-shrink:0;}
+.ev-src{flex-shrink:0;min-width:55px;}
+.ev-syn{color:var(--y);}
+.ev-real{color:var(--v);}
+.ev-dhis{color:var(--b);}
+.ev-ubos{color:var(--i);}
+.ev-msg{flex:1;}
+.ev-val{flex-shrink:0;min-width:40px;text-align:right;}
+.ev-val.r{color:var(--r);} .ev-val.o{color:var(--o);}
+.ev-val.y{color:var(--y);} .ev-val.g{color:var(--g);}
+.ev-val.b{color:var(--b);} .ev-val.v{color:var(--v);}
+
+/* THROUGHPUT BARS */
+.tput{padding:.5rem .75rem;border-top:1px solid var(--brd);flex-shrink:0;}
+.tput-row{display:flex;align-items:center;gap:.5rem;margin-bottom:.25rem;}
+.tput-lbl{font-family:'DM Mono',monospace;font-size:.56rem;color:var(--mut);min-width:60px;}
+.tput-bar{flex:1;height:3px;background:var(--dim);border-radius:2px;overflow:hidden;}
+.tput-fill{height:100%;border-radius:2px;transition:width .8s ease;}
+.tput-val{font-family:'DM Mono',monospace;font-size:.56rem;color:var(--mut);min-width:32px;text-align:right;}
+
+/* MAP */
+.mc{flex:1;position:relative;min-width:0;}
+#map{width:100%;height:100%;}
+.leaflet-tile-pane{filter:brightness(.85) saturate(.9);}
+[data-theme="light"] .leaflet-tile-pane{filter:none;}
+
+/* OVERLAY — intervention modal */
+.overlay{position:absolute;inset:0;background:rgba(13,13,11,.7);z-index:1000;display:none;align-items:center;justify-content:center;backdrop-filter:blur(3px);}
+.overlay.show{display:flex;}
+.modal{background:var(--surf);border:1px solid var(--brd);border-radius:10px;padding:1.5rem;max-width:340px;width:90%;}
+.modal-title{font-family:'Instrument Serif',serif;font-size:1.2rem;margin-bottom:.5rem;}
+.modal-district{font-family:'DM Mono',monospace;font-size:.8rem;color:var(--y);margin-bottom:.75rem;}
+.modal-body{font-size:.78rem;color:var(--mut);line-height:1.6;margin-bottom:1rem;}
+.modal-formula{font-family:'DM Mono',monospace;font-size:.72rem;color:var(--mut);background:var(--surf2);padding:.5rem .65rem;border-radius:4px;margin-bottom:1rem;}
+.modal-btns{display:flex;gap:.5rem;}
+.modal-confirm{flex:1;padding:.45rem;background:var(--y);border:none;border-radius:5px;color:#000;font-family:'DM Mono',monospace;font-size:.7rem;font-weight:600;cursor:pointer;transition:opacity .15s;}
+.modal-confirm:hover{opacity:.85;}
+.modal-cancel{padding:.45rem .9rem;background:var(--surf2);border:1px solid var(--brd);border-radius:5px;color:var(--mut);font-family:'DM Mono',monospace;font-size:.7rem;cursor:pointer;}
+
+/* LEGEND */
+.leg{position:absolute;bottom:14px;left:14px;z-index:800;background:rgba(20,20,18,.9);border:1px solid var(--brd);border-radius:6px;padding:.5rem .65rem;backdrop-filter:blur(4px);}
+[data-theme="light"] .leg{background:rgba(255,255,255,.92);}
+.leg-title{font-family:'DM Mono',monospace;font-size:.52rem;letter-spacing:.1em;text-transform:uppercase;color:var(--mut);margin-bottom:.3rem;}
+.leg-scale{display:flex;gap:2px;margin-bottom:.22rem;}
+.leg-sw{height:7px;border-radius:1px;flex:1;}
+.leg-labs{display:flex;justify-content:space-between;font-family:'DM Mono',monospace;font-size:.5rem;color:var(--mut);}
+
+/* UPDATING */
+.upd{position:absolute;top:10px;left:50%;transform:translateX(-50%);z-index:900;background:var(--surf);border:1px solid rgba(239,159,39,.3);border-radius:999px;padding:.2em .75em;font-family:'DM Mono',monospace;font-size:.56rem;color:var(--y);opacity:0;transition:opacity .25s;pointer-events:none;white-space:nowrap;}
+.upd.on{opacity:1;}
+
+/* POPUP */
+.leaflet-popup-content-wrapper{background:var(--surf)!important;color:var(--ink)!important;border:1px solid var(--brd)!important;border-radius:9px!important;box-shadow:0 8px 32px rgba(0,0,0,.5)!important;}
+.leaflet-popup-content{margin:.75rem!important;font-family:'DM Sans',sans-serif!important;}
+.leaflet-popup-tip{background:var(--surf)!important;}
+.lp-name{font-family:'Instrument Serif',serif;font-size:.95rem;margin-bottom:.25rem;}
+.lp-val{font-family:'DM Mono',monospace;font-size:1.15rem;font-weight:500;margin-bottom:.3rem;}
+.lp-meta{font-size:.68rem;color:var(--mut);line-height:1.6;}
+.lp-intervene{margin-top:.5rem;width:100%;padding:.35rem;background:var(--y);border:none;border-radius:4px;color:#000;font-family:'DM Mono',monospace;font-size:.65rem;font-weight:600;cursor:pointer;transition:opacity .15s;}
+.lp-intervene:hover{opacity:.85;}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="hd">
+  <a href="https://ukubona-llc.github.io/" class="hd-brand">
+    <img class="logo-spin" src="https://abikesa.github.io/logos/assets/ukubona-dark.png" id="logo-img" alt="Ukubona">
+    <div>
+      <div class="brand-name">Ukubona</div>
+      <div class="brand-tag">NPA Data Pipeline Demo</div>
+    </div>
+  </a>
+  <div class="hd-center">
+    <div class="hd-title">Uganda Data Pipeline</div>
+    <div class="hd-sub">θ → L(θ) → ∇L → −η∇L → θ′ · Source → Ingest → Transform → Serve → Act</div>
+  </div>
+  <div class="hd-right">
+    <span class="badge badge-y" id="phase-badge">Synthetic Phase I</span>
+    <span class="badge badge-v" id="real-badge" style="display:none">Real Data Active</span>
+    <a href="npa-map.html" class="icon-btn">
+      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></svg>
+      Full Map
+    </a>
+    <button class="icon-btn" id="theme-btn">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+    </button>
+  </div>
+</header>
+
+<!-- INTERVENTION MODAL -->
+<div class="overlay" id="overlay">
+  <div class="modal">
+    <div class="modal-title">Deploy Intervention</div>
+    <div class="modal-district" id="modal-district">Kaabong District</div>
+    <div class="modal-body" id="modal-body">
+      Current loss L(θ) = <span id="modal-loss">0.87</span>. 
+      Applying the descent step will simulate a policy intervention 
+      — resource allocation, mobile health teams, drug resupply — 
+      directed at this district.
+    </div>
+    <div class="modal-formula">
+      θ′ = θ − η·∇L(θ)<br>
+      Expected L(θ′) ≈ <span id="modal-expected">0.65</span><br>
+      Timeline: 90-day update cycle
+    </div>
+    <div class="modal-btns">
+      <button class="modal-confirm" id="modal-confirm">Confirm −η∇L step</button>
+      <button class="modal-cancel" onclick="closeModal()">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<div class="body">
+
+  <!-- PIPELINE MONITOR -->
+  <aside class="pm">
+    <div class="pm-hd">
+      <div class="pm-title">Pipeline monitor</div>
+
+      <!-- θ — SOURCE (the prior, not a pipeline stage) -->
+      <div class="src-block">
+        <div class="src-block-lbl">
+          <span>θ — Source</span>
+          <span class="src-theta">the prior</span>
+        </div>
+        <div class="src-toggle">
+          <button class="src-btn on-syn" id="src-syn" onclick="setSource('synthetic')">Synthetic</button>
+          <button class="src-btn" id="src-real" onclick="triggerBayesianSwap()">Real · DHIS2</button>
+        </div>
+        <div class="src-note" id="src-note">
+          <span class="sy">WHO priors + N(0,σ) noise · NPA Feb 2026</span>
+        </div>
+      </div>
+
+      <!-- L(θ) → ∇L → −η∇L → θ′  (4 pentadic stages) -->
+      <div class="stages">
+        <div class="stage done"  id="st-2"><div class="st-dot"></div><span class="st-name">L(θ) · Ingest</span><span class="st-status" id="ss-2">133/133 ✓</span></div>
+        <div class="stage done"  id="st-3"><div class="st-dot"></div><span class="st-name">∇L · Validate + Transform</span><span class="st-status" id="ss-3">schema ✓</span></div>
+        <div class="stage active" id="st-4"><div class="st-dot"></div><span class="st-name">∇L · Compute L(θ)</span><span class="st-status" id="ss-4">running</span></div>
+        <div class="stage done"  id="st-5"><div class="st-dot"></div><span class="st-name">−η∇L · Serve map</span><span class="st-status" id="ss-5">live</span></div>
+        <div class="stage"       id="st-6"><div class="st-dot"></div><span class="st-name">θ′ · Act</span><span class="st-status" id="ss-6">awaiting</span></div>
+      </div>
+
+      <!-- Demo modes -->
+      <div class="modes">
+        <div class="pm-title" style="margin-top:.5rem;">Demo modes</div>
+        <button class="mode-btn on" id="mode-a" onclick="setMode('a',this)">
+          A · Watch pipeline run
+          <span>Live synthetic events streaming into map</span>
+        </button>
+        <button class="mode-btn" id="mode-b" onclick="setMode('b',this)">
+          B · Bayesian swap
+          <span>Switch source from synthetic → real DHIS2</span>
+        </button>
+        <button class="mode-btn" id="mode-c" onclick="setMode('c',this)">
+          C · Intervene on district
+          <span>Click a red district → deploy −η∇L step</span>
+        </button>
+      </div>
+
+      <!-- Throughput -->
+      <div class="tput">
+        <div class="pm-title" style="margin-bottom:.4rem;">Throughput</div>
+        <div class="tput-row">
+          <span class="tput-lbl">Ingest</span>
+          <div class="tput-bar"><div class="tput-fill" id="tp-ingest" style="width:94%;background:var(--v)"></div></div>
+          <span class="tput-val" id="tv-ingest">94%</span>
+        </div>
+        <div class="tput-row">
+          <span class="tput-lbl">Validate</span>
+          <div class="tput-bar"><div class="tput-fill" id="tp-val" style="width:100%;background:var(--v)"></div></div>
+          <span class="tput-val" id="tv-val">100%</span>
+        </div>
+        <div class="tput-row">
+          <span class="tput-lbl">Transform</span>
+          <div class="tput-bar"><div class="tput-fill" id="tp-tx" style="width:78%;background:var(--y)"></div></div>
+          <span class="tput-val" id="tv-tx">78%</span>
+        </div>
+        <div class="tput-row">
+          <span class="tput-lbl">Latency</span>
+          <div class="tput-bar"><div class="tput-fill" id="tp-lat" style="width:45%;background:var(--b)"></div></div>
+          <span class="tput-val" id="tv-lat">320ms</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Event log -->
+    <div class="log-wrap">
+      <div class="log-hd">
+        <span class="log-title">Live event log</span>
+        <div class="log-live"><div class="live-dot"></div>streaming</div>
+      </div>
+      <div class="event-log" id="event-log"></div>
+    </div>
+  </aside>
+
+  <!-- MAP -->
+  <div class="mc">
+    <div id="map"></div>
+    <div class="upd" id="upd">Computing gradient…</div>
+    <div class="leg">
+      <div class="leg-title">L(θ) — Composite loss</div>
+      <div class="leg-scale">
+        <div class="leg-sw" style="background:#e24b4a"></div>
+        <div class="leg-sw" style="background:#d85a30"></div>
+        <div class="leg-sw" style="background:#ef9f27"></div>
+        <div class="leg-sw" style="background:#639922"></div>
+        <div class="leg-sw" style="background:#378add"></div>
+        <div class="leg-sw" style="background:#534ab7"></div>
+        <div class="leg-sw" style="background:#1d9e75"></div>
+      </div>
+      <div class="leg-labs"><span>High loss (Red)</span><span>Optimized (Violet)</span></div>
+    </div>
+  </div>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.min.js"></script>
+<script>
+// ══════════════════════════════════════════════════════════════
+// DISTRICT DATA (same as npa-map.html)
+// ══════════════════════════════════════════════════════════════
+const DISTRICTS=[
+  {n:"Abim",lat:3.00,lon:33.67},{n:"Adjumani",lat:3.38,lon:31.79},
+  {n:"Agago",lat:2.98,lon:33.38},{n:"Alebtong",lat:2.26,lon:33.35},
+  {n:"Amolatar",lat:1.60,lon:32.80},{n:"Amudat",lat:1.95,lon:34.93},
+  {n:"Amuria",lat:2.03,lon:33.65},{n:"Amuru",lat:2.80,lon:31.92},
+  {n:"Apac",lat:1.98,lon:32.54},{n:"Arua",lat:3.02,lon:30.91},
+  {n:"Budaka",lat:1.00,lon:33.94},{n:"Bududa",lat:1.00,lon:34.33},
+  {n:"Bugiri",lat:0.57,lon:33.75},{n:"Buhweju",lat:-0.70,lon:30.42},
+  {n:"Buikwe",lat:0.33,lon:33.00},{n:"Bukedea",lat:1.36,lon:34.00},
+  {n:"Bukomansimbi",lat:-0.14,lon:31.60},{n:"Bukwo",lat:1.28,lon:34.73},
+  {n:"Bulambuli",lat:1.22,lon:34.38},{n:"Buliisa",lat:2.12,lon:31.41},
+  {n:"Bundibugyo",lat:0.71,lon:30.07},{n:"Bunyangabu",lat:-0.50,lon:30.18},
+  {n:"Bushenyi",lat:-0.58,lon:30.18},{n:"Busia",lat:0.46,lon:34.09},
+  {n:"Butaleja",lat:0.90,lon:33.97},{n:"Butebo",lat:1.18,lon:34.05},
+  {n:"Buvuma",lat:0.38,lon:33.22},{n:"Buyende",lat:1.24,lon:33.12},
+  {n:"Dokolo",lat:1.91,lon:33.17},{n:"Gomba",lat:-0.23,lon:31.68},
+  {n:"Gulu",lat:2.77,lon:32.30},{n:"Hoima",lat:1.43,lon:31.35},
+  {n:"Ibanda",lat:-0.14,lon:30.50},{n:"Iganga",lat:0.61,lon:33.48},
+  {n:"Isingiro",lat:-0.84,lon:30.82},{n:"Jinja",lat:0.42,lon:33.20},
+  {n:"Kaabong",lat:3.52,lon:34.14},{n:"Kabale",lat:-1.25,lon:29.99},
+  {n:"Kabarole",lat:0.65,lon:30.25},{n:"Kaberamaido",lat:1.74,lon:33.16},
+  {n:"Kagadi",lat:0.94,lon:30.82},{n:"Kakumiro",lat:0.78,lon:31.33},
+  {n:"Kalaki",lat:1.89,lon:33.38},{n:"Kalangala",lat:-0.32,lon:32.23},
+  {n:"Kaliro",lat:1.04,lon:33.50},{n:"Kalungu",lat:-0.10,lon:31.78},
+  {n:"Kampala",lat:0.32,lon:32.58},{n:"Kamuli",lat:0.95,lon:33.12},
+  {n:"Kamwenge",lat:0.19,lon:30.45},{n:"Kanungu",lat:-0.96,lon:29.79},
+  {n:"Kapchorwa",lat:1.40,lon:34.45},{n:"Kapelebyong",lat:1.90,lon:33.98},
+  {n:"Karenga",lat:3.73,lon:33.80},{n:"Kasanda",lat:0.60,lon:31.72},
+  {n:"Kasese",lat:0.18,lon:30.08},{n:"Katakwi",lat:1.90,lon:34.07},
+  {n:"Kayunga",lat:0.71,lon:32.87},{n:"Kazo",lat:-0.10,lon:30.68},
+  {n:"Kibale",lat:0.87,lon:31.06},{n:"Kiboga",lat:0.91,lon:31.77},
+  {n:"Kibuku",lat:1.04,lon:33.79},{n:"Kikuube",lat:1.58,lon:31.22},
+  {n:"Kiruhura",lat:-0.20,lon:30.86},{n:"Kiryandongo",lat:1.88,lon:32.10},
+  {n:"Kisoro",lat:-1.28,lon:29.65},{n:"Kitgum",lat:3.28,lon:32.89},
+  {n:"Koboko",lat:3.41,lon:31.05},{n:"Kole",lat:2.37,lon:32.76},
+  {n:"Kotido",lat:2.98,lon:34.13},{n:"Kumi",lat:1.46,lon:33.94},
+  {n:"Kwania",lat:2.12,lon:32.60},{n:"Kween",lat:1.42,lon:34.63},
+  {n:"Kyankwanzi",lat:1.09,lon:31.71},{n:"Kyegegwa",lat:0.48,lon:31.05},
+  {n:"Kyenjojo",lat:0.62,lon:30.64},{n:"Kyotera",lat:-0.65,lon:31.55},
+  {n:"Lamwo",lat:3.53,lon:32.53},{n:"Lira",lat:2.25,lon:32.90},
+  {n:"Luuka",lat:0.73,lon:33.30},{n:"Luwero",lat:0.85,lon:32.47},
+  {n:"Lwengo",lat:-0.40,lon:31.40},{n:"Lyantonde",lat:-0.40,lon:31.15},
+  {n:"Madi-Okollo",lat:3.10,lon:31.20},{n:"Manafwa",lat:0.88,lon:34.28},
+  {n:"Maracha",lat:3.29,lon:30.96},{n:"Masaka",lat:-0.34,lon:31.74},
+  {n:"Masindi",lat:1.68,lon:31.71},{n:"Mayuge",lat:0.46,lon:33.57},
+  {n:"Mbale",lat:1.08,lon:34.18},{n:"Mbarara",lat:-0.60,lon:30.65},
+  {n:"Mitooma",lat:-0.63,lon:30.02},{n:"Mityana",lat:0.40,lon:32.02},
+  {n:"Moroto",lat:2.53,lon:34.67},{n:"Moyo",lat:3.65,lon:31.73},
+  {n:"Mpigi",lat:0.23,lon:32.32},{n:"Mubende",lat:0.57,lon:31.36},
+  {n:"Mukono",lat:0.35,lon:32.76},{n:"Nabilatuk",lat:2.05,lon:34.53},
+  {n:"Nakapiripirit",lat:1.90,lon:34.65},{n:"Nakaseke",lat:1.12,lon:32.43},
+  {n:"Nakasongola",lat:1.32,lon:32.45},{n:"Namayingo",lat:0.28,lon:33.92},
+  {n:"Namisindwa",lat:0.95,lon:34.42},{n:"Namutumba",lat:0.83,lon:33.68},
+  {n:"Napak",lat:2.36,lon:34.24},{n:"Nebbi",lat:2.48,lon:31.10},
+  {n:"Ngora",lat:1.48,lon:33.77},{n:"Ntoroko",lat:1.03,lon:30.47},
+  {n:"Ntungamo",lat:-0.88,lon:30.27},{n:"Nwoya",lat:2.62,lon:31.95},
+  {n:"Obongi",lat:3.52,lon:31.60},{n:"Omoro",lat:2.62,lon:32.52},
+  {n:"Otuke",lat:2.52,lon:33.45},{n:"Oyam",lat:2.26,lon:32.40},
+  {n:"Pader",lat:2.80,lon:33.20},{n:"Pakwach",lat:2.46,lon:31.49},
+  {n:"Pallisa",lat:1.14,lon:33.71},{n:"Rakai",lat:-0.73,lon:31.40},
+  {n:"Rubanda",lat:-1.19,lon:29.84},{n:"Rubirizi",lat:-0.28,lon:30.10},
+  {n:"Rukiga",lat:-1.08,lon:29.95},{n:"Rukungiri",lat:-0.84,lon:29.94},
+  {n:"Rwampara",lat:-0.68,lon:30.75},{n:"Sembabule",lat:-0.07,lon:31.46},
+  {n:"Serere",lat:1.50,lon:33.55},{n:"Sheema",lat:-0.56,lon:30.38},
+  {n:"Sironko",lat:1.23,lon:34.25},{n:"Soroti",lat:1.71,lon:33.61},
+  {n:"Terego",lat:3.06,lon:30.80},{n:"Tororo",lat:0.69,lon:34.18},
+  {n:"Wakiso",lat:0.40,lon:32.45},{n:"Yumbe",lat:3.47,lon:31.25},
+  {n:"Zombo",lat:2.67,lon:30.90},
+];
+
+const ROYGBIV=['#e24b4a','#d85a30','#ef9f27','#639922','#378add','#534ab7','#1d9e75'];
+function lossColor(l){
+  if(l>=.80)return ROYGBIV[0]; if(l>=.60)return ROYGBIV[1];
+  if(l>=.40)return ROYGBIV[2]; if(l>=.22)return ROYGBIV[3];
+  if(l>=.11)return ROYGBIV[4]; if(l>=.04)return ROYGBIV[5];
+  return ROYGBIV[6];
+}
+function lossClass(l){
+  if(l>=.80)return 'r'; if(l>=.60)return 'o';
+  if(l>=.40)return 'y'; if(l>=.22)return 'g';
+  if(l>=.11)return 'b'; return 'v';
+}
+function clamp(v,a,b){return Math.max(a,Math.min(b,v));}
+
+// ── Synthetic engine (lite version for pipeline demo) ─────────
+function synthLoss(d, i, realMode) {
+  const s=i*137.508+19.1;
+  const isN=d.lat>2.5, isKar=d.lat>2.5&&d.lon>33.5;
+  const isUrb=['Kampala','Wakiso','Mukono'].includes(d.n);
+  const isW=d.lon<30.5;
+  let base=0.3+0.4*Math.abs(Math.sin(s*0.7));
+  if(isN) base=clamp(base+0.22,0,1);
+  if(isKar) base=clamp(base+0.15,0,1);
+  if(isUrb) base=clamp(base+0.18,0,1);
+  if(isW) base=clamp(base+0.08,0,1);
+  // In real mode, add slight Bayesian shift (simulated posterior update)
+  if(realMode) base=clamp(base+Math.sin(s*3.7)*0.06,0,1);
+  return clamp(base+Math.sin(s*1.3)*0.05,0,1);
+}
+
+// ══════════════════════════════════════════════════════════════
+// STATE
+// ══════════════════════════════════════════════════════════════
+let map, darkTile, lightTile, markers=[];
+let lossData={};        // n → loss (with interventions applied)
+let interventions={};   // n → multiplier (applied to loss)
+let currentMode='a';
+let isRealMode=false;
+let streamInterval=null;
+let eventCount=0;
+
+// ══════════════════════════════════════════════════════════════
+// MAP INIT
+// ══════════════════════════════════════════════════════════════
+function initMap(){
+  map=L.map('map',{center:[1.37,32.29],zoom:7});
+  darkTile=L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',{
+    attribution:'&copy; OSM &copy; CARTO',subdomains:'abcd',maxZoom:19});
+  lightTile=L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',{
+    attribution:'&copy; OSM &copy; CARTO',subdomains:'abcd',maxZoom:19});
+  const theme=document.documentElement.getAttribute('data-theme')||'dark';
+  (theme==='dark'?darkTile:lightTile).addTo(map);
+}
+
+function buildLoss(){
+  DISTRICTS.forEach((d,i)=>{
+    const base=synthLoss(d,i,isRealMode);
+    const mult=interventions[d.n]||1;
+    lossData[d.n]=clamp(base*mult,0,1);
+  });
+}
+
+function renderMarkers(){
+  markers.forEach(m=>map.removeLayer(m));
+  markers=[];
+  DISTRICTS.forEach(d=>{
+    const loss=lossData[d.n];
+    const col=lossColor(loss);
+    const r=d.n==='Kampala'?12:8;
+    const m=L.circleMarker([d.lat,d.lon],{
+      radius:r,fillColor:col,color:'rgba(255,255,255,0.2)',
+      weight:1.5,opacity:1,fillOpacity:.88,
+    }).addTo(map);
+
+    const modeC = currentMode==='c';
+    m.bindPopup(`
+      <div class="lp-name">${d.n}</div>
+      <div class="lp-val" style="color:${col}">L(θ) = ${(loss*100).toFixed(1)}%</div>
+      <div class="lp-meta">
+        ${loss>0.72?'↓ Urgent intervention needed':loss>0.45?'↓ Moderate — monitor':'✓ Stable basin'}<br>
+        ${isRealMode?'Source: MoH DHIS2 (real)':'Source: Synthetic Phase I'}
+        ${interventions[d.n]?'<br>⚡ Intervention applied — θ′ updating':''}
+      </div>
+      ${modeC&&loss>0.5?`<button class="lp-intervene" onclick="openModal('${d.n}',${loss.toFixed(3)})">Deploy −η∇L intervention</button>`:''}
+    `);
+    markers.push(m);
+  });
+}
+
+// ══════════════════════════════════════════════════════════════
+// EVENT LOG STREAMING
+// ══════════════════════════════════════════════════════════════
+const DIMS_SHORT=['MH','Mort','Mal','SO'];
+const SOURCES_SYN=['WHO-prior','N(0,σ)','NPA-surge','Synthetic'];
+const SOURCES_REAL=['DHIS2','UBOS','MoH-API','NPA-survey'];
+
+function logEvent(src, srcClass, district, dim, val, loss) {
+  const t=new Date();
+  const ts=[t.getHours(),t.getMinutes(),t.getSeconds()].map(x=>String(x).padStart(2,'0')).join(':');
+  const el=document.getElementById('event-log');
+  const lc=lossClass(loss);
+  const row=document.createElement('div');
+  row.className='ev';
+  row.innerHTML=`<span class="ev-t">${ts}</span><span class="ev-src ev-${srcClass}">${src}</span><span class="ev-msg">${district} · ${dim}</span><span class="ev-val ${lc}">${val}</span>`;
+  el.prepend(row);
+  while(el.children.length>60)el.removeChild(el.lastChild);
+  eventCount++;
+}
+
+function streamSyntheticEvent() {
+  const d=DISTRICTS[Math.floor(Math.random()*DISTRICTS.length)];
+  const dimKeys=['mh','mort','mal','so'];
+  const dimK=dimKeys[Math.floor(Math.random()*4)];
+  const dimLabel=DIMS_SHORT[dimKeys.indexOf(dimK)];
+  const src=SOURCES_SYN[Math.floor(Math.random()*SOURCES_SYN.length)];
+  const loss=lossData[d.n];
+  const vals={mh:(18+Math.random()*40).toFixed(1)+'%',mort:(10+Math.random()*70).toFixed(0)+'/1k',mal:(30+Math.random()*380).toFixed(0)+'/1k',so:(2+Math.random()*40).toFixed(0)+'d'};
+  logEvent(src,'syn',d.n,dimLabel,vals[dimK],loss);
+  updateThroughput();
+}
+
+function streamRealEvent() {
+  const d=DISTRICTS[Math.floor(Math.random()*DISTRICTS.length)];
+  const srcReal=SOURCES_REAL[Math.floor(Math.random()*SOURCES_REAL.length)];
+  const dimKeys=['mh','mort','mal','so'];
+  const dimK=dimKeys[Math.floor(Math.random()*4)];
+  const dimLabel=DIMS_SHORT[dimKeys.indexOf(dimK)];
+  const loss=lossData[d.n];
+  const srcClass=srcReal==='DHIS2'?'dhis':srcReal==='UBOS'?'ubos':'real';
+  const vals={mh:(18+Math.random()*38).toFixed(1)+'%',mort:(8+Math.random()*68).toFixed(0)+'/1k',mal:(25+Math.random()*370).toFixed(0)+'/1k',so:(2+Math.random()*38).toFixed(0)+'d'};
+  logEvent(srcReal,srcClass,d.n,dimLabel,vals[dimK],loss);
+  updateThroughput();
+}
+
+let tpTimer=0;
+function updateThroughput() {
+  tpTimer++;
+  const ingest=clamp(90+Math.sin(tpTimer*0.3)*8,82,100);
+  const validate=clamp(98+Math.sin(tpTimer*0.7)*2,95,100);
+  const tx=clamp(72+Math.sin(tpTimer*0.5)*18,55,95);
+  const latMs=clamp(280+Math.sin(tpTimer*0.4)*120,120,480);
+
+  ['ingest','val','tx'].forEach((k,i)=>{
+    const vals=[ingest,validate,tx][i];
+    const col=vals>90?'var(--v)':vals>70?'var(--y)':'var(--o)';
+    document.getElementById(`tp-${k}`).style.width=vals+'%';
+    document.getElementById(`tp-${k}`).style.background=col;
+    document.getElementById(`tv-${k}`).textContent=Math.round(vals)+'%';
+  });
+  document.getElementById('tp-lat').style.width=(latMs/5)+'%';
+  document.getElementById('tv-lat').textContent=Math.round(latMs)+'ms';
+}
+
+// ══════════════════════════════════════════════════════════════
+// MODES
+// ══════════════════════════════════════════════════════════════
+function setMode(mode, btn) {
+  currentMode=mode;
+  document.querySelectorAll('.mode-btn').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');
+
+  if(mode==='c') {
+    // Rebuild markers with intervene buttons
+    renderMarkers();
+    logPipe('Mode C active — click a red/orange district to deploy intervention');
+  } else {
+    renderMarkers();
+    logPipe('Mode '+mode.toUpperCase()+' active');
+  }
+}
+
+// ══════════════════════════════════════════════════════════════
+// SOURCE TOGGLE
+// ══════════════════════════════════════════════════════════════
+function setSource(src) {
+  isRealMode=(src==='real');
+  document.getElementById('src-syn').className='src-btn'+(isRealMode?'':' on-syn');
+  document.getElementById('src-real').className='src-btn'+(isRealMode?' on-real':'');
+  document.getElementById('src-note').innerHTML=isRealMode
+    ?'<span class="re">MoH DHIS2 · UBOS district data · NPA surveys</span>'
+    :'<span class="sy">WHO priors + N(0,σ) noise · NPA Feb 2026</span>';
+  buildLoss();
+  renderMarkers();
+}
+
+function triggerBayesianSwap() {
+  setMode('b', document.getElementById('mode-b'));
+  document.getElementById('mode-b').classList.add('on');
+
+  const steps=[
+    [0,    '2','Ingesting 133 district records from DHIS2…','connecting'],
+    [1200, '2','133/133 records ingested ✓','real'],
+    [2200, '3','Schema validation running…','connecting'],
+    [3200, '3','Schema validated — all fields present ✓','real'],
+    [4000, '4','Bayesian update: prior → posterior…','connecting'],
+    [5200, '4','∇L recomputed on real observations ✓','real'],
+    [6200, '5','Serving updated ROYGBIV map…','real'],
+    [7200, '6','Pipeline swap complete — θ′ active','real'],
+  ];
+
+  steps.forEach(([delay,stage,msg,cls])=>{
+    setTimeout(()=>{
+      const upd=document.getElementById('upd');
+      upd.classList.add('on');
+      upd.textContent=msg;
+      logPipe(msg);
+      const el=document.getElementById(`st-${stage}`);
+      if(el){
+        el.className='stage '+(cls==='real'?'done':'active');
+        document.getElementById(`ss-${stage}`).textContent=cls==='real'?'✓':msg.split(' ')[0]+'…';
+      }
+    },delay);
+  });
+
+  setTimeout(()=>{
+    document.getElementById('upd').classList.remove('on');
+    document.getElementById('phase-badge').style.display='none';
+    document.getElementById('real-badge').style.display='inline-block';
+    document.getElementById('src-syn').className='src-btn';
+    document.getElementById('src-real').className='src-btn on-real';
+    document.getElementById('src-note').innerHTML='<span class="re">MoH DHIS2 · UBOS district data · NPA surveys</span>';
+    isRealMode=true;
+    buildLoss();
+    renderMarkers();
+    // Switch stream to real events
+    clearInterval(streamInterval);
+    streamInterval=setInterval(streamRealEvent,900);
+  },8500);
+}
+
+// ══════════════════════════════════════════════════════════════
+// INTERVENTION MODAL (Mode C)
+// ══════════════════════════════════════════════════════════════
+let pendingIntervention=null;
+
+function openModal(name, loss) {
+  pendingIntervention={name, loss};
+  const eta=0.25;
+  const expected=clamp(loss-eta*loss*0.3,0,1);
+  document.getElementById('modal-district').textContent=name+' District';
+  document.getElementById('modal-body').innerHTML=`Current loss L(θ) = <strong style="color:${lossColor(loss)}">${(loss*100).toFixed(1)}%</strong>. Applying the −η∇L descent step simulates a policy intervention — mobile health teams, drug resupply, community health workers — directed at this district.`;
+  document.getElementById('modal-loss').textContent=(loss*100).toFixed(1)+'%';
+  document.getElementById('modal-expected').textContent=(expected*100).toFixed(1)+'%';
+  document.getElementById('overlay').classList.add('show');
+  map.closePopup();
+}
+
+function closeModal(){
+  document.getElementById('overlay').classList.remove('show');
+  pendingIntervention=null;
+}
+
+document.getElementById('modal-confirm').addEventListener('click',()=>{
+  if(!pendingIntervention)return;
+  const {name,loss}=pendingIntervention;
+  closeModal();
+
+  // Animate: loss reduces over 3 seconds in steps
+  logPipe(`Intervention deployed: ${name} · −η∇L step initiated`);
+  logPipe(`${name}: θ′ updating — 90-day cycle simulated`);
+
+  // Set stage 6 active
+  document.getElementById('st-6').className='stage active';
+  document.getElementById('ss-6').textContent=name;
+
+  let step=0;
+  const totalSteps=15;
+  const timer=setInterval(()=>{
+    step++;
+    const frac=step/totalSteps;
+    const eta=0.25;
+    const newLoss=clamp(loss*(1-eta*0.3*frac*frac*2),0.05,1);
+    lossData[name]=newLoss;
+
+    // Update just that marker
+    const idx=DISTRICTS.findIndex(d=>d.n===name);
+    if(idx>=0&&markers[idx]){
+      const col=lossColor(newLoss);
+      markers[idx].setStyle({fillColor:col});
+    }
+
+    if(step>=totalSteps){
+      clearInterval(timer);
+      interventions[name]=newLoss/loss;
+      document.getElementById('st-6').className='stage done';
+      document.getElementById('ss-6').textContent='applied ✓';
+      logPipe(`${name}: θ′ = ${(newLoss*100).toFixed(1)}% · intervention recorded`);
+      renderMarkers(); // rebuild with updated state
+    }
+  },200);
+});
+
+// ══════════════════════════════════════════════════════════════
+// PIPELINE LOG (left panel)
+// ══════════════════════════════════════════════════════════════
+function logPipe(msg){
+  const t=new Date();
+  const ts=[t.getHours(),t.getMinutes(),t.getSeconds()].map(x=>String(x).padStart(2,'0')).join(':');
+  const el=document.getElementById('event-log');
+  const row=document.createElement('div');
+  row.className='ev';
+  row.style.color='rgba(239,159,39,0.9)';
+  row.innerHTML=`<span class="ev-t">${ts}</span><span style="flex:1">${msg}</span>`;
+  el.prepend(row);
+}
+
+// ══════════════════════════════════════════════════════════════
+// THEME
+// ══════════════════════════════════════════════════════════════
+document.getElementById('theme-btn').addEventListener('click',()=>{
+  const html=document.documentElement;
+  const next=html.getAttribute('data-theme')==='dark'?'light':'dark';
+  html.setAttribute('data-theme',next);
+  localStorage.setItem('theme',next);
+  document.getElementById('logo-img').src=next==='dark'
+    ?'https://abikesa.github.io/logos/assets/ukubona-dark.png'
+    :'https://abikesa.github.io/logos/assets/ukubona-light.png';
+  if(map){
+    if(next==='dark'){map.removeLayer(lightTile);darkTile.addTo(map);}
+    else{map.removeLayer(darkTile);lightTile.addTo(map);}
+  }
+});
+const saved=localStorage.getItem('theme')||'dark';
+document.documentElement.setAttribute('data-theme',saved);
+document.getElementById('logo-img').src=saved==='dark'
+  ?'https://abikesa.github.io/logos/assets/ukubona-dark.png'
+  :'https://abikesa.github.io/logos/assets/ukubona-light.png';
+
+// ══════════════════════════════════════════════════════════════
+// BOOT
+// ══════════════════════════════════════════════════════════════
+initMap();
+buildLoss();
+renderMarkers();
+
+// Initial pipeline log
+logPipe('Pipeline initialized — 133 districts');
+logPipe('Synthetic Phase I · WHO priors + N(0,σ)');
+logPipe('NPA Feb 2026 params loaded (MH +71%)');
+logPipe('Bayesian swap ready — DHIS2 endpoint configured');
+logPipe('Mode A active — streaming live events');
+
+// Start streaming
+streamInterval=setInterval(streamSyntheticEvent, 800);
+</script>
+</body>
+</html>

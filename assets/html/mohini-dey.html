@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mohini Dey · Learning as Gradient Descent</title>
+<meta name="description" content="What a bassist prodigy teaches us about signal detection, iteration, vocabulary expansion, and improvisation as continuous learning.">
+<link rel="icon" href="https://abikesa.github.io/faviconassets/favicon-dark.ico" type="image/x-icon">
+<link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Serif+Display:ital@0;1&family=IBM+Plex+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:#09090e; --off:#111118; --card:#0d0d15; --rule:#252530;
+  --muted:#77778a; --dim:#555565; --ink:#ededf5;
+  --r:#f72b1a; --o:#ff7200; --y:#f5cc00;
+  --g:#1ec94a; --b:#1a8fff; --i:#6c35ff; --v:#b800cc;
+  --roy:linear-gradient(90deg,var(--r) 0%,var(--o) 16%,var(--y) 32%,var(--g) 48%,var(--b) 64%,var(--i) 82%,var(--v) 100%);
+  --syne:'Syne',sans-serif; --serif:'DM Serif Display',serif; --mono:'IBM Plex Mono',monospace;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--ink);font-family:var(--serif);line-height:1.75;overflow-x:hidden;cursor:none}
+::selection{background:var(--b);color:#fff}
+.cur{position:fixed;width:9px;height:9px;border-radius:50%;background:var(--roy);background-size:200% 100%;animation:csh 3s linear infinite;pointer-events:none;z-index:9999;transform:translate(-50%,-50%);transition:width .15s,height .15s;mix-blend-mode:difference}
+.cur.big{width:24px;height:24px}
+@keyframes csh{0%{background-position:0 50%}100%{background-position:200% 50%}}
+.prog{position:fixed;top:0;left:0;height:3px;background:var(--roy);background-size:200% 100%;width:0%;z-index:200;pointer-events:none;transition:width .1s linear}
+nav{position:sticky;top:0;z-index:100;display:flex;justify-content:space-between;align-items:center;padding:.85rem 2.5rem;background:color-mix(in srgb,var(--bg) 90%,transparent);backdrop-filter:blur(14px);border-bottom:1px solid var(--rule)}
+.nav-logo{display:flex;align-items:center;gap:.55rem;text-decoration:none;color:var(--ink)}
+.logo-svg{width:26px;height:26px;flex-shrink:0}
+.logo-ring{transform-origin:50% 50%;animation:spin 60s linear infinite}
+@keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+.nav-wordmark{font-family:var(--syne);font-weight:800;font-size:.85rem;letter-spacing:-.01em}
+.nav-r{display:flex;gap:.5rem;align-items:center}
+.nbtn{background:none;border:1px solid var(--rule);color:var(--muted);font-family:var(--mono);font-size:.58rem;letter-spacing:.1em;padding:.32rem .7rem;cursor:none;text-decoration:none;display:inline-block;transition:border-color .2s,color .2s;white-space:nowrap}
+.nbtn:hover{border-color:var(--ink);color:var(--ink)}
+
+.hero{min-height:90vh;display:flex;flex-direction:column;justify-content:flex-end;padding:0 3rem 4.5rem 8rem;position:relative;overflow:hidden}
+.hero-accent{position:absolute;top:-10%;right:-8%;width:52%;height:115%;background:var(--roy);opacity:.028;clip-path:polygon(28% 0%,100% 0%,100% 100%,0% 100%);pointer-events:none}
+.hero-content{position:relative;z-index:1}
+.hero-eyebrow{font-family:var(--mono);font-size:.56rem;letter-spacing:.28em;text-transform:uppercase;color:var(--muted);margin-bottom:1.8rem;opacity:0;animation:up .6s .05s ease forwards;display:flex;align-items:center;gap:1.2rem}
+.hero-eyebrow::before{content:'';display:block;width:32px;height:1px;background:var(--rule)}
+.hero-name{font-family:var(--syne);font-weight:800;font-size:clamp(3.5rem,9vw,8.5rem);line-height:.88;letter-spacing:-.03em;display:block;opacity:0;animation:up .8s .12s ease forwards}
+.hero-subtitle{display:block;font-family:var(--serif);font-style:italic;font-weight:400;font-size:clamp(1rem,2.4vw,1.7rem);color:var(--muted);margin-top:1rem;padding-top:.9rem;border-top:1px solid var(--rule);max-width:560px;letter-spacing:.01em;opacity:0;animation:up .8s .22s ease forwards}
+.hero-pentad{display:flex;align-items:center;flex-wrap:wrap;font-family:var(--mono);font-size:.7rem;letter-spacing:.04em;margin-top:2.2rem;opacity:0;animation:up .8s .35s ease forwards}
+.hp{padding:.32rem .68rem;border:1px solid var(--rule);color:var(--muted);transition:background .18s,color .18s,border-color .18s}
+.hp.r{border-color:var(--r);color:var(--r)}.hp.o{border-color:var(--o);color:var(--o)}.hp.y{border-color:var(--y);color:var(--y)}.hp.g{border-color:var(--g);color:var(--g)}.hp.b{border-color:var(--b);color:var(--b)}
+.hp:hover{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.harr{color:var(--rule);padding:0 .32rem;font-size:.7rem}
+@keyframes up{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+
+.video-section{background:var(--off);border-top:1px solid var(--rule);padding:3.5rem 8rem 4rem}
+.video-label{font-family:var(--mono);font-size:.55rem;letter-spacing:.25em;text-transform:uppercase;color:var(--muted);margin-bottom:1.4rem;display:flex;gap:2rem;flex-wrap:wrap}
+.video-label strong{color:var(--ink)}
+.video-headline{font-family:var(--syne);font-weight:800;font-size:1.15rem;margin-bottom:1.6rem;letter-spacing:-.01em;max-width:700px}
+.video-frame{position:relative;width:100%;padding-bottom:56.25%;background:#000;border:1px solid var(--rule);overflow:hidden}
+.video-frame iframe{position:absolute;inset:0;width:100%;height:100%;border:none}
+.ts-grid{margin-top:1.4rem;display:flex;flex-wrap:wrap;gap:.45rem}
+.ts{font-family:var(--mono);font-size:.56rem;letter-spacing:.07em;padding:.22rem .6rem;border:1px solid var(--rule);color:var(--muted);cursor:pointer;transition:border-color .18s,color .18s;white-space:nowrap}
+.ts[data-step="1"]:hover{border-color:var(--r);color:var(--r)}
+.ts[data-step="2"]:hover{border-color:var(--o);color:var(--o)}
+.ts[data-step="3"]:hover{border-color:var(--y);color:var(--y)}
+.ts[data-step="4"]:hover{border-color:var(--g);color:var(--g)}
+.ts[data-step="5"]:hover{border-color:var(--b);color:var(--b)}
+
+.hrule{height:1px;background:var(--roy);opacity:.14}
+
+.content{padding:0 8rem;max-width:1400px}
+.step{display:grid;grid-template-columns:220px 1fr;gap:5rem;align-items:start;padding:5rem 0;border-bottom:1px solid var(--rule)}
+.step:last-child{border-bottom:none}
+.step-aside{position:sticky;top:5rem}
+.step-num{font-family:var(--mono);font-size:.54rem;letter-spacing:.25em;text-transform:uppercase;color:var(--muted);display:flex;align-items:center;gap:.7rem;margin-bottom:1.2rem}
+.dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+.step-symbol{font-family:var(--syne);font-weight:800;font-size:4rem;line-height:1;letter-spacing:-.03em;margin-bottom:.3rem}
+.step-label{font-family:var(--mono);font-size:.6rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.step-head{font-family:var(--syne);font-weight:800;font-size:clamp(1.7rem,3vw,2.8rem);line-height:.92;letter-spacing:-.02em;margin-bottom:1.5rem}
+.bp{font-family:var(--serif);font-style:italic;font-size:1.05rem;line-height:1.78;color:var(--muted);max-width:580px;margin-bottom:1rem}
+.bp em{font-style:normal;color:var(--ink)}
+.cite{font-family:var(--mono);font-size:.58rem;letter-spacing:.06em;padding:.1rem .42rem;border:1px solid var(--rule);color:var(--muted);vertical-align:middle;margin-left:.25rem;white-space:nowrap;transition:border-color .2s,color .2s;cursor:default}
+.cite:hover{border-color:var(--b);color:var(--b)}
+.cb{background:var(--card);border:1px solid var(--rule);border-left:3px solid var(--rule);padding:1.1rem 1.4rem;margin:1.4rem 0;font-family:var(--mono);font-size:.68rem;line-height:1.9;color:var(--ink);white-space:pre;overflow-x:auto;max-width:520px}
+.cb.r{border-left-color:var(--r)}.cb.o{border-left-color:var(--o)}.cb.y{border-left-color:var(--y)}.cb.g{border-left-color:var(--g)}.cb.b{border-left-color:var(--b)}
+.cm{color:var(--dim)}.hi-r{color:var(--r)}.hi-o{color:var(--o)}.hi-y{color:var(--y)}.hi-g{color:var(--g)}.hi-b{color:var(--b)}
+.pq{border-left:3px solid var(--g);padding:1.1rem 1.4rem;margin:1.6rem 0;background:color-mix(in srgb,var(--g) 5%,var(--off));max-width:540px}
+.pq p{font-family:var(--serif);font-style:italic;font-size:1.05rem;color:var(--ink);line-height:1.6;margin:0}
+.pq cite{font-family:var(--mono);font-size:.56rem;letter-spacing:.09em;color:var(--muted);display:block;margin-top:.6rem}
+.blist{list-style:none;padding:0;margin:.8rem 0 1.2rem;max-width:400px}
+.blist li{font-family:var(--mono);font-size:.7rem;letter-spacing:.04em;color:var(--muted);padding:.4rem .8rem;border-left:2px solid var(--rule);display:flex;justify-content:space-between;align-items:center;margin-bottom:2px;transition:border-left-color .2s,color .2s}
+.blist li span{color:var(--ink);font-size:.62rem}
+.blist li:hover{border-left-color:var(--o);color:var(--ink)}
+.eq{background:var(--card);border:1px solid var(--rule);padding:1rem 1.4rem;margin:1.4rem 0;max-width:500px;font-family:var(--mono);font-size:.76rem;line-height:1.9;color:var(--ink);text-align:center;letter-spacing:.04em}
+.eq .label{font-size:.54rem;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);margin-bottom:.5rem;display:block}
+
+.synthesis{background:var(--off);border-top:1px solid var(--rule);border-bottom:1px solid var(--rule);padding:5rem 8rem}
+.syn-head{font-family:var(--syne);font-weight:800;font-size:clamp(2rem,4vw,3.8rem);line-height:.9;letter-spacing:-.03em;margin-bottom:3.5rem;max-width:700px}
+.syn-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:1px;background:var(--rule);border:1px solid var(--rule)}
+.syn-card{background:var(--bg);padding:2rem 1.5rem;transition:background .2s,color .2s;cursor:default}
+.syn-card:hover{background:var(--ink);color:var(--bg)}
+.syn-card:hover .syn-sub,.syn-card:hover .syn-eq{color:color-mix(in srgb,var(--bg) 55%,transparent)}
+.syn-sym{font-family:var(--mono);font-size:.68rem;margin-bottom:1.2rem}
+.syn-step{font-family:var(--syne);font-weight:800;font-size:.65rem;letter-spacing:.12em;text-transform:uppercase;margin-bottom:.3rem}
+.syn-name{font-family:var(--syne);font-weight:800;font-size:1.15rem;line-height:1;letter-spacing:-.01em;margin-bottom:.6rem}
+.syn-sub{font-family:var(--serif);font-style:italic;font-size:.8rem;color:var(--muted);line-height:1.5;transition:color .2s}
+.syn-eq{font-family:var(--mono);font-size:.56rem;color:var(--muted);margin-top:.8rem;letter-spacing:.04em;transition:color .2s}
+
+.big-quote{padding:6rem 8rem;text-align:center;position:relative;overflow:hidden}
+.big-quote::before{content:'';position:absolute;inset:0;background:var(--roy);opacity:.03;pointer-events:none}
+.bq-text{font-family:var(--syne);font-weight:800;font-size:clamp(1.6rem,3.5vw,3rem);line-height:1.1;letter-spacing:-.02em;max-width:800px;margin:0 auto 1.5rem;position:relative}
+.bq-source{font-family:var(--mono);font-size:.58rem;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);position:relative}
+
+.connections{padding:4rem 8rem}
+.conn-label{font-family:var(--mono);font-size:.55rem;letter-spacing:.25em;text-transform:uppercase;color:var(--muted);margin-bottom:1.8rem}
+.conn-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--rule);border:1px solid var(--rule)}
+.conn-card{background:var(--bg);padding:2rem 1.8rem;text-decoration:none;color:var(--ink);transition:background .2s,color .2s;display:block}
+.conn-card:hover{background:var(--ink);color:var(--bg)}
+.conn-card:hover .conn-sub{color:color-mix(in srgb,var(--bg) 55%,transparent)}
+.conn-sym{font-family:var(--mono);font-size:.7rem;margin-bottom:.9rem}
+.conn-title{font-family:var(--syne);font-weight:800;font-size:1rem;margin-bottom:.4rem;letter-spacing:-.01em}
+.conn-sub{font-family:var(--serif);font-style:italic;font-size:.82rem;color:var(--muted);line-height:1.5;transition:color .2s}
+
+footer{border-top:1px solid var(--rule);background:var(--off);padding:1.8rem 8rem;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem}
+.footer-chorus{position:relative;height:1.4rem;min-width:320px}
+.chip{position:absolute;left:0;top:0;font-family:var(--mono);font-size:.58rem;letter-spacing:.1em;color:var(--muted);opacity:0;transition:opacity 1.2s ease;white-space:nowrap;pointer-events:none}
+.chip.active{opacity:1;pointer-events:auto}
+.footer-links{display:flex;gap:1rem}
+.footer-links a{font-family:var(--mono);font-size:.58rem;color:var(--muted);text-decoration:none;letter-spacing:.08em;transition:color .2s}
+.footer-links a:hover{color:var(--ink)}
+
+.rev{opacity:0;transform:translateY(20px);transition:opacity .7s ease,transform .7s ease}
+.rev.vis{opacity:1;transform:translateY(0)}
+.d1{transition-delay:.08s}.d2{transition-delay:.18s}.d3{transition-delay:.3s}.d4{transition-delay:.42s}.d5{transition-delay:.54s}
+
+@media(max-width:1100px){
+  .step{grid-template-columns:1fr;gap:2rem}
+  .step-aside{position:static}
+  .syn-grid{grid-template-columns:1fr 1fr}
+  .conn-grid{grid-template-columns:1fr 1fr}
+}
+@media(max-width:800px){
+  .hero,.video-section,.synthesis,.connections,.big-quote,footer{padding-left:1.5rem;padding-right:1.5rem}
+  .content{padding-left:1.5rem;padding-right:1.5rem}
+  nav{padding:.85rem 1.5rem}
+  .syn-grid,.conn-grid{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+
+<div class="cur" id="cur"></div>
+<div class="prog" id="prog"></div>
+
+<nav>
+  <a href="../../index.html" class="nav-logo">
+    <svg class="logo-svg" viewBox="0 0 32 32" fill="none">
+      <circle cx="16" cy="16" r="3" fill="currentColor" opacity=".7"/>
+      <g class="logo-ring">
+        <circle cx="16" cy="16" r="13" stroke="url(#lg)" stroke-width="2.5" fill="none" stroke-dasharray="70 12"/>
+      </g>
+      <defs>
+        <linearGradient id="lg" x1="0" y1="0" x2="32" y2="32" gradientUnits="userSpaceOnUse">
+          <stop offset="0%"   stop-color="#f72b1a"/>
+          <stop offset="16%"  stop-color="#ff7200"/>
+          <stop offset="32%"  stop-color="#f5cc00"/>
+          <stop offset="48%"  stop-color="#1ec94a"/>
+          <stop offset="64%"  stop-color="#1a8fff"/>
+          <stop offset="82%"  stop-color="#6c35ff"/>
+          <stop offset="100%" stop-color="#b800cc"/>
+        </linearGradient>
+      </defs>
+    </svg>
+    <span class="nav-wordmark">Ukubona</span>
+  </a>
+  <div class="nav-r">
+    <a href="../../index.html" class="nbtn">← home</a>
+    <a href="app-grid.html" class="nbtn">⊞ apps</a>
+  </div>
+</nav>
+
+<div class="hero">
+  <div class="hero-accent"></div>
+  <div class="hero-content">
+    <div class="hero-eyebrow">Learning Dynamics &nbsp;·&nbsp; Musical Gradient Descent &nbsp;·&nbsp; Rick Beato</div>
+    <span class="hero-name">Mohini Dey</span>
+    <span class="hero-subtitle">What a prodigy teaches us about signal detection, iteration, and the mechanics of learning.</span>
+    <div class="hero-pentad">
+      <span class="hp r">θ&thinsp; prior</span><span class="harr">→</span>
+      <span class="hp o">L(θ)&thinsp; loss</span><span class="harr">→</span>
+      <span class="hp y">∇L&thinsp; gradient</span><span class="harr">→</span>
+      <span class="hp g">−η∇L&thinsp; update</span><span class="harr">→</span>
+      <span class="hp b">θ′&thinsp; mastery</span>
+    </div>
+  </div>
+</div>
+
+<div class="video-section rev">
+  <div class="video-label">
+    <span>Source · <strong>Rick Beato</strong></span>
+    <span>Duration · ~28 min</span>
+    <span>youtube.com/watch?v=OJTXqHxt_UU</span>
+  </div>
+  <div class="video-headline">Mohini Dey: The Bassist Everyone's Talking About</div>
+  <div class="video-frame">
+    <iframe src="https://www.youtube.com/embed/OJTXqHxt_UU"
+      title="Mohini Dey: The Bassist Everyone's Talking About — Rick Beato"
+      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+      allowfullscreen></iframe>
+  </div>
+  <div class="ts-grid">
+    <span class="ts" data-step="1">02:45 — Daily schedule</span>
+    <span class="ts" data-step="1">03:51 — Headphones · age 3</span>
+    <span class="ts" data-step="1">03:59 — Father's decision</span>
+    <span class="ts" data-step="2">07:05 — Mark King · Victor Wooten DVDs</span>
+    <span class="ts" data-step="2">07:46 — Daily correction loop</span>
+    <span class="ts" data-step="3">12:10 — Tabla → bass mapping</span>
+    <span class="ts" data-step="3">13:51 — Quintuplets · septuplets</span>
+    <span class="ts" data-step="3">19:10 — Musical vocabularies</span>
+    <span class="ts" data-step="4">22:28 — Music as conversation</span>
+    <span class="ts" data-step="4">23:20 — No two nights the same</span>
+  </div>
+</div>
+
+<div class="hrule"></div>
+
+<div class="content">
+
+  <div class="step rev">
+    <div class="step-aside">
+      <div class="step-num"><div class="dot" style="background:var(--r)"></div>01 of 05</div>
+      <div class="step-symbol" style="color:var(--r)">θ</div>
+      <div class="step-label">The Prior · Signal</div>
+    </div>
+    <div>
+      <h2 class="step-head">Learning Begins<br>With Signal Detection</h2>
+      <p class="bp">Every system starts blind. The environment provides inputs; the system either responds with noise or with <em>structured signal</em>. Most children generate noise. A prodigy produces structured signal early enough that an attentive environment can detect it.</p>
+      <p class="bp">At three years old, Mohini's father placed headphones on her while he practiced. Her immediate response — tapping the exact right tempo — was not yet learning. <span class="cite">03:51</span> It was <em>gradient visibility</em>. Her father didn't create the ability — he <em>detected the gradient</em>. The prodigy provides the reinforcement to the alert parent, not the reverse.</p>
+      <div class="cb r"><span class="cm">// Most children:</span>
+∇L ≈ 0   <span class="cm">(noise dominates signal)</span>
+
+<span class="cm">// Prodigy at age ~3:</span>
+∇L <span class="hi-r">≠ 0</span>   <span class="cm">(strong directional signal)</span>
+
+<span class="cm">// Alert parent = good gradient detector</span></div>
+      <div class="pq" style="border-left-color:var(--r);background:color-mix(in srgb,var(--r) 4%,var(--off))">
+        <p>"I've already got rhythm in me... why not teach her bass seriously."</p>
+        <cite>— Mohini's father, computing the first update &nbsp;·&nbsp; 03:59</cite>
+      </div>
+      <p class="bp">Mozart confirmed this at exactly the same age — sustaining melody, tracking key. The prodigy is not a different kind of learner. They are an <em>earlier perceiver of structure</em>.</p>
+    </div>
+  </div>
+
+  <div class="step rev">
+    <div class="step-aside">
+      <div class="step-num"><div class="dot" style="background:var(--o)"></div>02 of 05</div>
+      <div class="step-symbol" style="color:var(--o)">L(θ)</div>
+      <div class="step-label">The Loss · Iteration</div>
+    </div>
+    <div>
+      <h2 class="step-head">Maximize<br>Iteration Rate</h2>
+      <p class="bp">Once the gradient appears, the system must <em>immediately increase update frequency</em> before the signal fades. The intervention was applied with relentless precision. <span class="cite">02:45</span></p>
+      <ul class="blist">
+        <li>Wake<span>05:30 AM</span></li>
+        <li>School</li>
+        <li>Private tutoring</li>
+        <li>Music practice with father<span>until 09:00 PM</span></li>
+      </ul>
+      <p class="bp">This is not brutality. It is <em>iteration rate maximization</em>. Her father also provided high-fidelity inputs — DVDs of Mark King and Victor Wooten — instructing her to pick up the grooves. <span class="cite">07:05</span> He reviewed her output daily to correct her. <span class="cite">07:46</span></p>
+      <div class="eq">
+        <span class="label">Learning Approximation</span>
+        Learning ≈ <span style="color:var(--r)">Signal</span> × <span style="color:var(--o)">Iterations</span> × <span style="color:var(--y)">Feedback Quality</span>
+      </div>
+      <p class="bp">Her father <em>optimized all three simultaneously</em>. Most structured learning programs optimize one, sometimes two. Elite development requires all three in tight combination.</p>
+      <div class="cb o"><span class="cm">// Daily tight loop:</span>
+Attempt → Error → <span class="hi-o">Correction</span> → Update
+    ↑__________________________________|</div>
+    </div>
+  </div>
+
+  <div class="step rev">
+    <div class="step-aside">
+      <div class="step-num"><div class="dot" style="background:var(--y)"></div>03 of 05</div>
+      <div class="step-symbol" style="color:var(--y)">∇L</div>
+      <div class="step-label">The Gradient · Vocabulary</div>
+    </div>
+    <div>
+      <h2 class="step-head">Forage for<br>New Vocabularies</h2>
+      <p class="bp">Once base competence is achieved, learning stops being about accuracy and becomes about <em>searching new parameter spaces</em>. A system that settles into a local minimum stops growing.</p>
+      <p class="bp">Mohini treated musical styles as distinct vocabularies. <span class="cite">19:10</span> When exposed to South Indian instrumentalists playing tabla and kanjira, she didn't just listen — she <em>mapped percussion mechanics onto bass strings</em>: <span class="cite">12:10</span></p>
+      <div class="cb y"><span class="cm">// Cross-domain feature mapping:</span>
+Tabla baya  <span class="hi-y">(low drone)</span>    →  B string
+Chatti pluck <span class="hi-y">(high snap)</span>   →  high-string attack
+Konnakol syllables         →  rhythmic phrase structure
+
+<span class="cm">// New parameters imported:</span>
+Quintuplets + Septuplets       <span class="hi-y">[13:51]</span></div>
+      <p class="bp">This is not eclecticism. It is <em>deliberate expansion of the loss landscape</em> — ensuring the gradient never flattens. The goal is to keep the terrain complex enough that learning never stops.</p>
+      <div class="pq" style="border-left-color:var(--y);background:color-mix(in srgb,var(--y) 4%,var(--off))">
+        <p>She treated the B string as the low baya and the pluck as the high chatti — percussion mechanics as a feature space engineered onto bass.</p>
+        <cite>— synthesis from 12:10</cite>
+      </div>
+    </div>
+  </div>
+
+  <div class="step rev">
+    <div class="step-aside">
+      <div class="step-num"><div class="dot" style="background:var(--g)"></div>04 of 05</div>
+      <div class="step-symbol" style="color:var(--g)">−η∇L</div>
+      <div class="step-label">The Update · Improvisation</div>
+    </div>
+    <div>
+      <h2 class="step-head">Improvisation Is<br>the Closed Loop</h2>
+      <p class="bp">The goal of all this iteration is not a memorized performance. It is the capacity to <em>adapt in real time</em>. Mohini is explicit: music is not a metric sport. It requires tools to improvise — to have a <em>conversation</em> on stage. <span class="cite">22:28</span></p>
+      <div class="cb g"><span class="cm">// Live performance as learning loop:</span>
+Current harmony
+  ↓
+Available vocabulary
+  ↓
+Audience response
+  ↓
+Next phrase
+  ↓
+<span class="hi-g">(repeat, indefinitely)</span>
+
+No two nights ever sound the same.   <span class="hi-g">[23:20]</span></div>
+      <p class="bp">Improvisation is <em>continuous gradient descent on a shifting landscape</em>. Because the terrain changes with every performance, the system never converges. Learning does not stop. The loop never closes.</p>
+      <div class="pq">
+        <p>Music isn't a metric sport. You need the tools to improvise and have a conversation on stage.</p>
+        <cite>— Mohini Dey &nbsp;·&nbsp; 22:28</cite>
+      </div>
+    </div>
+  </div>
+
+  <div class="step rev">
+    <div class="step-aside">
+      <div class="step-num"><div class="dot" style="background:var(--b)"></div>05 of 05</div>
+      <div class="step-symbol" style="color:var(--b)">θ′</div>
+      <div class="step-label">The Update · Architecture</div>
+    </div>
+    <div>
+      <h2 class="step-head">The Universal<br>Learning Architecture</h2>
+      <p class="bp">The Mohini Dey story is not about talent. It is about the conditions under which learning becomes accelerated. Mozart confirmed the same pattern centuries earlier. AlphaZero confirmed it without biology at all.</p>
+      <p class="bp">What they share is not speed. They share <em>early gradient visibility</em> — the capacity to perceive structure in a signal before anyone around them has noticed it exists.</p>
+      <div class="cb b"><span class="cm">// The universal architecture:</span>
+θ      →  detect gradient early          <span class="hi-b">(age ~3)</span>
+L(θ)   →  high-frequency training loop
+∇L     →  cross-domain vocabulary expansion
+−η∇L  →  daily correction by a master
+θ′     →  real-time improvisational mastery
+
+<span class="cm">// Prodigy =</span>
+early gradient visibility
+  + relentless iteration
+  + <span class="hi-b">intelligent landscape expansion</span></div>
+      <p class="bp">Once the system can truly <em>see the landscape</em>, it never stops learning. That is the only sentence that matters.</p>
+    </div>
+  </div>
+
+</div>
+
+<div class="hrule"></div>
+
+<div class="synthesis rev">
+  <h2 class="syn-head">Five stages.<br>One learning loop.</h2>
+  <div class="syn-grid">
+    <div class="syn-card">
+      <div class="syn-sym" style="color:var(--r)">θ</div>
+      <div class="syn-step" style="color:var(--r)">Signal</div>
+      <div class="syn-name">Prior State</div>
+      <div class="syn-sub">The prodigy doesn't learn faster — she perceives structure earlier. Gradient visibility at age three.</div>
+      <div class="syn-eq">∇L ≠ 0 at age ~3</div>
+    </div>
+    <div class="syn-card">
+      <div class="syn-sym" style="color:var(--o)">L(θ)</div>
+      <div class="syn-step" style="color:var(--o)">Iteration</div>
+      <div class="syn-name">Loss Function</div>
+      <div class="syn-sub">Signal × Iterations × Feedback Quality. Her father optimized all three simultaneously.</div>
+      <div class="syn-eq">5:30 AM → 9:00 PM</div>
+    </div>
+    <div class="syn-card">
+      <div class="syn-sym" style="color:var(--y)">∇L</div>
+      <div class="syn-step" style="color:var(--y)">Vocabulary</div>
+      <div class="syn-name">Gradient</div>
+      <div class="syn-sub">Tabla → bass. Konnakol → rhythm. Cross-domain feature engineering prevents local minima.</div>
+      <div class="syn-eq">B string = baya</div>
+    </div>
+    <div class="syn-card">
+      <div class="syn-sym" style="color:var(--g)">−η∇L</div>
+      <div class="syn-step" style="color:var(--g)">Conversation</div>
+      <div class="syn-name">The Update</div>
+      <div class="syn-sub">Improvisation is real-time gradient descent on a shifting landscape. The loop never closes.</div>
+      <div class="syn-eq">No two nights the same</div>
+    </div>
+    <div class="syn-card">
+      <div class="syn-sym" style="color:var(--b)">θ′</div>
+      <div class="syn-step" style="color:var(--b)">Mastery</div>
+      <div class="syn-name">New State</div>
+      <div class="syn-sub">Not a static output — a continuously updated system that has learned to see the terrain clearly.</div>
+      <div class="syn-eq">θ → ∞</div>
+    </div>
+  </div>
+</div>
+
+<div class="big-quote rev">
+  <p class="bq-text">Prodigy is not magic. It is early gradient visibility combined with relentless iteration and intelligent expansion of the learning landscape. Once the system can truly see, it never stops learning.</p>
+  <p class="bq-source">Synthesis · Mohini Dey × Ukubona × Gradient Descent</p>
+</div>
+
+<div class="hrule"></div>
+
+<div class="connections rev">
+  <div class="conn-label">Related · Ukubona Framework</div>
+  <div class="conn-grid">
+    <a class="conn-card" href="hearing-is-learning.html">
+      <div class="conn-sym" style="color:var(--r)">θ</div>
+      <div class="conn-title">Hearing Is Learning</div>
+      <div class="conn-sub">The pentadic structure of musical mastery from signal to improvisation.</div>
+    </a>
+    <a class="conn-card" href="../../index.html#gradient">
+      <div class="conn-sym" style="color:var(--y)">∇L</div>
+      <div class="conn-title">Digital Twin Suite</div>
+      <div class="conn-sub">The same learning architecture applied at individual, firm, and national scale.</div>
+    </a>
+    <a class="conn-card" href="philosophy.html">
+      <div class="conn-sym" style="color:var(--b)">θ′</div>
+      <div class="conn-title">Philosophy</div>
+      <div class="conn-sub">Stratigraphic thought — how ideas accumulate and adapt through continuous iteration.</div>
+    </a>
+  </div>
+</div>
+
+<footer>
+  <div class="footer-chorus" id="chorus">
+    <span class="chip active">To see, blindly</span>
+    <span class="chip">To forage, stochastically</span>
+    <span class="chip">To rehearse, consequentially</span>
+    <span class="chip">Once the system can see, it never stops learning</span>
+  </div>
+  <div class="footer-links">
+    <a href="../../index.html">Home</a>
+    <a href="app-grid.html">All Apps</a>
+    <a href="card.html">vCard</a>
+  </div>
+</footer>
+
+<script>
+const cur = document.getElementById('cur');
+document.addEventListener('mousemove', e => { cur.style.left=e.clientX+'px'; cur.style.top=e.clientY+'px'; }, {passive:true});
+document.querySelectorAll('a,button,.hp,.syn-card,.conn-card,.ts,.cite').forEach(el => {
+  el.addEventListener('mouseenter', () => cur.classList.add('big'));
+  el.addEventListener('mouseleave', () => cur.classList.remove('big'));
+});
+
+const prog = document.getElementById('prog');
+window.addEventListener('scroll', () => {
+  prog.style.width = (scrollY / (document.body.scrollHeight - innerHeight) * 100) + '%';
+}, {passive:true});
+
+const obs = new IntersectionObserver(entries => {
+  entries.forEach(e => { if(e.isIntersecting){ e.target.classList.add('vis'); obs.unobserve(e.target); } });
+}, {threshold:0.08});
+document.querySelectorAll('.rev').forEach(el => obs.observe(el));
+
+const chips = Array.from(document.querySelectorAll('#chorus .chip'));
+let ci = 0;
+setInterval(() => {
+  chips[ci].classList.remove('active');
+  ci = (ci + 1) % chips.length;
+  chips[ci].classList.add('active');
+}, 5000);
+</script>
+</body>
+</html>

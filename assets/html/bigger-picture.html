@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Africa ASD Knowledge Gap · Amaani × Ukubona</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,400&family=DM+Mono:wght@300;400;500&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<style>
+:root {
+  --bg:      #080A09;
+  --surf:    #0F1410;
+  --surf2:   #161D18;
+  --brd:     rgba(255,255,255,0.07);
+  --ink:     #E8E4DA;
+  --mut:     #6B7268;
+  --laterite:#B5472A;
+  --lat-lt:  #E07A5F;
+  --forest:  #1B3A2D;
+  --forest-lt:#2E5E45;
+  --gold:    #C49A3C;
+  --gold-lt: #E8C86A;
+  --crisis:  #C8322A;
+  --warn:    #D4692A;
+  --ok:      #4A9B52;
+  --mist:    #3A4240;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html,body{height:100%;overflow:hidden;}
+body{font-family:'Syne',sans-serif;background:var(--bg);color:var(--ink);display:flex;flex-direction:column;}
+
+/* SUITE NAV */
+.suite-nav{
+  background:rgba(8,10,9,0.97);
+  border-bottom:1px solid rgba(181,71,42,0.2);
+  padding:0.5rem 2rem;
+  display:flex;align-items:center;gap:2rem;
+  font-family:'DM Mono',monospace;font-size:0.6rem;
+  letter-spacing:0.12em;text-transform:uppercase;
+  flex-shrink:0;
+}
+.suite-logo{color:var(--laterite);font-weight:500;font-size:0.65rem;}
+.suite-logo span{color:var(--gold-lt);}
+.suite-links{display:flex;gap:1.5rem;margin-left:auto;}
+.suite-link{color:var(--mut);text-decoration:none;transition:color 0.2s;padding:0.3rem 0;}
+.suite-link:hover{color:var(--lat-lt);}
+.suite-link.active{color:var(--gold-lt);border-bottom:1px solid var(--gold);}
+
+/* HEADER */
+.hd{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0.8rem 1.5rem;
+  background:var(--surf);border-bottom:1px solid var(--brd);
+  flex-shrink:0;
+}
+.hd-left{}
+.hd-title{font-family:'Playfair Display',serif;font-size:1.15rem;font-weight:900;color:var(--ink);letter-spacing:-0.01em;}
+.hd-title em{font-style:italic;color:var(--lat-lt);}
+.hd-sub{font-family:'DM Mono',monospace;font-size:0.58rem;color:var(--mut);letter-spacing:0.08em;margin-top:0.15rem;}
+.hd-badges{display:flex;gap:0.5rem;align-items:center;}
+.badge{font-family:'DM Mono',monospace;font-size:0.55rem;letter-spacing:0.1em;text-transform:uppercase;padding:0.2em 0.6em;border:1px solid var(--brd);color:var(--mut);}
+.badge-data{color:var(--ok);border-color:rgba(74,155,82,0.3);}
+
+/* BODY */
+.body{display:flex;flex:1;min-height:0;overflow:hidden;}
+
+/* LEFT PANEL */
+.lp{
+  width:260px;flex-shrink:0;
+  background:var(--surf);border-right:1px solid var(--brd);
+  overflow-y:auto;padding:1rem;
+  display:flex;flex-direction:column;gap:1rem;
+}
+.plbl{
+  font-family:'DM Mono',monospace;font-size:0.55rem;
+  letter-spacing:0.16em;text-transform:uppercase;
+  color:var(--mut);padding-bottom:0.4rem;
+  border-bottom:1px solid var(--brd);margin-bottom:0.3rem;
+}
+
+/* SCALE */
+.scale-strip{
+  height:10px;border-radius:2px;
+  background:linear-gradient(90deg,var(--crisis),var(--warn),#D4A020,var(--forest-lt));
+  margin-bottom:0.4rem;
+}
+.scale-labs{
+  display:flex;justify-content:space-between;
+  font-family:'DM Mono',monospace;font-size:0.55rem;color:var(--mut);
+}
+
+/* COUNTRY LIST */
+.c-list{display:flex;flex-direction:column;gap:0.2rem;}
+.c-item{
+  display:flex;align-items:center;gap:0.6rem;
+  padding:0.35rem 0.5rem;cursor:pointer;
+  border-left:2px solid transparent;
+  transition:background 0.15s,border-color 0.15s;
+}
+.c-item:hover{background:var(--surf2);border-left-color:var(--laterite);}
+.c-item.selected{background:rgba(181,71,42,0.08);border-left-color:var(--gold);}
+.c-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+.c-name{font-size:0.75rem;flex:1;}
+.c-gap{font-family:'DM Mono',monospace;font-size:0.65rem;color:var(--mut);}
+.c-studies{font-family:'DM Mono',monospace;font-size:0.58rem;color:var(--forest-lt);}
+
+/* FILTER */
+.filter-btns{display:flex;flex-wrap:wrap;gap:0.35rem;}
+.fbtn{
+  font-family:'DM Mono',monospace;font-size:0.58rem;
+  letter-spacing:0.08em;text-transform:uppercase;
+  padding:0.25rem 0.6rem;
+  background:var(--surf2);border:1px solid var(--brd);
+  color:var(--mut);cursor:pointer;transition:all 0.15s;
+}
+.fbtn:hover{border-color:var(--laterite);color:var(--lat-lt);}
+.fbtn.on{background:rgba(181,71,42,0.12);border-color:var(--laterite);color:var(--lat-lt);}
+
+/* STAT CARDS */
+.scard{background:var(--surf2);border:1px solid var(--brd);padding:0.7rem 0.8rem;margin-bottom:0.5rem;}
+.scard-lbl{font-family:'DM Mono',monospace;font-size:0.55rem;letter-spacing:0.08em;text-transform:uppercase;color:var(--mut);margin-bottom:0.3rem;}
+.scard-val{font-family:'Playfair Display',serif;font-size:1.6rem;font-weight:900;line-height:1;color:var(--crisis);}
+.scard-note{font-size:0.72rem;color:rgba(232,228,218,0.5);margin-top:0.2rem;line-height:1.5;}
+
+/* MAP */
+.mc{flex:1;position:relative;min-width:0;}
+#map{width:100%;height:100%;}
+.leaflet-tile-pane{filter:brightness(0.7) saturate(0.6);}
+.leaflet-popup-content-wrapper{
+  background:var(--surf)!important;color:var(--ink)!important;
+  border:1px solid rgba(181,71,42,0.3)!important;
+  border-radius:0!important;
+  box-shadow:0 8px 40px rgba(0,0,0,0.7)!important;
+}
+.leaflet-popup-content{margin:0.9rem!important;font-family:'Syne',sans-serif!important;}
+.leaflet-popup-tip{background:var(--surf)!important;}
+.pop-country{font-family:'Playfair Display',serif;font-size:1.1rem;font-weight:700;color:var(--ink);margin-bottom:0.4rem;}
+.pop-gap{font-family:'DM Mono',monospace;font-size:1.4rem;font-weight:500;margin-bottom:0.5rem;}
+.pop-rows{font-family:'DM Mono',monospace;font-size:0.62rem;color:var(--mut);line-height:2.2;}
+.pop-row-val{color:var(--ink);}
+.pop-note{font-size:0.72rem;color:rgba(232,228,218,0.5);margin-top:0.6rem;font-style:italic;line-height:1.5;border-top:1px solid var(--brd);padding-top:0.5rem;}
+
+/* RIGHT PANEL */
+.rp{
+  width:230px;flex-shrink:0;
+  background:var(--surf);border-left:1px solid var(--brd);
+  overflow-y:auto;padding:1rem;
+  display:flex;flex-direction:column;gap:1rem;
+}
+.sel-panel{
+  background:var(--surf2);
+  border-left:3px solid var(--gold);
+  padding:0.8rem;
+}
+.sel-name{font-family:'Playfair Display',serif;font-size:1.2rem;font-weight:700;color:var(--ink);margin-bottom:0.3rem;}
+.sel-gap-val{font-family:'DM Mono',monospace;font-size:1.5rem;font-weight:500;margin-bottom:0.5rem;}
+.sel-rows{font-family:'DM Mono',monospace;font-size:0.62rem;color:var(--mut);line-height:2;}
+.sel-rv{color:var(--ink);}
+.amaani-note{
+  background:rgba(181,71,42,0.08);
+  border:1px solid rgba(181,71,42,0.2);
+  padding:0.8rem;
+  font-size:0.75rem;color:rgba(232,228,218,0.6);
+  line-height:1.6;
+  font-style:italic;
+}
+.amaani-note strong{color:var(--lat-lt);font-style:normal;}
+
+/* SOURCES */
+.sources{font-family:'DM Mono',monospace;font-size:0.57rem;color:var(--mut);line-height:1.9;}
+.src-item{padding:0.2rem 0;border-bottom:1px solid var(--brd);}
+
+@media(max-width:900px){.lp,.rp{display:none;}}
+</style>
+</head>
+<body>
+
+<!-- SUITE NAV -->
+<nav class="suite-nav">
+  <div class="suite-logo">Amaani <span>× Ukubona</span></div>
+  <div class="suite-links">
+    <a href="mh-data.html" class="suite-link">Uganda MH Data</a>
+    <a href="autism-ug.html" class="suite-link">Uganda District Map</a>
+    <a href="bigger-picture.html" class="suite-link active">Africa Gap Map</a>
+    <a href="md-registration.html" class="suite-link">Amaani Home</a>
+  </div>
+</nav>
+
+<!-- HEADER -->
+<header class="hd">
+  <div class="hd-left">
+    <div class="hd-title">Africa ASD <em>Knowledge Gap</em> · 54 Countries</div>
+    <div class="hd-sub">How much do we know? · Literature review data · Systematic reviews 2016–2026</div>
+  </div>
+  <div class="hd-badges">
+    <span class="badge badge-data">Literature Review · Phase I</span>
+    <span class="badge">54 Countries</span>
+    <span class="badge">~100 total ASD studies in Africa</span>
+  </div>
+  <div style="font-family:'DM Mono',monospace;font-size:0.58rem;color:rgba(107,114,104,0.55);padding:0.4rem 1.5rem 0.6rem;background:var(--surf);border-bottom:1px solid var(--brd);font-style:italic;">
+    Phase I · Literature synthesis from 6 systematic reviews (2016–2026). Country-level gap scores derived from published study counts. District-level data collection begins Phase II.
+  </div>
+</header>
+
+<div class="body">
+
+  <!-- LEFT PANEL -->
+  <aside class="lp">
+
+    <div>
+      <div class="plbl">Knowledge Gap Index</div>
+      <div class="scale-strip"></div>
+      <div class="scale-labs"><span>0 = well studied</span><span>100 = invisible</span></div>
+      <div style="font-family:'DM Mono',monospace;font-size:0.6rem;color:var(--mut);margin-top:0.6rem;line-height:1.7;">
+        Derived from: Abubakar et al. (2016), Ferreira et al. (2025), Bakare et al. (2022), Aderinto (2023). Africa produces &lt;1% of global ASD research.
+      </div>
+    </div>
+
+    <div>
+      <div class="plbl">Filter by region</div>
+      <div class="filter-btns">
+        <button class="fbtn on" onclick="filterRegion(this,'all')">All</button>
+        <button class="fbtn" onclick="filterRegion(this,'north')">North</button>
+        <button class="fbtn" onclick="filterRegion(this,'west')">West</button>
+        <button class="fbtn" onclick="filterRegion(this,'east')">East</button>
+        <button class="fbtn" onclick="filterRegion(this,'central')">Central</button>
+        <button class="fbtn" onclick="filterRegion(this,'south')">South</button>
+      </div>
+    </div>
+
+    <div>
+      <div class="scard">
+        <div class="scard-lbl">Countries with zero studies</div>
+        <div class="scard-val" id="zero-count">44</div>
+        <div class="scard-note">of 54 African nations have no published ASD research</div>
+      </div>
+      <div class="scard">
+        <div class="scard-lbl" style="color:var(--mut)">SA + Nigeria share</div>
+        <div class="scard-val" style="color:var(--gold)">74%</div>
+        <div class="scard-note">of all Sub-Saharan ASD studies are in just two countries</div>
+      </div>
+    </div>
+
+    <div>
+      <div class="plbl">Country ranking (studied → unstudied)</div>
+      <div class="c-list" id="country-list"></div>
+    </div>
+
+  </aside>
+
+  <!-- MAP -->
+  <div class="mc">
+    <div id="map"></div>
+  </div>
+
+  <!-- RIGHT PANEL -->
+  <aside class="rp">
+
+    <div>
+      <div class="plbl">Selected country</div>
+      <div class="sel-panel" id="sel-panel" style="display:none">
+        <div class="sel-name" id="sel-name">—</div>
+        <div class="sel-gap-val" id="sel-gap">—</div>
+        <div class="sel-rows" id="sel-rows"></div>
+      </div>
+      <div id="sel-placeholder" style="font-family:'DM Mono',monospace;font-size:0.62rem;color:var(--mut);font-style:italic;padding:0.5rem 0;">
+        Click a country on the map
+      </div>
+    </div>
+
+    <div class="amaani-note">
+      <strong>The gap IS the mission.</strong> Every country shown in red represents families navigating autism without data, tools, or visible clinical support. Amaani's Field arm begins in Uganda — one of only 4 countries with any published prevalence data.
+    </div>
+
+    <div>
+      <div class="plbl">Amaani target countries</div>
+      <div style="font-family:'DM Mono',monospace;font-size:0.62rem;color:var(--mut);line-height:2.2;">
+        <div style="display:flex;justify-content:space-between;padding:0.2rem 0;border-bottom:1px solid var(--brd);">
+          <span style="color:var(--lat-lt)">Uganda</span><span>Phase I active</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;padding:0.2rem 0;border-bottom:1px solid var(--brd);">
+          <span>Kenya</span><span style="color:var(--mut)">Phase II target</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;padding:0.2rem 0;border-bottom:1px solid var(--brd);">
+          <span>Tanzania</span><span style="color:var(--mut)">Phase II target</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;padding:0.2rem 0;">
+          <span>Rwanda</span><span style="color:var(--mut)">Phase III</span>
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <div class="plbl">Data sources</div>
+      <div class="sources">
+        <div class="src-item">Abubakar et al. 2016 · 47 SSA studies</div>
+        <div class="src-item">Ferreira et al. ~2025 · 7 prevalence studies</div>
+        <div class="src-item">Bakare et al. 2022 · West Africa review</div>
+        <div class="src-item">Aderinto 2023 · North Africa review</div>
+        <div class="src-item">Akomolafe et al. 2025 · MENA synthesis</div>
+        <div class="src-item">Franz et al. 2017 · SSA scoping</div>
+        <div class="src-item">GBD 2019 · Global burden estimates</div>
+      </div>
+    </div>
+
+    <div style="margin-top:auto;">
+      <div style="font-family:'DM Mono',monospace;font-size:0.58rem;color:rgba(107,114,104,0.4);line-height:1.8;font-style:italic;">
+        <!-- PLACEHOLDER: swap in real MoH / WHO survey data here --><br>
+        ── DATA SWAP POINT ──<br>
+        Replace gapData{} in JS with<br>
+        live WHO GHO API or UBOS data<br>
+        when available
+      </div>
+    </div>
+
+  </aside>
+</div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+
+// ══════════════════════════════════════════════════════
+// REAL DATA — derived from systematic reviews
+// Studies count from: Abubakar 2016, Ferreira 2025,
+// Bakare 2022, Aderinto 2023, Franz 2017
+// ══════════════════════════════════════════════════════
+const COUNTRIES = [
+  // name, gap (0–100), studies count (approx), region, note
+  {n:"South Africa", gap:12, studies:28, region:"south", note:"Highest volume. Prevalence, interventions, molecular. ~50% of all SSA research."},
+  {n:"Nigeria",      gap:18, studies:13, region:"west",  note:"Awareness, screening, prevalence. ~25% of SSA studies."},
+  {n:"Egypt",        gap:28, studies:4,  region:"north", note:"Limited prevalence and clinical studies. North Africa context."},
+  {n:"Kenya",        gap:42, studies:2,  region:"east",  note:"Mostly prevalence and diagnostic pathways. Very sparse."},
+  {n:"Uganda",       gap:45, studies:2,  region:"east",  note:"Limited prevalence data. Kakooza-Mwesige 2014. Diagnostic delays noted. Amaani Phase I."},
+  {n:"Tunisia",      gap:50, studies:2,  region:"north", note:"Rare mentions in broader MENA reviews. Focus on screening."},
+  {n:"Libya",        gap:68, studies:1,  region:"north", note:"Virtually none. Occasional in North Africa overviews."},
+  {n:"Ghana",        gap:72, studies:1,  region:"west",  note:"Minimal. Often cited as a gap in West Africa reviews."},
+  {n:"Ethiopia",     gap:75, studies:1,  region:"east",  note:"Sparse. Diagnostic and awareness gaps noted."},
+  {n:"Tanzania",     gap:78, studies:1,  region:"east",  note:"Very limited. Part of broader SSA gap studies."},
+  {n:"Morocco",      gap:60, studies:1,  region:"north", note:"Occasional reference in North Africa / Arabic-language literature."},
+  {n:"Zimbabwe",     gap:82, studies:0,  region:"south", note:"No published studies. Regional capacity building needed."},
+  {n:"Zambia",       gap:88, studies:0,  region:"south", note:"No published studies identified."},
+  {n:"Rwanda",       gap:88, studies:0,  region:"east",  note:"No published studies. Strong government health systems — Phase III candidate."},
+  {n:"Cameroon",     gap:90, studies:0,  region:"central",note:"No published studies. French-language system."},
+  {n:"DR Congo",     gap:95, studies:0,  region:"central",note:"No published studies. Among most underserved globally."},
+  {n:"Sudan",        gap:92, studies:0,  region:"north", note:"No published studies. Conflict context."},
+  {n:"Angola",       gap:94, studies:0,  region:"central",note:"No published studies."},
+  {n:"Mozambique",   gap:91, studies:0,  region:"south", note:"No published studies."},
+  {n:"Madagascar",   gap:93, studies:0,  region:"east",  note:"No published studies."},
+  {n:"Ivory Coast",  gap:89, studies:0,  region:"west",  note:"No published studies. French-language system."},
+  {n:"Senegal",      gap:87, studies:0,  region:"west",  note:"No published studies."},
+  {n:"Mali",         gap:93, studies:0,  region:"west",  note:"No published studies. Conflict context."},
+  {n:"Burkina Faso", gap:92, studies:0,  region:"west",  note:"No published studies."},
+  {n:"Niger",        gap:95, studies:0,  region:"west",  note:"No published studies."},
+  {n:"Chad",         gap:96, studies:0,  region:"central",note:"No published studies."},
+  {n:"Somalia",      gap:97, studies:0,  region:"east",  note:"No published studies. Conflict context."},
+  {n:"Eritrea",      gap:96, studies:0,  region:"east",  note:"No published studies."},
+  {n:"Djibouti",     gap:95, studies:0,  region:"east",  note:"No published studies."},
+  {n:"Burundi",      gap:93, studies:0,  region:"east",  note:"No published studies."},
+  {n:"Malawi",       gap:89, studies:0,  region:"south", note:"No published studies."},
+  {n:"Botswana",     gap:82, studies:0,  region:"south", note:"No published studies. Relatively strong health infrastructure."},
+  {n:"Namibia",      gap:80, studies:0,  region:"south", note:"No published studies."},
+  {n:"Lesotho",      gap:90, studies:0,  region:"south", note:"No published studies."},
+  {n:"Swaziland",    gap:88, studies:0,  region:"south", note:"No published studies."},
+  {n:"Benin",        gap:91, studies:0,  region:"west",  note:"No published studies."},
+  {n:"Togo",         gap:91, studies:0,  region:"west",  note:"No published studies."},
+  {n:"Guinea",       gap:93, studies:0,  region:"west",  note:"No published studies."},
+  {n:"Sierra Leone", gap:93, studies:0,  region:"west",  note:"No published studies."},
+  {n:"Liberia",      gap:92, studies:0,  region:"west",  note:"No published studies."},
+  {n:"Central African Republic", gap:96, studies:0, region:"central", note:"No published studies."},
+  {n:"Congo",        gap:94, studies:0,  region:"central",note:"No published studies."},
+  {n:"Gabon",        gap:88, studies:0,  region:"central",note:"No published studies."},
+  {n:"Equatorial Guinea", gap:93, studies:0, region:"central", note:"No published studies."},
+  {n:"Comoros",      gap:95, studies:0,  region:"east",  note:"No published studies."},
+  {n:"Cape Verde",   gap:85, studies:0,  region:"west",  note:"No published studies."},
+  {n:"Seychelles",   gap:80, studies:0,  region:"east",  note:"No published studies."},
+  {n:"Mauritius",    gap:55, studies:0,  region:"south", note:"Small island — some disability research exists but no ASD-specific studies."},
+  {n:"Guinea-Bissau",gap:95, studies:0,  region:"west",  note:"No published studies."},
+  {n:"Gambia",       gap:88, studies:0,  region:"west",  note:"No published studies."},
+  {n:"Mauritania",   gap:92, studies:0,  region:"north", note:"No published studies."},
+  {n:"Algeria",      gap:55, studies:1,  region:"north", note:"Some autism awareness research in French/Arabic literature."},
+  {n:"South Sudan",  gap:97, studies:0,  region:"east",  note:"No published studies. Severe conflict impact on health systems."},
+  {n:"Sao Tome and Principe", gap:95, studies:0, region:"central", note:"No published studies."},
+];
+
+function gapColor(gap) {
+  if (gap >= 90) return '#C8322A';
+  if (gap >= 75) return '#D4692A';
+  if (gap >= 60) return '#C49A3C';
+  if (gap >= 45) return '#8A9A30';
+  if (gap >= 30) return '#2E7D52';
+  return '#1B3A5E';
+}
+
+function gapLabel(gap) {
+  if (gap >= 90) return 'Critical — no data';
+  if (gap >= 75) return 'Severe gap';
+  if (gap >= 60) return 'Major gap';
+  if (gap >= 45) return 'Significant gap';
+  if (gap >= 30) return 'Moderate gap';
+  return 'Relatively studied';
+}
+
+// Build lookup
+const byName = {};
+COUNTRIES.forEach(c => byName[c.n] = c);
+
+// Country list sidebar
+function buildList(filter='all') {
+  const el = document.getElementById('country-list');
+  const sorted = [...COUNTRIES].sort((a,b) => a.gap - b.gap);
+  const filtered = filter==='all' ? sorted : sorted.filter(c=>c.region===filter);
+  el.innerHTML = filtered.map(c => `
+    <div class="c-item" data-name="${c.n}" onclick="selectCountry('${c.n}')">
+      <div class="c-dot" style="background:${gapColor(c.gap)}"></div>
+      <span class="c-name">${c.n}</span>
+      <span class="c-gap">${c.gap}</span>
+      <span class="c-studies">${c.studies>0?c.studies+'✦':''}</span>
+    </div>`).join('');
+}
+buildList();
+
+function filterRegion(btn, r) {
+  document.querySelectorAll('.fbtn').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');
+  buildList(r);
+}
+
+function selectCountry(name) {
+  const c = byName[name];
+  if (!c) return;
+  document.querySelectorAll('.c-item').forEach(el => {
+    el.classList.toggle('selected', el.dataset.name === name);
+  });
+  document.getElementById('sel-placeholder').style.display='none';
+  document.getElementById('sel-panel').style.display='block';
+  document.getElementById('sel-name').textContent = c.n;
+  const gv = document.getElementById('sel-gap');
+  gv.textContent = 'Gap: ' + c.gap + '/100';
+  gv.style.color = gapColor(c.gap);
+  document.getElementById('sel-rows').innerHTML = `
+    <div style="display:flex;justify-content:space-between;border-bottom:1px solid var(--brd);padding:0.15rem 0;"><span>Published studies</span><span class="sel-rv">${c.studies}</span></div>
+    <div style="display:flex;justify-content:space-between;border-bottom:1px solid var(--brd);padding:0.15rem 0;"><span>Region</span><span class="sel-rv">${c.region.charAt(0).toUpperCase()+c.region.slice(1)} Africa</span></div>
+    <div style="display:flex;justify-content:space-between;border-bottom:1px solid var(--brd);padding:0.15rem 0;"><span>Status</span><span class="sel-rv" style="color:${gapColor(c.gap)}">${gapLabel(c.gap)}</span></div>
+    <div style="padding:0.5rem 0;font-size:0.68rem;color:rgba(232,228,218,0.5);font-style:italic;line-height:1.6;">${c.note}</div>
+  `;
+}
+
+// ══════════════════════════════════════════════════════
+// LEAFLET MAP
+// ══════════════════════════════════════════════════════
+const map = L.map('map', {center:[5, 20], zoom:3, zoomControl:true});
+
+L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+  attribution:'&copy; OSM &copy; CARTO',
+  subdomains:'abcd', maxZoom:18,
+}).addTo(map);
+
+function style(feature) {
+  const name = feature.properties.name || feature.properties.NAME || feature.properties.ADMIN || feature.properties.NAME_EN;
+  const c = byName[name] || {gap:92};
+  return {
+    fillColor: gapColor(c.gap),
+    weight: 1,
+    opacity: 1,
+    color: 'rgba(255,255,255,0.15)',
+    fillOpacity: 0.82,
+  };
+}
+
+function onEach(feature, layer) {
+  const name = feature.properties.name || feature.properties.NAME || feature.properties.ADMIN || feature.properties.NAME_EN;
+  const c = byName[name] || {gap:92, studies:0, note:'No published ASD studies identified.'};
+
+  layer.bindPopup(`
+    <div class="pop-country">${name}</div>
+    <div class="pop-gap" style="color:${gapColor(c.gap)}">Gap Index: ${c.gap} / 100</div>
+    <div class="pop-rows">
+      <span>Studies:</span> <span class="pop-row-val">${c.studies}</span><br>
+      <span>Status:</span> <span class="pop-row-val" style="color:${gapColor(c.gap)}">${gapLabel(c.gap)}</span><br>
+    </div>
+    <div class="pop-note">${c.note}</div>
+  `);
+
+  layer.on('click', () => {
+    if (byName[name]) selectCountry(name);
+  });
+
+  layer.on('mouseover', function() {
+    layer.setStyle({fillOpacity: 0.98, weight: 2, color:'rgba(255,255,255,0.5)'});
+  });
+  layer.on('mouseout', function() {
+    layer.setStyle({fillOpacity: 0.82, weight: 1, color:'rgba(255,255,255,0.15)'});
+  });
+}
+
+fetch('https://raw.githubusercontent.com/codeforgermany/click_that_hood/main/public/data/africa.geojson')
+  .then(r => r.json())
+  .then(data => {
+    L.geoJSON(data, {style, onEachFeature: onEach}).addTo(map);
+  })
+  .catch(() => {
+    // Fallback if fetch fails
+    document.querySelector('.mc').innerHTML += '<div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-family:DM Mono,monospace;font-size:0.8rem;color:rgba(200,180,160,0.4);text-align:center;">Map requires internet connection<br>for GeoJSON data</div>';
+  });
+
+</script>
+</body>
+</html>

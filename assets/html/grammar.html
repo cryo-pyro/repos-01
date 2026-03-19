@@ -1,0 +1,1125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ukubona Pentad Builder</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=JetBrains+Mono:wght@300;400;500&family=Spectral:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Caveat:wght@500;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --ink:       #16120e;
+  --ink-2:     #3a3530;
+  --ink-3:     #6e665e;
+  --ink-4:     #a09890;
+  --ink-5:     #cec8c0;
+  --paper:     #faf7f2;
+  --paper-2:   #f2ede4;
+  --paper-3:   #e8e0d4;
+  --rule:      rgba(22,18,14,0.08);
+  --rule-2:    rgba(22,18,14,0.15);
+
+  /* pentad colors — warm, differentiated, printable */
+  --p1: #8b2500;   /* anatomy — deep terracotta */
+  --p2: #1a4a6b;   /* pathology — prussian blue */
+  --p3: #5c4400;   /* pathophysiology — dark gold */
+  --p4: #1a5c35;   /* treatment — forest */
+  --p5: #4a1a6b;   /* plasticity — deep violet */
+
+  --p1l: rgba(139,37,0,0.07);
+  --p2l: rgba(26,74,107,0.07);
+  --p3l: rgba(92,68,0,0.07);
+  --p4l: rgba(26,92,53,0.07);
+  --p5l: rgba(74,26,107,0.07);
+
+  --p1b: rgba(139,37,0,0.15);
+  --p2b: rgba(26,74,107,0.15);
+  --p3b: rgba(92,68,0,0.15);
+  --p4b: rgba(26,92,53,0.15);
+  --p5b: rgba(74,26,107,0.15);
+
+  --mono: 'JetBrains Mono', monospace;
+  --serif: 'Spectral', serif;
+  --display: 'Playfair Display', serif;
+  --hand: 'Caveat', cursive;
+  --radius: 3px;
+}
+
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--paper);color:var(--ink);font-family:var(--serif);min-height:100vh;overflow-x:hidden}
+
+/* ── NOISE TEXTURE ── */
+body::before{
+  content:'';position:fixed;inset:0;pointer-events:none;z-index:500;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.025'/%3E%3C/svg%3E");
+  opacity:0.5;
+}
+
+/* ── HEADER ── */
+.site-header{
+  border-bottom:2px solid var(--ink);
+  padding:2rem 4vw 1.5rem;
+  display:grid;
+  grid-template-columns:1fr auto;
+  align-items:end;
+  gap:2rem;
+  background:var(--paper);
+  position:sticky;top:0;z-index:100;
+}
+.header-left{}
+.header-kicker{
+  font-family:var(--mono);font-size:0.52rem;letter-spacing:0.35em;
+  color:var(--ink-4);text-transform:uppercase;margin-bottom:0.5rem;
+}
+.header-title{
+  font-family:var(--display);font-size:clamp(1.6rem,4vw,2.8rem);
+  font-weight:900;line-height:0.95;
+}
+.header-title em{font-style:italic;font-weight:400}
+.header-sub{
+  font-family:var(--serif);font-style:italic;font-size:0.88rem;
+  color:var(--ink-3);margin-top:0.4rem;
+}
+.header-right{text-align:right}
+.header-grammar{
+  font-family:var(--mono);font-size:0.65rem;letter-spacing:0.1em;
+  color:var(--ink-3);line-height:2;
+}
+.header-grammar span{color:var(--p4)}
+
+/* ── UNIVERSAL GRAMMAR STRIP ── */
+.grammar-strip{
+  display:grid;grid-template-columns:repeat(5,1fr);
+  border-bottom:1px solid var(--rule-2);
+  background:var(--paper-2);
+}
+.gs-cell{
+  padding:0.9rem 1.2rem;border-right:1px solid var(--rule);
+  position:relative;overflow:hidden;
+  transition:background 0.2s;
+}
+.gs-cell:last-child{border-right:none}
+.gs-cell::after{
+  content:'';position:absolute;bottom:0;left:0;right:0;height:3px;
+}
+.gs-cell:nth-child(1)::after{background:var(--p1)}
+.gs-cell:nth-child(2)::after{background:var(--p2)}
+.gs-cell:nth-child(3)::after{background:var(--p3)}
+.gs-cell:nth-child(4)::after{background:var(--p4)}
+.gs-cell:nth-child(5)::after{background:var(--p5)}
+.gs-num{
+  font-family:var(--mono);font-size:0.5rem;letter-spacing:0.25em;
+  color:var(--ink-4);margin-bottom:0.3rem;
+}
+.gs-name{
+  font-family:var(--display);font-size:1rem;font-weight:700;
+  line-height:1.1;margin-bottom:0.2rem;
+}
+.gs-math{
+  font-family:var(--mono);font-size:0.55rem;
+  color:var(--ink-4);margin-bottom:0.3rem;
+}
+.gs-desc{
+  font-family:var(--serif);font-size:0.72rem;
+  color:var(--ink-3);line-height:1.4;font-style:italic;
+}
+.gc1 .gs-name{color:var(--p1)} .gc2 .gs-name{color:var(--p2)}
+.gc3 .gs-name{color:var(--p3)} .gc4 .gs-name{color:var(--p4)}
+.gc5 .gs-name{color:var(--p5)}
+
+/* ── MAIN LAYOUT ── */
+.main{display:grid;grid-template-columns:380px 1fr;min-height:calc(100vh - 140px)}
+
+/* ── BUILDER PANEL ── */
+.builder{
+  background:var(--paper-2);border-right:1px solid var(--rule-2);
+  overflow-y:auto;
+  position:sticky;top:112px;height:calc(100vh - 112px);
+}
+.builder-header{
+  padding:1.2rem 1.5rem 1rem;
+  border-bottom:1px solid var(--rule);
+  display:flex;align-items:center;justify-content:space-between;
+  background:var(--paper-2);
+  position:sticky;top:0;z-index:10;
+}
+.builder-title{
+  font-family:var(--display);font-size:1rem;font-weight:700;
+}
+.builder-actions{display:flex;gap:0.4rem}
+
+/* ── BUTTONS ── */
+.btn{
+  font-family:var(--mono);font-size:0.55rem;letter-spacing:0.12em;
+  text-transform:uppercase;padding:0.4rem 0.8rem;border-radius:var(--radius);
+  cursor:pointer;border:1px solid;transition:all 0.15s;background:none;
+  display:inline-flex;align-items:center;gap:0.3rem;
+}
+.btn-ink{color:var(--ink);border-color:var(--rule-2)}
+.btn-ink:hover{background:var(--paper-3);border-color:var(--ink-4)}
+.btn-p4{color:var(--p4);border-color:var(--p4);background:var(--p4l)}
+.btn-p4:hover{background:var(--p4b)}
+.btn-p5{color:var(--p5);border-color:var(--p5);background:var(--p5l)}
+.btn-p5:hover{background:var(--p5b)}
+.btn-p1{color:var(--p1);border-color:var(--p1);background:var(--p1l)}
+.btn-p1:hover{background:var(--p1b)}
+.btn-full{width:100%;justify-content:center;padding:0.6rem 1rem;font-size:0.6rem}
+
+/* ── FORM ── */
+.form-body{padding:1rem 1.5rem;display:flex;flex-direction:column;gap:0}
+
+.stage-block{
+  padding:1rem 0;border-bottom:1px solid var(--rule);
+}
+.stage-block:last-of-type{border-bottom:none}
+
+.stage-block-header{
+  display:flex;align-items:center;gap:0.6rem;margin-bottom:0.8rem;
+}
+.stage-badge{
+  font-family:var(--mono);font-size:0.5rem;letter-spacing:0.15em;
+  padding:0.2rem 0.5rem;border-radius:2px;border:1px solid;
+  white-space:nowrap;
+}
+.sb1{color:var(--p1);background:var(--p1l);border-color:rgba(139,37,0,0.2)}
+.sb2{color:var(--p2);background:var(--p2l);border-color:rgba(26,74,107,0.2)}
+.sb3{color:var(--p3);background:var(--p3l);border-color:rgba(92,68,0,0.2)}
+.sb4{color:var(--p4);background:var(--p4l);border-color:rgba(26,92,53,0.2)}
+.sb5{color:var(--p5);background:var(--p5l);border-color:rgba(74,26,107,0.2)}
+
+.stage-block-name{
+  font-family:var(--display);font-size:0.88rem;font-weight:700;
+}
+.sb1+.stage-block-name{color:var(--p1)}
+.sb2+.stage-block-name{color:var(--p2)}
+.sb3+.stage-block-name{color:var(--p3)}
+.sb4+.stage-block-name{color:var(--p4)}
+.sb5+.stage-block-name{color:var(--p5)}
+
+.stage-block-math{
+  font-family:var(--mono);font-size:0.52rem;color:var(--ink-4);margin-left:auto;
+}
+
+.form-group{margin-bottom:0.7rem}
+.form-label{
+  font-family:var(--mono);font-size:0.52rem;letter-spacing:0.18em;
+  text-transform:uppercase;color:var(--ink-3);margin-bottom:0.3rem;display:block;
+}
+.form-input,.form-textarea,.form-select{
+  width:100%;background:var(--paper);border:1px solid var(--rule-2);
+  color:var(--ink);font-family:var(--mono);font-size:0.68rem;
+  padding:0.5rem 0.7rem;border-radius:var(--radius);
+  transition:border-color 0.15s;appearance:none;
+}
+.form-input:focus,.form-textarea:focus,.form-select:focus{
+  outline:none;border-color:var(--p4);
+  box-shadow:0 0 0 2px rgba(26,92,53,0.08);
+}
+.form-textarea{min-height:70px;resize:vertical;line-height:1.6;font-family:var(--serif);font-size:0.78rem}
+.form-textarea::placeholder{font-style:italic;color:var(--ink-5)}
+.form-input::placeholder{color:var(--ink-5)}
+
+/* ── LIBRARY SIDEBAR ── */
+.library{
+  padding:1rem 1.5rem;border-top:1px solid var(--rule-2);
+  background:var(--paper-3);
+}
+.library-title{
+  font-family:var(--mono);font-size:0.52rem;letter-spacing:0.25em;
+  text-transform:uppercase;color:var(--ink-4);margin-bottom:0.8rem;
+}
+.lib-item{
+  padding:0.5rem 0.7rem;margin-bottom:0.3rem;cursor:pointer;
+  border:1px solid var(--rule);border-radius:var(--radius);
+  background:var(--paper);transition:all 0.15s;
+}
+.lib-item:hover{border-color:var(--p4);background:var(--p4l)}
+.lib-name{font-family:var(--serif);font-size:0.78rem;color:var(--ink-2);margin-bottom:0.15rem}
+.lib-tags{font-family:var(--mono);font-size:0.5rem;color:var(--ink-4)}
+
+/* ── PREVIEW PANEL ── */
+.preview{padding:2.5rem 3vw;overflow-y:auto}
+
+.preview-empty{
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  min-height:50vh;text-align:center;
+  font-family:var(--serif);font-style:italic;color:var(--ink-4);
+}
+.preview-empty-icon{
+  font-size:3rem;margin-bottom:1rem;
+  opacity:0.3;
+  font-family:var(--display);font-weight:900;
+}
+
+/* ── CARD / PENTAD DISPLAY ── */
+.pentad-card{
+  background:var(--paper);border:1px solid var(--rule-2);
+  border-radius:2px;overflow:hidden;
+  box-shadow:0 2px 20px rgba(22,18,14,0.06),0 1px 4px rgba(22,18,14,0.04);
+  margin-bottom:2rem;
+  animation:slideup 0.4s cubic-bezier(0.16,1,0.3,1);
+}
+@keyframes slideup{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+
+.pc-header{
+  padding:1.5rem 2rem;
+  border-bottom:1px solid var(--rule);
+  display:grid;grid-template-columns:1fr auto;gap:1rem;align-items:start;
+}
+.pc-kicker{
+  font-family:var(--mono);font-size:0.52rem;letter-spacing:0.3em;
+  text-transform:uppercase;color:var(--ink-4);margin-bottom:0.4rem;
+}
+.pc-title{
+  font-family:var(--display);font-size:clamp(1.4rem,3vw,2.2rem);
+  font-weight:900;line-height:1;
+}
+.pc-subtitle{
+  font-family:var(--serif);font-style:italic;font-size:0.85rem;
+  color:var(--ink-3);margin-top:0.4rem;
+}
+.pc-meta{
+  font-family:var(--mono);font-size:0.52rem;color:var(--ink-4);
+  text-align:right;line-height:2;
+}
+.pc-id{
+  font-family:var(--display);font-style:italic;font-size:0.75rem;
+  color:var(--ink-3);
+}
+
+/* pentad 5-column */
+.pc-stages{
+  display:grid;grid-template-columns:repeat(5,1fr);
+  gap:0;background:var(--rule);border-top:1px solid var(--rule);
+}
+.pc-stage{
+  background:var(--paper);padding:1.4rem 1.2rem;
+  position:relative;overflow:hidden;
+  transition:background 0.2s;
+}
+.pc-stage:hover{background:var(--paper-2)}
+.pc-stage-bar{
+  position:absolute;top:0;left:0;right:0;height:3px;
+}
+.ps1 .pc-stage-bar{background:var(--p1)}
+.ps2 .pc-stage-bar{background:var(--p2)}
+.ps3 .pc-stage-bar{background:var(--p3)}
+.ps4 .pc-stage-bar{background:var(--p4)}
+.ps5 .pc-stage-bar{background:var(--p5)}
+
+.pc-stage-num{
+  font-family:var(--mono);font-size:0.48rem;letter-spacing:0.2em;
+  color:var(--ink-5);margin-bottom:0.4rem;margin-top:0.2rem;
+}
+.pc-stage-canon{
+  font-family:var(--mono);font-size:0.52rem;text-transform:uppercase;
+  letter-spacing:0.1em;color:var(--ink-4);margin-bottom:0.3rem;
+}
+.pc-stage-name{
+  font-family:var(--display);font-size:1rem;font-weight:700;
+  line-height:1.1;margin-bottom:0.4rem;
+}
+.ps1 .pc-stage-name{color:var(--p1)} .ps2 .pc-stage-name{color:var(--p2)}
+.ps3 .pc-stage-name{color:var(--p3)} .ps4 .pc-stage-name{color:var(--p4)}
+.ps5 .pc-stage-name{color:var(--p5)}
+.pc-stage-math{
+  font-family:var(--mono);font-size:0.5rem;color:var(--ink-4);
+  margin-bottom:0.6rem;line-height:1.6;
+}
+.pc-stage-body{
+  font-family:var(--serif);font-size:0.78rem;line-height:1.6;
+  color:var(--ink-2);
+}
+.pc-stage-body em{font-style:italic;color:var(--ink)}
+
+/* fractal arrow between stages */
+.pc-arrow-row{
+  display:flex;align-items:center;justify-content:center;
+  padding:0.5rem 2rem;gap:0;
+  border-top:1px solid var(--rule);border-bottom:1px solid var(--rule);
+  background:var(--paper-2);overflow-x:auto;
+}
+.pa-item{
+  display:flex;align-items:center;gap:0;flex-shrink:0;
+}
+.pa-name{
+  font-family:var(--display);font-style:italic;font-size:0.75rem;
+  padding:0.3rem 0.6rem;border-radius:2px;white-space:nowrap;
+}
+.pa-arrow{
+  font-family:var(--mono);font-size:0.65rem;color:var(--ink-5);
+  padding:0 0.3rem;
+}
+.pa-fractal{
+  font-family:var(--mono);font-size:0.52rem;color:var(--ink-4);
+  padding:0.3rem 0.8rem;border:1px dashed var(--ink-5);border-radius:2px;
+  white-space:nowrap;
+}
+
+/* pc detail rows */
+.pc-detail{
+  display:grid;grid-template-columns:180px 1fr;gap:2rem;
+  padding:1.5rem 2rem;border-top:1px solid var(--rule);
+  align-items:start;
+}
+.pc-detail-label{
+  font-family:var(--mono);font-size:0.52rem;letter-spacing:0.2em;
+  text-transform:uppercase;color:var(--ink-4);padding-top:0.2rem;
+}
+.pc-detail-val{
+  font-family:var(--serif);font-size:0.85rem;line-height:1.7;color:var(--ink-2);
+}
+.pc-detail-val strong{color:var(--ink);font-weight:600}
+.pc-detail-val em{font-style:italic}
+
+/* fractal note */
+.pc-fractal-note{
+  padding:1.2rem 2rem;border-top:1px solid var(--rule);
+  background:var(--paper-2);display:flex;align-items:flex-start;gap:1rem;
+}
+.pc-fractal-icon{
+  font-family:var(--hand);font-size:2rem;color:var(--p5);
+  line-height:1;flex-shrink:0;margin-top:0.1rem;
+}
+.pc-fractal-text{
+  font-family:var(--serif);font-style:italic;font-size:0.85rem;
+  color:var(--ink-3);line-height:1.6;
+}
+.pc-fractal-text strong{font-style:normal;color:var(--p5)}
+
+/* pc footer */
+.pc-footer{
+  padding:1rem 2rem;
+  border-top:1px solid var(--rule);
+  display:flex;justify-content:space-between;align-items:center;
+  flex-wrap:wrap;gap:0.8rem;background:var(--paper-3);
+}
+.pc-footer-brand{
+  font-family:var(--display);font-size:0.85rem;font-weight:700;
+}
+.pc-footer-brand span{color:var(--p5)}
+.pc-footer-actions{display:flex;gap:0.4rem}
+
+/* ── COLONY LIBRARY ── */
+.colony-section{margin-top:2rem}
+.colony-header{
+  display:flex;align-items:center;justify-content:space-between;
+  margin-bottom:1rem;
+}
+.colony-title{
+  font-family:var(--display);font-size:1.2rem;font-weight:700;
+}
+.colony-grid{display:grid;gap:1rem}
+
+.colony-card{
+  background:var(--paper);border:1px solid var(--rule-2);
+  border-radius:2px;overflow:hidden;cursor:pointer;
+  transition:box-shadow 0.2s,border-color 0.2s;
+}
+.colony-card:hover{
+  border-color:var(--p4);
+  box-shadow:0 4px 16px rgba(22,18,14,0.08);
+}
+.colony-card-header{
+  display:grid;grid-template-columns:repeat(5,1fr);
+  gap:0;background:var(--rule);
+  height:6px;
+}
+.colony-card-bar{height:6px}
+.colony-card-body{padding:1rem 1.2rem}
+.colony-card-name{
+  font-family:var(--display);font-size:1rem;font-weight:700;
+  margin-bottom:0.2rem;
+}
+.colony-card-sub{
+  font-family:var(--serif);font-style:italic;font-size:0.75rem;
+  color:var(--ink-3);margin-bottom:0.6rem;
+}
+.colony-card-stages{
+  display:flex;flex-wrap:wrap;gap:0.3rem;
+}
+.colony-stage-tag{
+  font-family:var(--mono);font-size:0.48rem;letter-spacing:0.1em;
+  padding:0.15rem 0.4rem;border-radius:2px;border:1px solid currentColor;
+}
+.colony-card-date{
+  font-family:var(--mono);font-size:0.5rem;color:var(--ink-4);
+  margin-top:0.5rem;
+}
+
+/* ── FRACTAL VISUALIZER ── */
+.fractal-viz{
+  background:var(--paper-2);border:1px solid var(--rule-2);
+  border-radius:2px;padding:1.5rem 2rem;margin-bottom:2rem;
+}
+.fv-title{
+  font-family:var(--mono);font-size:0.55rem;letter-spacing:0.25em;
+  text-transform:uppercase;color:var(--ink-4);margin-bottom:1rem;
+}
+.fv-cycles{display:flex;flex-direction:column;gap:0.5rem}
+.fv-cycle{
+  display:flex;align-items:center;gap:0;
+  opacity:0;animation:fadecycle 0.5s forwards;
+}
+@keyframes fadecycle{to{opacity:1}}
+.fv-cycle-label{
+  font-family:var(--mono);font-size:0.5rem;letter-spacing:0.15em;
+  color:var(--ink-4);width:60px;flex-shrink:0;
+}
+.fv-stages{display:flex;gap:2px;flex:1}
+.fv-stage{
+  flex:1;height:24px;border-radius:2px;display:flex;align-items:center;
+  justify-content:center;font-family:var(--mono);font-size:0.42rem;
+  letter-spacing:0.05em;cursor:default;transition:transform 0.15s;
+  overflow:hidden;
+}
+.fv-stage:hover{transform:scaleY(1.3)}
+.fv-arrow{
+  font-family:var(--mono);font-size:0.6rem;color:var(--ink-5);
+  padding:0 0.3rem;flex-shrink:0;
+}
+.fv-note{
+  font-family:var(--hand);font-size:0.9rem;color:var(--p5);
+  margin-top:0.8rem;transform:rotate(-0.5deg);display:block;
+}
+
+/* ── RESPONSIVE ── */
+@media(max-width:1100px){
+  .main{grid-template-columns:320px 1fr}
+}
+@media(max-width:860px){
+  .main{grid-template-columns:1fr}
+  .builder{position:static;height:auto;max-height:none}
+  .grammar-strip{grid-template-columns:1fr 1fr}
+  .pc-stages{grid-template-columns:1fr 1fr}
+  .pc-detail{grid-template-columns:1fr;gap:0.5rem}
+  .site-header{grid-template-columns:1fr;gap:0.5rem}
+  .header-right{text-align:left}
+}
+@media(max-width:600px){
+  .pc-stages{grid-template-columns:1fr}
+  .grammar-strip{grid-template-columns:1fr}
+  .pc-arrow-row{flex-wrap:wrap}
+}
+
+/* ── PRINT ── */
+@media print{
+  .site-header,.builder,.grammar-strip .gs-desc,
+  .pc-footer-actions,.builder-actions,.preview .btn{display:none!important}
+  .main{grid-template-columns:1fr}
+  body{background:#fff}
+  .pentad-card{box-shadow:none;border:1px solid #ccc}
+}
+</style>
+</head>
+<body>
+
+<!-- ── HEADER ── -->
+<header class="site-header">
+  <div class="header-left">
+    <div class="header-kicker">Ukubona LLC · Clinical Framework Instrument · v2.0</div>
+    <h1 class="header-title">Pentad <em>Builder</em></h1>
+    <p class="header-sub">Apply the universal clinical grammar to any condition</p>
+  </div>
+  <div class="header-right">
+    <div class="header-grammar">
+      I. Anatomy/Physiology &nbsp;<span>θₜ</span><br>
+      II. Pathology &nbsp;<span>L(θₜ)</span><br>
+      III. Pathophysiology &nbsp;<span>∇L</span><br>
+      IV. Treatment &nbsp;<span>−η∇L</span><br>
+      V. Plasticity &nbsp;<span>θₜ₊₁</span>
+    </div>
+  </div>
+</header>
+
+<!-- ── GRAMMAR STRIP ── -->
+<div class="grammar-strip">
+  <div class="gs-cell gc1">
+    <div class="gs-num">I / V</div>
+    <div class="gs-name">Anatomy<br>Physiology</div>
+    <div class="gs-math">θₜ · The system as-is</div>
+    <div class="gs-desc">The substrate. What exists before pathology touches it.</div>
+  </div>
+  <div class="gs-cell gc2">
+    <div class="gs-num">II / V</div>
+    <div class="gs-name">Pathology</div>
+    <div class="gs-math">L(θₜ) · The loss</div>
+    <div class="gs-desc">What is aberrant, broken, or dysregulated.</div>
+  </div>
+  <div class="gs-cell gc3">
+    <div class="gs-num">III / V</div>
+    <div class="gs-name">Patho-<br>physiology</div>
+    <div class="gs-math">∇L · The gradient</div>
+    <div class="gs-desc">The mechanism. Why and how the loss is generated.</div>
+  </div>
+  <div class="gs-cell gc4">
+    <div class="gs-num">IV / V</div>
+    <div class="gs-name">Treatment</div>
+    <div class="gs-math">−η∇L · The correction</div>
+    <div class="gs-desc">What opposes the gradient. The descent step.</div>
+  </div>
+  <div class="gs-cell gc5">
+    <div class="gs-num">V / V</div>
+    <div class="gs-name">Plasticity</div>
+    <div class="gs-math">θₜ₊₁ · The rewritten system</div>
+    <div class="gs-desc">The substrate after treatment. θₜ₊₁ becomes new θₜ.</div>
+  </div>
+</div>
+
+<!-- ── MAIN ── -->
+<div class="main">
+
+<!-- ── BUILDER ── -->
+<aside class="builder">
+  <div class="builder-header">
+    <div class="builder-title">New Pentad</div>
+    <div class="builder-actions">
+      <button class="btn btn-ink" onclick="clearForm()">↺ Clear</button>
+      <button class="btn btn-p4" onclick="buildPentad()">Build →</button>
+    </div>
+  </div>
+
+  <div class="form-body">
+
+    <!-- CONDITION -->
+    <div class="stage-block">
+      <div class="form-group">
+        <label class="form-label">Condition Name *</label>
+        <input class="form-input" id="f_name" placeholder="e.g. Non-urticarial aquagenic pruritus" />
+      </div>
+      <div class="form-group">
+        <label class="form-label">Domain</label>
+        <select class="form-select" id="f_domain">
+          <option value="dermatology">Dermatology</option>
+          <option value="neurology">Neurology</option>
+          <option value="cardiology">Cardiology</option>
+          <option value="pulmonology">Pulmonology</option>
+          <option value="gastroenterology">Gastroenterology</option>
+          <option value="psychiatry">Psychiatry</option>
+          <option value="immunology">Immunology</option>
+          <option value="rheumatology">Rheumatology</option>
+          <option value="endocrinology">Endocrinology</option>
+          <option value="oncology">Oncology</option>
+          <option value="infectious">Infectious Disease</option>
+          <option value="other">Other</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">One-line description</label>
+        <input class="form-input" id="f_desc" placeholder="Brief characterisation" />
+      </div>
+    </div>
+
+    <!-- STAGE I -->
+    <div class="stage-block">
+      <div class="stage-block-header">
+        <div class="stage-badge sb1">I · θₜ</div>
+        <div class="stage-block-name">Anatomy / Physiology</div>
+        <div class="stage-block-math">The substrate</div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Stage I label (your name)</label>
+        <input class="form-input" id="s1_label" placeholder="e.g. C-fiber architecture" />
+      </div>
+      <div class="form-group">
+        <label class="form-label">Description</label>
+        <textarea class="form-textarea" id="s1_body" placeholder="What is the normal anatomy/physiology that is the substrate for this condition? What exists before pathology? Include any structural absences (phantoms)."></textarea>
+      </div>
+    </div>
+
+    <!-- STAGE II -->
+    <div class="stage-block">
+      <div class="stage-block-header">
+        <div class="stage-badge sb2">II · L(θ)</div>
+        <div class="stage-block-name">Pathology</div>
+        <div class="stage-block-math">The loss</div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Stage II label</label>
+        <input class="form-input" id="s2_label" placeholder="e.g. Non-urticarial aquagenic pruritus" />
+      </div>
+      <div class="form-group">
+        <label class="form-label">Description</label>
+        <textarea class="form-textarea" id="s2_body" placeholder="What is broken or aberrant? What is the observable pathology? What does the loss function look like at the level of tissue, organ, or system?"></textarea>
+      </div>
+    </div>
+
+    <!-- STAGE III -->
+    <div class="stage-block">
+      <div class="stage-block-header">
+        <div class="stage-badge sb3">III · ∇L</div>
+        <div class="stage-block-name">Pathophysiology</div>
+        <div class="stage-block-math">The gradient</div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Stage III label</label>
+        <input class="form-input" id="s3_label" placeholder="e.g. High noise/signal ratio" />
+      </div>
+      <div class="form-group">
+        <label class="form-label">Description</label>
+        <textarea class="form-textarea" id="s3_body" placeholder="What is the mechanism? Why does the pathology occur? What is the direction of wrongness — the gradient pointing toward treatment?"></textarea>
+      </div>
+    </div>
+
+    <!-- STAGE IV -->
+    <div class="stage-block">
+      <div class="stage-block-header">
+        <div class="stage-badge sb4">IV · −η∇L</div>
+        <div class="stage-block-name">Treatment</div>
+        <div class="stage-block-math">The descent step</div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Stage IV label</label>
+        <input class="form-input" id="s4_label" placeholder="e.g. Signal gating / Behavioral descent" />
+      </div>
+      <div class="form-group">
+        <label class="form-label">Description</label>
+        <textarea class="form-textarea" id="s4_body" placeholder="What opposes the gradient? Include both formal treatments and patient-discovered interventions. What is η — the learning rate? Is this a fast fix or a 20-year stochastic search?"></textarea>
+      </div>
+    </div>
+
+    <!-- STAGE V -->
+    <div class="stage-block">
+      <div class="stage-block-header">
+        <div class="stage-badge sb5">V · θₜ₊₁</div>
+        <div class="stage-block-name">Plasticity</div>
+        <div class="stage-block-math">The rewritten system</div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Stage V label</label>
+        <input class="form-input" id="s5_label" placeholder="e.g. Adapted C-fibers / New thresholds" />
+      </div>
+      <div class="form-group">
+        <label class="form-label">Description</label>
+        <textarea class="form-textarea" id="s5_body" placeholder="What does the system become after treatment? What is rewritten — neural, structural, behavioral, immunological? How does θₜ₊₁ differ from θₜ? This becomes the new substrate for the next cycle."></textarea>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Fractal note (optional)</label>
+        <input class="form-input" id="s5_fractal" placeholder="e.g. New C-fiber threshold is the substrate for next descent" />
+      </div>
+    </div>
+
+    <button class="btn btn-p4 btn-full" onclick="buildPentad()" style="margin-top:0.5rem">
+      ↓ Generate Pentad Card
+    </button>
+    <button class="btn btn-p5 btn-full" onclick="saveToColony()" style="margin-top:0.4rem">
+      ⊕ Save to Colony Library
+    </button>
+  </div>
+
+  <!-- LIBRARY -->
+  <div class="library" id="libraryPanel">
+    <div class="library-title">Colony Library — Saved Pentads</div>
+    <div id="libraryList">
+      <div style="font-family:var(--serif);font-style:italic;font-size:0.75rem;color:var(--ink-4)">
+        No saved pentads yet.
+      </div>
+    </div>
+  </div>
+</aside>
+
+<!-- ── PREVIEW ── -->
+<main class="preview" id="previewPanel">
+
+  <div class="preview-empty" id="emptyState">
+    <div class="preview-empty-icon">θ → θ′</div>
+    <p style="font-size:0.9rem;max-width:320px;line-height:1.7">
+      Fill in the builder and click <strong>Generate Pentad Card</strong>
+      to see your clinical framework rendered here.
+    </p>
+    <p style="font-family:var(--mono);font-size:0.55rem;color:var(--ink-5);margin-top:1rem;letter-spacing:0.15em">
+      OR LOAD AN EXAMPLE BELOW
+    </p>
+    <div style="display:flex;gap:0.5rem;margin-top:0.8rem;flex-wrap:wrap;justify-content:center">
+      <button class="btn btn-ink" onclick="loadExample('nap')">Aquagenic Pruritus</button>
+      <button class="btn btn-ink" onclick="loadExample('mdd')">Major Depression</button>
+      <button class="btn btn-ink" onclick="loadExample('t2d')">Type 2 Diabetes</button>
+      <button class="btn btn-ink" onclick="loadExample('ra')">Rheumatoid Arthritis</button>
+    </div>
+  </div>
+
+  <div id="pentadOutput" style="display:none"></div>
+
+</main>
+</div>
+
+<script>
+// ════════════════════════════════════════════════════════
+// DATA
+// ════════════════════════════════════════════════════════
+let colony = JSON.parse(localStorage.getItem('ukubona_colony') || '[]');
+
+const EXAMPLES = {
+  nap: {
+    name:'Non-urticarial aquagenic pruritus',domain:'dermatology',
+    desc:'Intense pruritus triggered by water contact without urticarial lesions',
+    s1_label:'C-fiber peripheral architecture',
+    s1_body:'Small unmyelinated C-fibers distributed across skin surface, operating near noise/signal threshold. No structural pathology visible. Phantom condition: defined by what is absent — no mast-cell involvement, no IgE-mediated mechanism.',
+    s2_label:'Non-urticarial aquagenic pruritus',
+    s2_body:'Intense pruritus following water contact of any temperature. No wheals, no urticaria, no visible skin change. Standard antihistamines largely ineffective. Pathology is confirmed by its own absence — the ghost is in the landscape.',
+    s3_label:'High noise/signal ratio — thermogradient threshold breach',
+    s3_body:'C-fibers sensitized to thermogradient fluctuation. Water contact, particularly with rapid temperature change (hot or cold), pushes ambient noise past signal threshold. No peripheral inflammation. Central sensitization without urticarial cascade.',
+    s4_label:'Signal gating via behavioral parameter descent',
+    s4_body:'−η∇L applied over 20 years of stochastic search: lukewarm water (narrow thermogradient), quick-pat drying (minimize air-on-wet-skin), immediate covering (thermal buffer), wrapped sleep protocol. η was discovered empirically — no clinical guidance existed.',
+    s5_label:'Adapted thresholds / Engrams / Behavioral plasticity',
+    s5_body:'C-fiber threshold partially raised through consistent protocol. Behavioral engrams established — reflexive post-bath sequence. New θₜ₊₁ is a substrate with higher baseline signal tolerance and established protective habits.',
+    s5_fractal:'New threshold becomes substrate for refining protocol further — Ukubona is not the end.'
+  },
+  mdd: {
+    name:'Major depressive disorder',domain:'psychiatry',
+    desc:'Recurrent episodes of low mood, anhedonia, and cognitive disruption',
+    s1_label:'Monoaminergic & HPA axis baseline',
+    s1_body:'Serotonergic, dopaminergic, and noradrenergic tone. HPA axis cortisol regulation. Default mode network connectivity. Neuroplasticity markers (BDNF). This is the substrate — each depressive episode modifies it.',
+    s2_label:'Depressive episode — affective, cognitive, somatic',
+    s2_body:'Persistent low mood or anhedonia ≥2 weeks. Cognitive slowing, rumination, hopelessness. Sleep and appetite dysregulation. Loss function is distributed: hedonic, cognitive, and somatic circuits all producing aberrant signal.',
+    s3_label:'Allostatic load — rumination loop — BDNF suppression',
+    s3_body:'Chronic stress drives HPA hyperactivation. Suppressed BDNF reduces hippocampal neurogenesis. Default mode network stuck in self-referential rumination. Gradient points toward: HPA normalization, monoamine restoration, network interruption.',
+    s4_label:'Pharmacotherapy + psychotherapy + behavioral activation',
+    s4_body:'SSRIs/SNRIs restore monoamine tone (fast approximation). CBT/DBT interrupt rumination gradient. Behavioral activation as manual descent: small scheduled pleasurable events. Exercise elevates BDNF. η varies widely by patient — treatment-resistant cases have near-zero η.',
+    s5_label:'Neural plasticity — cognitive restructuring — resilience engrams',
+    s5_body:'Hippocampal neurogenesis partially restored. New cognitive habits encoded. HPA axis recalibrated. θₜ₊₁ has different vulnerability profile than original θₜ — but is not immune. Next depressive cycle operates on a modified substrate.',
+    s5_fractal:'Each episode that resolves leaves a modified substrate — scars and resilience simultaneously.'
+  },
+  t2d: {
+    name:'Type 2 diabetes mellitus',domain:'endocrinology',
+    desc:'Progressive insulin resistance leading to chronic hyperglycaemia',
+    s1_label:'Pancreatic β-cell mass & insulin signaling',
+    s1_body:'β-cell secretory capacity, peripheral insulin receptor sensitivity (muscle, liver, adipose). Incretin axis (GLP-1, GIP). This substrate is not fixed — it degrades progressively across the disease course.',
+    s2_label:'Chronic hyperglycaemia — insulin resistance',
+    s2_body:'Fasting glucose >126 mg/dL or HbA1c ≥6.5%. Peripheral insulin resistance precedes β-cell failure by years. The loss function is metabolic: glucose toxicity, lipotoxicity, progressive β-cell exhaustion.',
+    s3_label:'Glucolipotoxicity — β-cell exhaustion — ectopic fat',
+    s3_body:'Chronically elevated FFAs and glucose impair insulin signaling via ceramide and diacylglycerol accumulation. Mitochondrial dysfunction. ER stress in β-cells. Gradient points toward: caloric deficit, insulin sensitization, β-cell rest.',
+    s4_label:'Lifestyle descent + pharmacological correction',
+    s4_body:'−η∇L: caloric restriction + exercise (direct gradient correction). Metformin (AMPK activation, hepatic glucose suppression). GLP-1 agonists (incretin restoration + weight loss). SGLT2 inhibitors (renal glucose excretion). η is higher early — diminishes as β-cell mass is lost irreversibly.',
+    s5_label:'Partial remission — metabolic memory — adapted phenotype',
+    s5_body:'Weight loss can achieve remission — β-cell function partially restored if mass preserved. But metabolic memory persists: epigenetic marks from hyperglycaemia remain on vascular endothelium. θₜ₊₁ is a remitted state on a substrate with lasting epigenetic modification.',
+    s5_fractal:'Metabolic memory means θₜ₊₁ carries the ghost of θₜ — the substrate is never fully reset.'
+  },
+  ra: {
+    name:'Rheumatoid arthritis',domain:'rheumatology',
+    desc:'Autoimmune synovial inflammation causing progressive joint destruction',
+    s1_label:'Synovial membrane & T-cell self-tolerance',
+    s1_body:'Synoviocytes lining joint spaces. T-cell regulatory architecture including Treg/Th17 balance. HLA-DRB1 shared epitope as genetic substrate. ACPA and RF seropositivity as pre-clinical phantom — present years before symptoms.',
+    s2_label:'Synovitis — autoantibody-driven joint destruction',
+    s2_body:'Symmetric polyarthritis, morning stiffness >1 hour. Synovial pannus formation. Radiographic erosions. Loss function is structural: cartilage and bone destruction that is largely irreversible if untreated.',
+    s3_label:'TNF-α / IL-6 / Th17 dysregulation — citrullination cascade',
+    s3_body:'Molecular mimicry or epitope spreading activates autoreactive T and B cells against citrullinated proteins. TNF-α and IL-6 drive synovial inflammation and osteoclast activation. Gradient points toward: cytokine blockade, T-cell modulation.',
+    s4_label:'DMARDs — biologics — treat-to-target',
+    s4_body:'MTX as anchor DMARD (folate antagonism → immune suppression). Anti-TNF (adalimumab, etanercept) directly opposes gradient. Anti-IL-6 (tocilizumab). JAK inhibitors. Treat-to-target strategy is explicit SGD: adjust η (dose/agent) until DAS28 ≤2.6.',
+    s5_label:'Synovial remodeling — immunological tolerance — structural damage',
+    s5_body:'Sustained remission remodels synovium but does not restore destroyed cartilage. θₜ₊₁ is a substrate with modified immune set-point, possible tolerance induction, and irreversible structural changes that constrain future function.',
+    s5_fractal:'Joint damage from θₜ becomes permanent anatomical constraint in θₜ₊₁ — plasticity has limits.'
+  }
+};
+
+// ════════════════════════════════════════════════════════
+// BUILD
+// ════════════════════════════════════════════════════════
+function buildPentad(data) {
+  const d = data || collectForm();
+  if (!d.name) { alert('Please enter a condition name.'); return; }
+
+  document.getElementById('emptyState').style.display = 'none';
+  const out = document.getElementById('pentadOutput');
+  out.style.display = 'block';
+
+  const id = 'P-' + d.name.slice(0,3).toUpperCase() + '-' + Date.now().toString().slice(-4);
+  const now = new Date().toLocaleDateString('en-US',{year:'numeric',month:'short',day:'numeric'});
+
+  const stageColors = [
+    {num:'I',canon:'Anatomy / Physiology',math:'θₜ · Substrate',col:'p1'},
+    {num:'II',canon:'Pathology',math:'L(θₜ) · Loss',col:'p2'},
+    {num:'III',canon:'Pathophysiology',math:'∇L · Gradient',col:'p3'},
+    {num:'IV',canon:'Treatment',math:'−η∇L · Descent',col:'p4'},
+    {num:'V',canon:'Plasticity',math:'θₜ₊₁ · Rewritten',col:'p5'},
+  ];
+
+  const stageData = [
+    {label:d.s1_label,body:d.s1_body},
+    {label:d.s2_label,body:d.s2_body},
+    {label:d.s3_label,body:d.s3_body},
+    {label:d.s4_label,body:d.s4_body},
+    {label:d.s5_label,body:d.s5_body},
+  ];
+
+  const stagesHTML = stageColors.map((s,i) => {
+    const sd = stageData[i];
+    const label = sd.label || s.canon;
+    return `<div class="pc-stage ps${i+1}">
+      <div class="pc-stage-bar"></div>
+      <div class="pc-stage-num">${s.num} / V</div>
+      <div class="pc-stage-canon">${s.canon}</div>
+      <div class="pc-stage-name">${label}</div>
+      <div class="pc-stage-math">${s.math}</div>
+      <div class="pc-stage-body">${sd.body ? sd.body.replace(/\n/g,'<br>') : '<em>Not specified</em>'}</div>
+    </div>`;
+  }).join('');
+
+  const arrowHTML = stageColors.map((s,i) => {
+    const sd = stageData[i];
+    const label = sd.label || s.canon;
+    const colVar = `var(--${s.col})`;
+    const colPale = `var(--${s.col}l)`;
+    return `<div class="pa-item">
+      <div class="pa-name" style="color:${colVar};background:${colPale}">${label}</div>
+      ${i<4?'<div class="pa-arrow">→</div>':''}
+    </div>`;
+  }).join('') + `<div class="pa-arrow" style="margin-left:0.8rem">↺</div>
+    <div class="pa-fractal">θₜ₊₁ → new θₜ</div>`;
+
+  const fractalNote = d.s5_fractal
+    ? `<div class="pc-fractal-note">
+        <div class="pc-fractal-icon">∞</div>
+        <div class="pc-fractal-text">
+          <strong>Fractal property:</strong> ${d.s5_fractal}<br>
+          <em>Ukubona is not the end. It is the highest-fidelity prior for the next descent.</em>
+        </div>
+      </div>`
+    : '';
+
+  // fractal viz cycles
+  const cycleColors = ['var(--p1)','var(--p2)','var(--p3)','var(--p4)','var(--p5)'];
+  const cyclePale   = ['var(--p1l)','var(--p2l)','var(--p3l)','var(--p4l)','var(--p5l)'];
+  const cycleNames  = [
+    [d.s1_label||'Anatomy',d.s2_label||'Pathology',d.s3_label||'Pathophysiology',d.s4_label||'Treatment',d.s5_label||'Plasticity'],
+    [(d.s5_label||'Plasticity')+'*','New pathology','Refined mechanism','Refined treatment','θ₃'],
+    ['θ₃*','...','...','...','θₙ'],
+  ];
+  const cycleLabels = ['Cycle 1 (θₜ)','Cycle 2 (θₜ₊₁)','Cycle n (θₙ)'];
+
+  const fractalViz = `<div class="fractal-viz">
+    <div class="fv-title">Fractal Recursion — θₜ₊₁ becomes new θₜ</div>
+    <div class="fv-cycles">
+      ${cycleLabels.map((lbl,ci)=>`
+        <div class="fv-cycle" style="animation-delay:${ci*0.15}s">
+          <div class="fv-cycle-label">${lbl}</div>
+          <div class="fv-stages">
+            ${cycleNames[ci].map((nm,si)=>`
+              <div class="fv-stage" style="background:${cyclePale[si]};color:${cycleColors[si]};opacity:${1-ci*0.25};font-size:${0.42-ci*0.03}rem">
+                ${nm.length>14?nm.slice(0,13)+'…':nm}
+              </div>
+            `).join('')}
+          </div>
+          ${ci<2?'<div class="fv-arrow">↓</div>':''}
+        </div>
+      `).join('')}
+    </div>
+    <span class="fv-note">"The ghost at Stage I of the next cycle is a more specific ghost."</span>
+  </div>`;
+
+  out.innerHTML = `
+    ${fractalViz}
+    <div class="pentad-card" id="card-${id}">
+      <div class="pc-header">
+        <div>
+          <div class="pc-kicker">${d.domain} · Ukubona Pentad Framework</div>
+          <div class="pc-title">${d.name}</div>
+          ${d.desc?`<div class="pc-subtitle">${d.desc}</div>`:''}
+        </div>
+        <div class="pc-meta">
+          <div>${now}</div>
+          <div class="pc-id">${id}</div>
+          <div style="margin-top:0.4rem;font-size:0.48rem">θ→L→∇L→−η∇L→θ′</div>
+        </div>
+      </div>
+      <div class="pc-arrow-row">${arrowHTML}</div>
+      <div class="pc-stages">${stagesHTML}</div>
+      ${fractalNote}
+      <div class="pc-detail">
+        <div class="pc-detail-label">Mathematical Structure</div>
+        <div class="pc-detail-val">
+          <strong>I → θₜ:</strong> ${d.s1_label||'Anatomy/physiology baseline'} &nbsp;·&nbsp;
+          <strong>II → L(θₜ):</strong> ${d.s2_label||'Pathological loss'} &nbsp;·&nbsp;
+          <strong>III → ∇L:</strong> ${d.s3_label||'Mechanistic gradient'} &nbsp;·&nbsp;
+          <strong>IV → −η∇L:</strong> ${d.s4_label||'Treatment correction'} &nbsp;·&nbsp;
+          <strong>V → θₜ₊₁:</strong> ${d.s5_label||'Plastic rewrite'}
+        </div>
+      </div>
+      <div class="pc-footer">
+        <div class="pc-footer-brand">UKU<span>BONA</span> LLC</div>
+        <div class="pc-footer-actions">
+          <button class="btn btn-ink" onclick="window.print()">⎙ Print</button>
+          <button class="btn btn-p4" onclick="saveToColony()">⊕ Save</button>
+          <button class="btn btn-p5" onclick="exportCard('${id}')">↓ JSON</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="colony-section" id="colonySection" style="${colony.length?'':'display:none'}">
+      <div class="colony-header">
+        <div class="colony-title">Colony Library</div>
+        <button class="btn btn-ink" onclick="showView('library')">View all</button>
+      </div>
+      <div class="colony-grid" id="colonyGrid"></div>
+    </div>
+  `;
+
+  renderColonyCards();
+  renderLibrary();
+}
+
+// ════════════════════════════════════════════════════════
+// FORM
+// ════════════════════════════════════════════════════════
+function collectForm() {
+  return {
+    name:    document.getElementById('f_name').value.trim(),
+    domain:  document.getElementById('f_domain').value,
+    desc:    document.getElementById('f_desc').value.trim(),
+    s1_label:document.getElementById('s1_label').value.trim(),
+    s1_body: document.getElementById('s1_body').value.trim(),
+    s2_label:document.getElementById('s2_label').value.trim(),
+    s2_body: document.getElementById('s2_body').value.trim(),
+    s3_label:document.getElementById('s3_label').value.trim(),
+    s3_body: document.getElementById('s3_body').value.trim(),
+    s4_label:document.getElementById('s4_label').value.trim(),
+    s4_body: document.getElementById('s4_body').value.trim(),
+    s5_label:document.getElementById('s5_label').value.trim(),
+    s5_body: document.getElementById('s5_body').value.trim(),
+    s5_fractal:document.getElementById('s5_fractal').value.trim(),
+    created: new Date().toISOString(),
+  };
+}
+
+function fillForm(d) {
+  for (const key of ['name','domain','desc','s1_label','s1_body','s2_label','s2_body','s3_label','s3_body','s4_label','s4_body','s5_label','s5_body','s5_fractal']) {
+    const el = document.getElementById('f_'+key) || document.getElementById(key);
+    if (el && d[key] !== undefined) el.value = d[key];
+  }
+}
+
+function clearForm() {
+  ['f_name','f_desc','s1_label','s1_body','s2_label','s2_body',
+   's3_label','s3_body','s4_label','s4_body','s5_label','s5_body','s5_fractal']
+   .forEach(id => { const el = document.getElementById(id); if(el) el.value=''; });
+}
+
+function loadExample(key) {
+  const ex = EXAMPLES[key];
+  if (!ex) return;
+  // fill form fields
+  document.getElementById('f_name').value = ex.name;
+  document.getElementById('f_domain').value = ex.domain;
+  document.getElementById('f_desc').value = ex.desc;
+  ['s1','s2','s3','s4','s5'].forEach(s => {
+    document.getElementById(s+'_label').value = ex[s+'_label'] || '';
+    document.getElementById(s+'_body').value  = ex[s+'_body']  || '';
+  });
+  document.getElementById('s5_fractal').value = ex.s5_fractal || '';
+  buildPentad(ex);
+}
+
+// ════════════════════════════════════════════════════════
+// COLONY
+// ════════════════════════════════════════════════════════
+function saveToColony() {
+  const d = collectForm();
+  if (!d.name) { alert('Enter a condition name first.'); return; }
+  // dedup by name
+  colony = colony.filter(c => c.name !== d.name);
+  colony.unshift(d);
+  localStorage.setItem('ukubona_colony', JSON.stringify(colony));
+  renderLibrary();
+  renderColonyCards();
+  const cs = document.getElementById('colonySection');
+  if (cs) cs.style.display = '';
+  // flash feedback
+  const btn = event.target;
+  const orig = btn.textContent;
+  btn.textContent = '✓ Saved';
+  setTimeout(() => btn.textContent = orig, 2000);
+}
+
+function renderLibrary() {
+  const list = document.getElementById('libraryList');
+  if (!list) return;
+  if (!colony.length) {
+    list.innerHTML = '<div style="font-family:var(--serif);font-style:italic;font-size:0.75rem;color:var(--ink-4)">No saved pentads yet.</div>';
+    return;
+  }
+  list.innerHTML = colony.map((c,i) => `
+    <div class="lib-item" onclick="loadFromColony(${i})">
+      <div class="lib-name">${c.name}</div>
+      <div class="lib-tags">${c.domain} · ${c.s1_label||'—'} → ${c.s5_label||'—'}</div>
+    </div>
+  `).join('');
+}
+
+function loadFromColony(i) {
+  const d = colony[i];
+  // fill form
+  document.getElementById('f_name').value  = d.name  || '';
+  document.getElementById('f_domain').value= d.domain|| 'other';
+  document.getElementById('f_desc').value  = d.desc  || '';
+  ['s1','s2','s3','s4','s5'].forEach(s => {
+    const lEl = document.getElementById(s+'_label');
+    const bEl = document.getElementById(s+'_body');
+    if (lEl) lEl.value = d[s+'_label'] || '';
+    if (bEl) bEl.value = d[s+'_body']  || '';
+  });
+  const fEl = document.getElementById('s5_fractal');
+  if (fEl) fEl.value = d.s5_fractal || '';
+  buildPentad(d);
+}
+
+function renderColonyCards() {
+  const grid = document.getElementById('colonyGrid');
+  if (!grid) return;
+  grid.innerHTML = colony.slice(0,6).map((c,i) => {
+    const cols = ['var(--p1)','var(--p2)','var(--p3)','var(--p4)','var(--p5)'];
+    const pales = ['var(--p1l)','var(--p2l)','var(--p3l)','var(--p4l)','var(--p5l)'];
+    const bars = cols.map((c,ci)=>`<div class="colony-card-bar" style="background:${c}"></div>`).join('');
+    const tags = [c.s1_label,c.s2_label,c.s3_label,c.s4_label,c.s5_label].filter(Boolean);
+    return `<div class="colony-card" onclick="loadFromColony(${i})">
+      <div class="colony-card-header">${bars}</div>
+      <div class="colony-card-body">
+        <div class="colony-card-name">${c.name}</div>
+        <div class="colony-card-sub">${c.domain}</div>
+        <div class="colony-card-stages">
+          ${tags.map((t,ti)=>`<div class="colony-stage-tag" style="color:${cols[ti]}">${t}</div>`).join('')}
+        </div>
+        <div class="colony-card-date">${c.created ? new Date(c.created).toLocaleDateString() : ''}</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ════════════════════════════════════════════════════════
+// EXPORT
+// ════════════════════════════════════════════════════════
+function exportCard(id) {
+  const d = collectForm();
+  const blob = new Blob([JSON.stringify({
+    twin_id: id,
+    framework: 'Ukubona-Pentad-v2.0',
+    grammar: {
+      I:'Anatomy/Physiology · θₜ',
+      II:'Pathology · L(θₜ)',
+      III:'Pathophysiology · ∇L',
+      IV:'Treatment · −η∇L',
+      V:'Plasticity · θₜ₊₁'
+    },
+    condition: d,
+    fractal_property: 'θₜ₊₁ becomes new θₜ — Ukubona is not the end',
+    generated: new Date().toISOString(),
+  }, null, 2)], {type:'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `pentad_${d.name.replace(/\s+/g,'_').slice(0,30)}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+// ════════════════════════════════════════════════════════
+// INIT
+// ════════════════════════════════════════════════════════
+window.addEventListener('load', () => {
+  renderLibrary();
+  if (colony.length) {
+    loadFromColony(0);
+  }
+});
+</script>
+</body>
+</html>

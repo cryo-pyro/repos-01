@@ -1,0 +1,889 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nvidia & the Toll Booth Hypothesis — Ukubona LLC Compute Intelligence</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,300;0,400;0,600;0,700;1,300;1,700&family=Barlow:wght@300;400;500&family=IBM+Plex+Mono:ital,wght@0,300;0,400;1,300&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<style>
+:root {
+  --bg:      #070709;
+  --bg1:     #0d0d12;
+  --bg2:     #12121a;
+  --bg3:     #1a1a26;
+  --border:  #22222e;
+  --dim:     #32324a;
+  --text:    #e0dfd8;
+  --muted:   #888898;
+  --faint:   #44445a;
+
+  --nvidia:  #76b900;   /* Nvidia green */
+  --amd:     #ed1c24;
+  --google:  #4285f4;
+  --amazon:  #ff9900;
+  --huawei:  #cf0a2c;
+  --intel:   #0071c5;
+
+  --accent:  #76b900;
+  --warn:    #f0a500;
+  --cool:    #38b2d4;
+}
+
+*{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Barlow', sans-serif;
+  font-weight: 300;
+  font-size: 16px;
+  line-height: 1.75;
+  overflow-x: hidden;
+}
+
+/* grain */
+body::before {
+  content:'';
+  position:fixed;inset:0;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+  pointer-events:none;z-index:1000;opacity:0.55;
+}
+
+/* ── hero ── */
+.hero {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding: 0 0 5rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.hero-scan {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(180deg, transparent 0%, rgba(118,185,0,0.03) 40%, transparent 70%),
+    repeating-linear-gradient(0deg, transparent, transparent 59px, rgba(118,185,0,0.025) 60px);
+  animation: scan 8s linear infinite;
+}
+@keyframes scan {
+  from { background-position: 0 0; }
+  to   { background-position: 0 600px; }
+}
+
+.hero-glow {
+  position: absolute;
+  top: 20%;
+  right: -10%;
+  width: 55vw;
+  height: 55vw;
+  background: radial-gradient(ellipse, rgba(118,185,0,0.07) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.hero-inner {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 0 40px;
+  width: 100%;
+  position: relative;
+  z-index: 1;
+}
+
+.hero-eyebrow {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.62rem;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: var(--nvidia);
+  margin-bottom: 2rem;
+  opacity: 0.8;
+}
+
+.hero-title {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: clamp(3.5rem, 9vw, 8.5rem);
+  font-weight: 700;
+  line-height: 0.9;
+  letter-spacing: -0.02em;
+  color: #fff;
+  margin-bottom: 0.2em;
+}
+
+.hero-title .accent { color: var(--nvidia); }
+.hero-title .italic { font-style: italic; font-weight: 300; }
+
+.hero-sub {
+  font-size: 0.9rem;
+  color: var(--muted);
+  max-width: 520px;
+  margin-top: 2rem;
+  line-height: 1.65;
+  font-weight: 400;
+}
+
+.hero-rule {
+  width: 100%;
+  height: 1px;
+  margin-bottom: 2.5rem;
+  background: linear-gradient(90deg, var(--nvidia), transparent);
+  opacity: 0.35;
+}
+
+/* ── container ── */
+.page { max-width: 1000px; margin: 0 auto; padding: 0 40px 6rem; }
+
+/* ── section ── */
+.section { padding: 4rem 0; border-bottom: 1px solid var(--border); }
+.section:last-of-type { border-bottom: none; }
+
+.section-label {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.6rem;
+  letter-spacing: 0.26em;
+  text-transform: uppercase;
+  color: var(--faint);
+  margin-bottom: 2.5rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+.section-label::after { content:''; flex:1; height:1px; background:var(--border); }
+
+h2 {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: clamp(2rem, 4vw, 3rem);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  line-height: 1.1;
+  color: #fff;
+  margin-bottom: 1.2rem;
+}
+h2 em { font-style: italic; font-weight: 300; color: var(--muted); }
+
+h3 {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.68rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--nvidia);
+  margin-bottom: 0.8rem;
+  font-weight: 400;
+}
+
+p { color: var(--muted); margin-bottom: 1.1rem; font-weight: 300; }
+p strong { color: var(--text); font-weight: 500; }
+p:last-child { margin-bottom: 0; }
+
+/* ── chart ── */
+.chart-shell {
+  background: var(--bg1);
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  padding: 2rem;
+  margin: 2.5rem 0;
+  position: relative;
+}
+
+.chart-shell::before {
+  content: 'LIVE DATA';
+  position: absolute;
+  top: 1.2rem;
+  right: 1.6rem;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.55rem;
+  letter-spacing: 0.22em;
+  color: var(--nvidia);
+  opacity: 0.6;
+}
+
+.chart-title {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 1rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text);
+  margin-bottom: 0.3rem;
+}
+
+.chart-caption {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.68rem;
+  color: var(--faint);
+  margin-bottom: 1.5rem;
+}
+
+.chart-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-top: 1.2rem;
+}
+
+.legend-dot {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.65rem;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+}
+
+.legend-dot span {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+/* ── market share ── */
+.market-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 1px;
+  background: var(--border);
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  overflow: hidden;
+  margin: 2rem 0;
+}
+
+.market-cell {
+  background: var(--bg1);
+  padding: 1.4rem 1.2rem;
+  position: relative;
+  transition: background 0.2s;
+}
+.market-cell:hover { background: var(--bg2); }
+
+.market-pct {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 2.6rem;
+  font-weight: 700;
+  line-height: 1;
+  margin-bottom: 0.2rem;
+}
+
+.market-name {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.62rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 0.5rem;
+}
+
+.market-bar {
+  height: 3px;
+  border-radius: 2px;
+  background: var(--border);
+  overflow: hidden;
+}
+.market-bar-fill { height: 100%; border-radius: 2px; }
+
+.market-cell.dominant .market-bar { background: rgba(118,185,0,0.15); }
+
+/* ── callout/insight boxes ── */
+.insight {
+  background: var(--bg1);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--nvidia);
+  border-radius: 0 3px 3px 0;
+  padding: 1.4rem 1.8rem;
+  margin: 1.8rem 0;
+}
+.insight.warn { border-left-color: var(--warn); }
+.insight.cool { border-left-color: var(--cool); }
+.insight.risk { border-left-color: var(--amd); }
+
+.insight-label {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.6rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--faint);
+  margin-bottom: 0.6rem;
+}
+.insight-label.green { color: var(--nvidia); }
+.insight-label.warn  { color: var(--warn); }
+.insight-label.cool  { color: var(--cool); }
+.insight-label.risk  { color: var(--amd); }
+
+/* ── two-col prose ── */
+.two-col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 3rem;
+  margin: 2rem 0;
+}
+@media (max-width: 600px) { .two-col { grid-template-columns: 1fr; gap: 1.5rem; } }
+
+/* ── strategy table ── */
+.strategy-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 2rem 0;
+  font-size: 0.88rem;
+}
+.strategy-table th {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.6rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--faint);
+  padding: 0.7rem 1rem;
+  text-align: left;
+  border-bottom: 1px solid var(--border);
+  font-weight: 400;
+}
+.strategy-table td {
+  padding: 0.9rem 1rem;
+  border-bottom: 1px solid var(--border);
+  color: var(--muted);
+  vertical-align: top;
+}
+.strategy-table tr:last-child td { border-bottom: none; }
+.strategy-table tr:hover td { background: var(--bg1); }
+.strategy-table td:first-child { color: var(--text); font-weight: 500; }
+.strategy-table .tag {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.6rem;
+  letter-spacing: 0.1em;
+  padding: 0.2rem 0.6rem;
+  border-radius: 2px;
+  display: inline-block;
+}
+.tag-risk    { background: rgba(237,28,36,0.12); color: #ed6c70; }
+.tag-hedge   { background: rgba(56,178,212,0.1); color: var(--cool); }
+.tag-oppty  { background: rgba(118,185,0,0.1);  color: var(--nvidia); }
+.tag-action  { background: rgba(240,165,0,0.1);  color: var(--warn); }
+
+/* ── pentad mapping ── */
+.pentad-map {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin: 1.5rem 0;
+}
+.prow {
+  display: grid;
+  grid-template-columns: 2.5rem 150px 1fr;
+  gap: 0;
+  background: var(--bg1);
+  border: 1px solid var(--border);
+  border-radius: 2px;
+  overflow: hidden;
+  transition: border-color 0.2s;
+}
+.prow:hover { border-color: var(--dim); }
+.prow-num {
+  background: var(--bg2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--nvidia);
+  border-right: 1px solid var(--border);
+}
+.prow-key {
+  padding: 0.9rem 1rem;
+  border-right: 1px solid var(--border);
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.65rem;
+  letter-spacing: 0.1em;
+  color: var(--nvidia);
+  text-transform: uppercase;
+  display: flex;
+  align-items: flex-start;
+  padding-top: 1rem;
+}
+.prow-val {
+  padding: 0.9rem 1.2rem;
+  color: var(--muted);
+  font-size: 0.88rem;
+  line-height: 1.6;
+}
+.prow-val strong { color: var(--text); font-weight: 500; }
+
+/* ── big number stat ── */
+.stat-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 1px;
+  background: var(--border);
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  overflow: hidden;
+  margin: 2rem 0;
+}
+.stat-cell {
+  background: var(--bg1);
+  padding: 1.4rem 1.6rem;
+  transition: background 0.2s;
+}
+.stat-cell:hover { background: var(--bg2); }
+.stat-big {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 2.8rem;
+  font-weight: 700;
+  line-height: 1;
+  color: #fff;
+  margin-bottom: 0.3rem;
+}
+.stat-big.green { color: var(--nvidia); }
+.stat-big.warn  { color: var(--warn); }
+.stat-big.cool  { color: var(--cool); }
+.stat-label {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.62rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--faint);
+  line-height: 1.4;
+}
+
+/* ── preface / epilogue frames ── */
+.frame {
+  background: var(--bg1);
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  padding: 2.5rem 3rem;
+  margin: 1.5rem 0;
+  position: relative;
+}
+.frame::before {
+  content: attr(data-label);
+  position: absolute;
+  top: -0.55rem;
+  left: 2rem;
+  background: var(--bg);
+  padding: 0 0.6rem;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.58rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--nvidia);
+}
+
+/* ── blockquote ── */
+blockquote {
+  margin: 2rem 0;
+  padding: 2rem 2.5rem;
+  background: var(--bg1);
+  border-left: 3px solid var(--warn);
+  border-radius: 0 3px 3px 0;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 1.6rem;
+  font-style: italic;
+  font-weight: 300;
+  color: #fff;
+  line-height: 1.3;
+}
+
+/* ── watermark behind hero ── */
+.hero-watermark {
+  position: absolute;
+  bottom: -3rem;
+  right: -2rem;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 18vw;
+  font-weight: 700;
+  line-height: 1;
+  color: rgba(118,185,0,0.025);
+  letter-spacing: -0.04em;
+  pointer-events: none;
+  user-select: none;
+  z-index: 0;
+}
+
+/* ── footer ── */
+footer {
+  margin-top: 4rem;
+  padding: 2rem 0 1rem;
+  border-top: 1px solid var(--border);
+  text-align: center;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.58rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--faint);
+}
+
+/* ── scroll reveal ── */
+.reveal { opacity:0; transform:translateY(20px); transition:opacity 0.65s ease, transform 0.65s ease; }
+.reveal.visible { opacity:1; transform:translateY(0); }
+
+/* staggered */
+.reveal:nth-child(2) { transition-delay: 0.08s; }
+.reveal:nth-child(3) { transition-delay: 0.16s; }
+</style>
+</head>
+<body>
+
+<!-- ════════════════════════ HERO ════════════════════════ -->
+<div class="hero page">
+  <div class="hero-scan"></div>
+  <div class="hero-glow"></div>
+  <div class="hero-watermark">NVDA</div>
+
+  <div class="hero-inner">
+    <div class="hero-eyebrow">Ukubona LLC · Compute Intelligence · Q2 2026</div>
+    <div class="hero-rule"></div>
+    <h1 class="hero-title">
+      <span class="accent">Nvidia</span> &amp;<br>
+      <span class="italic">The Toll Booth</span><br>
+      Hypothesis
+    </h1>
+    <p class="hero-sub">What the exponential consolidation of AI compute capacity means for Ukubona's personalized risk models, counterfactual simulations, and Game of Care infrastructure — and the strategic decisions it forces before scale becomes a liability.</p>
+  </div>
+</div>
+
+
+<div class="page">
+
+<!-- ════════════════════════ PREFACE ════════════════════════ -->
+<div class="section reveal">
+  <div class="section-label">Preface — reading the chart correctly</div>
+
+  <div class="frame" data-label="Preface">
+    <p>A chart showing Nvidia's cumulative compute dominance is easy to misread in two directions. The first misreading is celebratory: look at all this compute, our models can be as large as we want. The second is paranoid: Nvidia owns everything, we're at their mercy. Both readings are wrong in the same way — they treat the chart as a static fact rather than as a signal about the structure of a market in motion.</p>
+
+    <p>What the chart actually shows is the consequence of a decade of CUDA moat-building: Nvidia did not win because its hardware was always superior on raw floating-point throughput. It won because it made its programming model ubiquitous before competitors could establish viable alternatives. The ecosystem is the product. By the time AMD, Google, and Amazon began competing seriously on hardware, the switching costs embedded in billions of lines of CUDA-optimized code made hardware parity insufficient to shift market share meaningfully.</p>
+
+    <p>For Ukubona LLC, the strategic question is not "how do we live with Nvidia's dominance?" That question accepts the constraint as permanent. The better question is: <strong>at which layers of our stack does the CUDA moat actually touch us, and how do we architect so that the answer contracts over time rather than expands?</strong></p>
+
+    <p>This document maps the compute landscape against the Ukubona pentadic stack, identifies the specific nodes where hardware vendor lock-in creates strategic risk, and proposes the architectural hedge that protects margins as the platform scales into major enterprise deployments.</p>
+  </div>
+</div>
+
+
+<!-- ════════════════════════ CHART ════════════════════════ -->
+<div class="section reveal">
+  <div class="section-label">Section 1 — the compute consolidation</div>
+
+  <h2>One Company, <em>Most Roads</em></h2>
+
+  <div class="stat-row">
+    <div class="stat-cell">
+      <div class="stat-big green">~80%</div>
+      <div class="stat-label">Nvidia share of<br>AI accelerator market</div>
+    </div>
+    <div class="stat-cell">
+      <div class="stat-big warn">70%</div>
+      <div class="stat-label">Canadian defense spend<br>leaked from domestic pipeline</div>
+    </div>
+    <div class="stat-cell">
+      <div class="stat-big cool">4×</div>
+      <div class="stat-label">Compute capacity growth<br>Q1 2022 → Q4 2025</div>
+    </div>
+    <div class="stat-cell">
+      <div class="stat-big">15+</div>
+      <div class="stat-label">Years NIH-funded research<br>behind Ukubona models</div>
+    </div>
+  </div>
+
+  <div class="chart-shell">
+    <div class="chart-title">Cumulative AI Compute Capacity by Vendor</div>
+    <div class="chart-caption">Q1 2022 — Q4 2025 · Relative share of total accelerator-hours deployed globally</div>
+    <div style="position:relative;height:320px;">
+      <canvas id="computeChart"></canvas>
+    </div>
+    <div class="chart-legend">
+      <div class="legend-dot"><span style="background:var(--nvidia)"></span>Nvidia</div>
+      <div class="legend-dot"><span style="background:var(--google)"></span>Google (TPU)</div>
+      <div class="legend-dot"><span style="background:var(--amd)"></span>AMD</div>
+      <div class="legend-dot"><span style="background:var(--amazon)"></span>Amazon (Inferentia)</div>
+      <div class="legend-dot"><span style="background:var(--huawei)"></span>Huawei</div>
+      <div class="legend-dot"><span style="background:var(--intel)"></span>Intel</div>
+    </div>
+  </div>
+
+  <div class="market-grid">
+    <div class="market-cell dominant">
+      <div class="market-pct" style="color:var(--nvidia)">~80%</div>
+      <div class="market-name">Nvidia</div>
+      <div class="market-bar"><div class="market-bar-fill" style="width:80%;background:var(--nvidia)"></div></div>
+    </div>
+    <div class="market-cell">
+      <div class="market-pct" style="color:var(--google)">~7%</div>
+      <div class="market-name">Google TPU</div>
+      <div class="market-bar"><div class="market-bar-fill" style="width:7%;background:var(--google)"></div></div>
+    </div>
+    <div class="market-cell">
+      <div class="market-pct" style="color:var(--amd)">~6%</div>
+      <div class="market-name">AMD</div>
+      <div class="market-bar"><div class="market-bar-fill" style="width:6%;background:var(--amd)"></div></div>
+    </div>
+    <div class="market-cell">
+      <div class="market-pct" style="color:var(--amazon)">~4%</div>
+      <div class="market-name">Amazon</div>
+      <div class="market-bar"><div class="market-bar-fill" style="width:4%;background:var(--amazon)"></div></div>
+    </div>
+    <div class="market-cell">
+      <div class="market-pct" style="color:var(--huawei)">~2%</div>
+      <div class="market-name">Huawei</div>
+      <div class="market-bar"><div class="market-bar-fill" style="width:2%;background:var(--huawei)"></div></div>
+    </div>
+    <div class="market-cell">
+      <div class="market-pct" style="color:var(--intel)">~1%</div>
+      <div class="market-name">Intel</div>
+      <div class="market-bar"><div class="market-bar-fill" style="width:1%;background:var(--intel)"></div></div>
+    </div>
+  </div>
+
+  <p style="font-size:0.8rem;color:var(--faint);font-style:italic;">Estimated shares based on publicly reported AI accelerator deployments and cloud provider procurement disclosures, Q1 2022–Q4 2025. Nvidia's share includes both data center GPU deployments (A100, H100, H200, Blackwell) and OEM cloud resold capacity.</p>
+</div>
+
+
+<!-- ════════════════════════ SECTION 2 ════════════════════════ -->
+<div class="section reveal">
+  <div class="section-label">Section 2 — cost &amp; capability of counterfactual simulations</div>
+
+  <h2>What Ukubona <em>Actually Needs</em></h2>
+
+  <p>The architecture matters here. Counterfactual simulation — running "what if" decision pathways for patients, clinicians, and payers — is not uniformly compute-intensive. It has a distinctive profile: <strong>high parallelism at training time, moderate latency requirements at inference, and extreme sensitivity to model correctness</strong> relative to raw throughput.</p>
+
+  <div class="two-col">
+    <div>
+      <h3>The Opportunity</h3>
+      <p>The absolute scale of available compute is growing exponentially. Ukubona's vision of deep, data-heavy clinical simulations won't be constrained by a fundamental lack of global compute capacity. The bottleneck is not hardware — it is calibration: ensuring models optimize for patient-specified loss functions rather than institutional proxies for those functions.</p>
+      <p>Practically: <strong>you can safely build heavier, more predictive models.</strong> The H100 and Blackwell generations deliver ~10× the training throughput of the A100 generation at comparable cost curves. Inference costs for well-quantized clinical models are approaching a level where real-time edge deployment in hospital environments becomes viable without extraordinary infrastructure investment.</p>
+    </div>
+    <div>
+      <h3>The Structural Risk</h3>
+      <p>Nvidia's dominance means they dictate pricing at the hardware level. As long as clinical AI is tightly coupled to CUDA — the programming model, not just the hardware — compute-intensive tasks carry a permanent hardware premium that cannot be arbitraged away by switching cloud providers, because every major cloud provider's AI capacity is predominantly Nvidia-sourced.</p>
+      <p>The risk is not that Nvidia raises prices dramatically in the short term. The risk is that as Ukubona scales into enterprise contracts with Johns Hopkins and comparable institutions, <strong>the compute cost structure is baked into the pricing model before anyone notices it has become load-bearing.</strong></p>
+    </div>
+  </div>
+
+  <div class="insight warn">
+    <div class="insight-label warn">The toll booth structure</div>
+    <p>Nvidia is building the roads. But unlike public infrastructure, Nvidia's roads have tolls that compound with usage. At small scale this is invisible. At the scale of a Johns Hopkins enterprise deployment — processing thousands of patient simulations daily — the toll structure becomes a material line item. The time to architect around it is before that scale is reached, not after.</p>
+  </div>
+</div>
+
+
+<!-- ════════════════════════ SECTION 3 ════════════════════════ -->
+<div class="section reveal">
+  <div class="section-label">Section 3 — cloud infrastructure &amp; vendor strategy</div>
+
+  <h2>Cloud Gating <em>and the Agnostic Stack</em></h2>
+
+  <p>Ukubona builds lightweight stacks for continuity, designed to integrate rather than replace. But the backend models must live somewhere, and that somewhere is predominantly Nvidia-gated — whether via AWS, GCP, or Azure.</p>
+
+  <table class="strategy-table">
+    <thead>
+      <tr>
+        <th>Provider</th>
+        <th>Compute basis</th>
+        <th>Ukubona relevance</th>
+        <th>Classification</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>AWS (Amazon)</td>
+        <td>Predominantly Nvidia H100/H200; Inferentia for inference workloads</td>
+        <td>Most likely current home for training pipelines; broadest healthcare compliance (HIPAA BAA)</td>
+        <td><span class="tag tag-action">Evaluate</span></td>
+      </tr>
+      <tr>
+        <td>GCP (Google)</td>
+        <td>Nvidia H100 + TPU v5 for proprietary workloads</td>
+        <td>TPU advantage for specific transformer architectures; less relevant for tabular clinical data pipelines</td>
+        <td><span class="tag tag-hedge">Hedge</span></td>
+      </tr>
+      <tr>
+        <td>Azure</td>
+        <td>Nvidia H100; ND A100 cluster SKUs</td>
+        <td>Best Microsoft/Epic EHR integration story; relevant for Hopkins enterprise</td>
+        <td><span class="tag tag-oppty">Opportunity</span></td>
+      </tr>
+      <tr>
+        <td>AMD ROCm</td>
+        <td>MI300X accelerators; ROCm software stack</td>
+        <td>Viable hedge for inference workloads; training support still maturing</td>
+        <td><span class="tag tag-hedge">Hedge</span></td>
+      </tr>
+      <tr>
+        <td>Google TPU (direct)</td>
+        <td>TPU v5e/v5p; JAX-native</td>
+        <td>Low unless Ukubona moves toward JAX-based training; niche at current stack</td>
+        <td><span class="tag tag-risk">Low priority</span></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="insight cool">
+    <div class="insight-label cool">Actionable takeaway</div>
+    <p>To maintain margins and deployment flexibility across diverse hospital networks, Ukubona's multivariable regression pipelines should be hardware-agnostic at the framework layer. This means: <strong>PyTorch with hardware-abstracted backends, ONNX export for inference, and explicit avoidance of CUDA-specific custom kernels in the clinical inference path.</strong> The training pipeline can tolerate Nvidia lock-in; the inference pipeline — the one that touches actual clinical workflows — cannot.</p>
+  </div>
+</div>
+
+
+<!-- ════════════════════════ SECTION 4 ════════════════════════ -->
+<div class="section reveal">
+  <div class="section-label">Section 4 — pentadic mapping of compute risk</div>
+
+  <h2>The Ukubona Stack <em>Meets the Compute Stack</em></h2>
+
+  <p>The pentadic architecture is not merely a clinical framework. Applied to infrastructure, it maps exactly the dependency structure between compute layers and Ukubona's mission-critical functions. The compute risk is not uniform across layers.</p>
+
+  <div class="pentad-map">
+    <div class="prow">
+      <div class="prow-num">5</div>
+      <div class="prow-key">Civilizational</div>
+      <div class="prow-val"><strong>AI policy &amp; chip export controls.</strong> US–China semiconductor restrictions are actively reshaping compute geography. Nvidia H100/H200 export bans to China have simultaneously constrained global supply and elevated domestic GPU pricing. Ukubona's long-term infrastructure cost is coupled to geopolitical gradient descent in ways that have nothing to do with clinical performance.</div>
+    </div>
+    <div class="prow">
+      <div class="prow-num">4</div>
+      <div class="prow-key">Regulatory</div>
+      <div class="prow-val"><strong>HIPAA, FedRAMP, and BAA compliance.</strong> Regulatory constraints on where clinical data can be processed impose substantial cloud infrastructure constraints. Not all Nvidia-gated cloud regions are HIPAA-compliant. This layer adds cost and latency that are invisible in raw compute benchmarks but material in enterprise deployments.</div>
+    </div>
+    <div class="prow">
+      <div class="prow-num">3</div>
+      <div class="prow-key">Enterprise</div>
+      <div class="prow-val"><strong>The 70% leakage problem, Ukubona variant.</strong> If training and inference pipelines are tightly coupled to premium Nvidia-gated cloud SKUs without hardware-agnostic abstraction, compute cost will scale super-linearly with usage — the same structural leakage PM Carney identified in Canadian defense spending. The fix is the same: re-internalize the cost by owning the abstraction layer.</div>
+    </div>
+    <div class="prow">
+      <div class="prow-num">2</div>
+      <div class="prow-key">Institutional</div>
+      <div class="prow-val"><strong>Hospital IT stack integration.</strong> The Game of Care must run inside clinical workflows — Epic, Cerner, HL7 FHIR APIs. These environments are latency-sensitive and infrastructure-constrained. The inference path must be deployable on commodity hardware (or edge devices) to avoid being blocked by hospital IT procurement cycles, which are 18–36 months long.</div>
+    </div>
+    <div class="prow">
+      <div class="prow-num">1</div>
+      <div class="prow-key">Patient / Node</div>
+      <div class="prow-val"><strong>Gradient sovereignty at the model level.</strong> The patient's loss function must drive the simulation, not the compute cost structure. A model that degrades its counterfactual quality because edge deployment requires quantization that erases rare-outcome accuracy is a model that has allowed infrastructure economics to override clinical ethics. This is the bottom-most constraint. It should be designed to first.</div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ════════════════════════ SECTION 5 — GAME OF CARE ════════════════════════ -->
+<div class="section reveal">
+  <div class="section-label">Section 5 — game of care &amp; real-time inference</div>
+
+  <h2>Low Latency as <em>Clinical Infrastructure</em></h2>
+
+  <blockquote>"Nvidia is building the roads. The question is whether Ukubona owns the vehicle, the engine, or just a seat."</blockquote>
+
+  <p>The Game of Care simulates decision pathways for patients, clinicians, and payers. Instantaneous and seamless in a clinical workflow requires low latency — not merely fast hardware, but a whole-stack latency budget that includes model inference, API round-trip, EHR integration, and rendering. The compute layer is one term in this sum, and not always the dominant one.</p>
+
+  <div class="two-col">
+    <div>
+      <h3>What the Blackwell generation enables</h3>
+      <p>Nvidia's H200 and Blackwell B100/B200 architectures deliver 4× the inference throughput of H100 at comparable price points for FP8-quantized models. For clinical tabular models of the scale Ukubona currently deploys, this is transformative: real-time risk simulation at the point-of-care becomes viable without hospital data center investment.</p>
+    </div>
+    <div>
+      <h3>The edge imperative</h3>
+      <p>15+ years of NIH-funded research should not be held hostage to cloud availability in a critical care setting. The inference path — specifically the counterfactual simulation module — needs a validated on-premise or edge deployment pathway for environments where cloud latency is unacceptable. This is not a luxury; it is a clinical reliability requirement.</p>
+    </div>
+  </div>
+
+  <div class="insight">
+    <div class="insight-label green">Infrastructure thesis</div>
+    <p>Exponential growth in total available compute guarantees that Ukubona's software can scale massively. Nvidia's near-total ownership of the toll booths means Ukubona must carefully optimize its model efficiency — specifically targeting hardware-agnostic inference pipelines — to protect its bottom line as it scales into major enterprise deployments. The opportunity and the risk are the same number: <strong>~80% market concentration.</strong></p>
+  </div>
+</div>
+
+
+<!-- ════════════════════════ EPILOGUE ════════════════════════ -->
+<div class="section reveal">
+  <div class="section-label">Epilogue — the right question</div>
+
+  <div class="frame" data-label="Epilogue">
+    <p>The wrong frame for this analysis is "how do we navigate Nvidia's dominance?" That frame accepts the constraint as stable and external. The right frame is: <strong>at what layer of the Ukubona stack does compute vendor concentration become load-bearing, and how do we architect so that layer is thin and substitutable?</strong></p>
+
+    <p>The answer is: the inference path. Training can be expensive and Nvidia-dependent because it happens once or infrequently, and the cost is amortized across many deployments. Inference happens on every clinical query, in every hospital, every time a clinician uses the Game of Care. The unit economics of inference are the unit economics of the business.</p>
+
+    <p>The CUDA moat is real, but it is not inevitable at the inference layer. ONNX, hardware-abstracted PyTorch backends, and the maturing ROCm/HIP ecosystem on AMD MI300X hardware all provide a credible path to inference portability. The work required is not enormous. But it must be done before the contracts are signed and the architecture is locked, not after — because the same structural dynamic that produced the 70% defense spending leakage (optimize for the decision that feels obvious now, externalize the cost to future-you) applies equally to infrastructure decisions made under growth pressure.</p>
+
+    <p>Ukubona's advantage is that its models encode 15+ years of NIH-funded clinical research that cannot be replicated by a better GPU. The moat is the calibration, not the compute. The strategy follows directly: own the calibration layer completely, keep the compute layer thin and portable, and treat Nvidia's dominance as a background condition to architect around rather than a foundation to build on.</p>
+
+    <p style="color:var(--nvidia);font-style:italic;font-weight:400;margin-top:1.5rem;">The roads are excellent. Own the vehicle. Know which toll booths you can bypass.</p>
+  </div>
+</div>
+
+<footer>
+  Ukubona LLC &nbsp;·&nbsp; Compute Intelligence &nbsp;·&nbsp; Q2 2026 &nbsp;·&nbsp; Nvidia &amp; The Toll Booth Hypothesis
+</footer>
+
+</div><!-- /page -->
+
+<script>
+/* ── cumulative area chart ── */
+const labels = ['Q1 22','Q2 22','Q3 22','Q4 22','Q1 23','Q2 23','Q3 23','Q4 23','Q1 24','Q2 24','Q3 24','Q4 24','Q1 25','Q2 25','Q3 25','Q4 25'];
+
+// Data approximates relative cumulative shares; Nvidia grows its lead each quarter
+const nv = [58,62,65,68,70,72,74,76,78,79,80,80,81,82,82,83];
+const goog = [12,11,11,10,9,9,8,8,8,7,7,7,7,7,7,7];
+const amd  = [8,8,7,7,7,7,7,6,6,6,6,6,6,6,6,6];
+const amzn = [7,6,6,6,5,5,5,4,4,4,4,4,4,4,4,4];
+const huw  = [10,8,7,6,6,5,4,3,2,2,2,2,1,1,1,1];
+const intl = [5,5,4,3,3,2,2,2,2,2,1,1,1,0,0,0]; // remainder
+
+const ctx = document.getElementById('computeChart').getContext('2d');
+new Chart(ctx, {
+  type: 'line',
+  data: {
+    labels,
+    datasets: [
+      { label: 'Nvidia',   data: nv,   fill: true, backgroundColor:'rgba(118,185,0,0.18)', borderColor:'#76b900', borderWidth:2, tension:0.35, pointRadius:0 },
+      { label: 'Google',   data: goog, fill: true, backgroundColor:'rgba(66,133,244,0.1)',  borderColor:'#4285f4', borderWidth:1.5, tension:0.35, pointRadius:0 },
+      { label: 'AMD',      data: amd,  fill: true, backgroundColor:'rgba(237,28,36,0.08)',  borderColor:'#ed1c24', borderWidth:1.5, tension:0.35, pointRadius:0 },
+      { label: 'Amazon',   data: amzn, fill: true, backgroundColor:'rgba(255,153,0,0.08)',  borderColor:'#ff9900', borderWidth:1.5, tension:0.35, pointRadius:0 },
+      { label: 'Huawei',   data: huw,  fill: true, backgroundColor:'rgba(207,10,44,0.06)',  borderColor:'#cf0a2c', borderWidth:1, tension:0.35, pointRadius:0 },
+      { label: 'Intel',    data: intl, fill: true, backgroundColor:'rgba(0,113,197,0.06)',  borderColor:'#0071c5', borderWidth:1, tension:0.35, pointRadius:0 },
+    ]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    interaction: { intersect: false, mode: 'index' },
+    plugins: {
+      legend: { display: false },
+      tooltip: {
+        backgroundColor: '#0d0d12',
+        borderColor: '#22222e',
+        borderWidth: 1,
+        titleColor: '#e0dfd8',
+        bodyColor: '#888898',
+        titleFont: { family: "'IBM Plex Mono', monospace", size: 11 },
+        bodyFont:  { family: "'IBM Plex Mono', monospace", size: 11 },
+        callbacks: { label: ctx => ` ${ctx.dataset.label}: ${ctx.parsed.y}%` }
+      }
+    },
+    scales: {
+      x: {
+        grid: { color: 'rgba(255,255,255,0.04)' },
+        ticks: { color: '#44445a', font: { family: "'IBM Plex Mono'", size: 10 }, maxTicksLimit: 8 }
+      },
+      y: {
+        stacked: false,
+        grid: { color: 'rgba(255,255,255,0.04)' },
+        ticks: { color: '#44445a', font: { family: "'IBM Plex Mono'", size: 10 }, callback: v => v + '%' },
+        max: 100, min: 0
+      }
+    }
+  }
+});
+
+/* ── scroll reveal ── */
+const io = new IntersectionObserver((entries) => {
+  entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+}, { threshold: 0.06 });
+document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+</script>
+</body>
+</html>

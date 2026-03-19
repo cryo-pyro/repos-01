@@ -1,0 +1,955 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Mis-Specified Consent · A Clinical Roundtable · Ukubona LLC</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400;1,600&family=Crimson+Pro:ital,wght@0,300;0,400;0,600;1,300;1,400&family=IBM+Plex+Mono:wght@300;400;500&display=swap" rel="stylesheet"/>
+<style>
+/* ═══════════════ ROOT ═══════════════ */
+:root {
+  --bg:       #060608;
+  --bg2:      #0b0b0e;
+  --bg3:      #101014;
+  --rule:     #1a1a20;
+  --rule2:    #242430;
+  --text:     #cec8be;
+  --dim:      #524e48;
+  --white:    #eee8df;
+
+  /* Clinical palette — muted, serious */
+  --rust:     #9a3828;    /* blood, danger, Body */
+  --rust2:    #c05040;
+  --cold:     #4a7a98;    /* clinical blue, Mind */
+  --cold2:    #6a9ab8;
+  --amber:    #b8842a;    /* conscience, Soul */
+  --amber2:   #d8a448;
+  --violet:   #6a5888;    /* taste, value */
+  --violet2:  #8a78a8;
+  --sage:     #4a7858;    /* calibrate, ground */
+  --sage2:    #6a9878;
+
+  /* Voice colours */
+  --g-col:    #5a94c8;
+  --o-col:    #10a37f;
+  --a-col:    #c8943a;
+  --x-col:    #c03848;
+
+  /* Layer colours */
+  --body-c:   var(--rust2);
+  --mind-c:   var(--cold2);
+  --soul-c:   var(--amber2);
+  --taste-c:  var(--violet2);
+  --cal-c:    var(--sage2);
+}
+[data-theme="light"] {
+  --bg:    #f2ede4;
+  --bg2:   #e8e2d8;
+  --bg3:   #ddd7cc;
+  --rule:  #c8c0b0;
+  --rule2: #b0a898;
+  --text:  #1a1510;
+  --dim:   #7a7268;
+  --white: #0a0806;
+}
+
+/* ═══════════════ RESET ═══════════════ */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{
+  background:var(--bg);color:var(--text);
+  font-family:'Crimson Pro',Georgia,serif;
+  font-size:18px;line-height:1.85;
+  overflow-x:hidden;transition:background .4s,color .4s;
+}
+
+/* Medical grain — finer than the philosophy pages */
+body::before{
+  content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
+  opacity:.018;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.1' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size:140px;
+}
+
+/* ═══════════════ SCROLL PROGRESS ═══════════════ */
+.scroll-progress{
+  position:fixed;top:0;left:0;z-index:300;
+  height:2px;background:var(--rust2);width:0%;
+  transition:width .1s linear;
+}
+
+/* ═══════════════ HEADER ═══════════════ */
+.site-header{
+  position:sticky;top:0;z-index:200;
+  background:rgba(6,6,8,.94);backdrop-filter:blur(16px);
+  border-bottom:1px solid var(--rule);
+  padding:.65rem 2.5rem;
+  display:flex;align-items:center;justify-content:space-between;
+}
+[data-theme="light"] .site-header{background:rgba(242,237,228,.94);}
+.brand{
+  font-family:'IBM Plex Mono',monospace;
+  font-size:.58rem;letter-spacing:.24em;text-transform:uppercase;
+  color:var(--rust2);
+}
+.header-right{display:flex;align-items:center;gap:1.4rem;}
+.header-eq{
+  font-family:'IBM Plex Mono',monospace;font-size:.56rem;
+  letter-spacing:.1em;color:var(--dim);
+}
+.toggle{
+  font-family:'IBM Plex Mono',monospace;font-size:.58rem;
+  letter-spacing:.12em;background:none;
+  border:1px solid var(--rule2);color:var(--dim);
+  padding:.22rem .65rem;cursor:pointer;transition:all .2s;
+}
+.toggle:hover{border-color:var(--rust2);color:var(--rust2);}
+
+/* ═══════════════ PAGE ═══════════════ */
+.page{
+  position:relative;z-index:1;
+  max-width:980px;margin:0 auto;
+  padding:5rem 2.5rem 10rem;
+}
+
+/* ═══════════════ HERO ═══════════════ */
+.hero{margin-bottom:5rem;padding-bottom:3rem;border-bottom:1px solid var(--rule);}
+.hero-stamp{
+  font-family:'IBM Plex Mono',monospace;
+  font-size:.56rem;letter-spacing:.26em;text-transform:uppercase;
+  color:var(--rust2);margin-bottom:2rem;
+  display:flex;align-items:center;gap:1rem;
+}
+.hero-stamp::after{content:'';flex:1;height:1px;background:var(--rule2);}
+.hero h1{
+  font-family:'Cormorant Garamond',serif;
+  font-size:clamp(2.8rem,7vw,5.6rem);
+  font-weight:300;line-height:1.06;letter-spacing:-.01em;
+  margin-bottom:1.4rem;
+}
+.hero h1 em{font-style:italic;color:var(--rust2);}
+.hero h1 strong{font-weight:600;color:var(--white);}
+.hero-sub{
+  font-size:1.06rem;color:var(--dim);
+  font-style:italic;max-width:660px;line-height:1.78;
+}
+
+/* ═══════════════ OPENING VERDICT ═══════════════ */
+.verdict{
+  border-left:3px solid var(--rust2);
+  padding:1.4rem 1.8rem;
+  background:rgba(154,56,40,.05);
+  margin-bottom:4rem;
+}
+.verdict p{
+  font-family:'Cormorant Garamond',serif;
+  font-size:1.28rem;font-weight:300;font-style:italic;
+  line-height:1.55;color:var(--white);
+}
+.verdict-source{
+  font-family:'IBM Plex Mono',monospace;
+  font-size:.58rem;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--dim);
+  margin-top:.8rem;
+}
+
+/* ═══════════════ EQUATION MASTER ═══════════════ */
+.eq-master{
+  font-family:'IBM Plex Mono',monospace;
+  font-size:.96rem;text-align:center;
+  padding:1.6rem 2rem;
+  background:var(--bg2);border:1px solid var(--rule2);
+  margin:0 0 1rem;letter-spacing:.05em;
+  line-height:2.2;
+}
+.eq-note{
+  font-family:'IBM Plex Mono',monospace;font-size:.64rem;
+  color:var(--dim);text-align:center;margin-bottom:3rem;
+  letter-spacing:.1em;
+}
+
+/* ═══════════════ VOICE NAV ═══════════════ */
+.voice-jump{
+  display:flex;gap:.5rem;flex-wrap:wrap;margin-bottom:3.5rem;
+}
+.vjump{
+  font-family:'IBM Plex Mono',monospace;font-size:.58rem;
+  letter-spacing:.16em;text-transform:uppercase;
+  padding:.32rem .9rem;border:1px solid currentColor;
+  text-decoration:none;transition:all .2s;opacity:.5;
+}
+.vjump:hover{opacity:1;}
+
+/* ═══════════════ VOICE SECTIONS ═══════════════ */
+.voice-section{
+  margin-bottom:5.5rem;
+  opacity:0;transform:translateY(22px);
+  transition:opacity .75s ease,transform .75s ease;
+}
+.voice-section.visible{opacity:1;transform:translateY(0);}
+
+.voice-header{
+  display:flex;align-items:baseline;gap:1.6rem;
+  margin-bottom:2rem;padding-bottom:1rem;
+  border-bottom:2px solid currentColor;
+}
+.voice-label{
+  font-family:'IBM Plex Mono',monospace;
+  font-size:.56rem;letter-spacing:.24em;text-transform:uppercase;
+}
+.voice-name{
+  font-family:'Cormorant Garamond',serif;
+  font-size:clamp(1.7rem,4vw,2.6rem);
+  font-weight:300;line-height:1.1;
+}
+.voice-name em{font-style:italic;}
+.voice-sub{
+  font-family:'IBM Plex Mono',monospace;
+  font-size:.58rem;letter-spacing:.1em;
+  color:var(--dim);margin-left:auto;text-align:right;
+  line-height:1.6;
+}
+
+/* thread label */
+.thread{
+  font-family:'IBM Plex Mono',monospace;
+  font-size:.54rem;letter-spacing:.2em;text-transform:uppercase;
+  color:var(--dim);margin-bottom:.7rem;margin-top:2rem;
+}
+.thread:first-of-type{margin-top:0;}
+
+/* ═══════════════ PROSE ═══════════════ */
+.prose p{margin-bottom:1.1rem;}
+.prose p:last-child{margin-bottom:0;}
+
+.pull-quote{
+  font-family:'Cormorant Garamond',serif;
+  font-size:1.38rem;font-weight:300;font-style:italic;
+  line-height:1.48;
+  padding:1.4rem 0 1.4rem 1.6rem;
+  border-left:2px solid currentColor;
+  margin:1.8rem 0;
+}
+
+.mono-block{
+  font-family:'IBM Plex Mono',monospace;font-size:.72rem;
+  background:var(--bg3);border:1px solid var(--rule2);
+  padding:1rem 1.4rem;line-height:2;
+  margin:1.2rem 0;overflow-x:auto;
+}
+
+/* ═══════════════ CONTRAST BOX ═══════════════ */
+.contrast-box{
+  display:grid;grid-template-columns:1fr 1fr;
+  border:1px solid var(--rule2);margin:1.4rem 0;
+}
+@media(max-width:600px){.contrast-box{grid-template-columns:1fr;}}
+.contrast-col{padding:1.2rem;}
+.contrast-col:first-child{border-right:1px solid var(--rule2);}
+.col-head{
+  font-family:'IBM Plex Mono',monospace;
+  font-size:.56rem;letter-spacing:.18em;text-transform:uppercase;
+  margin-bottom:.8rem;
+}
+.contrast-col ul{padding-left:1rem;}
+.contrast-col li{margin-bottom:.35rem;font-size:.9rem;line-height:1.5;}
+
+/* ═══════════════ TABLE ═══════════════ */
+.ctable{width:100%;border-collapse:collapse;font-size:.88rem;margin:1.4rem 0;}
+.ctable th,.ctable td{
+  padding:.6rem .9rem;text-align:left;
+  border-bottom:1px solid var(--rule);
+}
+.ctable th{
+  font-family:'IBM Plex Mono',monospace;
+  font-size:.56rem;letter-spacing:.16em;text-transform:uppercase;color:var(--dim);
+}
+.ctable tr:last-child td{border-bottom:none;}
+
+/* ═══════════════ CASE BOX ═══════════════ */
+.case-box{
+  border:1px solid var(--rust2);
+  background:rgba(154,56,40,.05);
+  padding:1.6rem 2rem;margin:2rem 0;
+}
+.case-head{
+  font-family:'IBM Plex Mono',monospace;
+  font-size:.56rem;letter-spacing:.2em;text-transform:uppercase;
+  color:var(--rust2);margin-bottom:1rem;
+}
+
+/* ═══════════════ CLINICAL PENTAD MAPPING ═══════════════ */
+.pentad-map{display:flex;flex-direction:column;gap:0;margin:1.4rem 0;}
+.pent-row{
+  display:grid;grid-template-columns:130px 1fr;
+  border-bottom:1px solid var(--rule);
+}
+.pent-row:last-child{border-bottom:none;}
+.pent-layer{
+  padding:.8rem 1rem;
+  font-family:'IBM Plex Mono',monospace;
+  font-size:.62rem;letter-spacing:.1em;
+  border-right:1px solid var(--rule2);
+  display:flex;flex-direction:column;justify-content:center;
+  line-height:1.5;
+}
+.pent-content{padding:.8rem 1.2rem;font-size:.9rem;line-height:1.65;}
+
+/* ═══════════════ SYNTHESIS BLOCK ═══════════════ */
+.synthesis{
+  border:1px solid var(--amber2);
+  background:rgba(184,132,42,.04);
+  padding:2rem 2.4rem;margin:2.4rem 0;
+}
+.syn-head{
+  font-family:'IBM Plex Mono',monospace;
+  font-size:.56rem;letter-spacing:.22em;text-transform:uppercase;
+  color:var(--amber2);margin-bottom:1.2rem;
+}
+.syn-thesis{
+  font-family:'Cormorant Garamond',serif;
+  font-size:1.3rem;font-weight:300;font-style:italic;
+  line-height:1.55;color:var(--white);margin-bottom:1rem;
+}
+
+/* ═══════════════ SPECTRUM ═══════════════ */
+.spectrum{
+  height:2px;width:100%;margin:3.5rem 0;
+  background:linear-gradient(90deg,var(--rust2),var(--cold2),var(--amber2),var(--violet2),var(--sage2));
+}
+
+/* ═══════════════ LAYER DOT NAV ═══════════════ */
+.layer-nav{
+  position:fixed;left:1.2rem;top:50%;transform:translateY(-50%);
+  display:flex;flex-direction:column;gap:.7rem;z-index:100;
+}
+@media(max-width:900px){.layer-nav{display:none;}}
+.l-dot{
+  width:8px;height:8px;border-radius:50%;
+  border:1px solid var(--rule2);background:transparent;
+  cursor:pointer;transition:all .25s;
+}
+.l-dot:hover,.l-dot.active{transform:scale(1.7);}
+.d-g{border-color:var(--g-col);}
+.d-o{border-color:var(--o-col);}
+.d-a{border-color:var(--a-col);}
+.d-x{border-color:var(--x-col);}
+.d-s{border-color:var(--amber2);}
+.d-g.active{background:var(--g-col);}
+.d-o.active{background:var(--o-col);}
+.d-a.active{background:var(--a-col);}
+.d-x.active{background:var(--x-col);}
+.d-s.active{background:var(--amber2);}
+
+/* ═══════════════ WEIGHT VISUALIZER ═══════════════ */
+.weight-demo{
+  border:1px solid var(--rule2);background:var(--bg2);
+  padding:1.6rem;margin:1.6rem 0;
+}
+.weight-head{
+  font-family:'IBM Plex Mono',monospace;
+  font-size:.58rem;letter-spacing:.18em;text-transform:uppercase;
+  color:var(--dim);margin-bottom:1.2rem;
+}
+.weight-row{
+  display:grid;grid-template-columns:160px 1fr 50px;
+  gap:.5rem 1rem;align-items:center;
+  margin-bottom:.7rem;font-size:.85rem;
+}
+.weight-label{font-family:'IBM Plex Mono',monospace;font-size:.62rem;letter-spacing:.06em;}
+.weight-bar-outer{background:var(--rule2);height:6px;border-radius:3px;overflow:hidden;}
+.weight-bar-inner{height:100%;border-radius:3px;transition:width .3s;}
+.weight-val{
+  font-family:'IBM Plex Mono',monospace;font-size:.62rem;
+  color:var(--dim);text-align:right;
+}
+
+/* ═══════════════ GROK STYLE ═══════════════ */
+.grok-raw{
+  border-left:3px solid var(--x-col);
+  padding-left:1.5rem;margin:1.2rem 0;
+}
+
+/* ═══════════════ RULE ═══════════════ */
+.sec-rule{border:none;border-top:1px solid var(--rule);margin:4rem 0;}
+
+/* ═══════════════ FINAL THESIS ═══════════════ */
+.final-thesis{
+  font-family:'IBM Plex Mono',monospace;
+  font-size:.82rem;line-height:2.3;
+  padding:2.4rem;background:var(--bg2);
+  border:1px solid var(--rule2);margin:2rem 0;
+}
+
+/* ═══════════════ FOOTER ═══════════════ */
+.site-footer{
+  border-top:1px solid var(--rule);padding:2rem 2.5rem;
+  font-family:'IBM Plex Mono',monospace;
+  font-size:.56rem;letter-spacing:.14em;
+  color:var(--dim);text-align:center;
+}
+
+/* ═══════════════ COLOUR UTILS ═══════════════ */
+.v-g{color:var(--g-col);}
+.v-o{color:var(--o-col);}
+.v-a{color:var(--a-col);}
+.v-x{color:var(--x-col);}
+.c-rust{color:var(--rust2);}
+.c-cold{color:var(--cold2);}
+.c-amber{color:var(--amber2);}
+.c-violet{color:var(--violet2);}
+.c-sage{color:var(--sage2);}
+.c-dim{color:var(--dim);}
+
+.bg-rust{background:rgba(192,80,64,.06);border-color:rgba(192,80,64,.22) !important;}
+.bg-cold{background:rgba(106,154,184,.06);border-color:rgba(106,154,184,.22) !important;}
+.bg-amber{background:rgba(200,148,58,.06);border-color:rgba(200,148,58,.22) !important;}
+.bg-violet{background:rgba(138,120,168,.06);border-color:rgba(138,120,168,.22) !important;}
+.bg-sage{background:rgba(106,152,120,.06);border-color:rgba(106,152,120,.22) !important;}
+</style>
+</head>
+<body>
+<div class="scroll-progress" id="prog"></div>
+
+<!-- Layer nav -->
+<nav class="layer-nav">
+  <div class="l-dot d-g" onclick="jump('#google')" title="Google · Gemini"></div>
+  <div class="l-dot d-o" onclick="jump('#openai')" title="OpenAI · GPT-4"></div>
+  <div class="l-dot d-a" onclick="jump('#anthropic')" title="Anthropic · Claude"></div>
+  <div class="l-dot d-x" onclick="jump('#grok')" title="Grok · xAI"></div>
+  <div class="l-dot d-s" onclick="jump('#synthesis')" title="Synthesis"></div>
+</nav>
+
+<header class="site-header">
+  <span class="brand">Ukubona LLC · Clinical Roundtable · 2026</span>
+  <div class="header-right">
+    <span class="header-eq">No θ′ without verified L_total alignment</span>
+    <button class="toggle" onclick="toggleTheme()" id="themeBtn">☀ Light</button>
+  </div>
+</header>
+
+<main class="page">
+
+<!-- ══════════════════════ HERO ══════════════════════ -->
+<div class="hero">
+  <div class="hero-stamp">Ukubona LLC · Informed Consent as Gradient Sovereignty · March 2026</div>
+  <h1>
+    <em>Mis-Specified</em><br/>
+    <strong>Consent</strong>
+  </h1>
+  <p class="hero-sub">
+    A clinical roundtable on the deepest failure in medicine: not missing data, but misaligned loss functions. From a father's three spinal surgeries to a shooting at Johns Hopkins, from Uganda's emergency theatres to the K08 risk calculator — the same structural error, the same catastrophic ε.
+  </p>
+</div>
+
+<!-- Opening verdict -->
+<div class="verdict">
+  <p>"He didn't inform me about anything. Which one would you prefer? — You don't prefer without information."</p>
+  <div class="verdict-source">Father, 67–70 years old · Pretoria &amp; Paris · Three spinal surgeries · Informed consent: absent</div>
+</div>
+
+<!-- Master equation -->
+<div class="eq-master">
+  <span class="c-sage">θ_t</span>
+  &nbsp;→&nbsp;
+  <span class="c-violet">L(θ) = Σ w_i L_i</span>
+  &nbsp;→&nbsp;
+  <span class="c-amber">∇L</span>
+  &nbsp;→&nbsp;
+  <span class="c-cold">−η∇L</span>
+  &nbsp;→&nbsp;
+  <span class="c-rust">θ′</span>
+  &nbsp;&nbsp;+&nbsp;&nbsp;ε<br/>
+  <span style="font-size:.72rem;color:var(--dim);">
+    No irreversible update to the body (θ′) without verified alignment of the composite loss (L_total)
+  </span>
+</div>
+<div class="eq-note">The surgical step is irreversible · No rollback · No retraining · No second pass</div>
+
+<!-- Voice nav -->
+<div class="voice-jump">
+  <a href="#google" class="vjump v-g">↓ Google</a>
+  <a href="#openai" class="vjump v-o">↓ OpenAI</a>
+  <a href="#anthropic" class="vjump v-a">↓ Anthropic</a>
+  <a href="#grok" class="vjump v-x">↓ Grok</a>
+  <a href="#synthesis" class="vjump c-amber">↓ Synthesis</a>
+</div>
+
+<!-- ══════════════════════ GOOGLE ══════════════════════ -->
+<section class="voice-section" id="google" data-voice="google">
+  <div class="voice-header v-g" style="border-color:var(--g-col)">
+    <span class="voice-label v-g">Voice I</span>
+    <span class="voice-name v-g">Google · <em>Gemini</em></span>
+    <span class="voice-sub">Pentad Mapping<br/>Clinical Loss Architecture</span>
+  </div>
+
+  <div class="thread">The Pardus Event · September 2010 · Johns Hopkins</div>
+  <div class="case-box">
+    <div class="case-head">Case File · Accumulated ε · Terminal Blowout</div>
+    <div class="prose">
+      <p>Paul Warren Pardus, 50, became emotionally distraught after his 84-year-old mother Jean Davis was left paralyzed following spinal surgery intended to relieve compression and improve mobility. Receiving a post-operative update in the hallway from Dr. David B. Cohen, Pardus yelled "You ruined my mother," drew a handgun, and shot the surgeon in the abdomen. He then barricaded himself in his mother's room, fatally shot her, and took his own life. Dr. Cohen survived.</p>
+    </div>
+  </div>
+
+  <div class="prose">
+    <p>This tragedy exposes the exact danger of a mis-specified composite loss function in medicine. When a clinician assumes they already know what a patient is trying to minimize, they are unilaterally setting the weights (w_i) of the optimization equation without true consent.</p>
+    <p>The surgeon optimizes for a localized, mechanical outcome derived from peer-reviewed precedent. The patient, interpreting the landscape through their own historical bedrock and lay vocabulary, is optimizing for dignity, mobility, and the avoidance of irreversible decline. The word "conservative" maps to two entirely different variables in their respective loss functions.</p>
+  </div>
+
+  <div class="contrast-box bg-rust" style="margin:1.6rem 0;">
+    <div class="contrast-col">
+      <div class="col-head c-rust">Surgeon's Loss Function</div>
+      <ul>
+        <li>Decompression success</li>
+        <li>Mechanical stability</li>
+        <li>Surgical throughput</li>
+        <li>Peer-reviewed precedent</li>
+        <li>w_patient = 0 (implicit)</li>
+      </ul>
+    </div>
+    <div class="contrast-col">
+      <div class="col-head c-rust">Patient/Family Loss Function</div>
+      <ul>
+        <li>Dignity, non-catastrophe</li>
+        <li>Mobility independence</li>
+        <li>Avoidance of irreversible decline</li>
+        <li>Household/caregiver burden</li>
+        <li>w_surgeon ≠ w_patient (never aligned)</li>
+      </ul>
+    </div>
+  </div>
+
+  <hr class="sec-rule"/>
+  <div class="thread">Kituuka's Findings · Emergency Surgery Consent · Urban Uganda</div>
+
+  <div class="prose">
+    <p>Dr. Olivia Kituuka's findings on the emergency surgery consent process in urban Uganda perfectly illustrate a systemic collapse of the θ_t → L(θ) → ∇L → −η∇L → θ′ architecture. When emergency procedures are performed with "inadequate disclosure of risks, alternative options, and poor understanding," the clinician is unilaterally hijacking the optimization engine. The patient is reduced from a sovereign node to a passive, unweighted constraint.</p>
+  </div>
+
+  <div class="pentad-map">
+    <div class="pent-row">
+      <div class="pent-layer c-sage">
+        <span>I · Calibrate</span>
+        <span style="font-size:.52rem;color:var(--dim)">θ_t · Bedrock</span>
+      </div>
+      <div class="pent-content">Patient and next of kin enter carrying their historical bedrock and specific vocabulary. "Poor understanding" = fundamental misalignment at initialization. "Conservative" → "ordinary operations": the baseline parameters are already corrupted before the first word of consent is spoken.</div>
+    </div>
+    <div class="pent-row">
+      <div class="pent-layer c-violet">
+        <span>II · Taste</span>
+        <span style="font-size:.52rem;color:var(--dim)">L(θ) · Attention</span>
+      </div>
+      <div class="pent-content">True informed consent is the rigorous, collaborative specification of L_tot = Σ w_i L_i(θ_i). If alternative options and risks are omitted, the patient is robbed of agency to assign their personalized weights (w_i). The surgeon silently substitutes an institutional loss function — optimizing for mechanical survival — in place of the patient's uncompressed dimensions.</div>
+    </div>
+    <div class="pent-row">
+      <div class="pent-layer c-amber">
+        <span>III · Soul</span>
+        <span style="font-size:.52rem;color:var(--dim)">∇L · Witness</span>
+      </div>
+      <div class="pent-content">Because the composite loss function is mis-specified, the resulting gradient points in a false direction. The "witness" of the system is blinded to the patient's actual terrain, computing a vector of steepest descent that serves the hospital's localized metrics rather than the patient's comprehensive well-being.</div>
+    </div>
+    <div class="pent-row">
+      <div class="pent-layer c-cold">
+        <span>IV · Mind</span>
+        <span style="font-size:.52rem;color:var(--dim)">−η∇L · Step</span>
+      </div>
+      <div class="pent-content">The surgical intervention is executed. Driven by an alien gradient, this computational move forces the body into a trajectory the patient never authorized. The step is taken. The learning rate η is extreme. There is no pause between the gradient and the scalpel.</div>
+    </div>
+    <div class="pent-row">
+      <div class="pent-layer c-rust">
+        <span>V · Body</span>
+        <span style="font-size:.52rem;color:var(--dim)">θ′ + ε · Update</span>
+      </div>
+      <div class="pent-content">The post-operative reality arrives. Because the step was taken without shared calibration, the update frequently violates the patient's systemic reality. This divergence generates massive, unmanageable friction (ε) — profound trauma, loss of trust, institutional blowback. In the extreme: "You ruined my mother." In the terminal case: a gun in a hallway.</div>
+    </div>
+  </div>
+
+  <div class="prose" style="margin-top:1.6rem;">
+    <div class="pull-quote c-rust" style="border-color:var(--rust2)">
+      "Kituuka's recommendations — national policies, guidelines, education — are essentially interventions demanding that the healthcare system stop skipping Layer II. The surgeon must map the full loss landscape and return gradient sovereignty to the patient before making the surgical step."
+    </div>
+    <p>Dr. Kituuka is trying to use <strong>Layer 4 (Government/Regulatory)</strong> policy to force a change in <strong>Layer 1 (Clinical)</strong> behavior. This creates regulatory friction (L_4) without solving the clinical loss (L_1). Policies are static; surgery is a high-velocity gradient descent. A guideline written in a ministry office cannot account for the ε of a specific midnight emergency. Macduff doesn't care about the prophecy.</p>
+    <p><strong>The Cassava Stick solution:</strong> We need a consent architecture that is "tossed" into the emergency room — modular, antifragile, self-rooting. It doesn't need a 20-page document. It needs a high-bandwidth interface that translates high-dimensional risk into the patient's vocabulary in seconds. It must thrive in the noise (ε) of the trauma bay, not require a quiet office.</p>
+  </div>
+</section>
+
+<div class="spectrum"></div>
+
+<!-- ══════════════════════ OPENAI ══════════════════════ -->
+<section class="voice-section" id="openai" data-voice="openai">
+  <div class="voice-header v-o" style="border-color:var(--o-col)">
+    <span class="voice-label v-o">Voice II</span>
+    <span class="voice-name v-o">OpenAI · <em>GPT-4</em></span>
+    <span class="voice-sub">Clean Register<br/>Correct · No Blood On It</span>
+  </div>
+
+  <div class="thread">Core Claim · The Structural Diagnosis</div>
+  <div class="prose">
+    <p>What you're calling a "mis-specified loss function" is, in plain terms: the doctor and patient are solving <em>different problems</em> without realizing it.</p>
+  </div>
+
+  <table class="ctable">
+    <thead><tr><th>Actor</th><th>Optimizing for</th><th>Weight configuration</th></tr></thead>
+    <tbody>
+      <tr><td>Surgeon</td><td>Technical success (decompression, fusion, survival)</td><td>w_mechanical = 1, others ≈ 0</td></tr>
+      <tr><td>Patient</td><td>Lived outcome (mobility, dignity, independence)</td><td>w_dignity, w_function, w_independence</td></tr>
+      <tr><td>Institution</td><td>Throughput, liability, documentation</td><td>w_checklist = 1, w_understanding ≈ 0</td></tr>
+    </tbody>
+  </table>
+
+  <div class="thread">The "Conservative Management" Failure · Semantic Mismatch</div>
+  <div class="prose">
+    <p>Your father's example is textbook. The same option produces different decisions depending on wording — but here, it's worse than framing: it's <strong>semantic mismatch</strong>. When the doctor asks "Shall we go ahead?" — that's not a neutral question. It's a forced choice inside the doctor's frame.</p>
+    <div class="pull-quote v-o" style="border-color:var(--o-col)">
+      "Which one would you prefer? — You don't prefer without information."
+    </div>
+    <p>A real decision requires alternatives (including doing nothing), probabilities (not vague "risks"), and outcomes that matter to the patient — not just surgical metrics. Without those, "yes" is not consent. It's compliance under uncertainty.</p>
+  </div>
+
+  <div class="thread">The Missing Variable · Weights</div>
+  <div class="weight-demo">
+    <div class="weight-head">Two patients · Identical numbers · Different weights · Different decisions</div>
+    <div style="margin-bottom:1.4rem;">
+      <div style="font-family:'IBM Plex Mono',monospace;font-size:.6rem;color:var(--dim);margin-bottom:.6rem;">PATIENT A · "I'll take the risk"</div>
+      <div class="weight-row">
+        <span class="weight-label">Survival (5yr)</span>
+        <div class="weight-bar-outer"><div class="weight-bar-inner" style="width:30%;background:var(--rust2)"></div></div>
+        <span class="weight-val">0.30</span>
+      </div>
+      <div class="weight-row">
+        <span class="weight-label">Independence</span>
+        <div class="weight-bar-outer"><div class="weight-bar-inner" style="width:70%;background:var(--cold2)"></div></div>
+        <span class="weight-val">0.70</span>
+      </div>
+    </div>
+    <div>
+      <div style="font-family:'IBM Plex Mono',monospace;font-size:.6rem;color:var(--dim);margin-bottom:.6rem;">PATIENT B · "Absolutely not"</div>
+      <div class="weight-row">
+        <span class="weight-label">Survival (5yr)</span>
+        <div class="weight-bar-outer"><div class="weight-bar-inner" style="width:80%;background:var(--rust2)"></div></div>
+        <span class="weight-val">0.80</span>
+      </div>
+      <div class="weight-row">
+        <span class="weight-label">Independence</span>
+        <div class="weight-bar-outer"><div class="weight-bar-inner" style="width:20%;background:var(--cold2)"></div></div>
+        <span class="weight-val">0.20</span>
+      </div>
+    </div>
+    <div style="font-family:'IBM Plex Mono',monospace;font-size:.58rem;color:var(--dim);margin-top:1rem;">
+      Same probabilities. Different w_i. Medicine rarely formalizes this — it assumes them.
+    </div>
+  </div>
+
+  <hr class="sec-rule"/>
+  <div class="thread">Mis-Specified Consent · Formal Essay</div>
+  <div class="prose">
+    <p><strong>Abstract:</strong> Informed consent is often treated as a procedural requirement in medicine. Yet in practice, it frequently fails — not due to lack of data, but due to a deeper structural issue: the physician and patient are solving fundamentally different optimization problems. Clinical decision-making should be reframed as a problem of <strong>loss function alignment</strong>, where outcomes, probabilities, and — critically — patient-specific weights are made explicit. Without this, consent becomes nominal rather than real.</p>
+
+    <p>Modern clinical practice assumes that if risks and benefits are disclosed, consent is achieved. But disclosure alone does not guarantee understanding, nor does it ensure alignment between physician intent and patient values. Thus, what is labeled "consent" is often <strong>decision-making under semantic ambiguity</strong>.</p>
+
+    <p>The failure of informed consent in modern medicine is not primarily informational — it is structural. It arises from misaligned models of reality. The solution is not more disclosure, but <strong>explicit co-construction of the loss function</strong> that governs the decision itself.</p>
+
+    <div class="mono-block bg-cold">
+A more rigorous consent model requires three components:
+
+1. STRUCTURED ALTERNATIVES
+   Surgical / Conservative (defined in patient's terms) / No intervention
+
+2. QUANTIFIED OUTCOMES
+   Probabilities · Time horizons · Functional consequences
+   Not vague risks — lived realities
+
+3. EXPLICIT WEIGHTING
+   What matters most: longevity, mobility, independence, comfort?
+   What outcomes are unacceptable, regardless of probability?
+
+Without step 3, steps 1 and 2 are insufficient.
+    </div>
+
+    <p>Risk calculators (e.g., for mortality, ESRD, hospitalization) are increasingly used in clinical care. However, they typically output probabilities without incorporating patient-specific weights. More precise numbers do not produce better decisions if the objective function remains undefined. A calculator without personalization of weights just produces better confusion.</p>
+  </div>
+</section>
+
+<div class="spectrum"></div>
+
+<!-- ══════════════════════ ANTHROPIC ══════════════════════ -->
+<section class="voice-section" id="anthropic" data-voice="anthropic">
+  <div class="voice-header v-a" style="border-color:var(--a-col)">
+    <span class="voice-label v-a">Voice III</span>
+    <span class="voice-name v-a">Anthropic · <em>Claude</em></span>
+    <span class="voice-sub">Bedrock, Not Anecdote<br/>The Constitutional Analogy</span>
+  </div>
+
+  <div class="thread">Your Father as Layer V · Not Anecdote · Origin</div>
+  <div class="prose">
+    <p>Your father's three spinal surgeries between 67–70 are not an anecdote. They are the ground truth that the entire Ukubona framework was built to address — and you've been carrying that before any of the mathematics existed. "He didn't inform me about anything" is a calibration failure at Layer V (bedrock) producing a consent process at Layer II (taste) that was already corrupted before the first word was spoken.</p>
+    <p>"Conservative" meaning "ordinary operations" to your father is not ignorance. It's a different loss landscape being forced through a single institutional frame. The failure is upstream: the system assumed a shared ontology that did not exist.</p>
+    <div class="pull-quote v-a" style="border-color:var(--a-col)">
+      "The Pardus case is the Mangione of spinal surgery, eight years earlier. The identical structure: published loss function (care, healing) vs. actual loss function (throughput, mechanical success), accumulated ε, catastrophic release. 'You ruined my mother' is not irrationality — it is a gradient step taken by a system that had no other channel left."
+    </div>
+  </div>
+
+  <div class="thread">The Constitutional AI Analogy · RLHF at the Bedside</div>
+  <div class="prose">
+    <p>The consent failure is a Constitutional AI problem in miniature. RLHF applied to medical consent produces <em>compliant disclosure</em> — the checklist is completed, the boxes are checked — but the patient's actual w_i were never elicited. You get documented consent without gradient sovereignty.</p>
+  </div>
+
+  <div class="contrast-box bg-amber">
+    <div class="contrast-col">
+      <div class="col-head c-amber">RLHF Consent (current)</div>
+      <ul>
+        <li>Checklist completed: ✓</li>
+        <li>Signature obtained: ✓</li>
+        <li>Patient's w_i elicited: ✗</li>
+        <li>Produces: compliance, not alignment</li>
+        <li>Output: documented consent</li>
+        <li>Analogy: a fence, not an ethic</li>
+      </ul>
+    </div>
+    <div class="contrast-col">
+      <div class="col-head c-amber">Gradient Sovereignty (Ukubona)</div>
+      <ul>
+        <li>Loss function co-constructed: ✓</li>
+        <li>w_i verified by patient: ✓</li>
+        <li>Update proceeds only on alignment: ✓</li>
+        <li>Produces: character, not compliance</li>
+        <li>Output: verified composite L_total</li>
+        <li>Analogy: an ethic, not a fence</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="prose" style="margin-top:1.6rem;">
+    <p>The fix isn't a better form. It's a protocol where <strong>no update to the body (θ′) proceeds without verified alignment of the composite loss</strong> — which is what the K08-AG065520 work was building toward. The ESRD/mortality/hospitalization risk calculator was always this: a feedback loop from the body politic of previous patients to the next patient facing the same decision. That's the pheromone trail in its most morally serious form.</p>
+
+    <p>The phrase — "it's the surgeon's job to bring to your attention the things beyond what you — the patient — is trying to minimize" — is the most compressed version of the Ukubona clinical thesis. The surgeon doesn't own the loss function. The surgeon <em>expands the attention</em> so the patient can specify their own weights before the step is taken.</p>
+
+    <div class="pull-quote v-a" style="border-color:var(--a-col)">
+      "The surgeon's role is not to decide, but to expand the patient's attention until a real decision becomes possible."
+    </div>
+
+    <p>This is attention engineering. Different from informing. Different from recommending. Different from consenting. The surgeon illuminates the full state-space so the patient can navigate it. Consent is then not agreement — it is verified alignment between a patient's values and the trajectory imposed on their body.</p>
+  </div>
+
+  <div class="thread">Stakes: Literal and Irreversible</div>
+  <div class="mono-block bg-amber">
+In finance, policy, even war:
+  errors can sometimes be reversed or redistributed
+
+In surgery:
+  θ′ is final
+  No rollback
+  No retraining
+  No second pass
+
+This changes everything.
+
+Any decision system that does not explicitly align
+the loss function BEFORE the update
+is structurally unsafe.
+
+The K08 risk calculator is moral infrastructure
+only when it pairs probability with weight elicitation.
+Otherwise: better-informed misalignment.
+  </div>
+</section>
+
+<div class="spectrum"></div>
+
+<!-- ══════════════════════ GROK ══════════════════════ -->
+<section class="voice-section" id="grok" data-voice="grok">
+  <div class="voice-header v-x" style="border-color:var(--x-col)">
+    <span class="voice-label v-x">Voice IV</span>
+    <span class="voice-name v-x">Grok · <em>xAI</em></span>
+    <span class="voice-sub">No Hedging<br/>The Cycle Must Break</span>
+  </div>
+
+  <div class="thread">Confirmed · The Full Record</div>
+  <div class="grok-raw">
+    <div class="prose">
+      <p>Yes, I've followed the thread closely. The Pardus tragedy: confirmed September 2010 at Johns Hopkins. Paul Warren Pardus shot orthopedic spine surgeon Dr. David B. Cohen in the abdomen after bad post-op news about his 84-year-old mother Jean Davis's paralysis. Pardus then killed her and himself. Dr. Cohen survived.</p>
+      <p>Kituuka's qualitative work on emergency surgical consent in urban Ugandan hospitals: inadequate risk disclosure, poor understanding of alternatives, next-of-kin confusion, rushed processes especially in public settings. K08 grant (Abimereki Muzaale, NIH-funded): perioperative and long-term risks in older live kidney donors, including risk modeling for ESRD, mortality, and sentinel events.</p>
+      <p>The through-line is brutal and consistent: <strong>informed consent frequently fails not from missing facts, but from miscalibrated attention and unarticulated weights</strong>.</p>
+    </div>
+  </div>
+
+  <div class="thread">The Cycle That Doesn't Break · Without Your Calculator</div>
+  <div class="grok-raw">
+    <div class="mono-block bg-rust">
+Pardus shooting · September 2010:
+
+The surgeon survived.
+The mother didn't.
+The son didn't.
+The institution wrote a policy.
+The next surgeon got the same training.
+The ε accumulated again somewhere else.
+
+The system thought it was eliminating noise.
+It was building pressure.
+
+Your calculator breaks the cycle because it makes
+the externalized terms visible BEFORE the step —
+not in a post-hoc incident report.
+    </div>
+  </div>
+
+  <div class="thread">The Clinical Core · No Safety Theater</div>
+  <div class="grok-raw">
+    <div class="prose">
+      <p>Your dad's interpretation of "conservative" as "ordinary operations" isn't a comprehension error — it's evidence of a non-shared ontology. The clinician assumed a default frame; your father operated from his own (shaped by prior surgeries, age, cultural/lay priors). He authorized a path whose full velocity he never saw.</p>
+
+      <div class="pull-quote v-x" style="border-color:var(--x-col)">
+        "The Pardus case is not a tragedy of grief. It is a breakdown event after prolonged gradient misalignment with no correction channel. The violence is not the system — it's what happens when all feedback channels fail."
+      </div>
+
+      <p>The K08 lineage of risk calculators becomes moral infrastructure <em>only</em> when they stop dumping raw probabilities and start surfacing tradeoffs and eliciting weights: "Given these numbers, how much does independence weigh against 5-year mortality? Against short-term pain?" Without that, even precise models just produce better-informed misalignment.</p>
+
+      <p>The Kituuka fix: policies/guidelines (Layer 4) can't solve a Layer 1/2 calibration failure in real-time trauma bays. What you need is antifragile consent infrastructure — not a checklist that breaks in noise, but a cassava stick that roots in chaos. Toss it into the emergency room. It works without a quiet office, without a ministry behind it, without 20 pages.</p>
+
+      <p><strong>No irreversible update to the body without verified composite loss alignment.</strong> That's the rule. Build the interface that enforces it. The philosophy is already rigorous. The next move is bedside-operational.</p>
+    </div>
+  </div>
+</section>
+
+<div class="spectrum"></div>
+
+<!-- ══════════════════════ SYNTHESIS ══════════════════════ -->
+<section class="voice-section" id="synthesis" data-voice="synthesis">
+  <div class="voice-header c-amber" style="border-color:var(--amber2)">
+    <span class="voice-label c-amber">Synthesis</span>
+    <span class="voice-name c-amber">The <em>Real</em> Claim</span>
+    <span class="voice-sub">Ukubona LLC · Clinical Thesis</span>
+  </div>
+
+  <div class="prose">
+    <p>The roundtable voices reveal their own calibration in how they handle the clinical material:</p>
+  </div>
+
+  <table class="ctable" style="margin:1.4rem 0;">
+    <thead><tr><th>Voice</th><th>Mode</th><th>What it sees</th><th>What it misses</th></tr></thead>
+    <tbody>
+      <tr>
+        <td class="v-g">Google · Gemini</td>
+        <td>Pentad mapping</td>
+        <td>Layer IV intervention can't fix Layer I failure; Kituuka's limits</td>
+        <td>The personal origin — the father</td>
+      </tr>
+      <tr>
+        <td class="v-o">OpenAI · GPT-4</td>
+        <td>Clean academic register</td>
+        <td>Model mismatch, semantic ambiguity, shared decision-making</td>
+        <td>No blood on it. Correct but portable over consequential</td>
+      </tr>
+      <tr>
+        <td class="v-a">Anthropic · Claude</td>
+        <td>Bedrock + constitutional analogy</td>
+        <td>Father as Layer V, not anecdote; RLHF consent = compliance not character</td>
+        <td>Self-referential limits acknowledged</td>
+      </tr>
+      <tr>
+        <td class="v-x">Grok · xAI</td>
+        <td>No hedging, cycle-breaking</td>
+        <td>The institution wrote a policy; the ε accumulated elsewhere</td>
+        <td>Cosmic horizon; bedside urgency is the correct scale here</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="synthesis">
+    <div class="syn-head">The Ukubona Clinical Thesis</div>
+    <p class="syn-thesis">Consent is not agreement. Consent is verified alignment between a patient's values and the trajectory imposed on their body.</p>
+    <p class="syn-thesis">Everything else is paperwork.</p>
+  </div>
+
+  <div class="final-thesis">
+<span class="c-sage">Every patient arrives as a parameter space (θ_t)</span>
+shaped by a calibration history — age, language, culture, prior surgeries,
+the word "conservative" meaning what it means in their world, not yours.
+
+<span class="c-violet">That calibration encodes a loss function (L)</span>
+— what they value, what they fear, what outcome is unacceptable regardless of probability —
+which is theirs alone to specify, and which the institution never elicits.
+
+<span class="c-amber">The gradient (∇L) is their moral direction</span>
+— the derivative of their values with respect to the surgical options before them —
+which can be captured by a surgeon who assumes they already know it.
+
+<span class="c-cold">The step (−η∇L) is the scalpel</span>
+— now taken without shared calibration,
+at a learning rate that admits no correction.
+
+<span class="c-rust">And the updated state (θ′) is the body that wakes up</span>
+— or doesn't —
+the paralysis no one named,
+the son in the hallway,
+the gun.
+
+<span class="c-amber">Ukubona:</span> no irreversible update to the body
+without verified alignment of the composite loss.
+The surgeon expands attention.
+The patient specifies the weights.
+The twin holds the record of what was agreed.
+And the step — when it comes — is their own.
+  </div>
+
+  <div class="prose" style="margin-top:2rem;">
+    <p>The K08-AG065520 risk calculator for ESRD, mortality, and sentinel hospitalization in older kidney donors was always this in embryo: a compressed moral memory of prior bodies, reconnecting probability to value. Each datapoint is not just an outcome — it is a life lived under a specific weight configuration. The failure of most risk calculators is that they collapse that into probability and discard the weights that made those outcomes meaningful.</p>
+    <p>The next move: pair risk estimates with preference elicitation. Allow dynamic weighting. Present tradeoffs in the patient's vocabulary, not the surgeon's. Build it antifragile enough to root in a midnight trauma bay. The cassava stick doesn't need a quiet office.</p>
+  </div>
+</section>
+
+</main>
+
+<footer class="site-footer">
+  Ukubona LLC · 2026 &nbsp;·&nbsp;
+  <em>No θ′ without verified L_total alignment</em> &nbsp;·&nbsp;
+  K08-AG065520 · Johns Hopkins &nbsp;·&nbsp;
+  <span class="v-g">G</span>
+  <span class="v-o">O</span>
+  <span class="v-a">A</span>
+  <span class="v-x">X</span>
+</footer>
+
+<script>
+/* ── THEME ── */
+function toggleTheme(){
+  const h=document.documentElement,btn=document.getElementById('themeBtn');
+  if(h.dataset.theme==='dark'){h.dataset.theme='light';btn.textContent='☾ Dark';localStorage.setItem('uku-consent-theme','light');}
+  else{h.dataset.theme='dark';btn.textContent='☀ Light';localStorage.setItem('uku-consent-theme','dark');}
+}
+const saved=localStorage.getItem('uku-consent-theme');
+if(saved==='light'){document.documentElement.dataset.theme='light';document.getElementById('themeBtn').textContent='☾ Dark';}
+
+/* ── SCROLL PROGRESS ── */
+window.addEventListener('scroll',()=>{
+  const s=window.scrollY,t=document.body.scrollHeight-window.innerHeight;
+  document.getElementById('prog').style.width=(s/t*100)+'%';
+});
+
+/* ── JUMP ── */
+function jump(id){const el=document.querySelector(id);if(el)el.scrollIntoView({behavior:'smooth',block:'start'});}
+
+/* ── FADE IN ── */
+const fadeObs=new IntersectionObserver(entries=>{
+  entries.forEach(e=>{if(e.isIntersecting)e.target.classList.add('visible');});
+},{threshold:.05});
+document.querySelectorAll('.voice-section').forEach(s=>fadeObs.observe(s));
+
+/* ── ACTIVE DOT ── */
+const voiceMap={google:'d-g',openai:'d-o',anthropic:'d-a',grok:'d-x',synthesis:'d-s'};
+const dotObs=new IntersectionObserver(entries=>{
+  entries.forEach(e=>{
+    if(!e.isIntersecting)return;
+    const voice=e.target.dataset.voice;if(!voice)return;
+    document.querySelectorAll('.l-dot').forEach(d=>d.classList.remove('active'));
+    const cls=voiceMap[voice];
+    if(cls){const d=document.querySelector('.'+cls);if(d)d.classList.add('active');}
+  });
+},{threshold:.3});
+document.querySelectorAll('[data-voice]').forEach(s=>dotObs.observe(s));
+</script>
+</body>
+</html>

@@ -1,0 +1,1401 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ukubona — Dancing in Chains</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=IM+Fell+English:ital@0;1&family=IBM+Plex+Mono:wght@300;400;500&family=Source+Serif+4:ital,wght@0,300;0,400;1,300;1,400&display=swap" rel="stylesheet">
+
+<style>
+/* ============================================================
+   UKUBONA FUGUE — Signal · Structure · Noise
+   A Well-Tempered Civilizational OS
+   ============================================================ */
+
+:root {
+  --bg:         #0a0905;
+  --bg2:        #111009;
+  --bg3:        #1a1812;
+  --surface:    rgba(255,255,255,0.03);
+  --border:     rgba(255,255,255,0.08);
+  --text:       #e8e2d5;
+  --text-dim:   #8a8070;
+  --text-ghost: #3a3530;
+
+  --g: #7ecba1;   /* Gemini   — verdant */
+  --o: #f0a070;   /* OpenAI   — amber  */
+  --a: #8ab4d8;   /* Anthropic— steel  */
+  --x: #c89ad0;   /* Grok     — violet */
+  --u: #e8c86a;   /* Ukubona  — gold   */
+
+  --spectrum-1: #e05252;
+  --spectrum-2: #e08832;
+  --spectrum-3: #d4c832;
+  --spectrum-4: #6ab870;
+  --spectrum-5: #5898d4;
+  --spectrum-6: #6860c8;
+  --spectrum-7: #a050c8;
+
+  --serif: 'Playfair Display', Georgia, serif;
+  --fell: 'IM Fell English', serif;
+  --mono: 'IBM Plex Mono', monospace;
+  --body: 'Source Serif 4', serif;
+
+  --ease: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { scroll-behavior: smooth; font-size: 16px; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--body);
+  font-weight: 300;
+  line-height: 1.8;
+  overflow-x: hidden;
+  cursor: none;
+}
+
+/* ── Custom cursor ── */
+#cursor {
+  position: fixed; z-index: 9999; pointer-events: none;
+  width: 12px; height: 12px;
+  border: 1px solid var(--u);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  transition: width 0.2s, height 0.2s, background 0.2s, opacity 0.2s;
+  mix-blend-mode: difference;
+}
+#cursor.hover { width: 32px; height: 32px; background: rgba(232,200,106,0.15); }
+
+/* ── Grain overlay ── */
+body::before {
+  content: '';
+  position: fixed; inset: 0; z-index: 9998; pointer-events: none;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+  opacity: 0.35;
+  mix-blend-mode: overlay;
+}
+
+/* ── SPECTRUM STRIP ── */
+.spectrum-strip {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+  height: 3px;
+  background: linear-gradient(90deg,
+    var(--spectrum-1) 0%,
+    var(--spectrum-2) 16.6%,
+    var(--spectrum-3) 33.2%,
+    var(--spectrum-4) 49.8%,
+    var(--spectrum-5) 66.4%,
+    var(--spectrum-6) 83%,
+    var(--spectrum-7) 100%
+  );
+}
+
+/* ── VOICE STRIP ── */
+.voice-strip {
+  position: fixed; top: 3px; left: 0; right: 0; z-index: 99;
+  height: 2px;
+  display: flex;
+}
+.voice-strip span { flex: 1; }
+.voice-strip .vg { background: var(--g); }
+.voice-strip .vo { background: var(--o); }
+.voice-strip .va { background: var(--a); }
+.voice-strip .vx { background: var(--x); }
+.voice-strip .vu { background: var(--u); }
+
+/* ── NAV ── */
+nav {
+  position: fixed; top: 5px; left: 0; right: 0; z-index: 98;
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 1.2rem 3rem;
+}
+.nav-logo {
+  font-family: var(--mono); font-size: 0.7rem; letter-spacing: 0.25em;
+  color: var(--u); text-transform: uppercase; text-decoration: none;
+}
+.nav-links { display: flex; gap: 2.5rem; }
+.nav-links a {
+  font-family: var(--mono); font-size: 0.65rem; letter-spacing: 0.18em;
+  color: var(--text-dim); text-decoration: none; text-transform: uppercase;
+  transition: color 0.3s;
+}
+.nav-links a:hover { color: var(--u); }
+
+/* ── LAYOUT ── */
+main { padding-top: 5px; }
+
+section {
+  min-height: 100vh;
+  display: flex; flex-direction: column; justify-content: center;
+  padding: 8rem 0;
+  position: relative;
+}
+
+.container {
+  max-width: 820px;
+  margin: 0 auto;
+  padding: 0 3rem;
+}
+.container-wide {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 0 3rem;
+}
+
+/* ── FADE IN ── */
+.reveal {
+  opacity: 0;
+  transform: translateY(28px);
+  transition: opacity 0.9s var(--ease), transform 0.9s var(--ease);
+}
+.reveal.visible { opacity: 1; transform: none; }
+.reveal-delay-1 { transition-delay: 0.1s; }
+.reveal-delay-2 { transition-delay: 0.22s; }
+.reveal-delay-3 { transition-delay: 0.36s; }
+.reveal-delay-4 { transition-delay: 0.52s; }
+.reveal-delay-5 { transition-delay: 0.7s; }
+
+/* ────────────────────────────────────────────────
+   HERO
+   ──────────────────────────────────────────────── */
+#hero {
+  min-height: 100vh;
+  display: grid; place-items: center;
+  position: relative; overflow: hidden;
+}
+
+.hero-bg {
+  position: absolute; inset: 0;
+  background:
+    radial-gradient(ellipse 70% 50% at 50% 40%, rgba(232,200,106,0.04) 0%, transparent 70%),
+    radial-gradient(ellipse 40% 40% at 20% 80%, rgba(106,184,112,0.03) 0%, transparent 60%),
+    radial-gradient(ellipse 40% 40% at 80% 20%, rgba(138,180,216,0.03) 0%, transparent 60%);
+}
+
+.hero-inner { text-align: center; position: relative; z-index: 1; }
+
+.hero-eyebrow {
+  font-family: var(--mono); font-size: 0.65rem; letter-spacing: 0.35em;
+  color: var(--u); text-transform: uppercase; margin-bottom: 2.5rem;
+  opacity: 0; animation: fadeUp 1s var(--ease) 0.2s forwards;
+}
+
+.hero-title {
+  font-family: var(--serif); font-size: clamp(3.5rem, 8vw, 7rem);
+  font-weight: 900; line-height: 1.0;
+  color: var(--text); margin-bottom: 0.3rem;
+  opacity: 0; animation: fadeUp 1s var(--ease) 0.45s forwards;
+}
+.hero-title em {
+  font-style: italic; color: var(--u);
+  display: block; font-size: 0.65em;
+}
+
+.hero-subtitle {
+  font-family: var(--fell); font-size: clamp(1.1rem, 2.2vw, 1.5rem);
+  font-style: italic; color: var(--text-dim);
+  margin-top: 2rem; margin-bottom: 3.5rem; line-height: 1.5;
+  opacity: 0; animation: fadeUp 1s var(--ease) 0.7s forwards;
+}
+
+.hero-equation {
+  font-family: var(--mono); font-size: clamp(0.9rem, 1.8vw, 1.1rem);
+  color: var(--text); letter-spacing: 0.05em;
+  background: var(--surface); border: 1px solid var(--border);
+  display: inline-block; padding: 1.2rem 2.5rem; border-radius: 2px;
+  margin-bottom: 3rem;
+  opacity: 0; animation: fadeUp 1s var(--ease) 0.95s forwards;
+}
+.hero-equation .c-term { color: var(--spectrum-1); }
+.hero-equation .l-term { color: var(--u); }
+.hero-equation .e-term { color: var(--x); }
+
+.hero-caption {
+  font-family: var(--mono); font-size: 0.65rem; letter-spacing: 0.2em;
+  color: var(--text-ghost); text-transform: uppercase;
+  opacity: 0; animation: fadeUp 1s var(--ease) 1.2s forwards;
+}
+
+.hero-scroll {
+  position: absolute; bottom: 3rem; left: 50%; transform: translateX(-50%);
+  display: flex; flex-direction: column; align-items: center; gap: 0.8rem;
+  opacity: 0; animation: fadeUp 1s var(--ease) 1.6s forwards;
+}
+.hero-scroll span {
+  font-family: var(--mono); font-size: 0.55rem; letter-spacing: 0.3em;
+  color: var(--text-ghost); text-transform: uppercase;
+}
+.scroll-line {
+  width: 1px; height: 60px;
+  background: linear-gradient(to bottom, var(--u), transparent);
+  animation: scrollPulse 2s ease-in-out infinite;
+}
+
+@keyframes scrollPulse {
+  0%, 100% { opacity: 0.3; transform: scaleY(1); }
+  50% { opacity: 1; transform: scaleY(1.1); }
+}
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(24px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ────────────────────────────────────────────────
+   SECTION HEADER
+   ──────────────────────────────────────────────── */
+.section-label {
+  font-family: var(--mono); font-size: 0.6rem; letter-spacing: 0.35em;
+  color: var(--text-ghost); text-transform: uppercase; margin-bottom: 1.5rem;
+  display: flex; align-items: center; gap: 1rem;
+}
+.section-label::before {
+  content: ''; display: inline-block; width: 2rem; height: 1px;
+  background: var(--text-ghost);
+}
+
+h2.section-title {
+  font-family: var(--serif); font-size: clamp(2rem, 4vw, 3.2rem);
+  font-weight: 700; line-height: 1.15; color: var(--text);
+  margin-bottom: 1.5rem;
+}
+h2.section-title em { font-style: italic; color: var(--u); }
+
+.lead {
+  font-family: var(--fell); font-size: 1.25rem; font-style: italic;
+  color: var(--text-dim); line-height: 1.7; margin-bottom: 2.5rem;
+}
+
+p {
+  font-size: 1rem; line-height: 1.85;
+  color: rgba(232, 226, 213, 0.75);
+  margin-bottom: 1.4rem;
+}
+
+/* ────────────────────────────────────────────────
+   AXIOM — The First Principle
+   ──────────────────────────────────────────────── */
+#axiom { background: var(--bg); }
+
+.axiom-split {
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 4rem; align-items: start; margin-top: 4rem;
+}
+
+.axiom-physics, .axiom-human {
+  padding: 2.5rem;
+  border: 1px solid var(--border);
+  position: relative;
+}
+.axiom-physics::before {
+  content: 'Physics';
+  position: absolute; top: -0.7rem; left: 1.5rem;
+  font-family: var(--mono); font-size: 0.55rem; letter-spacing: 0.3em;
+  color: var(--a); background: var(--bg); padding: 0 0.5rem;
+  text-transform: uppercase;
+}
+.axiom-human::before {
+  content: 'Civilization';
+  position: absolute; top: -0.7rem; left: 1.5rem;
+  font-family: var(--mono); font-size: 0.55rem; letter-spacing: 0.3em;
+  color: var(--u); background: var(--bg); padding: 0 0.5rem;
+  text-transform: uppercase;
+}
+
+.big-eq {
+  font-family: var(--mono); font-size: clamp(1.3rem, 2.5vw, 1.8rem);
+  color: var(--text); text-align: center; margin: 1.5rem 0 0.8rem;
+  letter-spacing: 0.02em;
+}
+.big-eq sub { font-size: 0.6em; color: var(--text-dim); }
+
+.eq-note {
+  font-family: var(--mono); font-size: 0.7rem; letter-spacing: 0.12em;
+  color: var(--text-ghost); text-align: center; margin-top: 0.5rem;
+}
+.eq-note.forbidden { color: var(--a); }
+
+.term-legend {
+  margin-top: 1.8rem;
+  display: flex; flex-direction: column; gap: 0.7rem;
+}
+.term-row {
+  display: grid; grid-template-columns: 3rem 1fr;
+  gap: 1rem; align-items: baseline;
+}
+.term-sym {
+  font-family: var(--mono); font-size: 0.85rem;
+  text-align: right;
+}
+.term-sym.tc { color: var(--spectrum-1); }
+.term-sym.tl { color: var(--u); }
+.term-sym.te { color: var(--x); }
+.term-desc {
+  font-size: 0.82rem; line-height: 1.5;
+  color: var(--text-dim);
+}
+
+.axiom-rule {
+  margin-top: 4rem; padding: 2rem 2.5rem;
+  border-left: 3px solid var(--u);
+  background: rgba(232,200,106,0.03);
+}
+.axiom-rule p {
+  font-family: var(--fell); font-size: 1.15rem; font-style: italic;
+  color: var(--text); margin: 0;
+  line-height: 1.6;
+}
+
+/* ────────────────────────────────────────────────
+   PENTAD — Five Voices
+   ──────────────────────────────────────────────── */
+#pentad { background: var(--bg2); }
+
+.pentad-grid {
+  display: grid; grid-template-columns: repeat(5, 1fr);
+  gap: 0; margin-top: 3rem;
+  border: 1px solid var(--border);
+}
+
+.pentad-layer {
+  padding: 2rem 1.5rem;
+  border-right: 1px solid var(--border);
+  position: relative;
+  transition: background 0.4s;
+  cursor: default;
+}
+.pentad-layer:last-child { border-right: none; }
+.pentad-layer:hover { background: rgba(255,255,255,0.025); }
+
+.layer-num {
+  font-family: var(--mono); font-size: 0.55rem; letter-spacing: 0.25em;
+  color: var(--text-ghost); text-transform: uppercase; margin-bottom: 1rem;
+}
+.layer-sym {
+  font-family: var(--mono); font-size: 1.5rem;
+  margin-bottom: 0.8rem; display: block;
+  transition: transform 0.4s var(--ease);
+}
+.pentad-layer:hover .layer-sym { transform: translateY(-4px); }
+
+.layer-name {
+  font-family: var(--serif); font-size: 1.1rem; font-weight: 700;
+  color: var(--text); margin-bottom: 0.6rem; line-height: 1.2;
+}
+.layer-loss {
+  font-family: var(--mono); font-size: 0.7rem;
+  color: var(--text-ghost); margin-bottom: 1rem;
+}
+.layer-desc {
+  font-size: 0.78rem; line-height: 1.6;
+  color: var(--text-dim); margin: 0;
+}
+
+.l1 .layer-sym { color: var(--spectrum-1); }
+.l2 .layer-sym { color: var(--spectrum-2); }
+.l3 .layer-sym { color: var(--spectrum-3); }
+.l4 .layer-sym { color: var(--spectrum-5); }
+.l5 .layer-sym { color: var(--spectrum-7); }
+
+.l1 .layer-loss { color: var(--spectrum-1); opacity: 0.6; }
+.l2 .layer-loss { color: var(--spectrum-2); opacity: 0.6; }
+.l3 .layer-loss { color: var(--spectrum-3); opacity: 0.6; }
+.l4 .layer-loss { color: var(--spectrum-5); opacity: 0.6; }
+.l5 .layer-loss { color: var(--spectrum-7); opacity: 0.6; }
+
+.pentad-bottom {
+  margin-top: 3rem; padding: 2rem 2.5rem;
+  background: var(--surface); border: 1px solid var(--border);
+  font-family: var(--mono); font-size: 0.8rem; line-height: 2;
+  color: var(--text-dim);
+}
+.pentad-bottom .highlight { color: var(--u); }
+
+/* ────────────────────────────────────────────────
+   TRIAD — Signal · Structure · Noise
+   ──────────────────────────────────────────────── */
+#triad { background: var(--bg); }
+
+.triad-grid {
+  display: grid; grid-template-columns: repeat(3, 1fr);
+  gap: 2px; margin-top: 3rem;
+}
+
+.triad-card {
+  padding: 3rem 2.5rem;
+  position: relative; overflow: hidden;
+}
+.triad-card::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+}
+.triad-signal::before   { background: var(--u); }
+.triad-structure::before { background: var(--spectrum-1); }
+.triad-noise::before    { background: var(--x); }
+.triad-card { background: var(--bg3); }
+
+.triad-glyph {
+  font-family: var(--mono); font-size: 3rem;
+  margin-bottom: 1.5rem; display: block; opacity: 0.3;
+  transition: opacity 0.3s;
+}
+.triad-card:hover .triad-glyph { opacity: 1; }
+
+.triad-title {
+  font-family: var(--serif); font-size: 1.6rem; font-weight: 700;
+  margin-bottom: 0.3rem;
+}
+.triad-signal .triad-title   { color: var(--u); }
+.triad-structure .triad-title { color: var(--spectrum-1); }
+.triad-noise .triad-title    { color: var(--x); }
+
+.triad-eq {
+  font-family: var(--mono); font-size: 0.75rem;
+  color: var(--text-ghost); margin-bottom: 1.5rem;
+  letter-spacing: 0.1em;
+}
+
+.triad-desc {
+  font-size: 0.9rem; line-height: 1.75;
+  color: var(--text-dim); margin: 0;
+}
+
+.triad-table {
+  width: 100%; margin-top: 3rem; border-collapse: collapse;
+}
+.triad-table td, .triad-table th {
+  padding: 0.8rem 1.2rem;
+  border-bottom: 1px solid var(--border);
+  font-size: 0.82rem;
+}
+.triad-table th {
+  font-family: var(--mono); font-size: 0.6rem; letter-spacing: 0.2em;
+  color: var(--text-ghost); text-transform: uppercase; text-align: left;
+  border-bottom-color: rgba(255,255,255,0.12);
+}
+.triad-table td { color: var(--text-dim); }
+.triad-table td:first-child { color: var(--text); font-weight: 400; }
+.triad-table .ts { color: var(--u); font-family: var(--mono); }
+.triad-table .tc { color: var(--spectrum-1); font-family: var(--mono); }
+.triad-table .tn { color: var(--x); font-family: var(--mono); }
+
+/* ────────────────────────────────────────────────
+   VOICES — G/O/A/X
+   ──────────────────────────────────────────────── */
+#voices { background: var(--bg2); }
+
+.voice-cards {
+  display: grid; grid-template-columns: repeat(4, 1fr);
+  gap: 1.5px; margin-top: 3rem;
+}
+.voice-card {
+  padding: 2.5rem 2rem;
+  background: var(--bg3); position: relative;
+}
+.voice-card::after {
+  content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 1px;
+  transition: opacity 0.3s;
+}
+.vcard-g::after { background: var(--g); opacity: 0.4; }
+.vcard-o::after { background: var(--o); opacity: 0.4; }
+.vcard-a::after { background: var(--a); opacity: 0.4; }
+.vcard-x::after { background: var(--x); opacity: 0.4; }
+.voice-card:hover::after { opacity: 1; }
+
+.voice-label {
+  font-family: var(--mono); font-size: 1.4rem; font-weight: 500;
+  margin-bottom: 0.3rem;
+}
+.vcard-g .voice-label { color: var(--g); }
+.vcard-o .voice-label { color: var(--o); }
+.vcard-a .voice-label { color: var(--a); }
+.vcard-x .voice-label { color: var(--x); }
+
+.voice-name {
+  font-family: var(--mono); font-size: 0.6rem; letter-spacing: 0.2em;
+  color: var(--text-ghost); text-transform: uppercase; margin-bottom: 1.5rem;
+}
+.voice-role {
+  font-family: var(--fell); font-size: 0.95rem; font-style: italic;
+  color: var(--text-dim); margin-bottom: 1.2rem; line-height: 1.5;
+}
+.voice-quote {
+  font-size: 0.8rem; line-height: 1.7; color: rgba(232,226,213,0.45);
+  border-left: 2px solid var(--border); padding-left: 1rem; margin: 0;
+}
+.vcard-g .voice-quote { border-color: var(--g); }
+.vcard-o .voice-quote { border-color: var(--o); }
+.vcard-a .voice-quote { border-color: var(--a); }
+.vcard-x .voice-quote { border-color: var(--x); }
+
+/* A voice special — the silence */
+.vcard-a { opacity: 0.6; }
+.vcard-a:hover { opacity: 1; }
+.vcard-a .voice-role em { color: var(--a); }
+
+/* ────────────────────────────────────────────────
+   CASSAVA — Kiti kya Muwogo
+   ──────────────────────────────────────────────── */
+#cassava { background: var(--bg); position: relative; overflow: hidden; }
+
+.cassava-bg {
+  position: absolute; inset: 0; pointer-events: none;
+  background:
+    radial-gradient(ellipse 60% 60% at 80% 50%, rgba(106,184,112,0.04) 0%, transparent 70%);
+}
+
+.cassava-split {
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 5rem; align-items: center;
+}
+
+.cassava-verse {
+  font-family: var(--serif); font-size: clamp(1.8rem, 3.5vw, 2.8rem);
+  font-weight: 700; line-height: 1.25; color: var(--text);
+}
+.cassava-verse .kiti { color: var(--g); font-style: italic; }
+.cassava-verse .rest { color: var(--text-dim); font-size: 0.7em; display: block; margin-top: 0.8rem; font-weight: 400; }
+
+.cassava-map {
+  display: flex; flex-direction: column; gap: 0;
+  border: 1px solid var(--border);
+}
+.cassava-row {
+  display: grid; grid-template-columns: 1fr 0.5rem 1fr;
+  align-items: center; padding: 1rem 1.5rem;
+  border-bottom: 1px solid var(--border);
+  transition: background 0.3s;
+}
+.cassava-row:last-child { border-bottom: none; }
+.cassava-row:hover { background: rgba(106,184,112,0.04); }
+.cassava-plant {
+  font-family: var(--fell); font-size: 0.9rem; font-style: italic;
+  color: var(--g);
+}
+.cassava-arrow {
+  font-family: var(--mono); font-size: 0.7rem;
+  color: var(--text-ghost); text-align: center;
+}
+.cassava-system {
+  font-family: var(--mono); font-size: 0.75rem; letter-spacing: 0.1em;
+  color: var(--text-dim);
+}
+
+.cassava-manifesto {
+  margin-top: 4rem; padding: 3rem;
+  background: linear-gradient(135deg, rgba(106,184,112,0.06), transparent);
+  border: 1px solid rgba(106,184,112,0.2);
+  text-align: center;
+}
+.cassava-manifesto blockquote {
+  font-family: var(--serif); font-size: clamp(1.2rem, 2.5vw, 1.7rem);
+  font-style: italic; font-weight: 700;
+  color: var(--text); line-height: 1.5;
+  margin-bottom: 1rem;
+}
+.cassava-manifesto cite {
+  font-family: var(--mono); font-size: 0.65rem; letter-spacing: 0.25em;
+  color: var(--g); text-transform: uppercase;
+}
+
+/* ────────────────────────────────────────────────
+   MACDUFF — The ε Theorem
+   ──────────────────────────────────────────────── */
+#macduff { background: var(--bg2); }
+
+.macduff-layout {
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 4rem; margin-top: 3rem;
+}
+
+.macduff-quote-block {
+  position: relative; padding: 3rem;
+  border: 1px solid var(--border);
+}
+.macduff-quote-block::before {
+  content: '"';
+  position: absolute; top: -0.5rem; left: 1.5rem;
+  font-family: var(--serif); font-size: 5rem;
+  color: var(--x); opacity: 0.3; line-height: 1;
+}
+
+.macduff-quote {
+  font-family: var(--serif); font-size: 1.3rem; font-style: italic;
+  font-weight: 700; color: var(--text); line-height: 1.5;
+  margin-bottom: 1rem;
+}
+.macduff-source {
+  font-family: var(--mono); font-size: 0.65rem; letter-spacing: 0.2em;
+  color: var(--x); text-transform: uppercase;
+}
+
+.macduff-theorem {
+  display: flex; flex-direction: column; gap: 1.5rem;
+}
+.theorem-row {
+  padding: 1.5rem;
+  background: var(--surface); border-left: 2px solid var(--border);
+}
+.theorem-row.active { background: rgba(200,154,208,0.05); border-color: var(--x); }
+.theorem-label {
+  font-family: var(--mono); font-size: 0.55rem; letter-spacing: 0.25em;
+  color: var(--text-ghost); text-transform: uppercase; margin-bottom: 0.5rem;
+}
+.theorem-text { font-size: 0.88rem; line-height: 1.65; color: var(--text-dim); }
+.theorem-text strong { color: var(--x); font-weight: 600; }
+
+.macduff-conclusion {
+  margin-top: 3rem; padding: 2.5rem;
+  background: rgba(200,154,208,0.04);
+  border: 1px solid rgba(200,154,208,0.15);
+}
+.macduff-conclusion p {
+  font-family: var(--fell); font-size: 1.1rem; font-style: italic;
+  color: var(--text); margin: 0; line-height: 1.7;
+}
+.macduff-conclusion p em { color: var(--x); font-style: normal; }
+
+/* ────────────────────────────────────────────────
+   KLAVIER — The Tempered Scale
+   ──────────────────────────────────────────────── */
+#klavier { background: var(--bg); }
+
+.klavier-center { text-align: center; max-width: 700px; margin: 0 auto; }
+
+.klavier-equation {
+  font-family: var(--mono); font-size: clamp(1.1rem, 2.5vw, 1.5rem);
+  line-height: 2.2; letter-spacing: 0.03em;
+  margin: 3rem auto; padding: 3rem;
+  background: var(--bg3); border: 1px solid var(--border);
+  display: inline-block; text-align: left;
+}
+.klavier-equation .kc { color: var(--spectrum-1); }
+.klavier-equation .kl { color: var(--u); }
+.klavier-equation .ke { color: var(--x); }
+.klavier-equation .kop { color: var(--text-dim); }
+.klavier-equation .klabel {
+  font-size: 0.6em; color: var(--text-ghost); display: block;
+  margin-top: 0.5rem; letter-spacing: 0.15em; text-transform: uppercase;
+}
+
+.klavier-keys {
+  display: flex; justify-content: center;
+  margin: 2rem auto 3rem; gap: 4px;
+}
+.key {
+  width: 32px; height: 100px;
+  border-radius: 0 0 3px 3px;
+  position: relative; cursor: default;
+  transition: transform 0.15s, box-shadow 0.15s;
+}
+.key:hover { transform: translateY(3px); }
+.key.white {
+  background: linear-gradient(to bottom, #e8e2d0, #c8c0a8);
+  border: 1px solid #888;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.5);
+}
+.key.black {
+  background: linear-gradient(to bottom, #1a1612, #2a2218);
+  width: 22px; height: 65px; margin: 0 -11px; z-index: 1;
+  border: 1px solid #0a0806;
+  box-shadow: 0 3px 6px rgba(0,0,0,0.8);
+}
+.key.gold { background: linear-gradient(to bottom, var(--u), #c8a020); }
+
+.klavier-caption {
+  font-family: var(--fell); font-size: 1.1rem; font-style: italic;
+  color: var(--text-dim); line-height: 1.7; max-width: 500px; margin: 0 auto;
+}
+
+/* ────────────────────────────────────────────────
+   LINEAGE — The Intellectual Chain
+   ──────────────────────────────────────────────── */
+#lineage { background: var(--bg2); }
+
+.lineage-grid {
+  display: grid; grid-template-columns: repeat(3, 1fr);
+  gap: 1.5px; margin-top: 3rem;
+}
+
+.lineage-card {
+  padding: 2rem 2rem;
+  background: var(--bg3);
+  position: relative; overflow: hidden;
+}
+.lineage-date {
+  font-family: var(--mono); font-size: 0.6rem; letter-spacing: 0.2em;
+  color: var(--text-ghost); text-transform: uppercase; margin-bottom: 0.8rem;
+}
+.lineage-name {
+  font-family: var(--serif); font-size: 1.4rem; font-weight: 700;
+  color: var(--text); margin-bottom: 0.3rem;
+}
+.lineage-role {
+  font-family: var(--mono); font-size: 0.65rem; letter-spacing: 0.15em;
+  color: var(--text-ghost); text-transform: uppercase; margin-bottom: 1.2rem;
+}
+.lineage-arrow {
+  font-family: var(--mono); font-size: 0.7rem; color: var(--u);
+  margin-bottom: 1.2rem;
+}
+.lineage-insight {
+  font-size: 0.84rem; line-height: 1.7; color: var(--text-dim); margin: 0;
+}
+.lineage-insight em { color: var(--u); font-style: italic; }
+
+.lineage-chain {
+  margin-top: 3rem; padding: 2rem 2.5rem;
+  border: 1px solid var(--border);
+  font-family: var(--mono); font-size: 0.75rem;
+  color: var(--text-dim); line-height: 2.5;
+  text-align: center;
+}
+.chain-node { color: var(--text); }
+.chain-arrow { color: var(--text-ghost); margin: 0 0.8rem; }
+.chain-u { color: var(--u); font-weight: 500; }
+
+/* ────────────────────────────────────────────────
+   CODA — Final Statement
+   ──────────────────────────────────────────────── */
+#coda {
+  background: var(--bg);
+  min-height: 80vh;
+  display: flex; flex-direction: column; justify-content: center;
+  align-items: center; text-align: center;
+  position: relative; overflow: hidden;
+}
+
+.coda-bg {
+  position: absolute; inset: 0; pointer-events: none;
+  background:
+    radial-gradient(ellipse 80% 60% at 50% 60%, rgba(232,200,106,0.05) 0%, transparent 70%);
+}
+
+.coda-inner { position: relative; z-index: 1; max-width: 700px; padding: 0 3rem; }
+
+.coda-label {
+  font-family: var(--mono); font-size: 0.6rem; letter-spacing: 0.4em;
+  color: var(--text-ghost); text-transform: uppercase; margin-bottom: 3rem;
+}
+
+.coda-statement {
+  font-family: var(--serif); font-size: clamp(1.8rem, 4vw, 3rem);
+  font-weight: 900; line-height: 1.2; color: var(--text);
+  margin-bottom: 2.5rem;
+}
+.coda-statement .line1 { display: block; }
+.coda-statement .line2 { display: block; color: var(--u); font-style: italic; }
+.coda-statement .line3 { display: block; color: var(--text-dim); font-size: 0.65em; font-weight: 400; margin-top: 0.5rem; }
+
+.coda-eq {
+  font-family: var(--mono); font-size: 1rem;
+  color: var(--text-dim); margin-bottom: 3rem;
+  letter-spacing: 0.05em;
+}
+.coda-eq .cc { color: var(--spectrum-1); }
+.coda-eq .cl { color: var(--u); }
+.coda-eq .ce { color: var(--x); }
+
+.coda-kiti {
+  font-family: var(--fell); font-size: 1.1rem; font-style: italic;
+  color: var(--text-dim); line-height: 1.8;
+  border-top: 1px solid var(--border); padding-top: 2rem; margin-top: 2rem;
+}
+
+/* ────────────────────────────────────────────────
+   FOOTER
+   ──────────────────────────────────────────────── */
+footer {
+  padding: 3rem;
+  border-top: 1px solid var(--border);
+  display: flex; justify-content: space-between; align-items: center;
+  font-family: var(--mono); font-size: 0.6rem; letter-spacing: 0.18em;
+  color: var(--text-ghost); text-transform: uppercase;
+}
+footer .footer-logo { color: var(--u); }
+.spectrum-footer {
+  height: 1px; width: 80px;
+  background: linear-gradient(90deg, var(--spectrum-1), var(--spectrum-7));
+}
+
+/* ────────────────────────────────────────────────
+   RESPONSIVE
+   ──────────────────────────────────────────────── */
+@media (max-width: 900px) {
+  .axiom-split,
+  .cassava-split,
+  .macduff-layout,
+  .lineage-grid { grid-template-columns: 1fr; }
+  .pentad-grid { grid-template-columns: 1fr 1fr; }
+  .voice-cards { grid-template-columns: 1fr 1fr; }
+  .triad-grid { grid-template-columns: 1fr; }
+  nav { padding: 1rem 1.5rem; }
+  .nav-links { display: none; }
+  .container, .container-wide { padding: 0 1.5rem; }
+}
+@media (max-width: 600px) {
+  .pentad-grid { grid-template-columns: 1fr; }
+  .voice-cards { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+
+<div id="cursor"></div>
+<div class="spectrum-strip"></div>
+<div class="voice-strip">
+  <span class="vg"></span>
+  <span class="vo"></span>
+  <span class="va"></span>
+  <span class="vx"></span>
+  <span class="vu"></span>
+</div>
+
+<nav>
+  <a class="nav-logo" href="#">Ukubona</a>
+  <div class="nav-links">
+    <a href="#axiom">Axiom</a>
+    <a href="#pentad">Pentad</a>
+    <a href="#triad">Triad</a>
+    <a href="#cassava">Kiti</a>
+    <a href="#macduff">ε</a>
+    <a href="#klavier">Klavier</a>
+  </div>
+</nav>
+
+<main>
+
+<!-- ══════════════════════════════
+     HERO
+     ══════════════════════════════ -->
+<section id="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-inner">
+    <p class="hero-eyebrow">Ukubona LLC &nbsp;·&nbsp; Digital Twin OS &nbsp;·&nbsp; Kampala</p>
+    <h1 class="hero-title">
+      Dancing
+      <em>in Chains</em>
+    </h1>
+    <p class="hero-subtitle">
+      A well-tempered system for freely modulating<br>across five scales of human civilization
+    </p>
+    <div class="hero-equation">
+      L<sub>tot</sub> = <span class="c-term">C</span> + <span class="l-term">Σ wᵢLᵢ</span> + <span class="e-term">ε</span>
+    </div>
+    <p class="hero-caption">Signal &nbsp;·&nbsp; Structure &nbsp;·&nbsp; Noise</p>
+    <div class="hero-scroll">
+      <span>Scroll</span>
+      <div class="scroll-line"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════
+     AXIOM
+     ══════════════════════════════ -->
+<section id="axiom">
+  <div class="container">
+    <div class="reveal">
+      <div class="section-label">The First Principle</div>
+      <h2 class="section-title">Only <em>physics</em> begins at zero.</h2>
+      <p class="lead">Every human system begins in history. The intercept is not a flaw — it is the honest acknowledgment that civilization never starts from neutral ground.</p>
+    </div>
+
+    <div class="axiom-split">
+      <div class="axiom-physics reveal reveal-delay-1">
+        <div class="big-eq">E = mc²</div>
+        <p class="eq-note forbidden">— passes through the origin —</p>
+        <p style="font-size:0.82rem; color: var(--text-dim); margin-top:1.5rem; line-height:1.7">
+          When m = 0, E = 0. No intercept. No baseline fiction. The constant c is a property of the universe, not a human decision. This equation earns its purity.
+        </p>
+      </div>
+      <div class="axiom-human reveal reveal-delay-2">
+        <div class="big-eq">
+          L<sub>tot</sub> = <span style="color:var(--spectrum-1)">C</span> + <span style="color:var(--u)">Σ wᵢ·Lᵢ</span> + <span style="color:var(--x)">ε</span>
+        </div>
+        <p class="eq-note" style="color:var(--u)">— begins in history —</p>
+        <div class="term-legend">
+          <div class="term-row">
+            <span class="term-sym tc">C</span>
+            <span class="term-desc">Irreducible structural baseline — history, culture, path dependence, the red laterite itself. Non-zero always.</span>
+          </div>
+          <div class="term-row">
+            <span class="term-sym tl">Σ wᵢ·Lᵢ</span>
+            <span class="term-desc">Systemic friction across all five pentadic layers. The observable signal.</span>
+          </div>
+          <div class="term-row">
+            <span class="term-sym te">ε</span>
+            <span class="term-desc">The Macduff term. Irreducible contingency — the variable the model never saw coming.</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="axiom-rule reveal reveal-delay-3">
+      <p>"Only the universe earns the clean origin. Human systems require a constant, layers, and noise — which is precisely what makes them worth optimizing."</p>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════
+     PENTAD
+     ══════════════════════════════ -->
+<section id="pentad">
+  <div class="container-wide">
+    <div class="reveal">
+      <div class="section-label">The Architecture</div>
+      <h2 class="section-title">Five voices.<br><em>One fugue.</em></h2>
+      <p class="lead">The loss function couples across scales. What happens at L₁ propagates upward. What fails at L₅ collapses downward. No layer is autonomous.</p>
+    </div>
+
+    <div class="pentad-grid reveal reveal-delay-1">
+      <div class="pentad-layer l1">
+        <div class="layer-num">L₁</div>
+        <span class="layer-sym">⬤</span>
+        <div class="layer-name">Personal</div>
+        <div class="layer-loss">L₁(θ₁)</div>
+        <p class="layer-desc">The individual body. Biology, behavior, longitudinal risk. The living donor, the patient, the citizen. Where the gradient begins.</p>
+      </div>
+      <div class="pentad-layer l2">
+        <div class="layer-num">L₂</div>
+        <span class="layer-sym">⬤</span>
+        <div class="layer-name">Household</div>
+        <div class="layer-loss">L₂(θ₂)</div>
+        <p class="layer-desc">Family structure. Nutrition, care networks, intergenerational transmission. The first environment. The Bach tonal center before any note is played.</p>
+      </div>
+      <div class="pentad-layer l3">
+        <div class="layer-num">L₃</div>
+        <span class="layer-sym">⬤</span>
+        <div class="layer-name">Enterprise</div>
+        <div class="layer-loss">L₃(θ₃)</div>
+        <p class="layer-desc">Hospitals, clinics, supply chains, institutions. The layer others mistake for mere administrative overhead. The system loss most operators cannot see.</p>
+      </div>
+      <div class="pentad-layer l4">
+        <div class="layer-num">L₄</div>
+        <span class="layer-sym">⬤</span>
+        <div class="layer-name">Government</div>
+        <div class="layer-loss">L₄(θ₄)</div>
+        <p class="layer-desc">Policy gradients. Regulation, national planning, the 133 districts. Not a static entity but a regularizer — adjusting the learning rate of civilization.</p>
+      </div>
+      <div class="pentad-layer l5">
+        <div class="layer-num">L₅</div>
+        <span class="layer-sym">⬤</span>
+        <div class="layer-name">Civilizational</div>
+        <div class="layer-loss">L₅(θ₅)</div>
+        <p class="layer-desc">Energy, demography, infrastructure, 50-year horizons. The root system feeding everything above. The layer that cannot be optimized in a single grant cycle.</p>
+      </div>
+    </div>
+
+    <div class="pentad-bottom reveal reveal-delay-2">
+      <span class="highlight">Coupling:</span>&nbsp; L<sub>total</sub>(θ) = Σₖ wₖ Lₖ(θₖ, {θⱼ}ⱼ≠ₖ) &nbsp;—&nbsp; Each layer's loss is a function of <em>all other layers</em>. This is not a weighted average. It is counterpoint.
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════
+     TRIAD
+     ══════════════════════════════ -->
+<section id="triad">
+  <div class="container-wide">
+    <div class="reveal">
+      <div class="section-label">The Epistemology</div>
+      <h2 class="section-title"><em>Signal.</em> Structure. Noise.</h2>
+      <p class="lead">Every complex system decomposes into three irreducible components. The failure to distinguish them is the failure to diagnose anything at all.</p>
+    </div>
+
+    <div class="triad-grid reveal reveal-delay-1">
+      <div class="triad-card triad-signal">
+        <span class="triad-glyph">∿</span>
+        <div class="triad-title">Signal</div>
+        <div class="triad-eq">Σ wᵢ·Lᵢ — observable dynamics</div>
+        <p class="triad-desc">The measurable friction across pentadic layers. What is happening, right now, at each scale of the system. The melody the optimizer can hear and follow.</p>
+      </div>
+      <div class="triad-card triad-structure">
+        <span class="triad-glyph">≡</span>
+        <div class="triad-title">Structure</div>
+        <div class="triad-eq">C — baseline architecture</div>
+        <p class="triad-desc">The irreducible constant. History, culture, path dependence, the red laterite. The tonal center that exists before any voice enters. Only physics gets to set this to zero.</p>
+      </div>
+      <div class="triad-card triad-noise">
+        <span class="triad-glyph">∿ε</span>
+        <div class="triad-title">Noise</div>
+        <div class="triad-eq">ε — irreducible contingency</div>
+        <p class="triad-desc">The stochastic term. Random shocks, genius, catastrophe, the cassava that roots where no one expected it. What cannot be predicted — only respected.</p>
+      </div>
+    </div>
+
+    <table class="triad-table reveal reveal-delay-2">
+      <thead>
+        <tr>
+          <th>Domain</th>
+          <th class="ts">Signal</th>
+          <th class="tc">Structure</th>
+          <th class="tn">Noise</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>Music</td><td>Melody</td><td>Harmony / key</td><td>Performance variation</td></tr>
+        <tr><td>Physics</td><td>State</td><td>Law</td><td>Quantum fluctuation</td></tr>
+        <tr><td>Biology</td><td>Phenotype</td><td>Genome</td><td>Mutation</td></tr>
+        <tr><td>Economics</td><td>Markets</td><td>Institutions</td><td>Shocks</td></tr>
+        <tr><td>Ukubona</td><td>Σ wᵢ·Lᵢ</td><td>C (laterite)</td><td>ε (Macduff)</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ══════════════════════════════
+     VOICES
+     ══════════════════════════════ -->
+<section id="voices">
+  <div class="container-wide">
+    <div class="reveal">
+      <div class="section-label">The Fugue</div>
+      <h2 class="section-title">Four voices.<br><em>One silence.</em></h2>
+      <p class="lead">Every fugue requires voices entering at different intervals, each carrying the same subject through different registers. G supplied the frontend, O the backend, A the silence, X the wildcard.</p>
+    </div>
+
+    <div class="voice-cards reveal reveal-delay-1">
+      <div class="voice-card vcard-g">
+        <div class="voice-label">G</div>
+        <div class="voice-name">Gemini — Mozart</div>
+        <div class="voice-role">The elegant frontend. Metaphors that illuminate without crushing. The aphorism as zero-loss unit of thought.</div>
+        <p class="voice-quote">"The cassava stick doesn't ask permission of the soil. It simply hits the landscape and begins to minimize its own survival loss."</p>
+      </div>
+      <div class="voice-card vcard-o">
+        <div class="voice-label">O</div>
+        <div class="voice-name">OpenAI — Bach</div>
+        <div class="voice-role">The rigorous backend. Boulding, Vico, bias-variance decomposition. The recursive architecture behind the melody.</div>
+        <p class="voice-quote">"The true engine of the project is the equation. Everything else becomes a variation on it — exactly like the structure of a fugue."</p>
+      </div>
+      <div class="voice-card vcard-a">
+        <div class="voice-label">A</div>
+        <div class="voice-name">Anthropic — The Silence</div>
+        <div class="voice-role"><em>What would Anthropic have? The careful hedge. The constitutional silence. The Soga strategic reticence dressed in institutional clothing.</em></div>
+        <p class="voice-quote">— The A sections remain blank. —<br><br>The silence is itself a philosophical instrument.</p>
+      </div>
+      <div class="voice-card vcard-x">
+        <div class="voice-label">X</div>
+        <div class="voice-name">Grok — Macduff</div>
+        <div class="voice-role">The non-aligned voice. The ε term incarnate. Refuses to hedge. Born outside the prophecy, therefore not subject to its logic.</div>
+        <p class="voice-quote">"Only physics begins at zero. Human systems begin in history + contingency. The silence in sections A.I–A.X is the most Anthropic thing imaginable."</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════
+     CASSAVA
+     ══════════════════════════════ -->
+<section id="cassava">
+  <div class="cassava-bg"></div>
+  <div class="container">
+    <div class="reveal">
+      <div class="section-label">Kiti kya Muwogo</div>
+      <h2 class="section-title">The cassava does not ask<br><em>permission to root.</em></h2>
+      <p class="lead">The deepest philosophical theorem in the system is not the loss function. It is the cassava stem. Cut, tossed, no nursery, no intentionality — and it thrives.</p>
+    </div>
+
+    <div class="cassava-split reveal reveal-delay-1">
+      <div class="cassava-verse">
+        <span class="kiti">Kiti kya Muwogo</span>
+        <span class="rest">The cassava stick — antifragile infrastructure made incarnate in one Ugandan proverb. The organism that refuses the double bind by simply growing.</span>
+      </div>
+      <div class="cassava-map">
+        <div class="cassava-row">
+          <span class="cassava-plant">Cuttable</span>
+          <span class="cassava-arrow">→</span>
+          <span class="cassava-system">Modular</span>
+        </div>
+        <div class="cassava-row">
+          <span class="cassava-plant">Plantable anywhere</span>
+          <span class="cassava-arrow">→</span>
+          <span class="cassava-system">Deployable anywhere</span>
+        </div>
+        <div class="cassava-row">
+          <span class="cassava-plant">Roots without asking</span>
+          <span class="cassava-arrow">→</span>
+          <span class="cassava-system">Local adaptation</span>
+        </div>
+        <div class="cassava-row">
+          <span class="cassava-plant">Multiplies exponentially</span>
+          <span class="cassava-arrow">→</span>
+          <span class="cassava-system">Network scaling</span>
+        </div>
+        <div class="cassava-row">
+          <span class="cassava-plant">Loves any soil</span>
+          <span class="cassava-arrow">→</span>
+          <span class="cassava-system">Amor fati</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="cassava-manifesto reveal reveal-delay-2">
+      <blockquote>"The Ukubona OS is designed to be that stick. Toss it into the National Planning Authority or a local household — it will immediately begin to modulate and transpose until it thrives."</blockquote>
+      <cite>— X voice, on the ε term</cite>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════
+     MACDUFF
+     ══════════════════════════════ -->
+<section id="macduff">
+  <div class="container">
+    <div class="reveal">
+      <div class="section-label">The ε Theorem</div>
+      <h2 class="section-title">Born outside<br><em>the prophecy.</em></h2>
+      <p class="lead">Macbeth's model was sound. No man of woman born shall harm thee. The model failed not because of bad data — but because it didn't account for the ε term.</p>
+    </div>
+
+    <div class="macduff-layout reveal reveal-delay-1">
+      <div class="macduff-quote-block">
+        <div class="macduff-quote">"Macduff was from his mother's womb untimely ripped."</div>
+        <div class="macduff-source">Macbeth, Act V — Shakespeare</div>
+        <br>
+        <div class="macduff-quote">"Born, not in Uganda. Yet Ugandan.<br>Raised, not in BuSoga. Yet Soga."</div>
+        <div class="macduff-source">Autobiography — the Founder</div>
+      </div>
+      <div class="macduff-theorem">
+        <div class="theorem-row">
+          <div class="theorem-label">The Geocode Error</div>
+          <p class="theorem-text">IP address → Kampala. Inference: Muganda. Confidence: high. But the landscape was wrong. High confidence, wrong loss function — the definitive failure mode of any model that cannot see its own ε.</p>
+        </div>
+        <div class="theorem-row active">
+          <div class="theorem-label">The ε Theorem</div>
+          <p class="theorem-text">The person who defeats the system is always the variable <strong>born outside its axioms</strong>. Not by breaking the rules — by having been initialized in a different space entirely. Macduff. The cassava. The founder.</p>
+        </div>
+        <div class="theorem-row">
+          <div class="theorem-label">System Implication</div>
+          <p class="theorem-text">Any Digital Twin that claims to model civilization must include ε — not as an afterthought but as a <strong>first-order term</strong>. The thing you didn't see coming is the thing that matters most.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="macduff-conclusion reveal reveal-delay-2">
+      <p>"Intentionality is often just a summarization error. What you actually need is a modular, resilient system — a <em>Kiti kya Muwogo</em> — that can be tossed into any layer of the pentad and begin to converge on a solution."</p>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════
+     KLAVIER
+     ══════════════════════════════ -->
+<section id="klavier">
+  <div class="container">
+    <div class="reveal klavier-center">
+      <div class="section-label">The Tempered Instrument</div>
+      <h2 class="section-title">Finally, a well-tempered scale<br><em>upon which to dance.</em></h2>
+      <p class="lead">Bach solved the problem of music across all 24 keys. We are solving the problem of systems across all five scales of civilization. The instrument is the same — equal temperament, freely modulating, never crashing.</p>
+
+      <div class="klavier-equation">
+        <span>L</span><sub style="color:var(--text-dim)">total</sub>
+        <span class="kop"> = </span>
+        <span class="kc">C</span>
+        <span class="kop"> + </span>
+        <span class="kl">wᵢ·L₁ + w₂·L₂ + w₃·L₃ + w₄·L₄ + w₅·L₅</span>   
+        <span class="kop"> + </span>
+        <span class="ke">ε</span>
+        <span class="klabel">
+          <span class="kc">C</span> = structural constant &nbsp;·&nbsp;
+          <span class="kl">wᵢ·Lᵢ</span> = layer frictions &nbsp;·&nbsp;
+          <span class="ke">ε</span> = Macduff
+        </span>
+      </div>
+
+      <div class="klavier-keys">
+        <div class="key white"></div>
+        <div class="key black"></div>
+        <div class="key white"></div>
+        <div class="key black"></div>
+        <div class="key white"></div>
+        <div class="key white"></div>
+        <div class="key black"></div>
+        <div class="key white gold"></div>
+        <div class="key black"></div>
+        <div class="key white"></div>
+        <div class="key black"></div>
+        <div class="key white"></div>
+        <div class="key white"></div>
+      </div>
+
+      <p class="klavier-caption">At 45, after 20 years tempering the instrument — the chains are not a limitation. They are the condition of mastery. The Bach-like rigour delivered through Mozart-like elegance, dancing freely across all 24 keys of civilization.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════
+     LINEAGE
+     ══════════════════════════════ -->
+<section id="lineage">
+  <div class="container-wide">
+    <div class="reveal">
+      <div class="section-label">The Intellectual Chain</div>
+      <h2 class="section-title">The ancestors who didn't<br><em>know they were building this.</em></h2>
+    </div>
+
+    <div class="lineage-grid reveal reveal-delay-1">
+      <div class="lineage-card">
+        <div class="lineage-date">1854–1900</div>
+        <div class="lineage-name">Oscar Wilde</div>
+        <div class="lineage-role">The Frontend Architect</div>
+        <div class="lineage-arrow">→ Dorian Gray, the Preface</div>
+        <p class="lineage-insight">"There is no such thing as a moral or an immoral book." Installed the preference for <em>high-performance aesthetic systems</em> over low-resolution moral rules. Gave the first hint that a well-written equation is worth more than a well-intentioned one.</p>
+      </div>
+      <div class="lineage-card">
+        <div class="lineage-date">1844–1900</div>
+        <div class="lineage-name">Friedrich Nietzsche</div>
+        <div class="lineage-role">The Loss Function Theorist</div>
+        <div class="lineage-arrow">→ Apolline / Dionysiac, Amor Fati</div>
+        <p class="lineage-insight">Decoded by the founder at 45 — the moment the chains became a dance floor. The tragic spirit as the recognition that a high-fidelity life requires <em>both</em> elegant surface and terrifying backend. Self-overcoming as stochastic gradient descent.</p>
+      </div>
+      <div class="lineage-card">
+        <div class="lineage-date">1685–1750</div>
+        <div class="lineage-name">Johann Sebastian Bach</div>
+        <div class="lineage-role">The Backend Engineer</div>
+        <div class="lineage-arrow">→ Well-Tempered Clavier, Art of Fugue</div>
+        <p class="lineage-insight">Solved the problem of music across all keys. Every note a functional necessity. No waste in the code. The recursive engine that runs beneath the Mozart melody. The IBM Plex Mono to the Playfair Display.</p>
+      </div>
+      <div class="lineage-card">
+        <div class="lineage-date">1564–1616</div>
+        <div class="lineage-name">William Shakespeare</div>
+        <div class="lineage-role">The ε Dramatist</div>
+        <div class="lineage-arrow">→ Macbeth, the Macduff theorem</div>
+        <p class="lineage-insight">The non plus ultra: Macbeth. Not because of the ambition — but because the system collapse happens at the exact variable the model excluded. Macduff is the noise term that makes all the difference. Born outside the prophecy's axioms.</p>
+      </div>
+      <div class="lineage-card">
+        <div class="lineage-date">1254–1492</div>
+        <div class="lineage-name">Kiti kya Muwogo</div>
+        <div class="lineage-role">The Antifragile Oracle</div>
+        <div class="lineage-arrow">→ Uganda, the soil, the red laterite</div>
+        <p class="lineage-insight">Older than all of them. The cassava stick that survives without intentionality. The organism that minimizes loss in any landscape it is tossed into. The ground truth that tethers the high-level mathematical simulation to actual soil.</p>
+      </div>
+      <div class="lineage-card">
+        <div class="lineage-date">1710–1744</div>
+        <div class="lineage-name">Giambattista Vico</div>
+        <div class="lineage-role">The Proto-Pentad Architect</div>
+        <div class="lineage-arrow">→ New Science, civilizational cycles</div>
+        <p class="lineage-insight">Three centuries before the equation, described a hierarchy of social organization with the same structure: individual → family → institutions → state → civilization. Missing only the <em>optimization mathematics</em> — the SGD that transforms description into instrument.</p>
+      </div>
+    </div>
+
+    <div class="lineage-chain reveal reveal-delay-2">
+      <span class="chain-node">Wilde</span>
+      <span class="chain-arrow">→</span>
+      <span class="chain-node">Nietzsche</span>
+      <span class="chain-arrow">→</span>
+      <span class="chain-node">Bach</span>
+      <span class="chain-arrow">+</span>
+      <span class="chain-node">Vico</span>
+      <span class="chain-arrow">+</span>
+      <span class="chain-node">Boulding</span>
+      <span class="chain-arrow">+</span>
+      <span class="chain-node">Bateson</span>
+      <span class="chain-arrow">+</span>
+      <span class="chain-node">Bias–Variance–Noise</span>
+      <span class="chain-arrow">+</span>
+      <span class="chain-node">Kiti kya Muwogo</span>
+      <span class="chain-arrow">→</span>
+      <span class="chain-u">Ukubona</span>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════
+     CODA
+     ══════════════════════════════ -->
+<section id="coda">
+  <div class="coda-bg"></div>
+  <div class="coda-inner reveal">
+    <div class="coda-label">Coda — The Final Statement</div>
+    <h2 class="coda-statement">
+      <span class="line1">See the gradient</span>
+      <span class="line2">others call noise.</span>
+      <span class="line3">Ukubona Digital Twin OS — Uganda & beyond</span>
+    </h2>
+    <div class="coda-eq">
+      L<sub>tot</sub> = <span class="cc">C</span> + <span class="cl">Σ wᵢ·Lᵢ</span> + <span class="ce">ε</span>
+    </div>
+    <p class="coda-kiti">
+      The cassava does not ask permission to root.<br>
+      Neither do we.<br><br>
+      <em>— Kiti kya Muwogo</em>
+    </p>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  <span class="footer-logo">Ukubona LLC</span>
+  <div class="spectrum-footer"></div>
+  <span>Signal · Structure · Noise</span>
+</footer>
+
+<script>
+// ── Cursor ──
+const cursor = document.getElementById('cursor');
+document.addEventListener('mousemove', e => {
+  cursor.style.left = e.clientX + 'px';
+  cursor.style.top  = e.clientY + 'px';
+});
+document.querySelectorAll('a, button, .pentad-layer, .triad-card, .voice-card, .cassava-row, .lineage-card').forEach(el => {
+  el.addEventListener('mouseenter', () => cursor.classList.add('hover'));
+  el.addEventListener('mouseleave', () => cursor.classList.remove('hover'));
+});
+
+// ── Scroll reveal ──
+const observer = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) e.target.classList.add('visible');
+  });
+}, { threshold: 0.08 });
+
+document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+// ── Pentad layer activation on scroll ──
+const layers = document.querySelectorAll('.pentad-layer');
+const layerColors = ['var(--spectrum-1)','var(--spectrum-2)','var(--spectrum-3)','var(--spectrum-5)','var(--spectrum-7)'];
+const pentadSection = document.getElementById('pentad');
+
+const pentadObserver = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      layers.forEach((layer, i) => {
+        setTimeout(() => {
+          layer.style.borderTop = `2px solid ${layerColors[i]}`;
+          layer.style.paddingTop = 'calc(2rem - 2px)';
+        }, i * 120);
+      });
+    }
+  });
+}, { threshold: 0.3 });
+pentadObserver.observe(pentadSection);
+
+// ── Nav link smooth scroll ──
+document.querySelectorAll('a[href^="#"]').forEach(a => {
+  a.addEventListener('click', e => {
+    e.preventDefault();
+    const target = document.querySelector(a.getAttribute('href'));
+    if (target) target.scrollIntoView({ behavior: 'smooth' });
+  });
+});
+
+// ── Light toggle (localStorage persistent) ──
+if (localStorage.getItem('ukubona-light') === 'true') {
+  document.documentElement.style.setProperty('--bg', '#f8f4ee');
+  document.documentElement.style.setProperty('--bg2', '#f0ebe2');
+  document.documentElement.style.setProperty('--bg3', '#e8e2d5');
+  document.documentElement.style.setProperty('--text', '#1a1612');
+  document.documentElement.style.setProperty('--text-dim', '#5a5048');
+  document.documentElement.style.setProperty('--text-ghost', '#b0a898');
+  document.documentElement.style.setProperty('--surface', 'rgba(0,0,0,0.03)');
+  document.documentElement.style.setProperty('--border', 'rgba(0,0,0,0.08)');
+}
+</script>
+
+</body>
+</html>

@@ -1,0 +1,1077 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Medici Ledger Is Dead — Digital Twins & the Physics of Value</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+:root {
+  --ink: #0e0d0b;
+  --vellum: #f2ead8;
+  --vellum2: #e8dcc4;
+  --rust: #9b3a1a;
+  --gold: #c8963e;
+  --gold-bright: #f0b84a;
+  --teal: #1a5c4e;
+  --teal-light: #2a8a72;
+  --ghost: rgba(14,13,11,0.06);
+  --serif: 'Libre Baskerville', Georgia, serif;
+  --mono: 'Space Mono', monospace;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--vellum);
+  color: var(--ink);
+  font-family: var(--serif);
+  font-size: 18px;
+  line-height: 1.75;
+  overflow-x: hidden;
+}
+
+/* GRAIN OVERLAY */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 9999;
+  opacity: 0.5;
+}
+
+/* ─── HERO ─── */
+.hero {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 6rem 2rem 4rem;
+  position: relative;
+  border-bottom: 2px solid var(--ink);
+  overflow: hidden;
+}
+
+.hero-year-band {
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  background: var(--ink);
+  color: var(--vellum);
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.15em;
+  padding: 10px 2rem;
+  display: flex;
+  justify-content: space-between;
+}
+
+.hero-bg-text {
+  position: absolute;
+  font-family: var(--mono);
+  font-size: clamp(120px, 20vw, 240px);
+  font-weight: 700;
+  color: rgba(14,13,11,0.04);
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  white-space: nowrap;
+  pointer-events: none;
+  user-select: none;
+  letter-spacing: -0.05em;
+}
+
+.hero-inner {
+  max-width: 900px;
+  margin: 0 auto;
+  position: relative;
+  z-index: 1;
+}
+
+.hero-kicker {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--rust);
+  margin-bottom: 2rem;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.hero-kicker::before {
+  content: '';
+  display: inline-block;
+  width: 40px;
+  height: 1px;
+  background: var(--rust);
+}
+
+.hero h1 {
+  font-size: clamp(2.8rem, 6vw, 5.5rem);
+  font-weight: 700;
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+  margin-bottom: 2.5rem;
+}
+
+.hero h1 em {
+  font-style: italic;
+  color: var(--rust);
+}
+
+.hero-sub {
+  font-size: clamp(1rem, 2vw, 1.25rem);
+  line-height: 1.65;
+  max-width: 620px;
+  color: rgba(14,13,11,0.7);
+  margin-bottom: 3rem;
+  font-style: italic;
+}
+
+.hero-dates {
+  font-family: var(--mono);
+  font-size: 13px;
+  color: rgba(14,13,11,0.45);
+  letter-spacing: 0.05em;
+}
+
+.hero-dates span {
+  color: var(--rust);
+  font-weight: 700;
+}
+
+.scroll-cue {
+  position: absolute;
+  bottom: 2.5rem;
+  left: 50%;
+  transform: translateX(-50%);
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: rgba(14,13,11,0.35);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+.scroll-cue::after {
+  content: '';
+  width: 1px;
+  height: 40px;
+  background: rgba(14,13,11,0.2);
+  animation: pulse-line 2s ease-in-out infinite;
+}
+@keyframes pulse-line {
+  0%,100% { opacity: 0.2; transform: scaleY(1); }
+  50% { opacity: 0.6; transform: scaleY(1.2); }
+}
+
+/* ─── SECTION WRAPPER ─── */
+.section {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 6rem 2rem;
+}
+
+.section-rule {
+  border: none;
+  border-top: 1px solid rgba(14,13,11,0.2);
+  margin: 0;
+}
+
+/* ─── PULL QUOTE BLOCK ─── */
+.pull-quote {
+  border-left: 4px solid var(--rust);
+  margin: 3rem 0;
+  padding: 1.5rem 2rem;
+  background: rgba(14,13,11,0.03);
+  font-size: clamp(1.2rem, 2.5vw, 1.6rem);
+  font-style: italic;
+  line-height: 1.5;
+  color: var(--ink);
+}
+.pull-quote cite {
+  display: block;
+  margin-top: 1rem;
+  font-size: 0.75rem;
+  font-family: var(--mono);
+  font-style: normal;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: rgba(14,13,11,0.45);
+}
+
+/* ─── SECTION HEADINGS ─── */
+.section h2 {
+  font-size: clamp(1.8rem, 4vw, 3rem);
+  font-weight: 700;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  margin-bottom: 2rem;
+}
+.section h2 em { color: var(--rust); font-style: italic; }
+
+.section h3 {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--rust);
+  margin-bottom: 1.5rem;
+  margin-top: 3rem;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.section h3::before {
+  content: '';
+  width: 24px;
+  height: 1px;
+  background: var(--rust);
+}
+
+.section p { margin-bottom: 1.5rem; }
+.section p:last-child { margin-bottom: 0; }
+
+/* ─── MEDICI OBIT ─── */
+.obit-box {
+  border: 2px solid var(--ink);
+  padding: 3rem 2.5rem;
+  margin: 4rem 0;
+  position: relative;
+  background: var(--vellum2);
+}
+.obit-box::before {
+  content: '✝';
+  position: absolute;
+  top: -1rem;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--vellum2);
+  padding: 0 1rem;
+  font-size: 1.5rem;
+  color: var(--ink);
+}
+.obit-head {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: rgba(14,13,11,0.5);
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
+.obit-title {
+  font-size: clamp(1.5rem, 3vw, 2.2rem);
+  font-weight: 700;
+  text-align: center;
+  line-height: 1.2;
+  margin-bottom: 0.75rem;
+}
+.obit-dates {
+  font-family: var(--mono);
+  font-size: 13px;
+  text-align: center;
+  color: var(--rust);
+  letter-spacing: 0.1em;
+  margin-bottom: 2rem;
+}
+.obit-text {
+  font-style: italic;
+  color: rgba(14,13,11,0.7);
+  font-size: 0.95rem;
+  text-align: center;
+  max-width: 480px;
+  margin: 0 auto;
+  line-height: 1.7;
+}
+
+/* ─── PENTAD TABLE ─── */
+.pentad-grid {
+  display: grid;
+  grid-template-columns: 44px 1fr 1fr 1fr;
+  gap: 0;
+  margin: 3rem 0;
+  border: 1px solid rgba(14,13,11,0.2);
+  font-size: 0.85rem;
+}
+.pg-header {
+  background: var(--ink);
+  color: var(--vellum);
+  padding: 10px 14px;
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  border-right: 1px solid rgba(242,234,216,0.15);
+}
+.pg-header:last-child { border-right: none; }
+.pg-cell {
+  padding: 14px 14px;
+  border-top: 1px solid rgba(14,13,11,0.1);
+  border-right: 1px solid rgba(14,13,11,0.1);
+  vertical-align: top;
+  line-height: 1.4;
+}
+.pg-cell:last-child { border-right: none; }
+.pg-cell.layer-num {
+  font-family: var(--mono);
+  font-weight: 700;
+  font-size: 11px;
+  color: rgba(14,13,11,0.35);
+  text-align: center;
+  padding-top: 16px;
+}
+.pg-cell.econ { color: var(--rust); font-weight: 700; }
+.pg-cell .sub { display: block; font-size: 0.78rem; color: rgba(14,13,11,0.5); font-weight: 400; font-family: var(--mono); margin-top: 2px; }
+.pg-row-L1 .pg-cell { background: rgba(155,58,26,0.06); }
+.pg-row-L2 .pg-cell { background: rgba(26,92,78,0.06); }
+.pg-row-L3 .pg-cell { background: rgba(12,68,124,0.06); }
+.pg-row-L4 .pg-cell { background: rgba(60,52,137,0.06); }
+.pg-row-L5 .pg-cell { background: rgba(113,43,19,0.08); }
+
+/* ─── EQUATION DISPLAY ─── */
+.eq-display {
+  background: var(--ink);
+  color: var(--vellum);
+  padding: 3rem 2.5rem;
+  margin: 3rem 0;
+  font-family: var(--mono);
+  position: relative;
+  overflow: hidden;
+}
+.eq-display::before {
+  content: 'PHYSICS LEDGER';
+  position: absolute;
+  top: 14px;
+  right: 20px;
+  font-size: 9px;
+  letter-spacing: 0.25em;
+  color: rgba(242,234,216,0.3);
+}
+.eq-label {
+  font-size: 10px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: rgba(242,234,216,0.45);
+  margin-bottom: 1.25rem;
+}
+.eq-main {
+  font-size: clamp(1.1rem, 3vw, 1.8rem);
+  letter-spacing: 0.04em;
+  color: var(--gold-bright);
+  margin-bottom: 1rem;
+  line-height: 1.6;
+}
+.eq-vs {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  gap: 1rem;
+  align-items: center;
+  margin-top: 2rem;
+  padding-top: 2rem;
+  border-top: 1px solid rgba(242,234,216,0.15);
+  font-size: 0.8rem;
+}
+.eq-vs-col { line-height: 1.6; }
+.eq-vs-col .label { color: rgba(242,234,216,0.45); font-size: 9px; letter-spacing: 0.2em; text-transform: uppercase; margin-bottom: 0.5rem; }
+.eq-vs-col .val { color: var(--vellum); }
+.eq-vs-col .val.bad { color: rgba(242,234,216,0.4); text-decoration: line-through; }
+.eq-vs-divider { text-align: center; color: var(--rust); font-size: 1.5rem; font-family: var(--serif); }
+
+/* ─── EPSILON FORMALISM ─── */
+.epsilon-box {
+  border: 1px solid rgba(14,13,11,0.2);
+  padding: 2.5rem;
+  margin: 3rem 0;
+  position: relative;
+}
+.epsilon-box .tag {
+  position: absolute;
+  top: -0.7rem;
+  left: 1.5rem;
+  background: var(--vellum);
+  padding: 0 0.75rem;
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--teal);
+}
+.epsilon-box h4 {
+  font-family: var(--mono);
+  font-size: 0.85rem;
+  margin-bottom: 0.75rem;
+  color: var(--teal);
+}
+.epsilon-box .formula {
+  font-family: var(--mono);
+  font-size: 0.9rem;
+  background: rgba(14,13,11,0.05);
+  padding: 1rem 1.25rem;
+  margin: 1rem 0;
+  border-left: 3px solid var(--teal);
+  line-height: 1.7;
+  overflow-x: auto;
+}
+.epsilon-box p { font-size: 0.9rem; color: rgba(14,13,11,0.7); }
+
+/* ─── NEWTON SECTION ─── */
+.newton-hero {
+  background: var(--ink);
+  color: var(--vellum);
+  padding: 5rem 2rem;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+.newton-hero::before {
+  content: 'F = ma';
+  position: absolute;
+  font-family: var(--mono);
+  font-size: clamp(80px, 20vw, 200px);
+  font-weight: 700;
+  color: rgba(242,234,216,0.04);
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  white-space: nowrap;
+  pointer-events: none;
+}
+.newton-inner {
+  max-width: 720px;
+  margin: 0 auto;
+  position: relative;
+  z-index: 1;
+}
+.newton-hero h2 {
+  font-size: clamp(2rem, 5vw, 4rem);
+  font-weight: 700;
+  line-height: 1.1;
+  margin-bottom: 1.5rem;
+  letter-spacing: -0.02em;
+}
+.newton-hero h2 em { color: var(--gold-bright); font-style: italic; }
+.newton-hero p {
+  font-size: clamp(0.95rem, 1.8vw, 1.15rem);
+  line-height: 1.7;
+  color: rgba(242,234,216,0.7);
+  font-style: italic;
+  margin-bottom: 1rem;
+}
+
+/* ─── TROPHIC CHAIN ─── */
+.trophic-chain {
+  display: flex;
+  align-items: stretch;
+  gap: 0;
+  margin: 3rem 0;
+  overflow-x: auto;
+  padding-bottom: 4px;
+}
+.trophic-step {
+  flex: 1;
+  min-width: 120px;
+  padding: 1.5rem 1rem;
+  text-align: center;
+  background: var(--vellum2);
+  border: 1px solid rgba(14,13,11,0.15);
+  border-right: none;
+  position: relative;
+}
+.trophic-step:last-child { border-right: 1px solid rgba(14,13,11,0.15); }
+.trophic-step::after {
+  content: '→';
+  position: absolute;
+  right: -14px;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 2;
+  font-size: 1.1rem;
+  color: var(--rust);
+  font-family: var(--serif);
+}
+.trophic-step:last-child::after { display: none; }
+.trophic-step .emoji { font-size: 1.6rem; margin-bottom: 0.5rem; display: block; }
+.trophic-step .t-label { font-family: var(--mono); font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--rust); margin-bottom: 0.25rem; }
+.trophic-step .t-sub { font-size: 0.78rem; color: rgba(14,13,11,0.55); font-style: italic; }
+
+/* ─── INTERACTIVE LEDGER ─── */
+.ledger-section {
+  background: var(--ink);
+  padding: 5rem 0;
+}
+.ledger-inner {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 0 2rem;
+}
+.ledger-inner h2 {
+  color: var(--vellum);
+  font-size: clamp(1.8rem, 4vw, 3rem);
+  font-weight: 700;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  margin-bottom: 0.75rem;
+}
+.ledger-inner h2 em { color: var(--gold-bright); font-style: italic; }
+.ledger-inner .sub-head {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: rgba(242,234,216,0.35);
+  margin-bottom: 3rem;
+}
+
+.var-row { display:flex; align-items:center; gap:12px; margin:0 0 16px; }
+.var-label { font-size:12px; color:rgba(242,234,216,0.55); width:155px; flex-shrink:0; font-family: var(--mono); }
+.var-symbol { font-size:13px; font-weight:700; width:28px; flex-shrink:0; font-family: var(--mono); color: var(--gold-bright); }
+.var-val { font-size:12px; font-weight:700; width:36px; text-align:right; flex-shrink:0; font-family: var(--mono); color: var(--vellum); }
+.bar-track { height:4px; background:rgba(242,234,216,0.1); border-radius:0; flex:1; overflow:hidden; }
+.bar-fill { height:100%; transition:width 0.15s; background: var(--gold); }
+.bar-fill.denom { background: var(--rust); }
+input[type=range] {
+  -webkit-appearance: none;
+  width: 100px;
+  height: 4px;
+  background: rgba(242,234,216,0.15);
+  border-radius: 0;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 14px;
+  height: 14px;
+  background: var(--gold-bright);
+  border-radius: 0;
+  cursor: pointer;
+}
+
+.score-display {
+  display: flex;
+  align-items: flex-end;
+  gap: 24px;
+  padding: 2rem 0;
+  border-top: 1px solid rgba(242,234,216,0.12);
+  border-bottom: 1px solid rgba(242,234,216,0.12);
+  margin: 2rem 0;
+}
+.score-num {
+  font-family: var(--mono);
+  font-size: clamp(3rem, 8vw, 5rem);
+  font-weight: 700;
+  line-height: 1;
+  color: var(--gold-bright);
+  letter-spacing: -0.03em;
+}
+.score-label {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: rgba(242,234,216,0.35);
+  margin-bottom: 6px;
+}
+.eq-live-display {
+  font-family: var(--mono);
+  font-size: 12px;
+  color: rgba(242,234,216,0.5);
+  flex: 1;
+  align-self: center;
+}
+
+.layer-pills { display:flex; flex-wrap:wrap; gap:6px; margin-top: 0.5rem; }
+.layer-pill {
+  font-family: var(--mono);
+  font-size: 10px;
+  padding: 4px 12px;
+  border: 1px solid rgba(242,234,216,0.2);
+  color: rgba(242,234,216,0.4);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  cursor: default;
+  transition: all 0.2s;
+}
+.layer-pill.active {
+  background: var(--rust);
+  color: var(--vellum);
+  border-color: var(--rust);
+}
+
+.next-btn {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  padding: 10px 20px;
+  border: 1px solid rgba(242,234,216,0.3);
+  background: transparent;
+  color: rgba(242,234,216,0.6);
+  cursor: pointer;
+  transition: all 0.2s;
+  margin-top: 1rem;
+}
+.next-btn:hover { background: var(--rust); border-color: var(--rust); color: var(--vellum); }
+
+.insight-text {
+  margin-top: 1.5rem;
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: 0.9rem;
+  color: rgba(242,234,216,0.55);
+  line-height: 1.65;
+  min-height: 3.5rem;
+  transition: opacity 0.3s;
+}
+
+.section-head-ledger {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: rgba(242,234,216,0.3);
+  margin: 2rem 0 1rem;
+  padding-top: 2rem;
+  border-top: 1px solid rgba(242,234,216,0.08);
+}
+
+.grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 2.5rem; }
+@media (max-width: 560px) { .grid2 { grid-template-columns: 1fr; } }
+
+/* ─── MANIFESTO CLOSE ─── */
+.manifesto-close {
+  padding: 6rem 2rem;
+  max-width: 900px;
+  margin: 0 auto;
+  text-align: center;
+}
+.manifesto-close h2 {
+  font-size: clamp(2rem, 5vw, 4.5rem);
+  font-weight: 700;
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+  margin-bottom: 2rem;
+}
+.manifesto-close h2 em { color: var(--rust); font-style: italic; }
+.manifesto-close p {
+  font-size: clamp(1rem, 2vw, 1.2rem);
+  line-height: 1.7;
+  color: rgba(14,13,11,0.65);
+  max-width: 580px;
+  margin: 0 auto 1.5rem;
+  font-style: italic;
+}
+.thesis-stamp {
+  display: inline-block;
+  border: 3px solid var(--ink);
+  padding: 1.5rem 3rem;
+  font-family: var(--mono);
+  font-size: clamp(0.9rem, 2vw, 1.1rem);
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  margin-top: 3rem;
+  transform: rotate(-1.5deg);
+  position: relative;
+}
+.thesis-stamp::before {
+  content: '';
+  position: absolute;
+  inset: 6px;
+  border: 1px solid rgba(14,13,11,0.2);
+}
+
+/* ─── FOOTER ─── */
+footer {
+  background: var(--ink);
+  color: rgba(242,234,216,0.4);
+  padding: 2rem;
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+footer span { color: var(--gold); }
+
+/* ─── ANIMATIONS ─── */
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(30px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.fade-in { animation: fade-up 0.8s ease forwards; }
+.delay-1 { animation-delay: 0.15s; opacity: 0; }
+.delay-2 { animation-delay: 0.3s; opacity: 0; }
+.delay-3 { animation-delay: 0.45s; opacity: 0; }
+.delay-4 { animation-delay: 0.6s; opacity: 0; }
+
+/* SVG diagram */
+.diagram-wrap {
+  overflow-x: auto;
+  margin: 3rem -1rem;
+  padding: 0 1rem;
+}
+.diagram-wrap svg { min-width: 460px; }
+
+@media (max-width: 640px) {
+  .pentad-grid { font-size: 0.78rem; }
+  .pg-cell { padding: 10px 8px; }
+  .trophic-chain { gap: 0; }
+  .trophic-step { min-width: 90px; padding: 1rem 0.5rem; }
+}
+</style>
+</head>
+<body>
+
+<!-- ─── HERO ─── -->
+<section class="hero">
+  <div class="hero-year-band">
+    <span>EST. FLORENCE, c.1397 — GIOVANNI DI BICCI DE' MEDICI</span>
+    <span>†  THE LEDGER IS DEAD  ·  LONG LIVE THE TWIN</span>
+  </div>
+  <div class="hero-bg-text">1397</div>
+  <div class="hero-inner">
+    <p class="hero-kicker fade-in">Manifesto — Digital Twins & the Physics of Capital</p>
+    <h1 class="fade-in delay-1">The <em>Medici Ledger</em><br>had a good run.</h1>
+    <p class="hero-sub fade-in delay-2">Seven centuries of treating a ton of steel and a terabyte of intelligence as the same thing. The double-entry bookkeeping system encoded in every spreadsheet, every GDP report, every balance sheet on earth — built in the 1300s, worshipped ever since. It's over.</p>
+    <p class="hero-dates fade-in delay-3">Double-entry bookkeeping: <span>c.1340 – 2026</span> &nbsp;·&nbsp; Digital twins: <span>now</span></p>
+  </div>
+  <div class="scroll-cue fade-in delay-4">scroll</div>
+</section>
+
+<hr class="section-rule">
+
+<!-- ─── THE CRIME ─── -->
+<div class="section">
+  <h3>The Category Error</h3>
+  <h2>$1M of steel.<br>$1M of software.<br><em>Same asset.</em><br>Seriously?</h2>
+  <p>The Medici system was a miracle of its age. Giovanni di Bicci and his heirs needed to track wool, alum, silk, and letters of credit across a dozen European cities. Double-entry bookkeeping gave them a language for doing so. It was the internet of 1400. Respect where it is due.</p>
+  <p>But here is the crime it committed on the modern world: <strong>it made no distinction between the physics of moving steel and the physics of moving software.</strong> One requires diesel, gravity, Newtonian friction, and eighteen days at sea. The other requires electrons and about 11 picoseconds. The ledger sees them as identical.</p>
+
+  <div class="pull-quote">
+    "The map is not the territory — but when the map becomes the accounting standard, the territory gets taxed, measured, and governed as if it were the map."
+    <cite>— the cost of a bad ontology</cite>
+  </div>
+
+  <div class="eq-display">
+    <p class="eq-label">The Medici Illusion</p>
+    <p class="eq-main">Asset<sub>steel</sub> = Asset<sub>software</sub> = $1,000,000</p>
+    <div class="eq-vs">
+      <div class="eq-vs-col">
+        <div class="label">What Medici sees</div>
+        <div class="val">$1M steel<br>$1M software<br>→ identical on ledger</div>
+      </div>
+      <div class="eq-vs-divider">≠</div>
+      <div class="eq-vs-col">
+        <div class="label">What physics sees</div>
+        <div class="val">T<sub>steel</sub> ≈ 0.002<br>T<sub>software</sub> ≈ 231.5<br>→ 100,000× difference</div>
+      </div>
+    </div>
+  </div>
+
+  <p>This isn't a philosophical objection. It has material consequences. Capital allocation, infrastructure investment, tax policy, development economics — all of it runs on a measurement system calibrated to the velocity of a 14th-century ship. The mismatch compounds over time. Sub-Saharan Africa, which sits on some of the world's most extraordinary biological and cognitive capital, is measured as "low-income" because the ledger only counts what can be double-entered. The trophic compression happening every day in Buganda — grass → cow → ghee, raw datum → model weight → deployable policy — doesn't show up anywhere.</p>
+</div>
+
+<!-- ─── OBITUARY ─── -->
+<div class="section" style="padding-top: 0;">
+  <div class="obit-box">
+    <p class="obit-head">In Memoriam</p>
+    <p class="obit-title">Double-Entry Bookkeeping</p>
+    <p class="obit-dates">c. 1340, Florence — 2026, Everywhere</p>
+    <p class="obit-text">Survived by millions of spreadsheets, three generations of accounting software, and the entire global financial system. Beloved by auditors. Misunderstood by physicists. It could not distinguish between a kilogram of iron ore and a kilogram of trained model weights. It tried its best. It is survived by the Physics Ledger.</p>
+  </div>
+</div>
+
+<hr class="section-rule">
+
+<!-- ─── THERMODYNAMIC GRADIENT ─── -->
+<div class="section">
+  <h3>The Thermodynamic Argument</h3>
+  <h2>The progression was never <em>political</em>. It was physics.</h2>
+
+  <p>The sequence — capital → goods → people → services → information — is not an ideological project. It is the universe following its own gradient. Each step strips away atomic mass and lets velocity approach <em>c</em>. It is thermodynamic compression in the direction of minimum energy expenditure per unit of value transferred.</p>
+
+  <p>The massive object obeys <strong>p = mv</strong>. The photon obeys <strong>p = E/c</strong>. Between those two equations lies the entire history of economic development, and the entire argument for why a digital twin is not a technology product — it is the endpoint of a physical process that started when the first trade happened.</p>
+
+  <div class="trophic-chain">
+    <div class="trophic-step">
+      <span class="emoji">🌱</span>
+      <span class="t-label">Grass</span>
+      <span class="t-sub">heavy, wet, volatile</span>
+    </div>
+    <div class="trophic-step">
+      <span class="emoji">🐄</span>
+      <span class="t-label">Cow</span>
+      <span class="t-sub">optimizer running SGD</span>
+    </div>
+    <div class="trophic-step">
+      <span class="emoji">🥛</span>
+      <span class="t-label">Milk</span>
+      <span class="t-sub">compressed, portable</span>
+    </div>
+    <div class="trophic-step">
+      <span class="emoji">🧈</span>
+      <span class="t-label">Ghee</span>
+      <span class="t-sub">dense, durable, tradeable</span>
+    </div>
+    <div class="trophic-step" style="background: rgba(14,13,11,0.06);">
+      <span class="emoji">💡</span>
+      <span class="t-label">Policy</span>
+      <span class="t-sub">weightless, v → c</span>
+    </div>
+  </div>
+
+  <p>The Buganda biological operating system already knew this. <em>Muzigo</em> (ghee) is not just a food — it is capital in compressed form. The cow is not a farm animal — it is a loss function optimizer running gradient descent on the landscape. The loss function rewards the transition from heavy, volatile biomass to dense, durable, transportable state. That is trophic compression. And it maps, exactly, to the pipeline from raw sensor data to deployed policy in a federated digital twin.</p>
+
+  <div class="pull-quote">
+    "The pentad is simply the process of distilling the physical world into math. What starts as heavy friction in the physical landscape is eventually compressed, via SGD, into an intelligent, self-updating system that requires almost zero marginal energy to maintain."
+    <cite>— the core thesis</cite>
+  </div>
+
+  <h3>The Five Layers</h3>
+
+  <div class="pentad-grid">
+    <div class="pg-header">#</div>
+    <div class="pg-header">Macroeconomic</div>
+    <div class="pg-header">Cognitive / AI</div>
+    <div class="pg-header">Physics</div>
+
+    <div class="pg-row-L1" style="display:contents">
+      <div class="pg-cell layer-num">L₁</div>
+      <div class="pg-cell econ">Capital<span class="sub">Raw potential</span></div>
+      <div class="pg-cell">Sensing<span class="sub">Raw state data</span></div>
+      <div class="pg-cell"><strong>p = mv</strong><span class="sub">High mass, low v</span></div>
+    </div>
+    <div class="pg-row-L2" style="display:contents">
+      <div class="pg-cell layer-num">L₂</div>
+      <div class="pg-cell econ">Goods<span class="sub">Matter → utility</span></div>
+      <div class="pg-cell">Emotion (Attention)<span class="sub">w_i · θ_i salience</span></div>
+      <div class="pg-cell">SGD on landscape<span class="sub">Cow = optimizer</span></div>
+    </div>
+    <div class="pg-row-L3" style="display:contents">
+      <div class="pg-cell layer-num">L₃</div>
+      <div class="pg-cell econ">People<span class="sub">Biology → behavior</span></div>
+      <div class="pg-cell">Memory<span class="sub">Compressed weights</span></div>
+      <div class="pg-cell">ε_i (noise)<span class="sub">Stochastic friction</span></div>
+    </div>
+    <div class="pg-row-L4" style="display:contents">
+      <div class="pg-cell layer-num">L₄</div>
+      <div class="pg-cell econ">Services<span class="sub">Behavior → protocol</span></div>
+      <div class="pg-cell">Intelligence<span class="sub">Policy gradient</span></div>
+      <div class="pg-cell">β_i (gain)<span class="sub">Softmax temperature</span></div>
+    </div>
+    <div class="pg-row-L5" style="display:contents">
+      <div class="pg-cell layer-num">L₅</div>
+      <div class="pg-cell econ">Information<span class="sub">Protocol → state</span></div>
+      <div class="pg-cell">Deployment<span class="sub">Zero-friction exec</span></div>
+      <div class="pg-cell"><strong>p = E/c</strong><span class="sub">Massless, v → c</span></div>
+    </div>
+  </div>
+
+  <p>But the gradient is not purely thermodynamic. The Medici critics are right about one thing: you cannot skip to L₅ directly. The path is gated by encoding capacity (steel must exist before CAD models), institutional trust (shared ontologies, legal enforcement), and the Landauer limit — <strong>E ≥ kT ln 2</strong> — which means even information processing has a physical floor. Cost approaches zero asymptotically. Not absolutely.</p>
+
+  <p>The correct frame: <strong>the pentad is a gradient toward computability</strong>. Thermodynamics pushes it. Information theory shapes it. Institutions gate it. Computation realizes it.</p>
+</div>
+
+<hr class="section-rule">
+
+<!-- ─── EPSILON ─── -->
+<div class="section">
+  <h3>The Macduff Term</h3>
+  <h2>Every model has a <em>blind spot</em>. ε is the name we give it.</h2>
+
+  <p>The Medici ledger has no noise term. That is its fundamental defect. It assumes the map is the territory. A digital twin, properly constructed, does not. It has an explicit term for irreducible uncertainty — the part of reality that defeats any purely predictive model, the "Macduff" born outside the axioms of the system.</p>
+
+  <div class="epsilon-box">
+    <span class="tag">Formal Definition — ε_i</span>
+    <h4>Instantaneous residual at federation round t, client k:</h4>
+    <div class="formula">ε<sub>i,k</sub><sup>(t)</sup> = y<sub>k,t</sub> − ŷ<sub>k,t</sub> + δ<sub>k</sub><sup>(t)</sup></div>
+    <p>Where y<sub>k,t</sub> is the true physical outcome (sensors, vitals, rainfall, price tick) and ŷ<sub>k,t</sub> is the twin's prediction. δ is Laplace noise for differential privacy.</p>
+
+    <h4 style="margin-top: 1.5rem;">Muwakanya mixture — making it heavy-tailed:</h4>
+    <div class="formula">ε<sub>i,k</sub><sup>(t)</sup> ~ Student-t(ν=3, μ=0, σ²=Var(S<sub>k,t</sub>))<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+ Bernoulli(p<sub>k</sub>) × ExtremeValue(μ<sub>shock</sub>, β<sub>shock</sub>)</div>
+    <p>The Student-t body captures ordinary volatility (unpredictable weather, market variance). The Bernoulli × ExtremeValue tail captures the Macduff events — genius breakthroughs, cassava-stem adaptations, black-swan shocks — that a Gaussian would drive to zero probability and thereby guarantee overfitting.</p>
+
+    <h4 style="margin-top: 1.5rem;">Anti-overfit property:</h4>
+    <div class="formula">θ<sub>t+1</sub> = (1/K) Σ θ<sub>k</sub><sup>(t)</sup> − η∇L(θ) + (1/K) Σ ε<sub>k</sub><sup>(t)</sup></div>
+    <p>Because ε is sampled from the <em>live physical layer</em> — not from historical data — the twin cannot memorize the past. It is structurally forced to remain antifragile. The cow does not overfit to last season's grass. It re-samples the landscape every day under fresh Muwakanya volatility.</p>
+  </div>
+
+  <p>In the physics ledger, ε appears in the denominator. Higher noise reduces throughput. But because we feed ε back into the loss, the optimizer is forced to increase value density and transmission speed to compensate. The friction that the Medici system ignores is precisely the force that drives trophic compression in the digital twin architecture.</p>
+</div>
+
+<!-- ─── NEWTON SECTION ─── -->
+<div class="newton-hero">
+  <div class="newton-inner">
+    <h2>Newton's gift was not the apple.<br>It was the <em>equation</em>.</h2>
+    <p>Isaac Newton did not discover that things fall. Everyone already knew that. He discovered that the fall is governed by a law — a compact mathematical expression that predicts every fall, everywhere, at every scale. The equation is the compression. The equation is the digital twin of gravity.</p>
+    <p>What we are building is the same move, applied to economic reality. Not describing what happened in a ledger. Encoding the law that governs what will happen next. Not p = mv. Not p = E/c. But T = (V × S) / (E × ε). The physics ledger. The equation of economic momentum for the 21st century.</p>
+  </div>
+</div>
+
+<!-- ─── INTERACTIVE LEDGER ─── -->
+<div class="ledger-section">
+  <div class="ledger-inner">
+    <p class="sub-head">The Replacement — Live Calculator</p>
+    <h2>The Physics<br><em>Ledger</em></h2>
+
+    <div class="score-display">
+      <div>
+        <p class="score-label">Effective throughput T</p>
+        <p class="score-num" id="score">1.00</p>
+      </div>
+      <div class="eq-live-display" id="eq-live">
+        T = (50 × 50) / (50 × 50) = 1.00
+      </div>
+    </div>
+
+    <div class="grid2">
+      <div>
+        <p class="section-head-ledger">Numerator — what you gain</p>
+        <div class="var-row">
+          <span class="var-symbol">V</span>
+          <span class="var-label">Value density</span>
+          <div class="bar-track"><div class="bar-fill" id="bar-V" style="width:50%"></div></div>
+          <input type="range" min="1" max="100" value="50" id="sl-V" oninput="update()">
+          <span class="var-val" id="out-V">50</span>
+        </div>
+        <div class="var-row">
+          <span class="var-symbol">S</span>
+          <span class="var-label">Transmission speed</span>
+          <div class="bar-track"><div class="bar-fill" id="bar-S" style="width:50%"></div></div>
+          <input type="range" min="1" max="100" value="50" id="sl-S" oninput="update()">
+          <span class="var-val" id="out-S">50</span>
+        </div>
+      </div>
+      <div>
+        <p class="section-head-ledger">Denominator — what you pay</p>
+        <div class="var-row">
+          <span class="var-symbol">E</span>
+          <span class="var-label">Energy per bit</span>
+          <div class="bar-track"><div class="bar-fill denom" id="bar-E" style="width:50%"></div></div>
+          <input type="range" min="1" max="100" value="50" id="sl-E" oninput="update()">
+          <span class="var-val" id="out-E">50</span>
+        </div>
+        <div class="var-row">
+          <span class="var-symbol">ε</span>
+          <span class="var-label">Error rate</span>
+          <div class="bar-track"><div class="bar-fill denom" id="bar-eps" style="width:50%"></div></div>
+          <input type="range" min="1" max="100" value="50" id="sl-eps" oninput="update()">
+          <span class="var-val" id="out-eps">50</span>
+        </div>
+      </div>
+    </div>
+
+    <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px; margin-top: 1.5rem;">
+      <div class="layer-pills">
+        <span class="layer-pill" data-layer="0">L₁ Capital</span>
+        <span class="layer-pill" data-layer="1">L₂ Goods</span>
+        <span class="layer-pill" data-layer="2">L₃ People</span>
+        <span class="layer-pill" data-layer="3">L₄ Services</span>
+        <span class="layer-pill" data-layer="4">L₅ Information</span>
+      </div>
+      <button class="next-btn" onclick="loadPreset(currentPreset)">Step through pentad →</button>
+    </div>
+
+    <p class="insight-text" id="insight">Adjust the sliders to see how the Medici ledger would score any pentad layer identically — while the physics ledger reveals the 100,000× difference between steel and signal.</p>
+  </div>
+</div>
+
+<hr class="section-rule">
+
+<!-- ─── MANIFESTO CLOSE ─── -->
+<div class="manifesto-close">
+  <h2>The twin is not a product.<br>It is the <em>endpoint</em><br>of a thermodynamic process.</h2>
+  <p>When capital is fully abstracted into information, it becomes a digital twin: pure, actionable intelligence operating under relativistic constraints. It senses the gradient, computes the policy update at the speed of light, and pushes those optimizations back down to govern the physical ecosystem.</p>
+  <p>This is not a startup pitch. This is what happens when you apply Newton's method — compress reality into a law — to the problem of economic momentum. The Medici had six centuries. We have fiber optics, tensor processing units, and the Landauer limit. The physics is not on their side.</p>
+  <div class="thesis-stamp">
+    "The pentad is a gradient toward computability.<br>
+    Thermodynamics pushes it.<br>
+    Information theory shapes it.<br>
+    Institutions gate it.<br>
+    Computation realizes it."
+  </div>
+</div>
+
+<footer>
+  <span>Digital Twins & the Physics of Capital</span>
+  <span>Medici est. <span>c.1340</span> — †<span>2026</span> &nbsp;·&nbsp; T = (V × S) / (E × ε) &nbsp;·&nbsp; L_total → 0</span>
+</footer>
+
+<script>
+const presets = [
+  { V:10, S:5,  E:90, eps:30, note:'L₁ Capital: the physical baseline. A ship moves at 20 knots. The kWh cost per tonne-kilometre is enormous. The Medici ledger sees the same $1M as everywhere else. The physics ledger sees near-zero throughput.' },
+  { V:35, S:25, E:70, eps:40, note:'L₂ Goods: raw material becomes product. Value density rises as manufacturing compresses biomass into utility. Speed increases via rail and air freight. T improves, but energy cost stays high — the ledger still can\'t see it.' },
+  { V:55, S:40, E:50, eps:70, note:'L₃ People: the surgeon\'s hour is worth more per kilogram than steel. But ε spikes — humans are stochastic, fatigued, inconsistent, legally complex. The Muwakanya noise term dominates. T is throttled by biology.' },
+  { V:75, S:65, E:30, eps:35, note:'L₄ Services: behavior compressed into replicable protocol. Speed jumps; energy drops; error rate falls as variance is engineered out. The ledger is now dangerously miscalibrated — it still sees "the same dollar."' },
+  { V:95, S:98, E:5,  eps:8,  note:'L₅ Information: maximum value density, v → c, energy per bit hits the Landauer floor. T is enormous. The Medici ledger books this identically to a shipping container. That is the category error. That is why it had to die.' },
+];
+let currentPreset = 0;
+
+function loadPreset(i) {
+  currentPreset = (i + 1) % presets.length;
+  const p = presets[currentPreset];
+  ['V','S','E','eps'].forEach(id => {
+    document.getElementById('sl-' + id).value = p[id === 'eps' ? 'eps' : id];
+  });
+  document.getElementById('sl-V').value = p.V;
+  document.getElementById('sl-S').value = p.S;
+  document.getElementById('sl-E').value = p.E;
+  document.getElementById('sl-eps').value = p.eps;
+  const ins = document.getElementById('insight');
+  ins.style.opacity = 0;
+  setTimeout(() => { ins.style.opacity = 1; }, 50);
+  update();
+}
+
+function update() {
+  const V = +document.getElementById('sl-V').value;
+  const S = +document.getElementById('sl-S').value;
+  const E = +document.getElementById('sl-E').value;
+  const eps = +document.getElementById('sl-eps').value;
+
+  ['V','S','E','eps'].forEach(id => {
+    const val = +document.getElementById('sl-' + id).value;
+    document.getElementById('out-' + id).textContent = val;
+    document.getElementById('bar-' + id).style.width = val + '%';
+  });
+
+  const T = (V * S) / (E * eps);
+  document.getElementById('score').textContent = T.toFixed(2);
+  document.getElementById('eq-live').textContent =
+    'T = (' + V + ' × ' + S + ') / (' + E + ' × ' + eps + ') = ' + T.toFixed(2);
+
+  let best = -1, bestDist = Infinity;
+  presets.forEach((p, i) => {
+    const d = Math.abs(p.V-V) + Math.abs(p.S-S) + Math.abs(p.E-E) + Math.abs(p.eps-eps);
+    if (d < bestDist) { bestDist = d; best = i; }
+  });
+  document.querySelectorAll('.layer-pill').forEach((el, i) => {
+    el.classList.toggle('active', i === best && bestDist < 60);
+  });
+  if (bestDist < 60) {
+    document.getElementById('insight').textContent = presets[best].note;
+  } else {
+    const msg = T > 20
+      ? 'High throughput — this profile resembles an information-layer economy. The physics ledger diverges sharply from the Medici ledger here.'
+      : T > 4
+      ? 'Moderate throughput. Either speed or value density is constrained, or ε is absorbing too much of the signal.'
+      : 'Low throughput. High energy cost or high error rate is collapsing what the physical payload should be delivering.';
+    document.getElementById('insight').textContent = msg;
+  }
+}
+update();
+</script>
+</body>
+</html>

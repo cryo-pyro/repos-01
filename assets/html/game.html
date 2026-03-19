@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <!-- Page voice: switch footer to the “game” variant -->
+  <meta name="ukb-variant" content="game">
+
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>🎮 The Game of Care — Ukubona LLC</title>
+
+  <!-- Safety fallbacks for CSS vars -->
+  <style>
+    :root{
+      --text:#e7efe9; --surface:#0f1216; --border:#1f2326; --glass:rgba(255,255,255,.04);
+      --blur:6px; --transition:transform .2s ease, box-shadow .2s ease;
+    }
+    .wrap-max { max-width:1120px; margin:0 auto; padding:0 24px; }
+    .section-title { text-align:center; margin-bottom:12px; letter-spacing:.2px; }
+    .section-text { max-width:86ch; margin:0 auto; line-height:1.65; color:var(--text); text-align:left; }
+    .hero .hero-content { padding:120px 0 40px; }
+    .hero-title { text-align:center; }
+    .hero-subtitle { text-align:center; opacity:.9; margin-top:.4rem; }
+    .hero-cta { display:flex; gap:10px; justify-content:center; flex-wrap:wrap; margin-top:12px; }
+    .cta-button { text-decoration:none; padding:.9rem 1.4rem; border-radius:12px; font-weight:600; display:inline-flex; gap:8px; align-items:center; transition: transform .2s ease; }
+    .cta-button:hover { transform: translateY(-2px); }
+    .cta-primary { background: linear-gradient(135deg,#6366f1,#8b5cf6); color:white; }
+    .cta-secondary { background: rgba(255,255,255,0.08); border:1px solid var(--border); color: var(--text); }
+    .cta-button:focus-visible{ outline:2px solid #8ee8ff; outline-offset:2px; }
+    .content-section { margin:56px auto 0; }
+    .pill-row, .badge-row { display:flex; gap:8px; flex-wrap:wrap; margin-top:8px; justify-content:center; }
+    .badge { border:1px solid var(--border); border-radius:999px; padding:4px 10px; font-size:.85rem; background:var(--glass); white-space:nowrap; }
+
+    /* Role grid */
+    .role-grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:16px; }
+    @media (max-width:980px){ .role-grid{ grid-template-columns:repeat(2,1fr); } }
+    @media (max-width:640px){ .role-grid{ grid-template-columns:1fr; } }
+    .role-card{ border:1px solid var(--border); border-radius:14px; padding:16px; display:flex; flex-direction:column; background:var(--surface); }
+    .role-metrics{ margin-top:auto; display:flex; flex-wrap:wrap; gap:8px; }
+
+    /* Scenario flow */
+    .flow-steps{ display:flex; flex-direction:column; gap:12px; margin-top:14px; }
+    .flow-step{ display:flex; gap:12px; align-items:flex-start; border:1px solid var(--border); border-radius:12px; padding:12px; background:var(--glass); }
+    .step-num{ width:28px; height:28px; border-radius:50%; display:grid; place-items:center; border:1px solid var(--border); }
+
+    .vignette figure{ margin:0; }
+    .vignette img{ width:100%; height:auto; aspect-ratio:16/9; object-fit:cover; border-radius:12px; border:1px solid var(--border); }
+
+    .sep { opacity:.1; margin-top:24px; }
+  </style>
+
+  <!-- Fonts & CSS -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/main.css">
+
+  <!-- Icons + shared behaviors -->
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/feather-icons/4.29.0/feather.min.js"></script>
+  <script defer src="../js/shared.js"></script>
+</head>
+<body>
+  <div class="scroll-indicator"><div class="scroll-progress"></div></div>
+  <div class="bg-pattern"></div>
+
+  <!-- header injected by shared.js -->
+  <header class="header" id="header"></header>
+
+  <!-- Minimal hero -->
+  <section class="hero">
+    <div class="hero-content wrap-max">
+      <h1 class="hero-title">🎮 The Game</h1>
+      <p class="hero-subtitle">Healthcare as sequential, consequential play.</p>
+      <div class="hero-cta" aria-label="Game actions">
+        <a href="#scenarios" class="cta-button cta-primary">
+          <i data-feather="play-circle" aria-hidden="true"></i> Try a scenario
+        </a>
+        <a href="../html/models.html" class="cta-button cta-secondary">
+          <i data-feather="layers" aria-hidden="true"></i> Browse models
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <main class="main-content wrap-max" id="scenarios">
+    <section class="content-section">
+      <h2 class="section-title">Why Gamify?</h2>
+      <p class="section-text">
+        Regulation defines “advice.” Games define “play.” By gamifying the care pathway, Ukubona creates a safe, engaging
+        ecosystem where patients, clinicians, insurers, and trainees explore decisions—without claiming to treat, diagnose,
+        or cure.
+      </p>
+      <div class="pill-row">
+        <span class="badge">Interactive learning</span>
+        <span class="badge">Parallel futures</span>
+        <span class="badge">Tail-risk awareness</span>
+      </div>
+      <hr class="sep">
+    </section>
+
+    <section class="content-section">
+      <h2 class="section-title">Pick Your Avatar</h2>
+      <div class="role-grid" role="list">
+        <div class="role-card" role="listitem">
+          <h3>👩‍⚕️ Primary Care Doctor</h3>
+          <p>Balance evidence, time, and risk. Each choice cascades across the system.</p>
+          <div class="role-metrics">
+            <span class="badge">Diagnostic accuracy</span>
+            <span class="badge">Patient satisfaction</span>
+            <span class="badge">Cost efficiency</span>
+          </div>
+        </div>
+        <div class="role-card" role="listitem">
+          <h3>🧑‍🦽 Patient</h3>
+          <p>Navigate symptoms, insurance hurdles, and lifestyle tradeoffs.</p>
+          <div class="role-metrics">
+            <span class="badge">Health outcomes</span>
+            <span class="badge">Financial impact</span>
+            <span class="badge">Quality of life</span>
+          </div>
+        </div>
+        <div class="role-card" role="listitem">
+          <h3>🏢 Insurance Executive</h3>
+          <p>Approve or deny? Balance actuarial math against human cost.</p>
+          <div class="role-metrics">
+            <span class="badge">Claims processing</span>
+            <span class="badge">Network management</span>
+            <span class="badge">Risk assessment</span>
+          </div>
+        </div>
+        <div class="role-card" role="listitem">
+          <h3>📚 Medical Student</h3>
+          <p>Fail safely, repeat scenarios, learn from consequences.</p>
+          <div class="role-metrics">
+            <span class="badge">Clinical knowledge</span>
+            <span class="badge">Bedside manner</span>
+            <span class="badge">Decision-making</span>
+          </div>
+        </div>
+        <div class="role-card" role="listitem">
+          <h3>🚑 Emergency Responder</h3>
+          <p>Time is life; resources are finite; decisions are immediate.</p>
+          <div class="role-metrics">
+            <span class="badge">Response time</span>
+            <span class="badge">Triage accuracy</span>
+            <span class="badge">Resource allocation</span>
+          </div>
+        </div>
+        <div class="role-card" role="listitem">
+          <h3>🧑‍⚕️ Nurse</h3>
+          <p>Coordinate bedside care, anticipate crises, maintain continuity.</p>
+          <div class="role-metrics">
+            <span class="badge">Patient advocacy</span>
+            <span class="badge">Care coordination</span>
+            <span class="badge">Crisis prevention</span>
+          </div>
+        </div>
+      </div>
+      <hr class="sep">
+    </section>
+
+    <section class="content-section" id="to-screen">
+      <h2 class="section-title">To Screen or Not to Screen?</h2>
+      <div class="role-card vignette">
+        <figure>
+          <img src="../img/to-screen.jpeg" alt="News screenshot referencing a fatal reaction during a routine CT scan" loading="lazy" decoding="async" width="1280" height="720">
+          <figcaption class="section-text">
+            A “routine” decision can carry non-zero tail risk. Simulation lets us rehearse branches before reality forces them.
+          </figcaption>
+        </figure>
+      </div>
+
+      <div class="flow-steps" aria-label="Scenario steps">
+        <div class="flow-step">
+          <div class="step-num" aria-hidden="true">1</div>
+          <div>
+            <h4 style="margin:0 0 4px 0;">The Setup</h4>
+            <p style="margin:0;">Patient with chest pain. Low-risk history, but CT with contrast could rule out serious pathology.</p>
+          </div>
+        </div>
+        <div class="flow-step">
+          <div class="step-num" aria-hidden="true">2</div>
+          <div>
+            <h4 style="margin:0 0 4px 0;">The Dilemma</h4>
+            <p style="margin:0;">Small but real risk of contrast allergy. Order now or try alternatives first?</p>
+          </div>
+        </div>
+        <div class="flow-step">
+          <div class="step-num" aria-hidden="true">3</div>
+          <div>
+            <h4 style="margin:0 0 4px 0;">Multi-Player Perspectives</h4>
+            <p style="margin:0;">Doctor weighs liability, patient wants answers, insurer weighs cost, family fears the worst.</p>
+          </div>
+        </div>
+        <div class="flow-step">
+          <div class="step-num" aria-hidden="true">4</div>
+          <div>
+            <h4 style="margin:0 0 4px 0;">Branching Consequences</h4>
+            <p style="margin:0;">Each choice opens new scenarios. Wrong call? Learn. Right call? Face the next decision.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="hero-cta" style="margin-top:28px;">
+        <a href="#ukb-sim-chat" class="cta-button cta-primary">
+          <i data-feather="play" aria-hidden="true"></i> Play this scenario
+        </a>
+        <a href="../html/models.html" class="cta-button cta-secondary">
+          <i data-feather="grid" aria-hidden="true"></i> More scenarios
+        </a>
+      </div>
+      <hr class="sep">
+    </section>
+
+    <section class="content-section">
+      <h2 class="section-title">Clinic Chat Simulator</h2>
+      <div id="ukb-sim-chat"></div>
+    </section>
+  </main>
+
+  <!-- footer injected by shared.js -->
+  <div id="footer-placeholder" class="wrap-max"></div>
+</body>
+
+<script>
+(function () {
+  // ——— Roles ———
+  const ROLES = [
+    "Front Desk","Triage Nurse","Emergency Care","Urgent Care",
+    "Outpatient","Inpatient","Telemedicine",
+    "Pharmacist","Care Manager","Radiology Tech","Social Worker"
+  ];
+
+  // ——— Personas ———
+  const PERSONAS = {
+    "Hamlet (doubter)": t => "To act, or not to act—thus stands your case. " + t.replace(/\b(we will|must|need to)\b/gi,"we might consider"),
+    "Fortinbras (action)": t => "Decide. Move. We’ll guard the risk. • " + t.replace(/\.\s+/g," • "),
+    "Polonius (long-winded)": t => "In such affairs—mark me—prudence counsels thus: " + t + " In conclusion—though conclusions are seldom final—prefer caution to haste.",
+    "Jane Austen (poised)": t => "It is a truth rarely acknowledged in the waiting room that " + t,
+    "Dickens (observant)": t => "It was the best of plans, it was the worst of risks. " + t + " We shall proceed with both kindness and account.",
+    "Hemingway (spare)": t => t.replace(/\.\s+/g,". ").replace(/,|;|—/g,"").split(". ").slice(0,4).join(". ") + ".",
+    "Toni Morrison (lyrical)": t => "Breathe. The body remembers the roads it has taken. " + t + " We will choose a path that honors your story.",
+    "Shakespeare (narrator)": t => "Enter patient, burdened with doubt. " + t + " Exeunt fear; enter counsel."
+  };
+
+  // ——— Intents ———
+  function intentOf(text) {
+    const s = text.toLowerCase();
+    if (/(face droop|slur|weakness|fast|stroke)/.test(s)) return "stroke";
+    if (/(crushing|severe).*chest|chest pain.*(radiat|sweat|vomit|short)/.test(s)) return "emergent";
+    if (/(chest pain|tightness)/.test(s)) return "lowrisk";
+    if (/(insurance|prior auth|authorization|denied)/.test(s)) return "insurance";
+    if (/(wait|queue|line|backlog)/.test(s)) return "wait";
+    if (/(refill|prescription|rx|pharmacy)/.test(s)) return "rx";
+    if (/(screen|mammogram|colonoscopy|ct|contrast|scan|x-ray|mri|ultrasound)/.test(s)) return "screening";
+    if (/(transport|housing|food|shelter|childcare|benefits)/.test(s)) return "social";
+    return "generic";
+  }
+
+  // ——— Blueprints per role ———
+  const BLUEPRINTS = {
+    "Front Desk": {
+      generic: "I can help with scheduling and directions. If urgent, say so and I’ll escalate.",
+      wait: "Current wait is ~30–90 minutes by acuity. If symptoms worsen, I’ll alert triage.",
+      insurance: "I’ll check coverage and prior authorization; we’ll route documentation as needed.",
+      screening: "I’ll note any contrast allergies and book you; the clinician will confirm prep."
+    },
+    "Triage Nurse": {
+      emergent: "This could be emergent. Please come to triage now—vitals and ECG within minutes.",
+      lowrisk: "We’ll assess risk (vitals, history, ECG) to avoid unnecessary exposure while staying safe.",
+      stroke: "Possible stroke signs. Time is brain. I’m activating the protocol; come immediately.",
+      generic: "Tell me onset, severity, triggers, and red flags (fainting, SOB, confusion)."
+    },
+    "Emergency Care": {
+      emergent: "ECG & troponins, monitoring, and treatment while balancing radiation/contrast risk.",
+      stroke: "CT to rule out bleed, then evaluate window for reperfusion. Speed preserves function.",
+      generic: "Stabilize airway/breathing/circulation; then focused diagnostics to minimize harm."
+    },
+    "Urgent Care": {
+      lowrisk: "If no red flags and normal vitals, we’ll use decision rules to minimize unnecessary CT.",
+      rx: "We can bridge short refills with checks; chronic regimens go to primary for continuity.",
+      generic: "Focused exam and point-of-care tests; escalate to ED if thresholds are crossed."
+    },
+    "Outpatient": {
+      screening: "We’ll weigh benefit vs radiation/contrast risk and cost; alternatives include watchful waiting or ultrasound.",
+      insurance: "We’ll document guideline-aligned indications to support authorization.",
+      generic: "Shared decision-making: your values, evidence summary, next steps, and follow-up."
+    },
+    "Inpatient": {
+      generic: "Daily goals: reduce risks, prevent complications, plan discharge. Orders must shorten stay or lower harm."
+    },
+    "Telemedicine": {
+      generic: "First, safety: any red flags needing in-person care? If safe, we’ll manage remotely with clear return precautions.",
+      screening: "We can order imaging/labs and coordinate nearby; past reactions guide prep."
+    },
+    "Pharmacist": {
+      rx: "Let’s review the medication, dose, interactions, and refills. I’ll check PDMP where appropriate and coordinate prescriber approval.",
+      generic: "We’ll verify allergies, interactions, and cost options (generics, PAPs)."
+    },
+    "Care Manager": {
+      insurance: "I’ll navigate benefits, prior auth, and appeals; we’ll align documentation with plan policies.",
+      generic: "We coordinate across clinics, hospitals, and payers to keep your plan on track."
+    },
+    "Radiology Tech": {
+      screening: "I’ll confirm the order, check for metal/implants/contrast allergy, explain prep, and ensure safety during the scan.",
+      generic: "We’ll position you comfortably, limit exposure, and keep you informed throughout."
+    },
+    "Social Worker": {
+      social: "We can help with transportation, housing, food resources, and benefits. Let’s match services to your situation.",
+      generic: "Tell me what’s in the way—costs, access, caregiving—and we’ll build supports."
+    }
+  };
+
+  // ——— Compose reply ———
+  function respond(role, persona, userText) {
+    const intent = intentOf(userText);
+    const b = BLUEPRINTS[role] || {};
+    let msg = b[intent] || b.generic || "I’ll route you appropriately and keep safety first.";
+    if (intent === "lowrisk" && !b[intent]) msg += " We’ll apply HEART-style rules to reduce unnecessary imaging.";
+    if (intent === "emergent" && !b[intent]) msg = "Sounds emergent—escalate now for ECG within minutes.";
+    const stylize = PERSONAS[persona] || (x => x);
+    return stylize(msg);
+  }
+
+  // ——— UI mount ———
+  function mount() {
+    const host = document.getElementById('ukb-sim-chat');
+    if (!host) return;
+    host.innerHTML = `
+      <div style="border:1px solid var(--border);border-radius:14px;padding:16px;display:flex;flex-direction:column;gap:12px;background:var(--surface)">
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <select id="role">${ROLES.map(r=>`<option>${r}</option>`).join('')}</select>
+          <select id="persona">${Object.keys(PERSONAS).map(p=>`<option>${p}</option>`).join('')}</select>
+        </div>
+        <textarea id="q" rows="3" placeholder="Type your question, e.g., 'Mild chest pain since yesterday'"></textarea>
+
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <button id="ask" class="cta-button cta-primary">Ask</button>
+          <a id="probe" href="../html/probe.html" class="cta-button cta-secondary">Open Image Probe</a>
+        </div>
+
+        <div id="log" style="display:flex;flex-direction:column;gap:8px"></div>
+      </div>`;
+
+    const $role = host.querySelector('#role');
+    const $persona = host.querySelector('#persona');
+    const $q = host.querySelector('#q');
+    const $ask = host.querySelector('#ask');
+    const $log = host.querySelector('#log');
+
+    function bubble(who, text){
+      const d = document.createElement('div');
+      d.style.border = '1px solid var(--border)';
+      d.style.borderRadius = '10px';
+      d.style.padding = '8px 10px';
+      d.style.background = who==='You' ? 'transparent' : 'rgba(255,255,255,0.03)';
+      d.innerHTML = `<strong>${who}:</strong> ${text.replace(/\n/g,'<br>')}`;
+      $log.appendChild(d);
+    }
+
+    $ask.onclick = () => {
+      const t = ($q.value||'').trim();
+      if (!t) return;
+      bubble('You', t);
+      const ans = respond($role.value, $persona.value, t);
+      bubble(`${$role.value} — ${$persona.value}`, ans);
+      $q.value = '';
+    };
+  }
+
+  document.addEventListener('DOMContentLoaded', mount);
+})();
+</script>
+</html>

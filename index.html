@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ukubona LLC — To See Is to Learn</title>
+<meta name="description" content="Ukubona builds digital twins for customized care — from a single patient to a nation of forty million.">
+<link rel="canonical" href="https://ukubona-llc.github.io/">
+<meta name="robots" content="index,follow">
+<meta property="og:site_name" content="Ukubona LLC">
+<meta property="og:title" content="Ukubona — To See Is to Learn">
+<meta property="og:description" content="Digital twins at every scale. Making the loss landscape visible — from a single patient to a nation.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://ukubona-llc.github.io/">
+<meta property="og:image" content="https://abikesa.github.io/logosassets/ukubona-light.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Ukubona — To See Is to Learn">
+<meta name="twitter:description" content="θ → L(θ) → ∇L(θ) → −η∇L(θ) → θ′ · Digital twins at every scale.">
+<meta name="twitter:image" content="https://abikesa.github.io/logosassets/ukubona-light.png">
+<link rel="icon" href="https://abikesa.github.io/faviconassets/favicon-light.ico" type="image/x-icon">
+<link rel="icon" href="https://abikesa.github.io/faviconassets/favicon-light.ico" media="(prefers-color-scheme: light)">
+<link rel="icon" href="https://abikesa.github.io/faviconassets/favicon-dark.ico" media="(prefers-color-scheme: dark)">
+<link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Serif+Display:ital@0;1&family=IBM+Plex+Mono:wght@300;400&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:#f7f7f5; --off:#efefec; --rule:#d8d8d2; --muted:#888880; --ink:#111110;
+  --r:#f72b1a; --o:#ff7200; --y:#f5cc00; --g:#1ec94a; --b:#1a8fff; --i:#6c35ff; --v:#b800cc;
+  --roy: linear-gradient(90deg,var(--r) 0%,var(--o) 16%,var(--y) 32%,var(--g) 48%,var(--b) 64%,var(--i) 82%,var(--v) 100%);
+  --syne:'Syne',sans-serif; --serif:'DM Serif Display',serif; --mono:'IBM Plex Mono',monospace;
+  --T: background .35s ease, color .35s ease, border-color .35s ease;
+  --logo-speed: 60s;
+}
+[data-theme="dark"] { --bg:#0a0a0f; --off:#13131a; --rule:#2a2a35; --muted:#888898; --ink:#f0f0f8; }
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{font-size:16px;scroll-behavior:smooth}
+body{background:var(--bg);color:var(--ink);font-family:var(--syne);overflow-x:hidden;cursor:none;transition:var(--T)}
+.cursor{position:fixed;width:10px;height:10px;border-radius:50%;background:var(--roy);background-size:200% 100%;animation:cshift 3s linear infinite;pointer-events:none;z-index:9999;transform:translate(-50%,-50%);transition:width .2s,height .2s;mix-blend-mode:difference;}
+.cursor.large{width:28px;height:28px}
+@keyframes cshift{0%{background-position:0 50%}100%{background-position:200% 50%}}
+
+/* ── RAINBOW STRIP (top, decorative) ── */
+.strip{display:none;}
+@keyframes sh{0%{background-position:0 50%}100%{background-position:300% 50%}}
+
+/* ── SCROLL PROGRESS BAR ── */
+.progress-bar{position:fixed;top:0;left:0;height:3px;background:var(--roy);background-size:200% 100%;width:0%;z-index:103;pointer-events:none;transition:width .12s linear;}
+
+/* ── NAV ── */
+nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;justify-content:space-between;align-items:center;padding:0.9rem 2.5rem;background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(12px);border-bottom:1px solid var(--rule);transition:var(--T);}
+.nav-logo-wrap{display:flex;align-items:center;gap:.7rem;text-decoration:none;color:var(--ink);}
+/* rotating logo ring */
+.logo-svg{width:32px;height:32px;flex-shrink:0;}
+.logo-ring{transform-origin:50% 50%;animation:spin var(--logo-speed) linear infinite;}
+@keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+.logo-wordmark{font-family:var(--syne);font-weight:800;font-size:.9rem;letter-spacing:-.01em;}
+.logo-speed-controls{display:flex;gap:.3rem;align-items:center;margin-left:.4rem;}
+.speed-btn{background:none;border:none;font-family:var(--mono);font-size:.55rem;color:var(--muted);cursor:none;padding:.1rem .25rem;transition:color .2s;line-height:1;}
+.speed-btn:hover,.speed-btn.active{color:var(--ink);}
+.nav-links{display:flex;gap:1.8rem;list-style:none;align-items:center}
+.nav-links a{font-family:var(--mono);font-size:.65rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);text-decoration:none;transition:color .2s}
+.nav-links a:hover{color:var(--ink)}
+.nav-right{display:flex;align-items:center;gap:.6rem;}
+.nav-btn{background:none;border:1px solid var(--rule);color:var(--muted);font-family:var(--mono);font-size:.62rem;letter-spacing:.1em;padding:.4rem .75rem;cursor:none;transition:border-color .2s,color .2s;text-decoration:none;display:inline-block;white-space:nowrap;}
+.nav-btn:hover{border-color:var(--ink);color:var(--ink)}
+.nav-cta{font-family:var(--mono);font-size:.65rem;letter-spacing:.1em;text-transform:uppercase;padding:.5rem 1.2rem;border:1px solid var(--ink);color:var(--ink);text-decoration:none;transition:background .2s,color .2s,border-color .2s}
+.nav-cta:hover{background:var(--ink);color:var(--bg)}
+
+section{min-height:100vh;padding:0 3rem;display:flex;flex-direction:column;justify-content:center;position:relative}
+.sm{position:absolute;left:3rem;top:50%;transform:translateY(-50%) rotate(-90deg);transform-origin:left center;font-family:var(--mono);font-size:.55rem;letter-spacing:.25em;text-transform:uppercase;color:var(--rule);white-space:nowrap;pointer-events:none;}
+#theta{padding-top:8rem;padding-left:8rem;padding-right:3rem}
+.hero-eyebrow{font-family:var(--mono);font-size:.62rem;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);margin-bottom:2rem;opacity:0;animation:up .7s .1s ease forwards}
+.hero-stack{margin-bottom:2.5rem;opacity:0;animation:up .8s .2s ease forwards}
+.hero-main{font-family:var(--syne);font-weight:800;font-size:clamp(4rem,9vw,9rem);line-height:.88;letter-spacing:-.03em;display:block;}
+
+/* ── "See" gradient — slow, calm, no epilepsy ── */
+.gw{
+  background:var(--roy);background-size:300% 100%;
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  background-clip:text;
+  animation:sh 99s linear infinite;
+}
+
+.hero-sub-head{font-family:var(--serif);font-style:italic;font-size:clamp(1.05rem,2.2vw,1.65rem);color:var(--muted);display:block;margin-top:1.1rem;padding-top:1rem;border-top:1px solid var(--rule);max-width:540px;line-height:1.35;letter-spacing:.01em;transition:color .35s,border-color .35s;}
+.hero-body{font-family:var(--serif);font-style:italic;font-size:clamp(.95rem,1.8vw,1.25rem);color:var(--muted);max-width:580px;line-height:1.65;margin-bottom:3rem;opacity:0;animation:up .8s .35s ease forwards;transition:color .35s;}
+.hero-pentad{font-family:var(--mono);font-size:clamp(.65rem,1.1vw,.88rem);color:var(--ink);letter-spacing:.05em;opacity:0;animation:up .8s .5s ease forwards;display:flex;align-items:center;flex-wrap:wrap;}
+.sym{padding:.3rem .6rem;border:1px solid var(--rule);transition:border-color .2s,background .2s,color .2s}
+.sym:hover{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.sym.th{border-color:var(--r);color:var(--r)}.sym.lo{border-color:var(--o);color:var(--o)}.sym.gr{border-color:var(--y);color:var(--y)}.sym.st{border-color:var(--g);color:var(--g)}.sym.nw{border-color:var(--b);color:var(--b)}
+.parr{padding:0 .4rem;color:var(--rule);font-size:.8rem}
+.scroll-hint{position:absolute;bottom:2.5rem;left:8rem;font-family:var(--mono);font-size:.55rem;letter-spacing:.2em;text-transform:uppercase;color:var(--rule);display:flex;align-items:center;gap:.8rem;opacity:0;animation:up .8s .9s ease forwards;}
+.scroll-hint::before{content:'';display:block;width:40px;height:1px;background:var(--rule)}
+@keyframes up{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+.hrule{height:1px;background:var(--roy);opacity:.3;margin:0}
+#loss{padding-left:8rem;background:var(--off);transition:var(--T)}
+.loss-grid{display:grid;grid-template-columns:1fr 1fr;gap:6rem;align-items:center;max-width:1200px}
+.sect-label{font-family:var(--mono);font-size:.58rem;letter-spacing:.25em;text-transform:uppercase;color:var(--muted);margin-bottom:1rem}
+.loss-head{font-family:var(--syne);font-weight:800;font-size:clamp(2.5rem,4vw,4.5rem);line-height:.92;letter-spacing:-.02em;margin-bottom:1.8rem}
+.loss-p{font-family:var(--serif);font-style:italic;font-size:1.05rem;line-height:1.7;color:var(--muted);max-width:460px;transition:color .35s}
+.loss-p em{font-style:italic;color:var(--ink);transition:color .35s}
+.loss-p+.loss-p{margin-top:1rem}
+.hmap{display:grid;grid-template-columns:repeat(10,1fr);grid-template-rows:repeat(10,1fr);gap:3px;aspect-ratio:1;max-width:360px}
+.hcell{border-radius:2px;transition:transform .3s,filter .3s;animation:pc var(--dur,3s) var(--delay,0s) ease-in-out infinite alternate}
+.hcell:hover{transform:scale(1.35);filter:brightness(1.3);z-index:10;cursor:crosshair}
+@keyframes pc{from{opacity:.65}to{opacity:1}}
+#gradient{padding-left:8rem;padding-top:6rem;padding-bottom:6rem;min-height:auto;background:var(--bg);transition:var(--T)}
+.grad-head{font-family:var(--syne);font-weight:800;font-size:clamp(2.5rem,4vw,4rem);line-height:.92;letter-spacing:-.02em;margin-bottom:4rem}
+.twins{display:grid;grid-template-columns:repeat(5,1fr);gap:1px;background:var(--rule);border:1px solid var(--rule);max-width:1400px;transition:var(--T)}
+.tc.coming{opacity:.42;cursor:default;pointer-events:none;}.tc.coming .tc-name{color:var(--muted)}
+.tc-coming-badge{display:inline-block;font-family:var(--mono);font-size:.52rem;letter-spacing:.15em;text-transform:uppercase;padding:.2rem .5rem;border:1px solid var(--rule);color:var(--muted);margin-bottom:1rem}
+.tc{background:var(--bg);padding:2.5rem 2rem;position:relative;overflow:hidden;text-decoration:none;color:var(--ink);display:block;transition:background .25s,color .25s}
+.tc:hover{background:var(--ink);color:var(--bg)}
+.tc:hover .tc-desc,.tc:hover .tc-links a{color:color-mix(in srgb,var(--bg) 65%,transparent)!important}
+.tc:hover .tc-idx{color:color-mix(in srgb,var(--bg) 25%,transparent)}
+.tc:hover .tc-bar{opacity:1}
+.tc-bar{position:absolute;top:0;left:0;right:0;height:3px;opacity:.5;transition:opacity .25s}
+.tc-idx{font-family:var(--mono);font-size:.6rem;color:var(--rule);margin-bottom:2rem;letter-spacing:.1em;transition:color .25s}
+.tc-scale{font-family:var(--syne);font-size:.55rem;font-weight:600;letter-spacing:.2em;text-transform:uppercase;margin-bottom:.6rem}
+.tc-name{font-family:var(--syne);font-weight:800;font-size:1.5rem;line-height:1;letter-spacing:-.02em;margin-bottom:1.2rem;transition:color .25s}
+.tc-desc{font-family:var(--serif);font-style:italic;font-size:.88rem;line-height:1.6;color:var(--muted);margin-bottom:1.5rem;transition:color .25s}
+.tc-links{display:flex;flex-direction:column;gap:.3rem}
+.tc-links a{font-family:var(--mono);font-size:.6rem;letter-spacing:.1em;color:var(--muted);text-decoration:none;transition:color .25s}
+.tc-links a::before{content:'→ '}
+.tc-links a:hover{color:var(--b)!important}
+#action{padding-left:8rem;background:var(--off);transition:var(--T)}
+.action-grid{display:grid;grid-template-columns:1fr 1.2fr;gap:8rem;align-items:center;max-width:1200px}
+.action-head{font-family:var(--syne);font-weight:800;font-size:clamp(2.5rem,4vw,4rem);line-height:.92;letter-spacing:-.02em;margin-bottom:2rem}
+.action-body{font-family:var(--serif);font-style:italic;font-size:1.05rem;line-height:1.7;color:var(--muted);margin-bottom:2.5rem}
+.pillars{display:flex;flex-direction:column;border-top:1px solid var(--rule)}
+.pillar{display:flex;gap:1.5rem;align-items:flex-start;padding:1.2rem 0;border-bottom:1px solid color-mix(in srgb,var(--rule) 50%,transparent)}
+.p-num{font-family:var(--mono);font-size:.6rem;color:var(--muted);opacity:.4;padding-top:.15rem;min-width:2rem}
+.p-title{font-family:var(--syne);font-weight:700;font-size:.88rem;margin-bottom:.2rem}
+.p-desc{font-family:var(--serif);font-style:italic;font-size:.82rem;color:var(--muted);line-height:1.5}
+.contact-box{background:var(--bg);border:1px solid var(--rule);padding:3rem;transition:var(--T)}
+.contact-head{font-family:var(--syne);font-weight:800;font-size:1.8rem;margin-bottom:.5rem;line-height:1.1}
+.contact-sub{font-family:var(--serif);font-style:italic;font-size:.9rem;color:var(--muted);margin-bottom:2rem}
+.cfields{display:flex;flex-direction:column;gap:.8rem;margin-bottom:1.5rem}
+.cfields input,.cfields select,.cfields textarea{background:var(--off);border:1px solid var(--rule);padding:.8rem 1rem;font-family:var(--mono);font-size:.72rem;color:var(--ink);outline:none;resize:none;width:100%;transition:border-color .2s,var(--T);}
+.cfields input::placeholder,.cfields textarea::placeholder{color:var(--muted);opacity:.5}
+.cfields input:focus,.cfields textarea:focus{border-color:var(--b)}
+.cfields select option{background:var(--bg);color:var(--ink)}
+.cbtn{width:100%;padding:.9rem 2.2rem;background:var(--ink);color:var(--bg);font-family:var(--mono);font-size:.68rem;letter-spacing:.12em;text-transform:uppercase;border:none;cursor:none;transition:background .2s,color .2s}
+.cbtn:hover{background:var(--ink);opacity:.8;color:var(--bg)}
+#theta-prime{padding-left:8rem;background:var(--bg);position:relative;overflow:hidden;min-height:80vh;transition:var(--T)}
+.prime-bg{position:absolute;top:0;right:-10%;width:60%;height:100%;background:var(--roy);opacity:.04;clip-path:polygon(20% 0%,100% 0%,100% 100%,0% 100%);pointer-events:none}
+.prime-lbl{font-family:var(--mono);font-size:.58rem;letter-spacing:.25em;text-transform:uppercase;color:var(--muted);margin-bottom:1rem}
+.prime-head{font-family:var(--syne);font-weight:800;font-size:clamp(3rem,6vw,6.5rem);line-height:.9;letter-spacing:-.03em;max-width:800px;margin-bottom:2.5rem}
+.prime-loop{display:flex;align-items:center;flex-wrap:wrap;font-family:var(--mono);font-size:.75rem;max-width:900px}
+.lsym{padding:.5rem .9rem;border-bottom:2px solid transparent;color:var(--muted);transition:color .3s,border-color .3s}
+.lsym:hover{color:var(--ink)}
+.lsym.r{border-color:var(--r)}.lsym.o{border-color:var(--o)}.lsym.y{border-color:var(--y)}.lsym.g{border-color:var(--g)}.lsym.b{border-color:var(--b)}
+.larr{color:var(--rule);padding:0 .3rem}
+.prime-tag{font-family:var(--serif);font-style:italic;font-size:1.1rem;color:var(--muted);margin-top:2rem;max-width:520px;line-height:1.6}
+
+/* ── FOOTER ── */
+.footer{border-top:1px solid var(--rule);background:var(--off);transition:var(--T)}
+.footer-wrap{max-width:1400px;margin:0 auto;padding:2.2rem 3rem 2.2rem 8rem;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1.2rem}
+
+/* Chorus: only ONE chip visible at a time, fading between them */
+.chorus{position:relative;height:1.6rem;min-width:240px;}
+.chip{
+  position:absolute;left:0;top:0;
+  font-family:var(--mono);font-size:.6rem;letter-spacing:.1em;
+  padding:.3rem .7rem;border:1px solid var(--rule);color:var(--muted);
+  white-space:nowrap;cursor:default;
+  opacity:0;transition:opacity 1.2s ease;
+  pointer-events:none;
+}
+.chip.active{opacity:1;pointer-events:auto;}
+
+.footer-micro{font-family:var(--mono);font-size:.6rem;color:var(--muted);letter-spacing:.08em}
+.footer-micro a{color:var(--muted);text-decoration:none;transition:color .2s}
+.footer-micro a:hover{color:var(--ink)}
+.rev{opacity:0;transform:translateY(28px);transition:opacity .7s ease,transform .7s ease}
+.rev.vis{opacity:1;transform:translateY(0)}
+.d1{transition-delay:.1s}.d2{transition-delay:.22s}.d3{transition-delay:.38s}.d4{transition-delay:.52s}
+@media(max-width:900px){
+  nav{padding:1rem 1.5rem}.nav-links{display:none}
+  section{padding-left:1.5rem!important;padding-right:1.5rem}.sm{display:none}
+  .loss-grid,.action-grid{grid-template-columns:1fr;gap:3rem}
+  .twins{grid-template-columns:1fr 1fr 1fr}
+  .footer-wrap{padding-left:1.5rem}.scroll-hint{left:1.5rem}
+}
+@media(max-width:600px){.twins{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<div class="cursor" id="cursor"></div>
+<div class="strip"></div>
+<div class="progress-bar" id="progressBar"></div>
+
+<nav>
+  <!-- LOGO: rotating ring + wordmark + speed controls -->
+  <a href="#" class="nav-logo-wrap" id="logoLink">
+    <svg class="logo-svg" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <!-- static center dot -->
+      <circle cx="16" cy="16" r="3" fill="currentColor" opacity=".7"/>
+      <!-- rotating ring with ROYGBIV stops -->
+      <g class="logo-ring">
+        <circle cx="16" cy="16" r="13" stroke="url(#logoGrad)" stroke-width="2.5" fill="none" stroke-linecap="round"
+          stroke-dasharray="70 12"/>
+      </g>
+      <defs>
+        <linearGradient id="logoGrad" x1="0" y1="0" x2="32" y2="32" gradientUnits="userSpaceOnUse">
+          <stop offset="0%"   stop-color="#f72b1a"/>
+          <stop offset="16%"  stop-color="#ff7200"/>
+          <stop offset="32%"  stop-color="#f5cc00"/>
+          <stop offset="48%"  stop-color="#1ec94a"/>
+          <stop offset="64%"  stop-color="#1a8fff"/>
+          <stop offset="82%"  stop-color="#6c35ff"/>
+          <stop offset="100%" stop-color="#b800cc"/>
+        </linearGradient>
+      </defs>
+    </svg>
+    <span class="logo-wordmark">Ukubona</span>
+  </a>
+  <!-- logo speed controls -->
+  <div class="logo-speed-controls" title="Logo rotation speed">
+    <button class="speed-btn" data-speed="120s">slow</button>
+    <button class="speed-btn active" data-speed="60s">·</button>
+    <button class="speed-btn" data-speed="20s">fast</button>
+  </div>
+
+  <ul class="nav-links">
+    <li><a href="#loss">The Problem</a></li>
+    <li><a href="#gradient">Twins</a></li>
+    <li><a href="#action">Work With Us</a></li>
+    <li><a href="assets/html/ukhona.html">Framework</a></li>
+  </ul>
+  <div class="nav-right">
+    <button class="nav-btn" id="themeBtn">◐ theme</button>
+    <a href="assets/html/app-grid.html" class="nav-btn">⊞ apps</a>
+    <a href="#action" class="nav-cta">Start</a>
+  </div>
+</nav>
+
+<section id="theta">
+  <div class="sm">θ — current state</div>
+  <p class="hero-eyebrow">Digital Twins · At Every Scale</p>
+  <div class="hero-stack">
+    <span class="hero-main">To <span class="gw">See</span><br>Is to Learn.</span>
+    <span class="hero-sub-head">Every system starts blind — the gradient is what changes that.</span>
+  </div>
+  <p class="hero-body">Incomplete data is the prior, not the failure. Ukubona makes the loss landscape computable — from a single patient to a nation of forty million.</p>
+  <div class="hero-pentad">
+    <span class="sym th">θ</span><span class="parr">→</span>
+    <span class="sym lo">L(θ)</span><span class="parr">→</span>
+    <span class="sym gr">∇L(θ)</span><span class="parr">→</span>
+    <span class="sym st">−η∇L</span><span class="parr">→</span>
+    <span class="sym nw">θ′</span>
+  </div>
+  <div class="scroll-hint">Scroll to descend</div>
+</section>
+
+<div class="hrule"></div>
+
+<section id="loss">
+  <div class="sm">L(θ) — the loss</div>
+  <div class="loss-grid">
+    <div>
+      <div class="sect-label rev">02 — Loss Function</div>
+      <h2 class="loss-head rev d1">Blind<br>is the<br>prior.</h2>
+      <p class="loss-p rev d2">In SGD, the model doesn't begin with the answer — it begins with <em>an estimate</em>. Governments call districts. Clinicians read printouts. The data exists — it just isn't <em>computed yet</em>.</p>
+      <p class="loss-p rev d3">Flying blind isn't the sin. <em>Refusing the update</em> is. The ROYGBIV heatmap makes every district's loss visible — one gradient any minister, clinician, or fisherman immediately understands.</p>
+      <p class="loss-p rev d4" style="font-family:var(--mono);font-size:.7rem;letter-spacing:.08em;margin-top:1rem">
+        <span style="color:var(--r)">■</span> Red = high loss &nbsp;·&nbsp;
+        <span style="color:var(--g)">■</span> Green = improving &nbsp;·&nbsp;
+        <span style="color:var(--v)">■</span> Violet = optimized
+      </p>
+    </div>
+    <div class="rev d2">
+      <p style="font-family:var(--mono);font-size:.58rem;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);margin-bottom:.8rem">Uganda · District Loss Simulation</p>
+      <div class="hmap" id="hmap"></div>
+    </div>
+  </div>
+</section>
+
+<div class="hrule"></div>
+
+<section id="gradient">
+  <div class="sm">∇L — the gradient</div>
+  <div class="sect-label rev">03 — Digital Twin Suite</div>
+  <h2 class="grad-head rev d1">Five scales.<br>One architecture.</h2>
+  <div class="twins">
+    <a class="tc rev" href="assets/html/dt-001.html">
+      <div class="tc-bar" style="background:var(--r)"></div>
+      <div class="tc-idx">01 / 05</div>
+      <div class="tc-scale" style="color:var(--r)">Individual</div>
+      <div class="tc-name">You</div>
+      <p class="tc-desc">The original and hardest problem. A digital twin of a single human being — metabolic state, health trajectory, interventions.</p>
+      <div class="tc-links">
+        <a href="assets/html/dt-001.html">Personalized twin</a>
+        <a href="assets/html/nhanes.html">NHANES model</a>
+        <a href="assets/html/pairs-jh.html">Pairs</a>
+      </div>
+    </a>
+    <div class="tc coming rev d1">
+      <div class="tc-bar" style="background:var(--o)"></div>
+      <div class="tc-idx">02 / 05</div>
+      <div class="tc-scale" style="color:var(--o)">Household</div>
+      <div class="tc-name">Your<br>Family</div>
+      <div class="tc-coming-badge">Coming</div>
+      <p class="tc-desc">Kin networks as the unit of care. Shared risk, shared history, shared gradient.</p>
+      <div class="tc-links" style="opacity:.4;pointer-events:none">
+        <a href="#">Household twin</a><a href="#">Family risk model</a><a href="#">Pedigree</a>
+      </div>
+    </div>
+    <a class="tc rev d2" href="assets/html/hr.html">
+      <div class="tc-bar" style="background:var(--y)"></div>
+      <div class="tc-idx">03 / 05</div>
+      <div class="tc-scale" style="color:var(--y)">Firm</div>
+      <div class="tc-name">Your<br>Org</div>
+      <p class="tc-desc">Stewards, payloads, performance. A living ledger of competence.</p>
+      <div class="tc-links">
+        <a href="assets/html/hr.html">HR twin</a>
+        <a href="assets/html/steward-dashboard.html">Steward dashboard</a>
+        <a href="assets/html/steward-transcript.html">Transcript</a>
+      </div>
+    </a>
+    <a class="tc rev d3" href="assets/html/gov.html">
+      <div class="tc-bar" style="background:var(--g)"></div>
+      <div class="tc-idx">04 / 05</div>
+      <div class="tc-scale" style="color:var(--g)">Government</div>
+      <div class="tc-name">Your<br>Nation</div>
+      <p class="tc-desc">Synthetic data rehearsal. District-level loss gradients at national scale.</p>
+      <div class="tc-links">
+        <a href="assets/html/gov.html">Government twin</a>
+        <a href="assets/html/dt-h-001.html">Health model</a>
+        <a href="assets/html/cartography-256.html">Cartography</a>
+      </div>
+    </a>
+    <a class="tc rev d4" href="assets/html/ukhona.html">
+      <div class="tc-bar" style="background:var(--v)"></div>
+      <div class="tc-idx">05 / 05</div>
+      <div class="tc-scale" style="color:var(--v)">Civilization</div>
+      <div class="tc-name">The<br>World</div>
+      <p class="tc-desc">Stratigraphic civilization. The pentad as universal learning loop.</p>
+      <div class="tc-links">
+        <a href="assets/html/ukhona.html">Framework</a>
+        <a href="assets/html/philosophy.html">Philosophy</a>
+        <a href="assets/html/stratigraphic-civilization.html">Strata</a>
+      </div>
+    </a>
+  </div>
+</section>
+
+<div class="hrule"></div>
+
+<section id="action">
+  <div class="sm">−η∇L — the step</div>
+  <div class="action-grid">
+    <div>
+      <div class="sect-label rev">04 — The Intervention</div>
+      <h2 class="action-head rev d1">Compute<br>the update.</h2>
+      <p class="action-body rev d2">We build the data plane for the authority — not the political ministry above it. You walk into any room backed by defensible reasoning, not phone-call data.</p>
+      <div class="pillars rev d3">
+        <div class="pillar"><div class="p-num" style="color:var(--r)">θ</div><div><div class="p-title">Synthetic Data Rehearsal</div><div class="p-desc">We generate parameters. You rehearse the update rhythm before real data arrives.</div></div></div>
+        <div class="pillar"><div class="p-num" style="color:var(--o)">L</div><div><div class="p-title">ROYGBIV Heatmaps</div><div class="p-desc">High-dimensional loss landscapes compressed into a single color gradient.</div></div></div>
+        <div class="pillar"><div class="p-num" style="color:var(--y)">∇L</div><div><div class="p-title">Gradient Computation</div><div class="p-desc">The heatmap shows <em>what</em> is broken. The gradient shows <em>why</em> and <em>where to push</em>.</div></div></div>
+        <div class="pillar"><div class="p-num" style="color:var(--g)">−η∇L</div><div><div class="p-title">Steward Transcripts</div><div class="p-desc">Every intervention permanently ledgered. The descent step made auditable.</div></div></div>
+        <div class="pillar"><div class="p-num" style="color:var(--b)">θ′</div><div><div class="p-title">The Updated State</div><div class="p-desc">Not a report. A measurably different system — legible, auditable, ready for the next descent.</div></div></div>
+      </div>
+    </div>
+    <div class="contact-box rev d2">
+      <h3 class="contact-head">Let's close<br>the loop.</h3>
+      <p class="contact-sub">Government, enterprise, or individual — tell us your scale.</p>
+      <div class="cfields">
+        <input type="text" placeholder="Name">
+        <input type="email" placeholder="Email">
+        <select><option value="" disabled selected>Scale of twin</option><option>Individual</option><option>Household</option><option>Firm</option><option>Government</option><option>Civilization</option></select>
+        <textarea rows="4" placeholder="What are you flying blind about?"></textarea>
+      </div>
+      <button class="cbtn">Send ∇L</button>
+    </div>
+  </div>
+</section>
+
+<div class="hrule"></div>
+
+<section id="theta-prime">
+  <div class="prime-bg"></div>
+  <div class="sm">θ′ — new state</div>
+  <div class="prime-lbl rev">05 — The Updated State</div>
+  <h2 class="prime-head rev d1">Once a system<br>can <span class="gw">see</span>,<br>it can learn.</h2>
+  <div class="prime-loop rev d2">
+    <span class="lsym r">θ</span><span class="larr">→</span>
+    <span class="lsym o">L(θ)</span><span class="larr">→</span>
+    <span class="lsym y">∇L(θ)</span><span class="larr">→</span>
+    <span class="lsym g">−η∇L</span><span class="larr">→</span>
+    <span class="lsym b">θ′</span><span class="larr">→</span>
+    <span class="lsym r" style="opacity:.35">θ</span>
+  </div>
+  <p class="prime-tag rev d3">The pentad is not a framework. It is what happens when any system — a body, an institution, a civilization — begins to adapt. We make it computable.</p>
+</section>
+
+<footer class="footer">
+  <div class="footer-wrap">
+    <!-- ONE chip visible at a time, rotating every 6s -->
+    <div class="chorus" id="chorus">
+      <span class="chip active">To see, blindly</span>
+      <span class="chip">To forage, stochastically</span>
+      <span class="chip">To rehearse, consequentially</span>
+    </div>
+    <div class="footer-micro">
+      <p>© 2026 Ukubona &nbsp;·&nbsp; <a href="assets/html/logo.html">⊙</a> &nbsp;·&nbsp; <a href="assets/html/card.html">vCard</a></p>
+    </div>
+  </div>
+</footer>
+
+<script>
+/* ── cursor ── */
+const cur = document.getElementById('cursor');
+document.addEventListener('mousemove', e => { cur.style.left=e.clientX+'px'; cur.style.top=e.clientY+'px'; }, {passive:true});
+document.querySelectorAll('a,button,.hcell,.tc,.chip').forEach(el => {
+  el.addEventListener('mouseenter', () => cur.classList.add('large'));
+  el.addEventListener('mouseleave', () => cur.classList.remove('large'));
+});
+
+/* ── scroll progress bar ── */
+const bar = document.getElementById('progressBar');
+window.addEventListener('scroll', () => {
+  const pct = scrollY / (document.body.scrollHeight - innerHeight) * 100;
+  bar.style.width = Math.min(pct, 100) + '%';
+}, {passive:true});
+
+/* ── theme ── */
+const html = document.documentElement;
+const themeBtn = document.getElementById('themeBtn');
+themeBtn.addEventListener('click', () => {
+  const dark = html.getAttribute('data-theme') === 'dark';
+  html.setAttribute('data-theme', dark ? 'light' : 'dark');
+  themeBtn.textContent = dark ? '◑ theme' : '◐ theme';
+  try { localStorage.setItem('ukubona-theme', html.getAttribute('data-theme')); } catch(e) {}
+});
+try {
+  const saved = localStorage.getItem('ukubona-theme');
+  if (saved) { html.setAttribute('data-theme', saved); themeBtn.textContent = saved==='light' ? '◑ theme' : '◐ theme'; }
+} catch(e) {}
+
+/* ── logo rotation speed controls ── */
+const logoRing = document.querySelector('.logo-ring');
+document.querySelectorAll('.speed-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.speed-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    const speed = btn.dataset.speed;
+    document.documentElement.style.setProperty('--logo-speed', speed);
+    logoRing.style.animationDuration = speed;
+  });
+});
+
+/* ── heatmap ── */
+(function(){
+  const el = document.getElementById('hmap');
+  const C = ['#f72b1a','#f72b1a','#ff4020','#ff7200','#ff8800','#ffa020','#f5cc00','#e8b800','#60d040','#1ec94a','#1a8fff','#2090ff','#6c35ff','#8050ff','#b800cc','#9800aa'];
+  const cells = [];
+  for(let r=0;r<10;r++) for(let c=0;c<10;c++){
+    const v = Math.min(1,(r/9)*.6+Math.random()*.4);
+    const div = document.createElement('div');
+    div.className = 'hcell';
+    div.style.background = C[Math.floor(v*(C.length-1))];
+    div.style.setProperty('--delay',(Math.random()*2)+'s');
+    div.style.setProperty('--dur',(2+Math.random()*2)+'s');
+    cells.push(div); el.appendChild(div);
+  }
+  setInterval(()=>{
+    const i = Math.floor(Math.random()*cells.length);
+    cells[i].style.transition = 'background 1.5s ease';
+    cells[i].style.background = C[Math.floor(Math.random()*C.length)];
+  }, 400);
+})();
+
+/* ── reveals ── */
+const obs = new IntersectionObserver(entries=>{
+  entries.forEach(e=>{ if(e.isIntersecting){ e.target.classList.add('vis'); obs.unobserve(e.target); } });
+},{threshold:0.12});
+document.querySelectorAll('.rev').forEach(el=>obs.observe(el));
+
+/* ── chorus: one chip at a time, fade in/out ── */
+(function(){
+  const chips = Array.from(document.querySelectorAll('#chorus .chip'));
+  let i = 0;
+  setInterval(()=>{
+    chips[i].classList.remove('active');
+    i = (i+1) % chips.length;
+    chips[i].classList.add('active');
+  }, 6000);
+})();
+
+/* ── active nav highlight ── */
+window.addEventListener('scroll',()=>{
+  let c = '';
+  document.querySelectorAll('section[id]').forEach(s=>{ if(scrollY>=s.offsetTop-200) c=s.id; });
+  document.querySelectorAll('.nav-links a').forEach(a=>{ a.style.color=a.getAttribute('href')==='#'+c?'var(--ink)':''; });
+},{passive:true});
+</script>
+</body>
+</html>     

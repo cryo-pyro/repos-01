@@ -1,0 +1,763 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Uganda District ASD Map · Amaani × Ukubona</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,400&family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.min.css"/>
+<style>
+:root {
+  --bg:      #0D0D0B;
+  --surf:    #141412;
+  --surf2:   #1C1C19;
+  --brd:     rgba(255,255,255,0.07);
+  --ink:     #E8E6DF;
+  --mut:     #6B6B65;
+  --dim:     #3A3A36;
+  --laterite:#B5472A;
+  --lat-lt:  #E07A5F;
+  --forest:  #1B3A2D;
+  --forest-lt:#2E5E45;
+  --gold:    #C49A3C;
+  --gold-lt: #E8C86A;
+  /* ROYGBIV loss */
+  --r: #e24b4a;
+  --o: #d85a30;
+  --y: #ef9f27;
+  --g: #639922;
+  --b: #378add;
+  --i: #534ab7;
+  --v: #1d9e75;
+}
+[data-theme="light"]{--bg:#fafaf8;--surf:#fff;--surf2:#f1efe8;--brd:rgba(0,0,0,0.08);--ink:#1a1a18;--mut:#6b6b65;--dim:#d3d1c7;}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html,body{height:100%;overflow:hidden;}
+body{font-family:'DM Sans',sans-serif;font-size:13px;background:var(--bg);color:var(--ink);display:flex;flex-direction:column;}
+
+/* SUITE NAV */
+.suite-nav{
+  background:rgba(13,13,11,0.97);
+  border-bottom:1px solid rgba(181,71,42,0.2);
+  padding:0.5rem 1.5rem;
+  display:flex;align-items:center;gap:2rem;
+  font-family:'DM Mono',monospace;font-size:0.58rem;
+  letter-spacing:0.12em;text-transform:uppercase;
+  flex-shrink:0;
+}
+.suite-logo{color:var(--laterite);font-weight:500;}
+.suite-logo span{color:var(--gold-lt);}
+.suite-links{display:flex;gap:1.5rem;margin-left:auto;}
+.suite-link{color:var(--mut);text-decoration:none;transition:color 0.2s;}
+.suite-link:hover{color:var(--lat-lt);}
+.suite-link.active{color:var(--gold-lt);border-bottom:1px solid var(--gold);padding-bottom:0.2rem;}
+
+/* HEADER */
+.hd{display:flex;align-items:center;justify-content:space-between;padding:.65rem 1.1rem;background:var(--surf);border-bottom:1px solid var(--brd);flex-shrink:0;gap:.75rem;flex-wrap:wrap;}
+.hd-title{font-family:'Playfair Display',serif;font-size:1.05rem;font-style:italic;color:var(--ink);}
+.hd-sub{font-family:'DM Mono',monospace;font-size:.56rem;color:var(--mut);letter-spacing:.06em;margin-top:.1rem;}
+.hd-right{display:flex;gap:.4rem;align-items:center;flex-wrap:wrap;}
+.badge{font-family:'DM Mono',monospace;font-size:.55rem;letter-spacing:.08em;text-transform:uppercase;padding:.18em .65em;border:1px solid var(--brd);color:var(--mut);}
+.badge-syn{color:var(--y);border-color:rgba(239,159,39,.32);}
+.badge-real{color:var(--v);border-color:rgba(29,158,117,.32);display:none;}
+.icon-btn{background:var(--surf2);border:1px solid var(--brd);border-radius:5px;padding:.35rem .6rem;cursor:pointer;color:var(--mut);font-family:'DM Mono',monospace;font-size:.56rem;letter-spacing:.06em;text-decoration:none;transition:border-color .15s,color .15s;display:flex;align-items:center;gap:.3rem;}
+.icon-btn:hover{border-color:var(--y);color:var(--y);}
+
+/* BODY */
+.body{display:flex;flex:1;overflow:hidden;min-height:0;}
+
+/* LEFT PANEL */
+.lp{width:252px;flex-shrink:0;background:var(--surf);border-right:1px solid var(--brd);overflow-y:auto;padding:1rem;display:flex;flex-direction:column;gap:1rem;}
+.plbl{font-family:'DM Mono',monospace;font-size:.55rem;letter-spacing:.14em;text-transform:uppercase;color:var(--mut);padding-bottom:.3rem;border-bottom:1px solid var(--brd);}
+
+/* FORMULA */
+.formula{font-family:'DM Mono',monospace;font-size:.63rem;color:var(--mut);line-height:1.9;padding:.6rem .7rem;background:var(--surf2);border:1px solid var(--brd);}
+.formula .hl{color:var(--y);}
+
+/* DIM SELECT */
+.dim-sel{width:100%;background:var(--surf2);border:1px solid var(--brd);color:var(--ink);font-family:'DM Sans',sans-serif;font-size:.78rem;padding:.38rem .6rem;cursor:pointer;outline:none;transition:border-color .15s;}
+.dim-sel:focus,.dim-sel:hover{border-color:var(--y);}
+.dim-desc{font-family:'DM Mono',monospace;font-size:.58rem;color:var(--mut);line-height:1.6;margin-top:.3rem;}
+
+/* SLIDERS */
+.sl-row{display:flex;flex-direction:column;gap:.2rem;margin-bottom:.4rem;}
+.sl-meta{display:flex;justify-content:space-between;align-items:baseline;}
+.sl-name{font-size:.68rem;opacity:.85;}
+.sl-val{font-family:'DM Mono',monospace;font-size:.62rem;color:var(--y);}
+input[type=range]{width:100%;height:2px;appearance:none;background:var(--dim);border-radius:2px;cursor:pointer;}
+input[type=range]::-webkit-slider-thumb{appearance:none;width:10px;height:10px;border-radius:50%;background:var(--y);cursor:pointer;}
+.rt::-webkit-slider-thumb{background:var(--r)!important;}
+.ro::-webkit-slider-thumb{background:var(--o)!important;}
+.rg::-webkit-slider-thumb{background:var(--g)!important;}
+.rb::-webkit-slider-thumb{background:var(--b)!important;}
+
+.weight-block{display:none;}
+.weight-block.show{display:block;}
+
+/* SCENARIO BUTTONS */
+.sc-btn{width:100%;padding:.4rem .6rem;background:var(--surf2);border:1px solid var(--brd);color:var(--ink);font-family:'DM Sans',sans-serif;font-size:.68rem;cursor:pointer;text-align:left;margin-bottom:.28rem;transition:border-color .12s,background .12s;}
+.sc-btn span{display:block;font-size:.58rem;color:var(--mut);margin-top:.05rem;}
+.sc-btn:hover{border-color:var(--y);}
+.sc-btn.on{border-color:var(--y);color:var(--y);}
+.sc-btn.on span{color:rgba(239,159,39,.55);}
+
+/* PLACEHOLDER NOTE */
+.placeholder-note{
+  font-family:'DM Mono',monospace;font-size:.58rem;
+  color:rgba(107,107,101,0.4);
+  border:1px dashed rgba(107,107,101,0.2);
+  padding:.6rem .7rem;line-height:1.7;font-style:italic;
+}
+.placeholder-note strong{color:rgba(239,159,39,0.4);font-style:normal;}
+
+/* MAP */
+.mc{flex:1;position:relative;min-width:0;}
+#map{width:100%;height:100%;}
+.leaflet-tile-pane{filter:brightness(.82) saturate(.85);}
+[data-theme="light"] .leaflet-tile-pane{filter:none;}
+.upd{position:absolute;top:10px;left:50%;transform:translateX(-50%);z-index:900;background:var(--surf);border:1px solid rgba(239,159,39,.3);padding:.22em .8em;font-family:'DM Mono',monospace;font-size:.57rem;color:var(--y);opacity:0;transition:opacity .25s;pointer-events:none;white-space:nowrap;}
+.upd.on{opacity:1;}
+
+/* LEGEND */
+.leg{position:absolute;bottom:16px;left:16px;z-index:800;background:rgba(20,20,18,.92);border:1px solid var(--brd);padding:.55rem .7rem;backdrop-filter:blur(4px);}
+[data-theme="light"] .leg{background:rgba(255,255,255,.92);}
+.leg-title{font-family:'DM Mono',monospace;font-size:.52rem;letter-spacing:.1em;text-transform:uppercase;color:var(--mut);margin-bottom:.3rem;}
+.leg-scale{display:flex;gap:2px;margin-bottom:.2rem;}
+.leg-sw{height:7px;flex:1;}
+.leg-labs{display:flex;justify-content:space-between;font-family:'DM Mono',monospace;font-size:.5rem;color:var(--mut);}
+
+/* AMAANI LAYER INDICATOR */
+.asd-indicator{
+  position:absolute;top:10px;right:16px;z-index:800;
+  background:rgba(181,71,42,0.12);
+  border:1px solid rgba(181,71,42,0.35);
+  padding:.5rem .8rem;
+  font-family:'DM Mono',monospace;font-size:.6rem;
+  color:var(--lat-lt);line-height:1.7;
+}
+
+/* RIGHT PANEL */
+.rp{width:224px;flex-shrink:0;background:var(--surf);border-left:1px solid var(--brd);overflow-y:auto;padding:1rem;display:flex;flex-direction:column;gap:1rem;}
+.sc2{background:var(--surf2);border:1px solid var(--brd);padding:.6rem .8rem;}
+.sc2-lbl{font-family:'DM Mono',monospace;font-size:.54rem;letter-spacing:.08em;text-transform:uppercase;color:var(--mut);margin-bottom:.2rem;}
+.sc2-val{font-family:'Playfair Display',serif;font-size:1.45rem;line-height:1;margin-bottom:.1rem;}
+.sc2-delta{font-family:'DM Mono',monospace;font-size:.58rem;color:var(--mut);}
+.sc2-delta.bad{color:var(--r);}
+.sc2-delta.good{color:var(--v);}
+
+/* SELECTED DISTRICT */
+.sel-district{padding:.7rem .8rem;background:var(--surf2);border-left:3px solid var(--y);}
+.sel-d-name{font-family:'Playfair Display',serif;font-size:1.05rem;margin-bottom:.3rem;}
+.sel-score{font-family:'DM Mono',monospace;font-size:1.25rem;font-weight:500;margin-bottom:.5rem;}
+.db-row{display:flex;align-items:center;gap:.4rem;padding:.25rem .4rem;background:rgba(0,0,0,0.15);margin-bottom:.18rem;}
+.db-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;}
+.db-name{font-size:.65rem;color:var(--mut);flex:1;}
+.db-bar-bg{height:3px;background:var(--dim);flex:1;max-width:55px;}
+.db-bar-fill{height:100%;transition:width .4s;}
+.db-val{font-family:'DM Mono',monospace;font-size:.62rem;color:var(--ink);}
+
+/* TOP LIST */
+.d-item{display:flex;align-items:center;gap:.45rem;padding:.28rem .4rem;cursor:pointer;transition:background .1s;}
+.d-item:hover{background:var(--surf2);}
+.d-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0;}
+.d-name{font-size:.7rem;flex:1;}
+.d-val{font-family:'DM Mono',monospace;font-size:.62rem;color:var(--mut);}
+
+/* PENTAD */
+.prow{display:flex;align-items:center;gap:.5rem;padding:.28rem .4rem;background:var(--surf2);margin-bottom:.22rem;border-left:2px solid var(--brd);}
+.prow.ac{border-left-color:var(--y);}
+.psym{font-family:'DM Mono',monospace;font-size:.6rem;color:var(--mut);min-width:40px;}
+.prow.ac .psym{color:var(--y);}
+.pdesc{font-size:.64rem;color:var(--mut);}
+.prow.ac .pdesc{color:var(--ink);}
+
+/* TLOG */
+.tlog{font-family:'DM Mono',monospace;font-size:.58rem;color:var(--mut);line-height:1.6;max-height:120px;overflow-y:auto;}
+.te{padding:.1rem 0;border-bottom:1px solid var(--brd);}
+.tt2{color:var(--dim);margin-right:.25rem;}
+.ta{color:var(--y);}
+
+@media(max-width:900px){.lp,.rp{display:none;}}
+</style>
+</head>
+<body>
+
+<!-- SUITE NAV -->
+<nav class="suite-nav">
+  <div class="suite-logo">Amaani <span>× Ukubona</span></div>
+  <div class="suite-links">
+    <a href="mh-data.html" class="suite-link">Uganda MH Data</a>
+    <a href="autism-ug.html" class="suite-link active">Uganda District Map</a>
+    <a href="bigger-picture.html" class="suite-link">Africa Gap Map</a>
+    <a href="md-registration.html" class="suite-link">Amaani Home</a>
+  </div>
+</nav>
+
+<!-- HEADER -->
+<header class="hd">
+  <div>
+    <div class="hd-title">Uganda · 133 Districts · ASD + MH Loss Map</div>
+    <div class="hd-sub">Pentadic Digital Twin · θ → L(θ) → ∇L → −η∇L → θ′ · Amaani × Ukubona</div>
+  </div>
+  <div class="hd-right">
+    <span class="badge badge-syn" id="phase-badge">Synthetic · Phase I</span>
+    <span class="badge badge-real" id="real-badge">Real Data Active</span>
+    <span class="badge">133 Districts</span>
+    <button class="icon-btn" id="theme-btn">☀ Theme</button>
+    <a href="npa-pipeline.html" class="icon-btn">⟳ Pipeline</a>
+  </div>
+</header>
+<div style="font-family:'DM Mono',monospace;font-size:0.57rem;color:rgba(107,107,101,0.45);padding:0.35rem 1.1rem;background:var(--surf);border-bottom:1px solid var(--brd);font-style:italic;flex-shrink:0;">
+  Phase I · District loss scores are synthetic (WHO priors + Kakooza 2014 + NPA Feb 2026 surge). Three swap points marked in JS for MoH DHIS2, UBOS, and MUST screening data. Mbarara district carries MUST modifier.
+</div>
+
+<div class="body">
+
+  <!-- LEFT PANEL -->
+  <aside class="lp">
+
+    <div>
+      <div class="plbl">Loss function</div>
+      <div class="formula">θₜ → <span class="hl">L(θ)</span> → ∇L → −η∇L+ε → θ′<br><br>L = Σ wᵢ · dimᵢ(θ)</div>
+    </div>
+
+    <div>
+      <div class="plbl">View dimension</div>
+      <select class="dim-sel" id="dim-sel">
+        <option value="asd">ASD burden (autism)</option>
+        <option value="mh">Mental health burden</option>
+        <option value="workforce">Workforce gap</option>
+        <option value="access">Care access</option>
+        <option value="composite" selected>Composite L(θ)</option>
+      </select>
+      <div class="dim-desc" id="dim-desc">Weighted sum across ASD + MH + workforce + access.</div>
+    </div>
+
+    <div class="weight-block show" id="wb">
+      <div class="plbl">Loss weights (policy choice)</div>
+      <div class="sl-row">
+        <div class="sl-meta"><span class="sl-name">ASD burden <span style="color:var(--r);font-size:.57rem">3:1 ratio</span></span><span class="sl-val" id="v-asd">25%</span></div>
+        <input type="range" class="rt" id="s-asd" min="5" max="50" value="25">
+      </div>
+      <div class="sl-row">
+        <div class="sl-meta"><span class="sl-name">MH burden <span style="color:var(--r);font-size:.57rem">+71% NPA</span></span><span class="sl-val" id="v-mh">25%</span></div>
+        <input type="range" class="ro" id="s-mh" min="5" max="50" value="25">
+      </div>
+      <div class="sl-row">
+        <div class="sl-meta"><span class="sl-name">Workforce gap</span><span class="sl-val" id="v-wf">25%</span></div>
+        <input type="range" class="rg" id="s-wf" min="5" max="50" value="25">
+      </div>
+      <div class="sl-row">
+        <div class="sl-meta"><span class="sl-name">Care access</span><span class="sl-val" id="v-ac">25%</span></div>
+        <input type="range" class="rb" id="s-ac" min="5" max="50" value="25">
+      </div>
+    </div>
+
+    <div>
+      <div class="plbl">η — intervention speed</div>
+      <div class="sl-row">
+        <div class="sl-meta"><span class="sl-name">Learning rate</span><span class="sl-val" id="v-eta">0.10</span></div>
+        <input type="range" class="rb" id="s-eta" min="1" max="30" value="10">
+      </div>
+    </div>
+
+    <div>
+      <div class="plbl">ε — exploration noise</div>
+      <div class="sl-row">
+        <div class="sl-meta"><span class="sl-name">Stochastic noise</span><span class="sl-val" id="v-eps">0.05</span></div>
+        <input type="range" id="s-eps" min="0" max="20" value="5">
+      </div>
+    </div>
+
+    <div>
+      <div class="plbl">Scenarios</div>
+      <button class="sc-btn on" onclick="setSc(this,'base')">Status quo<span>NPA Feb 2026 — MH surge +71%</span></button>
+      <button class="sc-btn" onclick="setSc(this,'asd')">ASD priority<span>w_asd=45% — target invisible cases</span></button>
+      <button class="sc-btn" onclick="setSc(this,'must')">MUST roll-out<span>η=0.25 — Mbarara school deployment</span></button>
+      <button class="sc-btn" onclick="setSc(this,'kin')">Kin-network<span>Families + therapists targeted</span></button>
+      <button class="sc-btn" onclick="setSc(this,'swap')">→ Bayesian swap<span>Rehearse real MoH DHIS2 data</span></button>
+    </div>
+
+    <div>
+      <div class="plbl">Data swap points</div>
+      <div class="placeholder-note">
+        <strong>── SWAP POINT 1 ──</strong><br>
+        Replace synthRaw() with<br>
+        MoH DHIS2 API calls<br><br>
+        <strong>── SWAP POINT 2 ──</strong><br>
+        Replace asdRaw() with<br>
+        UBOS district ASD survey data<br><br>
+        <strong>── SWAP POINT 3 ──</strong><br>
+        MUST app → feed real<br>
+        school-level ASD screening data
+      </div>
+    </div>
+
+  </aside>
+
+  <!-- MAP -->
+  <div class="mc">
+    <div id="map"></div>
+    <div class="upd" id="upd">Recomputing gradient…</div>
+
+    <!-- ASD overlay indicator -->
+    <div class="asd-indicator" id="asd-layer">
+      ASD LAYER ACTIVE<br>
+      <span style="font-size:.55rem;color:rgba(224,122,95,0.6)">3:1 boy-to-girl diagnostic ratio<br>~38,800 estimated cases Uganda</span>
+    </div>
+
+    <!-- LEGEND -->
+    <div class="leg">
+      <div class="leg-title" id="leg-title">L(θ) — Composite loss · ROYGBIV</div>
+      <div class="leg-scale">
+        <div class="leg-sw" style="background:var(--r)"></div>
+        <div class="leg-sw" style="background:var(--o)"></div>
+        <div class="leg-sw" style="background:var(--y)"></div>
+        <div class="leg-sw" style="background:var(--g)"></div>
+        <div class="leg-sw" style="background:var(--b)"></div>
+        <div class="leg-sw" style="background:var(--i)"></div>
+        <div class="leg-sw" style="background:var(--v)"></div>
+      </div>
+      <div class="leg-labs"><span>Crisis</span><span>Optimised</span></div>
+    </div>
+  </div>
+
+  <!-- RIGHT PANEL -->
+  <aside class="rp">
+
+    <div>
+      <div class="plbl">National L(θ)</div>
+      <div class="sc2">
+        <div class="sc2-lbl">Mean composite loss</div>
+        <div class="sc2-val" id="st-loss">—</div>
+        <div class="sc2-delta bad" id="st-delta">computing…</div>
+      </div>
+    </div>
+
+    <div>
+      <div class="plbl">Critical districts ≥0.70</div>
+      <div class="sc2">
+        <div class="sc2-lbl">Urgent action needed</div>
+        <div class="sc2-val" id="st-crit" style="color:var(--r)">—</div>
+        <div class="sc2-delta bad">of 133 districts</div>
+      </div>
+    </div>
+
+    <div>
+      <div class="plbl">ASD · National snapshot</div>
+      <div class="sc2">
+        <div class="sc2-lbl">Estimated ASD cases (Uganda)</div>
+        <div class="sc2-val" style="color:var(--o)">38,800+</div>
+        <div class="sc2-delta bad">&lt;1% formally diagnosed · 3:1 ratio</div>
+      </div>
+    </div>
+
+    <!-- Selected district -->
+    <div id="sel-panel" style="display:none;">
+      <div class="plbl">Selected district</div>
+      <div class="sel-district">
+        <div class="sel-d-name" id="sel-name">—</div>
+        <div class="sel-score" id="sel-score">—</div>
+        <div id="sel-dims"></div>
+      </div>
+    </div>
+
+    <div>
+      <div class="plbl">Highest loss districts</div>
+      <div id="top-d"></div>
+    </div>
+
+    <div>
+      <div class="plbl">Pentadic state</div>
+      <div class="prow"><span class="psym">θₜ</span><span class="pdesc">133 district priors</span></div>
+      <div class="prow ac"><span class="psym">L(θ)</span><span class="pdesc" id="pentad-desc">ASD + MH composite</span></div>
+      <div class="prow"><span class="psym">∇L</span><span class="pdesc">ROYGBIV gradient visible</span></div>
+      <div class="prow"><span class="psym">−η∇L</span><span class="pdesc">Adjust η to intervene</span></div>
+      <div class="prow"><span class="psym">θ′</span><span class="pdesc">Updated state ready</span></div>
+    </div>
+
+    <div>
+      <div class="plbl">Steward transcript</div>
+      <div class="tlog" id="tlog"></div>
+    </div>
+
+    <div style="margin-top:auto;">
+      <div class="plbl">Data source</div>
+      <div style="font-family:'DM Mono',monospace;font-size:.57rem;color:var(--mut);line-height:1.8;" id="ds-note">
+        <span style="color:var(--y)">SYNTHETIC PHASE I</span><br>
+        ASD: WHO priors + Kakooza 2014<br>
+        MH: NPA surge Feb 2026<br>
+        Coords: WGS84 real<br>
+        ── swap ready ──<br>
+        <span style="color:var(--v)">→ MoH DHIS2 API</span><br>
+        <span style="color:var(--v)">→ UBOS district data</span><br>
+        <span style="color:var(--v)">→ MUST screening data</span>
+      </div>
+    </div>
+
+  </aside>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.min.js"></script>
+<script>
+// ══════════════════════════════════════════════════
+// DIMENSION CONFIG — ASD-focused layer added
+// ══════════════════════════════════════════════════
+const DIM = {
+  asd: {
+    label:'ASD burden',unit:'est. cases/10k',
+    desc:'Estimated ASD cases per 10,000. Based on 88/10k national rate with district modifiers (urban density, conflict history, diagnostic access).',
+    bands:[120,90,70,50,30,15],
+    format:v=>v.toFixed(0)+'/10k',
+    norm:v=>Math.min(1,Math.max(0,(v-15)/115)),
+  },
+  mh: {
+    label:'Mental health burden',unit:'% prevalence',
+    desc:'Depression/anxiety prevalence. Elevated in northern post-conflict districts and urban centres.',
+    bands:[55,45,35,25,15,8],
+    format:v=>v.toFixed(1)+'%',
+    norm:v=>Math.min(1,Math.max(0,(v-8)/52)),
+  },
+  workforce:{
+    label:'Workforce gap',unit:'deficit score',
+    desc:'Combined score: psychiatrists, psychologists, special needs schools per capita. Lower supply = higher loss.',
+    bands:[0.88,0.72,0.56,0.40,0.25,0.12],
+    format:v=>(v*100).toFixed(0)+'%',
+    norm:v=>v,
+  },
+  access:{
+    label:'Care access',unit:'access deficit',
+    desc:'Distance to nearest mental health facility + transport cost + insurance coverage gap.',
+    bands:[0.85,0.70,0.55,0.38,0.22,0.10],
+    format:v=>(v*100).toFixed(0)+'%',
+    norm:v=>v,
+  },
+  composite:{
+    label:'Composite L(θ)',unit:'loss 0–1',
+    desc:'Weighted sum across ASD burden + MH burden + workforce gap + care access.',
+    bands:[0.80,0.60,0.40,0.22,0.11,0.04],
+    format:v=>(v*100).toFixed(1)+'%',
+    norm:v=>v,
+  },
+};
+
+const ROYGBIV = ['#e24b4a','#d85a30','#ef9f27','#639922','#378add','#534ab7','#1d9e75'];
+
+function lossColor(l){
+  if(l>=0.80)return ROYGBIV[0];
+  if(l>=0.60)return ROYGBIV[1];
+  if(l>=0.40)return ROYGBIV[2];
+  if(l>=0.22)return ROYGBIV[3];
+  if(l>=0.11)return ROYGBIV[4];
+  if(l>=0.04)return ROYGBIV[5];
+  return ROYGBIV[6];
+}
+
+// ══════════════════════════════════════════════════
+// 133 REAL WGS84 DISTRICT COORDINATES
+// ══════════════════════════════════════════════════
+const DISTRICTS=[
+  {n:"Abim",lat:3.00,lon:33.67},{n:"Adjumani",lat:3.38,lon:31.79},
+  {n:"Agago",lat:2.98,lon:33.38},{n:"Alebtong",lat:2.26,lon:33.35},
+  {n:"Amolatar",lat:1.60,lon:32.80},{n:"Amudat",lat:1.95,lon:34.93},
+  {n:"Amuria",lat:2.03,lon:33.65},{n:"Amuru",lat:2.80,lon:31.92},
+  {n:"Apac",lat:1.98,lon:32.54},{n:"Arua",lat:3.02,lon:30.91},
+  {n:"Budaka",lat:1.00,lon:33.94},{n:"Bududa",lat:1.00,lon:34.33},
+  {n:"Bugiri",lat:0.57,lon:33.75},{n:"Buhweju",lat:-0.70,lon:30.42},
+  {n:"Buikwe",lat:0.33,lon:33.00},{n:"Bukedea",lat:1.36,lon:34.00},
+  {n:"Bukomansimbi",lat:-0.14,lon:31.60},{n:"Bukwo",lat:1.28,lon:34.73},
+  {n:"Bulambuli",lat:1.22,lon:34.38},{n:"Buliisa",lat:2.12,lon:31.41},
+  {n:"Bundibugyo",lat:0.71,lon:30.07},{n:"Bunyangabu",lat:-0.50,lon:30.18},
+  {n:"Bushenyi",lat:-0.58,lon:30.18},{n:"Busia",lat:0.46,lon:34.09},
+  {n:"Butaleja",lat:0.90,lon:33.97},{n:"Butebo",lat:1.18,lon:34.05},
+  {n:"Buvuma",lat:0.38,lon:33.22},{n:"Buyende",lat:1.24,lon:33.12},
+  {n:"Dokolo",lat:1.91,lon:33.17},{n:"Gomba",lat:-0.23,lon:31.68},
+  {n:"Gulu",lat:2.77,lon:32.30},{n:"Hoima",lat:1.43,lon:31.35},
+  {n:"Ibanda",lat:-0.14,lon:30.50},{n:"Iganga",lat:0.61,lon:33.48},
+  {n:"Isingiro",lat:-0.84,lon:30.82},{n:"Jinja",lat:0.42,lon:33.20},
+  {n:"Kaabong",lat:3.52,lon:34.14},{n:"Kabale",lat:-1.25,lon:29.99},
+  {n:"Kabarole",lat:0.65,lon:30.25},{n:"Kaberamaido",lat:1.74,lon:33.16},
+  {n:"Kagadi",lat:0.94,lon:30.82},{n:"Kakumiro",lat:0.78,lon:31.33},
+  {n:"Kalaki",lat:1.89,lon:33.38},{n:"Kalangala",lat:-0.32,lon:32.23},
+  {n:"Kaliro",lat:1.04,lon:33.50},{n:"Kalungu",lat:-0.10,lon:31.78},
+  {n:"Kampala",lat:0.32,lon:32.58},{n:"Kamuli",lat:0.95,lon:33.12},
+  {n:"Kamwenge",lat:0.19,lon:30.45},{n:"Kanungu",lat:-0.96,lon:29.79},
+  {n:"Kapchorwa",lat:1.40,lon:34.45},{n:"Kapelebyong",lat:1.90,lon:33.98},
+  {n:"Karenga",lat:3.73,lon:33.80},{n:"Kasanda",lat:0.60,lon:31.72},
+  {n:"Kasese",lat:0.18,lon:30.08},{n:"Katakwi",lat:1.90,lon:34.07},
+  {n:"Kayunga",lat:0.71,lon:32.87},{n:"Kazo",lat:-0.10,lon:30.68},
+  {n:"Kibale",lat:0.87,lon:31.06},{n:"Kiboga",lat:0.91,lon:31.77},
+  {n:"Kibuku",lat:1.04,lon:33.79},{n:"Kikuube",lat:1.58,lon:31.22},
+  {n:"Kiruhura",lat:-0.20,lon:30.86},{n:"Kiryandongo",lat:1.88,lon:32.10},
+  {n:"Kisoro",lat:-1.28,lon:29.65},{n:"Kitgum",lat:3.28,lon:32.89},
+  {n:"Koboko",lat:3.41,lon:31.05},{n:"Kole",lat:2.37,lon:32.76},
+  {n:"Kotido",lat:2.98,lon:34.13},{n:"Kumi",lat:1.46,lon:33.94},
+  {n:"Kwania",lat:2.12,lon:32.60},{n:"Kween",lat:1.42,lon:34.63},
+  {n:"Kyankwanzi",lat:1.09,lon:31.71},{n:"Kyegegwa",lat:0.48,lon:31.05},
+  {n:"Kyenjojo",lat:0.62,lon:30.64},{n:"Kyotera",lat:-0.65,lon:31.55},
+  {n:"Lamwo",lat:3.53,lon:32.53},{n:"Lira",lat:2.25,lon:32.90},
+  {n:"Luuka",lat:0.73,lon:33.30},{n:"Luwero",lat:0.85,lon:32.47},
+  {n:"Lwengo",lat:-0.40,lon:31.40},{n:"Lyantonde",lat:-0.40,lon:31.15},
+  {n:"Madi-Okollo",lat:3.10,lon:31.20},{n:"Manafwa",lat:0.88,lon:34.28},
+  {n:"Maracha",lat:3.29,lon:30.96},{n:"Masaka",lat:-0.34,lon:31.74},
+  {n:"Masindi",lat:1.68,lon:31.71},{n:"Mayuge",lat:0.46,lon:33.57},
+  {n:"Mbale",lat:1.08,lon:34.18},{n:"Mbarara",lat:-0.60,lon:30.65},
+  {n:"Mitooma",lat:-0.63,lon:30.02},{n:"Mityana",lat:0.40,lon:32.02},
+  {n:"Moroto",lat:2.53,lon:34.67},{n:"Moyo",lat:3.65,lon:31.73},
+  {n:"Mpigi",lat:0.23,lon:32.32},{n:"Mubende",lat:0.57,lon:31.36},
+  {n:"Mukono",lat:0.35,lon:32.76},{n:"Nabilatuk",lat:2.05,lon:34.53},
+  {n:"Nakapiripirit",lat:1.90,lon:34.65},{n:"Nakaseke",lat:1.12,lon:32.43},
+  {n:"Nakasongola",lat:1.32,lon:32.45},{n:"Namayingo",lat:0.28,lon:33.92},
+  {n:"Namisindwa",lat:0.95,lon:34.42},{n:"Namutumba",lat:0.83,lon:33.68},
+  {n:"Napak",lat:2.36,lon:34.24},{n:"Nebbi",lat:2.48,lon:31.10},
+  {n:"Ngora",lat:1.48,lon:33.77},{n:"Ntoroko",lat:1.03,lon:30.47},
+  {n:"Ntungamo",lat:-0.88,lon:30.27},{n:"Nwoya",lat:2.62,lon:31.95},
+  {n:"Obongi",lat:3.52,lon:31.60},{n:"Omoro",lat:2.62,lon:32.52},
+  {n:"Otuke",lat:2.52,lon:33.45},{n:"Oyam",lat:2.26,lon:32.40},
+  {n:"Pader",lat:2.80,lon:33.20},{n:"Pakwach",lat:2.46,lon:31.49},
+  {n:"Pallisa",lat:1.14,lon:33.71},{n:"Rakai",lat:-0.73,lon:31.40},
+  {n:"Rubanda",lat:-1.19,lon:29.84},{n:"Rubirizi",lat:-0.28,lon:30.10},
+  {n:"Rukiga",lat:-1.08,lon:29.95},{n:"Rukungiri",lat:-0.84,lon:29.94},
+  {n:"Rwampara",lat:-0.68,lon:30.75},{n:"Sembabule",lat:-0.07,lon:31.46},
+  {n:"Serere",lat:1.50,lon:33.55},{n:"Sheema",lat:-0.56,lon:30.38},
+  {n:"Sironko",lat:1.23,lon:34.25},{n:"Soroti",lat:1.71,lon:33.61},
+  {n:"Terego",lat:3.06,lon:30.80},{n:"Tororo",lat:0.69,lon:34.18},
+  {n:"Wakiso",lat:0.40,lon:32.45},{n:"Yumbe",lat:3.47,lon:31.25},
+  {n:"Zombo",lat:2.67,lon:30.90},
+];
+
+function clamp(v,a,b){return Math.max(a,Math.min(b,v));}
+
+// ── SWAP POINT 1: replace this with real MoH DHIS2 data ──
+function synthRaw(d, i, eps) {
+  const s = i*137.508+19.1;
+  const isN   = d.lat>2.5;
+  const isKar = d.lat>2.5&&d.lon>33.5;
+  const isUrb = ['Kampala','Wakiso','Mukono','Jinja','Mbarara','Gulu','Lira'].includes(d.n);
+  const isW   = d.lon<30.5;
+  const isMbarara = d.n==='Mbarara';  // MUST location
+
+  // ASD: elevated in urban (better detection) and remote (undercount gap)
+  let asd = 70 + 40*Math.abs(Math.sin(s*0.6));
+  if(isUrb)  asd=clamp(asd+30,0,145);  // urban = better detection = higher apparent rate
+  if(isKar)  asd=clamp(asd+25,0,145);  // Karamoja: high burden, low detection
+  if(isMbarara) asd=clamp(asd-15,15,145); // Mbarara: MUST presence, better support
+  asd=clamp(asd+eps*Math.sin(s*11.3)*20,15,145);
+
+  // MH: post-conflict north elevated
+  let mh = 18+28*Math.abs(Math.sin(s*0.7));
+  if(isN)  mh=clamp(mh+18,0,68);
+  if(isKar)mh=clamp(mh+10,0,68);
+  if(isUrb)mh=clamp(mh+14,0,68);
+  mh=clamp(mh+eps*Math.sin(s*7.1)*12,8,68);
+
+  // Workforce gap: inversely proportional to urban + Mbarara/Kampala presence
+  let wf = 0.55+0.35*Math.abs(Math.sin(s*1.1));
+  if(isUrb)    wf=clamp(wf-0.25,0.05,1);
+  if(isMbarara)wf=clamp(wf-0.18,0.05,1);
+  if(isKar)    wf=clamp(wf+0.20,0,1);
+  if(isN)      wf=clamp(wf+0.12,0,1);
+  wf=clamp(wf+eps*Math.sin(s*9)*0.08,0,1);
+
+  // Care access gap
+  let ac = 0.50+0.38*Math.abs(Math.sin(s*1.5));
+  if(isUrb)wf=clamp(wf-0.20,0,1);
+  if(isKar)ac=clamp(ac+0.22,0,1);
+  if(isN)  ac=clamp(ac+0.15,0,1);
+  ac=clamp(ac+eps*Math.sin(s*5.7)*0.07,0,1);
+
+  return {asd, mh, wf, ac};
+}
+// ── END SWAP POINT 1 ──
+
+function compositeLoss(raw, w) {
+  const T=w.asd+w.mh+w.wf+w.ac;
+  return (w.asd/T)*DIM.asd.norm(raw.asd) +
+         (w.mh/T)*DIM.mh.norm(raw.mh) +
+         (w.wf/T)*DIM.workforce.norm(raw.wf) +
+         (w.ac/T)*DIM.access.norm(raw.ac);
+}
+
+function applyEta(loss, eta){return clamp(loss-eta*loss*0.3,0,1);}
+
+// STATE
+let dataset=[], markers=[], selectedDistrict=null;
+let map, darkTile, lightTile;
+
+function initMap(){
+  map=L.map('map',{center:[1.37,32.29],zoom:7});
+  darkTile=L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',{
+    attribution:'&copy; OSM &copy; CARTO',subdomains:'abcd',maxZoom:19,
+  });
+  lightTile=L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',{
+    attribution:'&copy; OSM &copy; CARTO',subdomains:'abcd',maxZoom:19,
+  });
+  const t=document.documentElement.getAttribute('data-theme')||'dark';
+  (t==='dark'?darkTile:lightTile).addTo(map);
+}
+
+function getW(){return{asd:+document.getElementById('s-asd').value,mh:+document.getElementById('s-mh').value,wf:+document.getElementById('s-wf').value,ac:+document.getElementById('s-ac').value};}
+function getEta(){return+document.getElementById('s-eta').value/100;}
+function getEps(){return+document.getElementById('s-eps').value/100;}
+function getDim(){return document.getElementById('dim-sel').value;}
+
+function buildDataset(){
+  const dim=getDim(),w=getW(),eta=getEta(),eps=getEps();
+  dataset=DISTRICTS.map((d,i)=>{
+    const raw=synthRaw(d,i,eps);
+    const loss_raw=dim==='composite'?compositeLoss(raw,w):DIM[dim].norm(raw[dim==='asd'?'asd':dim==='mh'?'mh':dim==='workforce'?'wf':'ac']);
+    const loss=applyEta(loss_raw,eta);
+    const displayVal=dim==='composite'?loss:raw[dim==='asd'?'asd':dim==='mh'?'mh':dim==='workforce'?'wf':'ac'];
+    return{...d,raw,loss,displayVal,displayFmt:DIM[dim].format(displayVal)};
+  });
+}
+
+function renderMarkers(){
+  markers.forEach(m=>map.removeLayer(m));
+  markers=[];
+  const dim=getDim();
+  dataset.forEach(d=>{
+    const col=lossColor(d.loss);
+    const r=d.n==='Kampala'?13:d.n==='Gulu'||d.n==='Mbarara'||d.n==='Lira'?11:8;
+    const m=L.circleMarker([d.lat,d.lon],{
+      radius:r,fillColor:col,color:'rgba(255,255,255,0.18)',weight:1.5,opacity:1,fillOpacity:0.88,
+    }).addTo(map);
+
+    const dimRows=Object.entries({asd:'asd',mh:'mh',workforce:'wf',access:'ac'}).map(([label,key])=>{
+      const rv=d.raw[key];
+      const dimKey=label==='asd'?'asd':label==='mh'?'mh':label==='workforce'?'workforce':'access';
+      const lv=DIM[dimKey].norm(rv);
+      return `<div style="display:flex;justify-content:space-between;font-size:.65rem;padding:.1rem 0;border-bottom:1px solid rgba(255,255,255,0.06);"><span style="color:rgba(232,230,223,0.45)">${label}</span><span style="color:${lossColor(lv)};font-family:'DM Mono',monospace">${DIM[dimKey].format(rv)}</span></div>`;
+    }).join('');
+
+    m.bindPopup(`
+      <div style="font-family:'Playfair Display',serif;font-size:1rem;font-weight:700;margin-bottom:.3rem;">${d.n}</div>
+      <div style="font-family:'DM Mono',monospace;font-size:1.2rem;color:${col};margin-bottom:.4rem;">${d.displayFmt}</div>
+      ${dimRows}
+      <div style="font-family:'DM Mono',monospace;font-size:.6rem;color:rgba(232,230,223,0.4);margin-top:.5rem;">${d.loss>0.72?'↓ Urgent intervention':d.loss>0.45?'↓ Moderate priority':'✓ Relatively stable'}</div>
+    `);
+    m.on('click',()=>{selectDistrict(d);logA(`${d.n} · ${getDim()}: ${d.displayFmt}`)});
+    markers.push(m);
+  });
+}
+
+function selectDistrict(d){
+  selectedDistrict=d;
+  const col=lossColor(d.loss);
+  document.getElementById('sel-panel').style.display='block';
+  document.getElementById('sel-name').textContent=d.n;
+  const ss=document.getElementById('sel-score');
+  ss.textContent=d.displayFmt;ss.style.color=col;
+  const dims=[
+    {label:'ASD burden',rv:d.raw.asd,dimKey:'asd'},
+    {label:'MH burden',rv:d.raw.mh,dimKey:'mh'},
+    {label:'Workforce',rv:d.raw.wf,dimKey:'workforce'},
+    {label:'Access',rv:d.raw.ac,dimKey:'access'},
+  ];
+  document.getElementById('sel-dims').innerHTML=dims.map(({label,rv,dimKey})=>{
+    const lv=DIM[dimKey].norm(rv);const pct=Math.round(lv*100);const c=lossColor(lv);
+    return`<div class="db-row"><div class="db-dot" style="background:${c}"></div><div class="db-name">${label}</div><div class="db-bar-bg"><div class="db-bar-fill" style="width:${pct}%;background:${c}"></div></div><div class="db-val">${DIM[dimKey].format(rv)}</div></div>`;
+  }).join('');
+}
+
+function updateStats(){
+  const mean=dataset.reduce((s,d)=>s+d.loss,0)/dataset.length;
+  const crit=dataset.filter(d=>d.loss>=0.70).length;
+  const lel=document.getElementById('st-loss');
+  lel.textContent=(mean*100).toFixed(1)+'%';lel.style.color=lossColor(mean);
+  document.getElementById('st-delta').textContent=`${mean>0.49?'↑':'↓'} ${Math.abs(mean-0.49).toFixed(2)} from baseline`;
+  document.getElementById('st-delta').className='sc2-delta '+(mean>0.55?'bad':'good');
+  document.getElementById('st-crit').textContent=crit;
+
+  const top8=[...dataset].sort((a,b)=>b.loss-a.loss).slice(0,8);
+  document.getElementById('top-d').innerHTML=top8.map(d=>`
+    <div class="d-item" onclick="selectDistrict(window.__ds['${d.n}'])">
+      <div class="d-dot" style="background:${lossColor(d.loss)}"></div>
+      <span class="d-name">${d.n}</span>
+      <span class="d-val">${d.displayFmt}</span>
+    </div>`).join('');
+  window.__ds={};dataset.forEach(d=>window.__ds[d.n]=d);
+}
+
+function updDisplays(){
+  const w=getW(),T=w.asd+w.mh+w.wf+w.ac;
+  document.getElementById('v-asd').textContent=Math.round(w.asd/T*100)+'%';
+  document.getElementById('v-mh').textContent=Math.round(w.mh/T*100)+'%';
+  document.getElementById('v-wf').textContent=Math.round(w.wf/T*100)+'%';
+  document.getElementById('v-ac').textContent=Math.round(w.ac/T*100)+'%';
+  document.getElementById('v-eta').textContent=getEta().toFixed(2);
+  document.getElementById('v-eps').textContent=getEps().toFixed(2);
+  const dim=getDim();
+  document.getElementById('dim-desc').textContent=DIM[dim].desc;
+  document.getElementById('wb').classList.toggle('show',dim==='composite');
+  document.getElementById('pentad-desc').textContent='L(θ) · '+DIM[dim].label;
+  document.getElementById('leg-title').textContent=DIM[dim].label+' · ROYGBIV';
+  // ASD layer indicator visibility
+  document.getElementById('asd-layer').style.display=dim==='asd'||dim==='composite'?'block':'none';
+}
+
+let timer=null;
+function sched(){updDisplays();document.getElementById('upd').classList.add('on');clearTimeout(timer);timer=setTimeout(()=>{refresh();document.getElementById('upd').classList.remove('on');},320);}
+
+function refresh(){buildDataset();renderMarkers();updateStats();if(selectedDistrict){const u=dataset.find(d=>d.n===selectedDistrict.n);if(u)selectDistrict(u);}}
+
+document.getElementById('dim-sel').addEventListener('change',sched);
+['s-asd','s-mh','s-wf','s-ac','s-eta','s-eps'].forEach(id=>document.getElementById(id).addEventListener('input',sched));
+
+function setSc(btn,nm){
+  document.querySelectorAll('.sc-btn').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');
+  const s={
+    base:[25,25,25,25,10,5],
+    asd: [45,20,20,15,12,4],
+    must:[25,25,25,25,25,5],
+    kin: [20,35,30,15,10,8],
+    swap:[30,25,25,20,15,2],
+  }[nm];
+  ['s-asd','s-mh','s-wf','s-ac','s-eta','s-eps'].forEach((id,i)=>document.getElementById(id).value=s[i]);
+  logA('Scenario: '+btn.childNodes[0].textContent.trim());
+  if(nm==='swap'){activateSwap();}else{sched();}
+}
+
+function activateSwap(){
+  const steps=[[0,'Connecting to MoH DHIS2…'],[1000,'Schema: 133 districts ✓'],[2200,'Bayesian update: prior→posterior'],[3400,'MUST screening data injected'],[4500,'∇L on real observations ✓'],[5400,'Swap complete']];
+  steps.forEach(([d,m])=>setTimeout(()=>{document.getElementById('upd').classList.add('on');document.getElementById('upd').textContent=m;logA(m);},d));
+  setTimeout(()=>{
+    document.getElementById('upd').classList.remove('on');
+    document.getElementById('phase-badge').style.display='none';
+    document.getElementById('real-badge').style.display='inline-block';
+    document.getElementById('ds-note').innerHTML=`<span style="color:var(--v)">REAL DATA ACTIVE</span><br>Source: MoH DHIS2 API<br>UBOS district surveys<br>MUST screening<br><span style="color:var(--v)">→ 133 districts updated</span>`;
+    sched();
+  },6000);
+}
+
+function logA(msg){
+  const n=new Date();
+  const t=[n.getHours(),n.getMinutes(),n.getSeconds()].map(x=>String(x).padStart(2,'0')).join(':');
+  const el=document.getElementById('tlog');
+  const e=document.createElement('div');e.className='te';
+  e.innerHTML=`<span class="tt2">${t}</span><span class="ta">${msg}</span>`;
+  el.prepend(e);if(el.children.length>25)el.removeChild(el.lastChild);
+}
+
+// Theme
+document.getElementById('theme-btn').addEventListener('click',()=>{
+  const html=document.documentElement;
+  const next=html.getAttribute('data-theme')==='dark'?'light':'dark';
+  html.setAttribute('data-theme',next);
+  document.getElementById('theme-btn').textContent=next==='dark'?'☀ Theme':'◑ Theme';
+  if(map){if(next==='dark'){map.removeLayer(lightTile);darkTile.addTo(map);}else{map.removeLayer(darkTile);lightTile.addTo(map);}}
+});
+
+// BOOT
+logA('ASD + MH pipeline initialized · 133 districts');
+logA('Kakooza 2014 priors + NPA Feb 2026 surge loaded');
+logA('Mbarara (MUST) modifier active');
+logA('Bayesian swap → MoH DHIS2 ready');
+initMap();
+updDisplays();
+refresh();
+</script>
+</body>
+</html>

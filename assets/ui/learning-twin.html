@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ukubona · Learning Twin</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<style>
+  :root {
+    --bg0: #0a0a0f;
+    --bg1: #111118;
+    --bg2: #1a1a24;
+    --bg3: #22222f;
+    --border: rgba(255,255,255,0.08);
+    --border2: rgba(255,255,255,0.14);
+    --text0: #f0eff8;
+    --text1: #a09fbb;
+    --text2: #5a5975;
+    --blue: #378ADD;
+    --red: #D85A30;
+    --gray: #888780;
+    --purple: #7F77DD;
+    --green: #2ECC8A;
+    --danger: #e05555;
+    --info: #60a5fa;
+    --font: 'SF Mono', 'Fira Code', 'Cascadia Code', monospace;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg0); color: var(--text0); font-family: var(--font); font-size: 13px; min-height: 100vh; }
+
+  nav { background: var(--bg1); border-bottom: 0.5px solid var(--border); padding: 14px 24px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 10; }
+  .nav-left h1 { font-size: 15px; font-weight: 500; color: var(--blue); letter-spacing: 0.05em; }
+  .nav-left p { font-size: 10px; color: var(--text2); margin-top: 2px; letter-spacing: 0.08em; }
+  .nav-right { display: flex; align-items: center; gap: 10px; }
+  .status-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--green); animation: pulse 2s infinite; }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+  .status-label { font-size: 10px; color: var(--text2); letter-spacing: 0.06em; }
+  .api-key-wrap { display: flex; gap: 6px; align-items: center; }
+  .api-key-wrap input { background: var(--bg2); border: 0.5px solid var(--border); border-radius: 6px; padding: 5px 10px; font-family: var(--font); font-size: 11px; color: var(--text0); width: 220px; outline: none; }
+  .api-key-wrap input:focus { border-color: var(--blue); }
+  .api-key-wrap button { background: transparent; border: 0.5px solid var(--border2); border-radius: 6px; padding: 5px 12px; font-family: var(--font); font-size: 11px; color: var(--text1); cursor: pointer; }
+  .api-key-wrap button:hover { background: var(--bg3); }
+
+  main { max-width: 1100px; margin: 0 auto; padding: 24px; }
+
+  .metrics { display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 8px; margin-bottom: 20px; }
+  .metric { background: var(--bg2); border: 0.5px solid var(--border); border-radius: 8px; padding: 12px 14px; }
+  .metric-label { font-size: 10px; color: var(--text2); letter-spacing: 0.07em; margin-bottom: 5px; }
+  .metric-value { font-size: 16px; font-weight: 500; color: var(--text0); }
+
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+  .card { background: var(--bg1); border: 0.5px solid var(--border); border-radius: 12px; padding: 16px; }
+  .card-label { font-size: 10px; color: var(--text2); letter-spacing: 0.07em; margin-bottom: 14px; }
+
+  .bar-row { margin-bottom: 10px; }
+  .bar-meta { display: flex; justify-content: space-between; font-size: 11px; margin-bottom: 4px; }
+  .bar-meta span:first-child { color: var(--text1); }
+  .bar-meta span:last-child { font-weight: 500; color: var(--text0); }
+  .bar-track { height: 4px; background: var(--bg3); border-radius: 2px; overflow: hidden; }
+  .bar-fill { height: 4px; border-radius: 2px; transition: width 0.6s ease; }
+
+  .perceiver { background: var(--bg1); border: 0.5px solid var(--border); border-radius: 12px; padding: 16px; margin-bottom: 16px; }
+  .perceiver-header { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; }
+  .perceiver-header span { font-size: 10px; color: var(--text2); letter-spacing: 0.07em; }
+  .badge { font-size: 10px; padding: 2px 8px; border-radius: 4px; }
+  .badge-mode { background: var(--bg3); color: var(--text1); }
+  .badge-ai { background: rgba(55,138,221,0.12); color: var(--blue); }
+
+  .tabs { display: flex; gap: 6px; margin-bottom: 12px; }
+  .tab { background: transparent; border: 0.5px solid var(--border); border-radius: 6px; padding: 4px 14px; font-family: var(--font); font-size: 11px; color: var(--text1); cursor: pointer; transition: all 0.15s; }
+  .tab:hover { background: var(--bg2); }
+  .tab.active { border-color: var(--blue); color: var(--blue); }
+
+  textarea { width: 100%; background: var(--bg2); border: 0.5px solid var(--border); border-radius: 8px; padding: 10px; font-family: var(--font); font-size: 12px; color: var(--text0); resize: vertical; outline: none; line-height: 1.6; }
+  textarea:focus { border-color: var(--blue); }
+
+  .quick-btns { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px; }
+  .quick-btn { background: transparent; border: 0.5px solid var(--border); border-radius: 6px; padding: 3px 10px; font-family: var(--font); font-size: 11px; color: var(--text1); cursor: pointer; transition: all 0.15s; }
+  .quick-btn:hover { background: var(--bg2); border-color: var(--border2); }
+
+  .drop-zone { border: 1px dashed var(--border2); border-radius: 8px; padding: 24px; text-align: center; cursor: pointer; color: var(--text1); font-size: 12px; transition: all 0.2s; }
+  .drop-zone:hover { border-color: var(--blue); color: var(--text0); }
+  .drop-zone p { margin-top: 4px; font-size: 10px; color: var(--text2); }
+
+  .mic-center { text-align: center; padding: 16px 0 8px; }
+  .mic-btn { width: 72px; height: 72px; border-radius: 50%; background: var(--bg2); border: 2px solid var(--border2); font-size: 26px; cursor: pointer; transition: all 0.2s; }
+  .mic-btn:hover { border-color: var(--blue); }
+  .mic-btn.recording { border-color: var(--red); animation: rec-pulse 1s infinite; }
+  @keyframes rec-pulse { 0%,100%{box-shadow:0 0 0 0 rgba(216,90,48,0.4)} 50%{box-shadow:0 0 0 8px rgba(216,90,48,0)} }
+  .mic-status { font-size: 11px; color: var(--text2); margin-top: 10px; }
+  .mic-timer { font-size: 22px; font-weight: 500; color: var(--red); margin-top: 4px; display: none; }
+  .waveform { display: flex; align-items: center; justify-content: center; gap: 3px; height: 32px; margin-top: 8px; }
+  .wave-bar { width: 3px; height: 4px; background: var(--border2); border-radius: 2px; transition: height 0.1s; }
+
+  .transcript-box { margin-top: 10px; }
+  .transcript-label { font-size: 10px; color: var(--text2); letter-spacing: 0.06em; margin-bottom: 5px; }
+  .transcript-text { font-size: 12px; color: var(--text0); background: var(--bg2); border: 0.5px solid var(--border); border-radius: 8px; padding: 10px; line-height: 1.7; outline: none; }
+  .transcript-text[contenteditable=true] { border-color: var(--blue); }
+  .small-btns { display: flex; gap: 6px; margin-top: 6px; }
+  .small-btn { background: transparent; border: 0.5px solid var(--border); border-radius: 6px; padding: 3px 10px; font-family: var(--font); font-size: 11px; color: var(--text1); cursor: pointer; }
+  .small-btn:hover { background: var(--bg2); }
+
+  .compute-row { display: flex; gap: 8px; margin-top: 12px; align-items: center; }
+  select { background: var(--bg2); border: 0.5px solid var(--border); border-radius: 6px; padding: 0 10px; font-family: var(--font); font-size: 12px; color: var(--text1); height: 36px; outline: none; }
+  select:focus { border-color: var(--blue); }
+  .compute-btn { flex: 1; background: rgba(55,138,221,0.1); border: 0.5px solid var(--blue); border-radius: 6px; padding: 0 20px; font-family: var(--font); font-size: 12px; color: var(--blue); cursor: pointer; height: 36px; transition: all 0.15s; letter-spacing: 0.05em; }
+  .compute-btn:hover { background: rgba(55,138,221,0.2); }
+  .compute-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+  .reset-btn { background: transparent; border: 0.5px solid var(--border); border-radius: 6px; padding: 0 14px; font-family: var(--font); font-size: 11px; color: var(--danger); cursor: pointer; height: 36px; }
+  .reset-btn:hover { background: rgba(224,85,85,0.08); }
+
+  .version-card { background: var(--bg1); border: 0.5px solid var(--border); border-radius: 12px; padding: 16px; margin-bottom: 16px; }
+  .version-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+  .version-header span { font-size: 10px; color: var(--text2); letter-spacing: 0.07em; }
+  .dl-btns { display: flex; gap: 6px; }
+  .dl-btn { background: transparent; border: 0.5px solid var(--border); border-radius: 6px; padding: 3px 10px; font-family: var(--font); font-size: 11px; color: var(--text1); cursor: pointer; }
+  .dl-btn:hover { background: var(--bg2); }
+  .dl-btn.primary { color: var(--blue); border-color: rgba(55,138,221,0.3); }
+  .dl-btn.primary:hover { background: rgba(55,138,221,0.08); }
+  .version-list { max-height: 160px; overflow-y: auto; }
+  .version-row { display: flex; align-items: center; gap: 8px; padding: 5px 0; border-bottom: 0.5px solid var(--border); font-size: 11px; }
+  .version-row:last-child { border-bottom: none; }
+  .v-tag { color: var(--text2); min-width: 28px; }
+  .v-mode { font-size: 10px; min-width: 12px; color: var(--text2); }
+  .v-time { color: var(--text2); min-width: 68px; }
+  .v-obs { flex: 1; color: var(--text1); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .v-dx { min-width: 90px; text-align: right; font-size: 11px; }
+  .v-dl { background: transparent; border: 0.5px solid var(--border); border-radius: 4px; padding: 1px 6px; font-family: var(--font); font-size: 10px; color: var(--text2); cursor: pointer; }
+  .v-dl:hover { background: var(--bg2); }
+
+  .trace-card { background: var(--bg1); border: 0.5px solid var(--border); border-radius: 12px; padding: 16px; }
+  .trace-label { font-size: 10px; color: var(--text2); letter-spacing: 0.07em; margin-bottom: 10px; }
+  .trace-log { max-height: 180px; overflow-y: auto; }
+  .trace-empty { font-size: 11px; color: var(--text2); font-style: italic; }
+  .trace-entry { border-bottom: 0.5px solid var(--border); padding-bottom: 8px; margin-bottom: 8px; line-height: 1.8; }
+  .trace-entry:last-child { border-bottom: none; }
+  .trace-meta { color: var(--text2); }
+  .trace-reason { color: var(--text0); }
+  .trace-finding { color: var(--info); font-size: 10px; }
+  .trace-shifts { color: var(--text2); font-size: 10px; }
+
+  .img-preview { margin-top: 8px; }
+  .img-preview img { max-height: 110px; border-radius: 8px; border: 0.5px solid var(--border); }
+  .img-preview p { font-size: 10px; color: var(--text2); margin-top: 4px; }
+
+  @media (max-width: 640px) {
+    .grid2 { grid-template-columns: 1fr; }
+    .metrics { grid-template-columns: repeat(2, 1fr); }
+    .api-key-wrap input { width: 140px; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-left">
+    <h1>UKUBONA // LEARNING TWIN</h1>
+    <p>Pentad-v2.0 · P-NON-3175 · dermatology</p>
+  </div>
+  <div class="nav-right">
+    <div class="api-key-wrap">
+      <input type="password" id="api-key-input" placeholder="sk-ant-... (your Anthropic key)" />
+      <button onclick="saveKey()">save key</button>
+    </div>
+    <div class="status-dot" id="status-dot" style="background:var(--text2);"></div>
+    <span class="status-label" id="status-label">no key</span>
+  </div>
+</nav>
+
+<main>
+
+  <div class="metrics">
+    <div class="metric"><div class="metric-label">TWIN ID</div><div class="metric-value">P-NON-3175</div></div>
+    <div class="metric"><div class="metric-label">TOP DX</div><div class="metric-value" id="top-dx">aquagenic</div></div>
+    <div class="metric"><div class="metric-label">CONFIDENCE</div><div class="metric-value" id="top-conf">60%</div></div>
+    <div class="metric"><div class="metric-label">VERSIONS</div><div class="metric-value" id="version-count">1</div></div>
+  </div>
+
+  <div class="grid2">
+    <div class="card">
+      <div class="card-label">BELIEF STATE θₜ</div>
+      <div id="belief-bars"></div>
+    </div>
+    <div class="card">
+      <div class="card-label">BELIEF EVOLUTION L(θ)</div>
+      <div style="position:relative; height:180px;"><canvas id="evoChart"></canvas></div>
+    </div>
+  </div>
+
+  <div class="perceiver">
+    <div class="perceiver-header">
+      <span>MULTIMODAL PERCEIVER</span>
+      <span class="badge badge-mode" id="mode-badge">text</span>
+      <span class="badge badge-ai">claude gradient computer</span>
+    </div>
+
+    <div class="tabs">
+      <button class="tab active" id="tab-text"  onclick="switchTab('text')">text</button>
+      <button class="tab"        id="tab-voice" onclick="switchTab('voice')">voice</button>
+      <button class="tab"        id="tab-image" onclick="switchTab('image')">image</button>
+      <button class="tab"        id="tab-pdf"   onclick="switchTab('pdf')">pdf / ehr</button>
+    </div>
+
+    <div id="panel-text">
+      <textarea id="obs-input" rows="3" placeholder="describe symptom, trigger, lab result, clinical note..."></textarea>
+      <div class="quick-btns">
+        <button class="quick-btn" onclick="quickObs('itch after cold shower, no visible rash or wheals')">cold shower itch</button>
+        <button class="quick-btn" onclick="quickObs('hives appeared, red welts on forearms, urticarial plaques')">urticarial hives</button>
+        <button class="quick-btn" onclick="quickObs('JAK2 V617F positive, hematocrit 58%, splenomegaly')">JAK2+ lab</button>
+        <button class="quick-btn" onclick="quickObs('dry cracked skin on shins, no water trigger, worse in winter')">dry skin only</button>
+      </div>
+    </div>
+
+    <div id="panel-voice" style="display:none;">
+      <div class="mic-center">
+        <button class="mic-btn" id="mic-btn" onclick="toggleRecording()">🎙</button>
+        <div class="mic-status" id="mic-status">tap to start recording</div>
+        <div class="mic-timer" id="mic-timer">0:00</div>
+        <div class="waveform" id="waveform">
+          <div class="wave-bar"></div><div class="wave-bar"></div><div class="wave-bar"></div>
+          <div class="wave-bar"></div><div class="wave-bar"></div><div class="wave-bar"></div>
+          <div class="wave-bar"></div><div class="wave-bar"></div><div class="wave-bar"></div>
+          <div class="wave-bar"></div><div class="wave-bar"></div><div class="wave-bar"></div>
+        </div>
+      </div>
+      <div class="transcript-box" id="transcript-box" style="display:none;">
+        <div class="transcript-label">TRANSCRIPT</div>
+        <div class="transcript-text" id="transcript-text"></div>
+        <div class="small-btns">
+          <button class="small-btn" onclick="editTranscript()">edit</button>
+          <button class="small-btn" onclick="reRecord()">re-record</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="panel-image" style="display:none;">
+      <div class="drop-zone" id="img-drop-zone" onclick="document.getElementById('img-file').click()">
+        click to upload skin photo, rash image, dermatoscopy, or screenshot
+        <p>jpg, png, gif, webp — fed directly to claude vision</p>
+      </div>
+      <input type="file" id="img-file" accept="image/*" style="display:none;" onchange="handleImageFile(this)" />
+      <div class="img-preview" id="img-preview" style="display:none;">
+        <img id="img-thumb" />
+        <p id="img-name"></p>
+      </div>
+      <textarea id="img-context" rows="2" placeholder="optional: clinical context (age, duration, body location...)" style="margin-top:8px;"></textarea>
+    </div>
+
+    <div id="panel-pdf" style="display:none;">
+      <div class="drop-zone" id="pdf-drop-zone" onclick="document.getElementById('pdf-file').click()">
+        click to upload PDF — lab report, EHR printout, pathology result
+        <p>sent as base64 document to claude</p>
+      </div>
+      <input type="file" id="pdf-file" accept="application/pdf" style="display:none;" onchange="handlePdfFile(this)" />
+      <div id="pdf-status" style="font-size:11px; color:var(--text1); margin-top:6px;"></div>
+      <textarea id="pdf-context" rows="2" placeholder="optional: focus area (e.g. extract CBC and JAK2 result)" style="margin-top:8px;"></textarea>
+    </div>
+
+    <div class="compute-row">
+      <select id="modality">
+        <option value="0.2">text η=0.2</option>
+        <option value="0.3">voice η=0.3</option>
+        <option value="0.5">image η=0.5</option>
+        <option value="0.8">lab/pdf η=0.8</option>
+        <option value="1.0">pathognomonic η=1.0</option>
+      </select>
+      <button class="compute-btn" id="compute-btn" onclick="pushUpdate()">∇ compute gradient</button>
+      <button class="reset-btn" onclick="resetTwin()">↺ reset</button>
+    </div>
+  </div>
+
+  <div class="version-card">
+    <div class="version-header">
+      <span>VERSION HISTORY // θₜ SNAPSHOTS</span>
+      <div class="dl-btns">
+        <button class="dl-btn" onclick="downloadCurrent()">↓ current</button>
+        <button class="dl-btn" onclick="downloadHistory()">↓ full history</button>
+        <button class="dl-btn primary" onclick="downloadUkubonaFormat()">↓ ukubona v2</button>
+      </div>
+    </div>
+    <div class="version-list" id="version-list"></div>
+  </div>
+
+  <div class="trace-card">
+    <div class="trace-label">REASONING TRACE // CLAUDE'S ∇L</div>
+    <div class="trace-log" id="trace-log">
+      <div class="trace-empty" id="trace-empty">no updates yet — push an observation above</div>
+    </div>
+  </div>
+
+</main>
+
+<script>
+const TWIN_ID = 'P-NON-3175';
+const FRAMEWORK = 'Ukubona-Pentad-v2.0';
+const DIAGNOSES = {
+  aquagenic_pruritus: { label: 'aquagenic pruritus', color: '#378ADD' },
+  urticaria:          { label: 'urticaria',           color: '#D85A30' },
+  xerosis:            { label: 'xerosis',             color: '#888780' },
+  polycythemia_vera:  { label: 'polycythemia vera',   color: '#7F77DD' }
+};
+const INITIAL_STATE = { aquagenic_pruritus:0.60, urticaria:0.10, xerosis:0.20, polycythemia_vera:0.10 };
+
+let state = Object.assign({}, INITIAL_STATE);
+let updateCount = 0;
+let currentTab = 'text';
+let currentImageData = null, currentImageType = null, currentPdfData = null;
+let transcriptText = '';
+let mediaRecorder = null, audioChunks = [], isRecording = false;
+let timerInterval = null, timerSeconds = 0, waveInterval = null;
+let versionHistory = [{
+  version:'v0', timestamp:new Date().toISOString(),
+  state:Object.assign({},state), observation:null,
+  modality:null, gradient:null, reasoning:null, key_finding:null, eta:null,
+  framework:FRAMEWORK, twin_id:TWIN_ID
+}];
+
+const SYSTEM_PROMPT = `You are the Ukubona Gradient Computer.
+DDx: aquagenic_pruritus (water-triggered itch, no rash), urticaria (wheals, histamine), xerosis (dry skin, no water trigger), polycythemia_vera (JAK2+, high hematocrit).
+Return ONLY valid JSON:
+{"gradient":{"aquagenic_pruritus":<-1to1>,"urticaria":<-1to1>,"xerosis":<-1to1>,"polycythemia_vera":<-1to1>},"reasoning":"<one clinical sentence>","key_finding":"<single most important observation>"}
+Magnitudes: 0.05=weak, 0.2=supporting, 0.5=strong, 0.8=near-pathognomonic. No markdown. Pure JSON only.`;
+
+function getKey() { return document.getElementById('api-key-input').value.trim() || localStorage.getItem('ukb_api_key') || ''; }
+function saveKey() {
+  const k = document.getElementById('api-key-input').value.trim();
+  if (!k) return;
+  localStorage.setItem('ukb_api_key', k);
+  document.getElementById('api-key-input').value = '';
+  document.getElementById('api-key-input').placeholder = 'key saved ✓';
+  document.getElementById('status-dot').style.background = 'var(--green)';
+  document.getElementById('status-label').textContent = 'ready';
+}
+window.addEventListener('load', () => {
+  const k = localStorage.getItem('ukb_api_key');
+  if (k) { document.getElementById('api-key-input').placeholder = 'key saved ✓'; document.getElementById('status-dot').style.background = 'var(--green)'; document.getElementById('status-label').textContent = 'ready'; }
+});
+
+function normalize(s) { const t=Object.values(s).reduce((a,b)=>a+b,0); const o={}; for(const k in s) o[k]=Math.max(0,s[k])/t; return o; }
+function applyGradient(g,eta) { const n={}; for(const k in state) n[k]=state[k]+eta*(g[k]||0); return normalize(n); }
+
+function switchTab(tab) {
+  currentTab=tab;
+  ['text','voice','image','pdf'].forEach(t=>{
+    document.getElementById('panel-'+t).style.display=t===tab?'block':'none';
+    document.getElementById('tab-'+t).classList.toggle('active',t===tab);
+  });
+  document.getElementById('mode-badge').textContent=tab;
+  const etaMap={text:'0.2',voice:'0.3',image:'0.5',pdf:'0.8'};
+  document.getElementById('modality').value=etaMap[tab]||'0.2';
+}
+
+function toBase64(file){return new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(r.result.split(',')[1]);r.onerror=rej;r.readAsDataURL(file);});}
+async function handleImageFile(i){const f=i.files[0];if(!f)return;currentImageData=await toBase64(f);currentImageType=f.type;document.getElementById('img-thumb').src=URL.createObjectURL(f);document.getElementById('img-preview').style.display='block';document.getElementById('img-name').textContent=f.name+' ('+(f.size/1024).toFixed(1)+' KB)';document.getElementById('img-drop-zone').style.display='none';}
+async function handlePdfFile(i){const f=i.files[0];if(!f)return;currentPdfData=await toBase64(f);document.getElementById('pdf-status').textContent=f.name+' ('+(f.size/1024).toFixed(1)+' KB) — ready';document.getElementById('pdf-drop-zone').style.display='none';}
+
+async function toggleRecording() {
+  if(isRecording){stopRecording();return;}
+  try {
+    const stream=await navigator.mediaDevices.getUserMedia({audio:true});
+    audioChunks=[];
+    const mimeType=MediaRecorder.isTypeSupported('audio/webm')?'audio/webm':'audio/ogg';
+    mediaRecorder=new MediaRecorder(stream,{mimeType});
+    mediaRecorder.ondataavailable=e=>{if(e.data.size>0)audioChunks.push(e.data);};
+    mediaRecorder.onstop=processAudio;
+    mediaRecorder.start(100);
+    isRecording=true;
+    document.getElementById('mic-btn').classList.add('recording');
+    document.getElementById('mic-btn').textContent='⏹';
+    document.getElementById('mic-status').textContent='recording — tap to stop';
+    document.getElementById('mic-timer').style.display='block';
+    document.getElementById('transcript-box').style.display='none';
+    timerSeconds=0;
+    timerInterval=setInterval(()=>{timerSeconds++;const m=Math.floor(timerSeconds/60),s=timerSeconds%60;document.getElementById('mic-timer').textContent=m+':'+(s<10?'0':'')+s;},1000);
+    waveInterval=setInterval(()=>{document.querySelectorAll('.wave-bar').forEach(b=>{b.style.height=(4+Math.random()*24)+'px';b.style.background='var(--red)';});},120);
+  } catch(e){document.getElementById('mic-status').textContent='mic access denied — check browser permissions';}
+}
+
+function stopRecording(){
+  if(mediaRecorder&&isRecording){
+    mediaRecorder.stop();mediaRecorder.stream.getTracks().forEach(t=>t.stop());isRecording=false;
+    clearInterval(timerInterval);clearInterval(waveInterval);
+    document.getElementById('mic-btn').classList.remove('recording');
+    document.getElementById('mic-btn').textContent='🎙';
+    document.getElementById('mic-timer').style.display='none';
+    document.getElementById('mic-status').textContent='transcribing...';
+    document.querySelectorAll('.wave-bar').forEach(b=>{b.style.height='4px';b.style.background='var(--border2)';});
+  }
+}
+
+async function processAudio(){
+  const mimeType=audioChunks[0]?.type||'audio/webm';
+  const blob=new Blob(audioChunks,{type:mimeType});
+  const base64=await toBase64(blob);
+  const key=getKey(); if(!key){document.getElementById('mic-status').textContent='no API key set';return;}
+  try {
+    const resp=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',headers:{'Content-Type':'application/json','x-api-key':key,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
+      body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:500,messages:[{role:'user',content:[
+        {type:'text',text:'Transcribe this audio recording exactly as spoken. Return only the transcript text, nothing else.'},
+        {type:'document',source:{type:'base64',media_type:mimeType,data:base64}}
+      ]}]})
+    });
+    const data=await resp.json();
+    if(data.error)throw new Error(data.error.message);
+    transcriptText=data.content.filter(b=>b.type==='text').map(b=>b.text).join('').trim();
+    document.getElementById('transcript-text').textContent=transcriptText;
+    document.getElementById('transcript-box').style.display='block';
+    document.getElementById('mic-status').textContent='transcript ready — compute or re-record';
+  } catch(e){document.getElementById('mic-status').textContent='transcription error: '+e.message;}
+}
+
+function editTranscript(){const b=document.getElementById('transcript-text');b.contentEditable='true';b.focus();b.onblur=()=>{transcriptText=b.textContent;b.contentEditable='false';};}
+function reRecord(){transcriptText='';document.getElementById('transcript-box').style.display='none';document.getElementById('mic-status').textContent='tap to start recording';}
+
+async function callClaude(){
+  const key=getKey(); if(!key) throw new Error('no API key — enter it in the top bar');
+  let messages,obsLabel;
+  if(currentTab==='text'){const text=document.getElementById('obs-input').value.trim();if(!text)throw new Error('no observation entered');obsLabel=text;messages=[{role:'user',content:text}];}
+  else if(currentTab==='voice'){if(!transcriptText)throw new Error('no transcript — record first');obsLabel='[voice] '+transcriptText;messages=[{role:'user',content:'Voice note transcript: '+transcriptText}];}
+  else if(currentTab==='image'){if(!currentImageData)throw new Error('no image uploaded');const ctx=document.getElementById('img-context').value.trim();obsLabel='[image] '+(ctx||'skin photo');messages=[{role:'user',content:[{type:'image',source:{type:'base64',media_type:currentImageType,data:currentImageData}},{type:'text',text:ctx||'Analyze this clinical image and compute the diagnostic gradient.'}]}];}
+  else{if(!currentPdfData)throw new Error('no PDF uploaded');const ctx=document.getElementById('pdf-context').value.trim();obsLabel='[pdf] '+(ctx||'document');messages=[{role:'user',content:[{type:'document',source:{type:'base64',media_type:'application/pdf',data:currentPdfData}},{type:'text',text:ctx||'Extract all clinically relevant findings and compute the diagnostic gradient.'}]}];}
+  const resp=await fetch('https://api.anthropic.com/v1/messages',{
+    method:'POST',
+    headers:{'Content-Type':'application/json','x-api-key':key,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
+    body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,system:SYSTEM_PROMPT,messages})
+  });
+  const data=await resp.json();
+  if(data.error)throw new Error(data.error.message);
+  const text=data.content.filter(b=>b.type==='text').map(b=>b.text).join('');
+  const result=JSON.parse(text.replace(/```json|```/g,'').trim());
+  result._obsLabel=obsLabel; return result;
+}
+
+function saveVersion(result,eta){
+  updateCount++;
+  versionHistory.push({version:'v'+updateCount,timestamp:new Date().toISOString(),state:Object.assign({},state),observation:result._obsLabel,modality:currentTab,gradient:result.gradient,reasoning:result.reasoning,key_finding:result.key_finding,eta,framework:FRAMEWORK,twin_id:TWIN_ID,fractal_property:'θₜ₊₁ becomes new θₜ — Ukubona is not the end'});
+  renderVersionList();
+  document.getElementById('version-count').textContent=versionHistory.length;
+}
+
+function renderVersionList(){
+  document.getElementById('version-list').innerHTML=[...versionHistory].reverse().map(v=>{
+    const top=Object.entries(v.state).sort((a,b)=>b[1]-a[1])[0];
+    const ts=new Date(v.timestamp).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+    const modeIcon={text:'T',voice:'V',image:'I',pdf:'P',null:'—'}[v.modality]||'—';
+    return `<div class="version-row"><span class="v-tag">${v.version}</span><span class="v-mode">${modeIcon}</span><span class="v-time">${ts}</span><span class="v-obs">${v.observation||'initial state'}</span><span class="v-dx" style="color:${DIAGNOSES[top[0]].color}">${DIAGNOSES[top[0]].label.split(' ')[0]} ${(top[1]*100).toFixed(0)}%</span><button class="v-dl" onclick="downloadVersion('${v.version}')">↓</button></div>`;
+  }).join('');
+}
+
+function downloadJSON(obj,fn){const b=new Blob([JSON.stringify(obj,null,2)],{type:'application/json'});const u=URL.createObjectURL(b);const a=document.createElement('a');a.href=u;a.download=fn;a.click();URL.revokeObjectURL(u);}
+function downloadVersion(label){const v=versionHistory.find(x=>x.version===label);if(!v)return;downloadJSON(v,`twin_${TWIN_ID}_${v.version}_${v.timestamp.slice(0,19).replace(/:/g,'-')}.json`);}
+function downloadCurrent(){const l=versionHistory[versionHistory.length-1];downloadJSON(l,`twin_${TWIN_ID}_current_${l.timestamp.slice(0,19).replace(/:/g,'-')}.json`);}
+function downloadHistory(){downloadJSON({twin_id:TWIN_ID,framework:FRAMEWORK,exported:new Date().toISOString(),total_versions:versionHistory.length,fractal_property:'θₜ₊₁ becomes new θₜ — Ukubona is not the end',history:versionHistory},`twin_${TWIN_ID}_history_${new Date().toISOString().slice(0,19).replace(/:/g,'-')}.json`);}
+function downloadUkubonaFormat(){
+  const top=Object.entries(state).sort((a,b)=>b[1]-a[1])[0];
+  const latest=versionHistory[versionHistory.length-1];
+  downloadJSON({twin_id:TWIN_ID,framework:FRAMEWORK,grammar:{I:'Anatomy/Physiology · θₜ',II:'Pathology · L(θₜ)',III:'Pathophysiology · ∇L',IV:'Treatment · −η∇L',V:'Plasticity · θₜ₊₁'},condition:{name:top[0],domain:'dermatology',ddx:state,top_diagnosis:top[0],top_confidence:parseFloat((top[1]*100).toFixed(1)),last_reasoning:latest.reasoning||null,last_key_finding:latest.key_finding||null},version_count:versionHistory.length,last_updated:new Date().toISOString(),fractal_property:'θₜ₊₁ becomes new θₜ — Ukubona is not the end',history_summary:versionHistory.map(v=>({version:v.version,timestamp:v.timestamp,top_dx:Object.entries(v.state).sort((a,b)=>b[1]-a[1])[0][0],eta:v.eta,modality:v.modality}))},`pentad_${top[0]}_${new Date().toISOString().slice(0,10)}.json`);
+}
+
+function renderBars(){
+  document.getElementById('belief-bars').innerHTML=Object.entries(state).sort((a,b)=>b[1]-a[1]).map(([k,v])=>{
+    const d=DIAGNOSES[k];
+    return `<div class="bar-row"><div class="bar-meta"><span>${d.label}</span><span>${(v*100).toFixed(1)}%</span></div><div class="bar-track"><div class="bar-fill" style="width:${(v*100).toFixed(1)}%;background:${d.color};"></div></div></div>`;
+  }).join('');
+}
+function renderMetrics(){
+  const top=Object.entries(state).sort((a,b)=>b[1]-a[1])[0];
+  document.getElementById('top-dx').textContent=DIAGNOSES[top[0]].label.split(' ')[0];
+  document.getElementById('top-conf').textContent=(top[1]*100).toFixed(0)+'%';
+}
+
+const evoChart=new Chart(document.getElementById('evoChart'),{
+  type:'line',
+  data:{labels:['t₀'],datasets:Object.entries(DIAGNOSES).map(([k,d])=>({label:d.label,data:[state[k]],borderColor:d.color,backgroundColor:'transparent',borderWidth:1.5,pointRadius:2,tension:0.4}))},
+  options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{min:0,max:1,ticks:{color:'#5a5975',font:{family:'monospace',size:10},callback:v=>(v*100).toFixed(0)+'%'},grid:{color:'rgba(255,255,255,0.04)'}},x:{ticks:{color:'#5a5975',font:{family:'monospace',size:10}},grid:{display:false}}}}
+});
+
+function addTrace(result,eta){
+  document.getElementById('trace-empty').style.display='none';
+  const shifts=Object.entries(result.gradient).filter(([,v])=>Math.abs(v)>0.01).sort((a,b)=>Math.abs(b[1])-Math.abs(a[1])).map(([k,v])=>`${v>0?'↑':'↓'} ${DIAGNOSES[k].label} (${v>0?'+':''}${v.toFixed(2)})`).join(' · ');
+  const div=document.createElement('div');div.className='trace-entry';
+  div.innerHTML=`<span class="trace-meta">[t${updateCount} ${currentTab} η=${eta}]</span> <span class="trace-reason">${result.reasoning}</span>`+(result.key_finding?`<br><span class="trace-finding">key finding: ${result.key_finding}</span>`:'')+`<br><span class="trace-shifts">${shifts}</span>`;
+  document.getElementById('trace-log').prepend(div);
+}
+
+function setLoading(l){const btn=document.getElementById('compute-btn');btn.textContent=l?'⟳ computing...':'∇ compute gradient';btn.disabled=l;}
+
+async function pushUpdate(){
+  const eta=parseFloat(document.getElementById('modality').value);
+  setLoading(true);
+  try {
+    const result=await callClaude();
+    state=applyGradient(result.gradient,eta);
+    saveVersion(result,eta);addTrace(result,eta);renderBars();renderMetrics();
+    evoChart.data.labels.push('t'+updateCount);
+    evoChart.data.datasets.forEach((ds,i)=>{ds.data.push(Object.values(state)[i]);});
+    evoChart.update();
+    if(currentTab==='text')document.getElementById('obs-input').value='';
+    if(currentTab==='voice'){transcriptText='';document.getElementById('transcript-box').style.display='none';document.getElementById('mic-status').textContent='tap to start recording';}
+  } catch(e){
+    const div=document.createElement('div');div.className='trace-entry';div.style.color='var(--danger)';div.textContent='error: '+e.message;
+    document.getElementById('trace-empty').style.display='none';document.getElementById('trace-log').prepend(div);
+  }
+  setLoading(false);
+}
+
+function quickObs(text){switchTab('text');document.getElementById('obs-input').value=text;pushUpdate();}
+
+function resetTwin(){
+  state=Object.assign({},INITIAL_STATE);updateCount=0;currentImageData=null;currentPdfData=null;transcriptText='';
+  versionHistory=[{version:'v0',timestamp:new Date().toISOString(),state:Object.assign({},state),observation:null,modality:null,gradient:null,reasoning:null,key_finding:null,eta:null,framework:FRAMEWORK,twin_id:TWIN_ID}];
+  evoChart.data.labels=['t₀'];evoChart.data.datasets.forEach((ds,i)=>{ds.data=[Object.values(state)[i]];});evoChart.update();
+  document.getElementById('trace-log').innerHTML='';document.getElementById('trace-empty').style.display='block';
+  document.getElementById('img-preview').style.display='none';document.getElementById('img-drop-zone').style.display='block';
+  document.getElementById('pdf-drop-zone').style.display='block';document.getElementById('pdf-status').textContent='';
+  document.getElementById('transcript-box').style.display='none';document.getElementById('mic-status').textContent='tap to start recording';
+  renderBars();renderMetrics();renderVersionList();document.getElementById('version-count').textContent='1';
+}
+
+renderBars();renderMetrics();renderVersionList();
+</script>
+</body>
+</html>

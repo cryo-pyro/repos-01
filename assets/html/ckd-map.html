@@ -1,0 +1,649 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ukubona · Uganda Renal Loss Map · CKD Digital Twin</title>
+<meta name="color-scheme" content="dark light">
+<link rel="icon" href="https://abikesa.github.io/favicon/assets/favicon-dark.ico">
+<link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Instrument+Serif:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.min.css">
+<style>
+:root {
+  --bg:#0d0d0b; --surf:#141412; --surf2:#1c1c19;
+  --brd:rgba(255,255,255,0.07); --ink:#e8e6df; --mut:#6b6b65; --dim:#3a3a36;
+  --r:#e24b4a; --o:#d85a30; --y:#ef9f27; --g:#639922; --b:#378add; --i:#534ab7; --v:#1d9e75;
+}
+[data-theme="light"] {
+  --bg:#fafaf8; --surf:#fff; --surf2:#f1efe8;
+  --brd:rgba(0,0,0,0.08); --ink:#1a1a18; --mut:#6b6b65; --dim:#d3d1c7;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+html,body{height:100%;overflow:hidden;}
+body{font-family:'DM Sans',sans-serif;font-size:13px;background:var(--bg);color:var(--ink);display:flex;flex-direction:column;}
+.hd{display:flex;align-items:center;justify-content:space-between;padding:.65rem 1.1rem;background:var(--surf);border-bottom:1px solid var(--brd);flex-shrink:0;gap:.75rem;flex-wrap:wrap;position:sticky;top:0;z-index:1000;}
+.hd-brand{display:flex;align-items:center;gap:.65rem;}
+.logo-wrap{display:flex;align-items:center;gap:.55rem;text-decoration:none;}
+.logo-spin{width:38px;height:38px;animation:spin 60s linear infinite;}
+@keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+.brand-name{font-family:'Instrument Serif',serif;font-size:1.05rem;color:var(--ink);}
+.brand-tag{font-family:'DM Mono',monospace;font-size:.58rem;color:var(--mut);letter-spacing:.06em;text-transform:uppercase;}
+.hd-center{flex:1;text-align:center;}
+.hd-title{font-family:'Instrument Serif',serif;font-size:1.1rem;color:var(--ink);}
+.hd-sub{font-family:'DM Mono',monospace;font-size:.58rem;color:var(--mut);letter-spacing:.05em;margin-top:.1rem;}
+.hd-right{display:flex;gap:.4rem;align-items:center;flex-wrap:wrap;}
+.badge{font-family:'DM Mono',monospace;font-size:.56rem;letter-spacing:.08em;text-transform:uppercase;padding:.18em .65em;border:1px solid var(--brd);border-radius:999px;color:var(--mut);}
+.badge-syn{color:var(--y);border-color:rgba(239,159,39,.32);}
+.badge-real{color:var(--v);border-color:rgba(29,158,117,.32);display:none;}
+.icon-btn{background:var(--surf2);border:1px solid var(--brd);border-radius:6px;padding:.38rem;cursor:pointer;color:var(--mut);display:flex;align-items:center;transition:border-color .15s,color .15s;}
+.icon-btn:hover{border-color:var(--y);color:var(--y);}
+.body{display:flex;flex:1;overflow:hidden;min-height:0;}
+.lp{width:252px;flex-shrink:0;background:var(--surf);border-right:1px solid var(--brd);overflow-y:auto;padding:1rem;display:flex;flex-direction:column;gap:1rem;}
+.plbl{font-family:'DM Mono',monospace;font-size:.56rem;letter-spacing:.14em;text-transform:uppercase;color:var(--mut);padding-bottom:.3rem;border-bottom:1px solid var(--brd);}
+.formula{font-family:'DM Mono',monospace;font-size:.66rem;color:var(--mut);line-height:1.9;padding:.6rem .7rem;background:var(--surf2);border-radius:5px;border:1px solid var(--brd);}
+.formula .hl{color:var(--y);}
+.dim-sel{width:100%;background:var(--surf2);border:1px solid var(--brd);border-radius:6px;color:var(--ink);font-family:'DM Sans',sans-serif;font-size:.8rem;padding:.38rem .6rem;cursor:pointer;outline:none;transition:border-color .15s;}
+.dim-sel:focus,.dim-sel:hover{border-color:var(--y);}
+.dim-desc{font-family:'DM Mono',monospace;font-size:.6rem;color:var(--mut);line-height:1.6;margin-top:.35rem;}
+.sl-row{display:flex;flex-direction:column;gap:.2rem;margin-bottom:.45rem;}
+.sl-meta{display:flex;justify-content:space-between;align-items:baseline;}
+.sl-name{font-size:.7rem;opacity:.85;}
+.sl-val{font-family:'DM Mono',monospace;font-size:.65rem;color:var(--y);}
+input[type=range]{width:100%;height:2px;appearance:none;background:var(--dim);border-radius:2px;outline:none;cursor:pointer;}
+input[type=range]::-webkit-slider-thumb{appearance:none;width:10px;height:10px;border-radius:50%;background:var(--y);cursor:pointer;}
+.rt::-webkit-slider-thumb{background:var(--r)!important;}
+.ro::-webkit-slider-thumb{background:var(--o)!important;}
+.rg::-webkit-slider-thumb{background:var(--g)!important;}
+.rb::-webkit-slider-thumb{background:var(--b)!important;}
+.ri::-webkit-slider-thumb{background:var(--i)!important;}
+.weight-block{display:none;}
+.weight-block.show{display:block;}
+.sc-btn{width:100%;padding:.42rem .6rem;background:var(--surf2);border:1px solid var(--brd);border-radius:5px;color:var(--ink);font-family:'DM Sans',sans-serif;font-size:.7rem;cursor:pointer;text-align:left;margin-bottom:.3rem;transition:border-color .12s,background .12s;}
+.sc-btn span{display:block;font-size:.6rem;color:var(--mut);margin-top:.06rem;}
+.sc-btn:hover{border-color:var(--y);background:rgba(239,159,39,.05);}
+.sc-btn.on{border-color:var(--y);color:var(--y);}
+.sc-btn.on span{color:rgba(239,159,39,.6);}
+.mc{flex:1;position:relative;min-width:0;}
+#map{width:100%;height:100%;}
+.leaflet-tile-pane{filter:brightness(.85) saturate(.9);}
+[data-theme="light"] .leaflet-tile-pane{filter:none;}
+.upd{position:absolute;top:10px;left:50%;transform:translateX(-50%);z-index:900;background:var(--surf);border:1px solid rgba(239,159,39,.3);border-radius:999px;padding:.22em .8em;font-family:'DM Mono',monospace;font-size:.58rem;color:var(--y);opacity:0;transition:opacity .25s;pointer-events:none;white-space:nowrap;}
+.upd.on{opacity:1;}
+.leg{position:absolute;bottom:16px;left:16px;z-index:800;background:rgba(20,20,18,.92);border:1px solid var(--brd);border-radius:7px;padding:.55rem .7rem;backdrop-filter:blur(4px);}
+[data-theme="light"] .leg{background:rgba(255,255,255,.92);}
+.leg-title{font-family:'DM Mono',monospace;font-size:.54rem;letter-spacing:.1em;text-transform:uppercase;color:var(--mut);margin-bottom:.35rem;}
+.leg-scale{display:flex;gap:2px;margin-bottom:.25rem;}
+.leg-sw{height:8px;border-radius:1px;flex:1;}
+.leg-labs{display:flex;justify-content:space-between;font-family:'DM Mono',monospace;font-size:.52rem;color:var(--mut);}
+.leg-rows{margin-top:.4rem;display:flex;flex-direction:column;gap:.15rem;}
+.leg-row{display:flex;align-items:center;gap:.4rem;font-family:'DM Mono',monospace;font-size:.54rem;color:var(--mut);}
+.leg-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+.rp{width:230px;flex-shrink:0;background:var(--surf);border-left:1px solid var(--brd);overflow-y:auto;padding:1rem;display:flex;flex-direction:column;gap:1rem;}
+.sc2{background:var(--surf2);border:1px solid var(--brd);border-radius:6px;padding:.6rem .8rem;}
+.sc2-lbl{font-family:'DM Mono',monospace;font-size:.56rem;letter-spacing:.08em;text-transform:uppercase;color:var(--mut);margin-bottom:.2rem;}
+.sc2-val{font-family:'Instrument Serif',serif;font-size:1.5rem;line-height:1;margin-bottom:.1rem;}
+.sc2-delta{font-family:'DM Mono',monospace;font-size:.6rem;color:var(--mut);}
+.sc2-delta.bad{color:var(--r);}
+.sc2-delta.good{color:var(--v);}
+.dim-breakdown{display:flex;flex-direction:column;gap:.35rem;}
+.db-row{display:flex;align-items:center;gap:.5rem;padding:.3rem .5rem;background:var(--surf2);border-radius:4px;}
+.db-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+.db-name{font-size:.68rem;color:var(--mut);flex:1;}
+.db-bar-bg{height:3px;background:var(--dim);border-radius:2px;flex:1;max-width:60px;}
+.db-bar-fill{height:100%;border-radius:2px;transition:width .4s;}
+.db-val{font-family:'DM Mono',monospace;font-size:.66rem;color:var(--ink);}
+.d-list{display:flex;flex-direction:column;gap:.3rem;}
+.d-item{display:flex;align-items:center;gap:.5rem;padding:.32rem .5rem;border-radius:4px;cursor:pointer;transition:background .1s;}
+.d-item:hover{background:var(--surf2);}
+.d-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;}
+.d-name{font-size:.72rem;flex:1;}
+.d-val{font-family:'DM Mono',monospace;font-size:.65rem;color:var(--mut);}
+.prow{display:flex;align-items:center;gap:.5rem;padding:.32rem .5rem;background:var(--surf2);border-radius:4px;border-left:2px solid var(--brd);margin-bottom:.25rem;}
+.prow.ac{border-left-color:var(--y);}
+.psym{font-family:'DM Mono',monospace;font-size:.62rem;color:var(--mut);min-width:44px;}
+.prow.ac .psym{color:var(--y);}
+.pdesc{font-size:.66rem;color:var(--mut);}
+.prow.ac .pdesc{color:var(--ink);}
+.tlog{font-family:'DM Mono',monospace;font-size:.6rem;color:var(--mut);line-height:1.65;max-height:130px;overflow-y:auto;}
+.te{padding:.12rem 0;border-bottom:1px solid var(--brd);}
+.te:last-child{border-bottom:none;}
+.tt2{color:var(--dim);margin-right:.3rem;}
+.ta{color:var(--y);}
+.ds-note{font-family:'DM Mono',monospace;font-size:.59rem;color:var(--mut);line-height:1.8;}
+.ds-note .lv{color:var(--v);}
+.ds-note .yr{color:var(--y);}
+.leaflet-popup-content-wrapper{background:var(--surf)!important;color:var(--ink)!important;border:1px solid var(--brd)!important;border-radius:9px!important;box-shadow:0 8px 32px rgba(0,0,0,.5)!important;}
+.leaflet-popup-content{margin:.8rem!important;font-family:'DM Sans',sans-serif!important;}
+.leaflet-popup-tip{background:var(--surf)!important;}
+.lp-name{font-family:'Instrument Serif',serif;font-size:1rem;margin-bottom:.3rem;}
+.lp-val{font-family:'DM Mono',monospace;font-size:1.3rem;font-weight:500;margin-bottom:.35rem;}
+.lp-rows{display:flex;flex-direction:column;gap:.15rem;}
+.lp-row{display:flex;justify-content:space-between;font-size:.68rem;color:var(--mut);padding:.1rem 0;border-bottom:1px solid var(--brd);}
+.lp-row:last-child{border-bottom:none;}
+.lp-rv{color:var(--ink);font-family:'DM Mono',monospace;}
+.sel-district{padding:.7rem .85rem;background:var(--surf2);border-radius:6px;border-left:3px solid var(--y);}
+.sel-d-name{font-family:'Instrument Serif',serif;font-size:1.1rem;margin-bottom:.4rem;}
+.sel-score{font-family:'DM Mono',monospace;font-size:1.3rem;font-weight:500;margin-bottom:.5rem;}
+@media(max-width:900px){.lp,.rp{display:none;}}
+</style>
+</head>
+<body>
+
+<header class="hd">
+  <div class="hd-brand">
+    <a href="https://ukubona-llc.github.io/" class="logo-wrap">
+      <img class="logo-spin" src="https://abikesa.github.io/logos/assets/ukubona-dark.png" id="logo-img" alt="Ukubona">
+      <div>
+        <div class="brand-name">Ukubona</div>
+        <div class="brand-tag">Health Tech for Customized Care</div>
+      </div>
+    </a>
+  </div>
+  <div class="hd-center">
+    <div class="hd-title">Uganda Renal Loss Map</div>
+    <div class="hd-sub">CKD Digital Twin · Ukubona LLC × UCU · θ → L(θ) → ∇L → −η∇L → θ′</div>
+  </div>
+  <div class="hd-right">
+    <span class="badge badge-syn" id="phase-badge">Synthetic Phase I</span>
+    <span class="badge badge-real" id="real-badge">Real Data Active</span>
+    <span class="badge">135 Districts</span>
+    <button class="icon-btn" id="theme-btn" title="Toggle theme">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+    </button>
+    <a href="https://ukubona-llc.github.io/landscape/" class="icon-btn" style="text-decoration:none;font-family:'DM Mono',monospace;font-size:.58rem;color:var(--y);border-color:rgba(239,159,39,.3);padding:.38rem .65rem;gap:.35rem;">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+      Full Atlas
+    </a>
+  </div>
+</header>
+
+<div class="body">
+  <aside class="lp">
+    <div>
+      <div class="plbl">Loss function</div>
+      <div class="formula">θₜ → <span class="hl">L(θ)</span> → ∇L → −η∇L+ε → θ′<br><br>L = Σ wᵢ · dimᵢ(θ)<br><br><span style="color:var(--r)">East CKD 3.2× Southwest</span></div>
+    </div>
+    <div>
+      <div class="plbl">View dimension</div>
+      <select class="dim-sel" id="dim-sel">
+        <option value="ckd">CKD prevalence</option>
+        <option value="rf">Risk factor burden</option>
+        <option value="esrd">ESRD incidence</option>
+        <option value="tx">Transplant access</option>
+        <option value="composite" selected>Composite L(θ)</option>
+      </select>
+      <div class="dim-desc" id="dim-desc">Weighted sum across all four renal dimensions.</div>
+    </div>
+    <div class="weight-block show" id="wb">
+      <div class="plbl">Loss weights (policy choice)</div>
+      <div class="sl-row">
+        <div class="sl-meta"><span class="sl-name">CKD prevalence <span style="color:var(--r);font-size:.58rem">3.2× East</span></span><span class="sl-val" id="v-ckd">35%</span></div>
+        <input type="range" class="rt" id="s-ckd" min="5" max="60" value="35">
+      </div>
+      <div class="sl-row">
+        <div class="sl-meta"><span class="sl-name">Risk factor burden</span><span class="sl-val" id="v-rf">25%</span></div>
+        <input type="range" class="ro" id="s-rf" min="5" max="50" value="25">
+      </div>
+      <div class="sl-row">
+        <div class="sl-meta"><span class="sl-name">ESRD incidence</span><span class="sl-val" id="v-esrd">25%</span></div>
+        <input type="range" class="rg" id="s-esrd" min="5" max="50" value="25">
+      </div>
+      <div class="sl-row">
+        <div class="sl-meta"><span class="sl-name">Transplant access</span><span class="sl-val" id="v-tx">15%</span></div>
+        <input type="range" class="rb" id="s-tx" min="5" max="40" value="15">
+      </div>
+    </div>
+    <div>
+      <div class="plbl">η — intervention speed</div>
+      <div class="sl-row">
+        <div class="sl-meta"><span class="sl-name">Learning rate</span><span class="sl-val" id="v-eta">0.10</span></div>
+        <input type="range" class="rb" id="s-eta" min="1" max="30" value="10">
+      </div>
+    </div>
+    <div>
+      <div class="plbl">ε — exploration noise</div>
+      <div class="sl-row">
+        <div class="sl-meta"><span class="sl-name">Stochastic foraging</span><span class="sl-val" id="v-eps">0.05</span></div>
+        <input type="range" class="ri" id="s-eps" min="0" max="20" value="5">
+      </div>
+    </div>
+    <div>
+      <div class="plbl">Scenarios</div>
+      <button class="sc-btn on" onclick="setSc(this,'base')">Status quo<span>SEARCH-CKD priors · East gradient active</span></button>
+      <button class="sc-btn" onclick="setSc(this,'ckd')">CKD priority<span>w₁=55% — NIH NIDDK R21 framing</span></button>
+      <button class="sc-btn" onclick="setSc(this,'int')">Simulate intervention<span>η=0.25 — dialysis + prevention rollout</span></button>
+      <button class="sc-btn" onclick="setSc(this,'tx')">Transplant equity<span>w₄=40% — Mulago pilot reinstatement</span></button>
+      <button class="sc-btn" onclick="setSc(this,'swap')">→ Bayesian swap<span>Rehearse real MoH / UBOS renal data</span></button>
+    </div>
+  </aside>
+
+  <div class="mc">
+    <div id="map"></div>
+    <div class="upd" id="upd">Recomputing gradient…</div>
+    <div class="leg">
+      <div class="leg-title" id="leg-title">L(θ) — Composite renal loss</div>
+      <div class="leg-scale">
+        <div class="leg-sw" style="background:var(--r)"></div>
+        <div class="leg-sw" style="background:var(--o)"></div>
+        <div class="leg-sw" style="background:var(--y)"></div>
+        <div class="leg-sw" style="background:var(--g)"></div>
+        <div class="leg-sw" style="background:var(--b)"></div>
+        <div class="leg-sw" style="background:var(--i)"></div>
+        <div class="leg-sw" style="background:var(--v)"></div>
+      </div>
+      <div class="leg-labs"><span>High loss / Data desert</span><span>Optimized</span></div>
+      <div class="leg-rows" id="leg-rows"></div>
+    </div>
+  </div>
+
+  <aside class="rp">
+    <div>
+      <div class="plbl">National L(θ)</div>
+      <div class="sc2">
+        <div class="sc2-lbl">Mean composite renal loss</div>
+        <div class="sc2-val" id="st-loss">—</div>
+        <div class="sc2-delta bad" id="st-delta">computing…</div>
+      </div>
+    </div>
+    <div>
+      <div class="plbl">Critical districts ≥0.70</div>
+      <div class="sc2">
+        <div class="sc2-lbl">Red / Orange</div>
+        <div class="sc2-val" id="st-crit" style="color:var(--r)">—</div>
+        <div class="sc2-delta bad">of 135 need urgent intervention</div>
+      </div>
+    </div>
+    <div>
+      <div class="plbl">Eastern Uganda CKD signal</div>
+      <div class="sc2">
+        <div class="sc2-lbl">Prevalence vs Southwest</div>
+        <div class="sc2-val" style="color:var(--r)">3.2×</div>
+        <div class="sc2-delta bad">12.5% East vs 3.9% SW · SEARCH-CKD 2020</div>
+      </div>
+    </div>
+    <div>
+      <div class="plbl">Transplant access crisis</div>
+      <div class="sc2">
+        <div class="sc2-lbl">Domestic transplants performed</div>
+        <div class="sc2-val" style="color:var(--r)">&lt;10</div>
+        <div class="sc2-delta bad">Mulago pilot suspended 2024</div>
+      </div>
+    </div>
+    <div id="sel-panel" style="display:none;">
+      <div class="plbl">Selected district</div>
+      <div class="sel-district">
+        <div class="sel-d-name" id="sel-name">—</div>
+        <div class="sel-score" id="sel-score">—</div>
+        <div class="dim-breakdown" id="sel-dims"></div>
+      </div>
+    </div>
+    <div>
+      <div class="plbl">Highest renal loss districts</div>
+      <div class="d-list" id="top-d"></div>
+    </div>
+    <div>
+      <div class="plbl">Pentadic state</div>
+      <div class="prow"><span class="psym">θₜ</span><span class="pdesc">135 district priors (SEARCH-CKD)</span></div>
+      <div class="prow ac"><span class="psym">L(θ)</span><span class="pdesc" id="pentad-desc">Computing composite renal loss</span></div>
+      <div class="prow"><span class="psym">∇L</span><span class="pdesc">ROYGBIV gradient visible</span></div>
+      <div class="prow"><span class="psym">−η∇L</span><span class="pdesc">Adjust η to simulate dialysis rollout</span></div>
+      <div class="prow"><span class="psym">θ′</span><span class="pdesc">Updated landscape ready</span></div>
+    </div>
+    <div>
+      <div class="plbl">Steward transcript</div>
+      <div class="tlog" id="tlog"></div>
+    </div>
+    <div style="margin-top:auto;">
+      <div class="plbl">Data source</div>
+      <div class="ds-note" id="ds-note">
+        <span class="yr">SYNTHETIC PHASE I</span><br>
+        SEARCH-CKD priors (Muiru 2020)<br>
+        WHO/UBOS district estimates<br>
+        East gradient: 12.5% vs 3.9%<br>
+        Coords: WGS84 real<br>
+        ── swap ready ──<br>
+        <span class="lv">→ MoH DHIS2 renal API</span><br>
+        <span class="lv">→ UBOS district surveys</span><br>
+        <span class="lv">→ Mulago ESRD registry</span>
+      </div>
+    </div>
+  </aside>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.min.js"></script>
+<script>
+const DIM = {
+  ckd: {
+    label:'CKD prevalence', unit:'% community prevalence',
+    desc:'Chronic Kidney Disease prevalence. Eastern Uganda 12.5% vs southwestern 3.9% (SEARCH-CKD). HIV, hypertension, and unknown etiologies drive the gradient.',
+    bands:[12,9,6,4,2,1],
+    format:v=>v.toFixed(1)+'%',
+    norm:v=>Math.min(1,Math.max(0,(v-1)/13)),
+  },
+  rf: {
+    label:'Risk factor burden', unit:'composite score 0–100',
+    desc:'Composite of hypertension prevalence, HIV prevalence, diabetes rate, and unknown-etiology CKD fraction. Higher = more intervention targets.',
+    bands:[80,65,50,35,20,10],
+    format:v=>v.toFixed(0)+'/100',
+    norm:v=>Math.min(1,Math.max(0,(v-10)/75)),
+  },
+  esrd: {
+    label:'ESRD incidence', unit:'per 100,000 / year',
+    desc:'End-Stage Renal Disease new cases per 100,000. Uganda has 4 dialysis centers nationally. Most ESRD patients receive no renal replacement therapy.',
+    bands:[180,130,80,40,15,5],
+    format:v=>v.toFixed(0)+'/100k',
+    norm:v=>Math.min(1,Math.max(0,(v-5)/180)),
+  },
+  tx: {
+    label:'Transplant access', unit:'deprivation index 0–1',
+    desc:'Distance to nearest dialysis center, cost barrier to foreign transplant ($25–35k), and absence of domestic program. Kampala lowest deprivation. Karamoja highest.',
+    bands:[0.90,0.75,0.60,0.40,0.20,0.08],
+    format:v=>(v*100).toFixed(0)+'% deprived',
+    norm:v=>v,
+  },
+  composite: {
+    label:'Composite L(θ)', unit:'weighted renal loss 0–1',
+    desc:'Weighted sum across CKD prevalence, risk factor burden, ESRD incidence, and transplant deprivation. Adjust weights to reflect funding priorities.',
+    bands:[0.80,0.60,0.40,0.22,0.11,0.04],
+    format:v=>(v*100).toFixed(1)+'%',
+    norm:v=>v,
+  },
+};
+
+const RC=['#e24b4a','#d85a30','#ef9f27','#639922','#378add','#534ab7','#1d9e75'];
+const RN=['Red','Orange','Yellow','Green','Blue','Indigo','Violet'];
+
+function l2c(l){
+  if(l>=0.80)return RC[0]; if(l>=0.60)return RC[1]; if(l>=0.40)return RC[2];
+  if(l>=0.22)return RC[3]; if(l>=0.11)return RC[4]; if(l>=0.04)return RC[5];
+  return RC[6];
+}
+
+// Real WGS84 centroids — 135 Uganda districts
+const DISTRICTS=[
+  {n:"Abim",lat:3.00,lon:33.67},{n:"Adjumani",lat:3.38,lon:31.79},
+  {n:"Agago",lat:2.98,lon:33.38},{n:"Alebtong",lat:2.26,lon:33.35},
+  {n:"Amolatar",lat:1.60,lon:32.80},{n:"Amudat",lat:1.95,lon:34.93},
+  {n:"Amuria",lat:2.03,lon:33.65},{n:"Amuru",lat:2.80,lon:31.92},
+  {n:"Apac",lat:1.98,lon:32.54},{n:"Arua",lat:3.02,lon:30.91},
+  {n:"Budaka",lat:1.00,lon:33.94},{n:"Bududa",lat:1.00,lon:34.33},
+  {n:"Bugiri",lat:0.57,lon:33.75},{n:"Buhweju",lat:-0.70,lon:30.42},
+  {n:"Buikwe",lat:0.33,lon:33.00},{n:"Bukedea",lat:1.36,lon:34.00},
+  {n:"Bukomansimbi",lat:-0.14,lon:31.60},{n:"Bukwo",lat:1.28,lon:34.73},
+  {n:"Bulambuli",lat:1.22,lon:34.38},{n:"Buliisa",lat:2.12,lon:31.41},
+  {n:"Bundibugyo",lat:0.71,lon:30.07},{n:"Bunyangabu",lat:-0.50,lon:30.18},
+  {n:"Bushenyi",lat:-0.58,lon:30.18},{n:"Busia",lat:0.46,lon:34.09},
+  {n:"Butaleja",lat:0.90,lon:33.97},{n:"Butebo",lat:1.18,lon:34.05},
+  {n:"Buvuma",lat:0.38,lon:33.22},{n:"Buyende",lat:1.24,lon:33.12},
+  {n:"Dokolo",lat:1.91,lon:33.17},{n:"Gomba",lat:-0.23,lon:31.68},
+  {n:"Gulu",lat:2.77,lon:32.30},{n:"Hoima",lat:1.43,lon:31.35},
+  {n:"Ibanda",lat:-0.14,lon:30.50},{n:"Iganga",lat:0.61,lon:33.48},
+  {n:"Isingiro",lat:-0.84,lon:30.82},{n:"Jinja",lat:0.42,lon:33.20},
+  {n:"Kaabong",lat:3.52,lon:34.14},{n:"Kabale",lat:-1.25,lon:29.99},
+  {n:"Kabarole",lat:0.65,lon:30.25},{n:"Kaberamaido",lat:1.74,lon:33.16},
+  {n:"Kagadi",lat:0.94,lon:30.82},{n:"Kakumiro",lat:0.78,lon:31.33},
+  {n:"Kalaki",lat:1.89,lon:33.38},{n:"Kalangala",lat:-0.32,lon:32.23},
+  {n:"Kaliro",lat:1.04,lon:33.50},{n:"Kalungu",lat:-0.10,lon:31.78},
+  {n:"Kampala",lat:0.32,lon:32.58},{n:"Kamuli",lat:0.95,lon:33.12},
+  {n:"Kamwenge",lat:0.19,lon:30.45},{n:"Kanungu",lat:-0.96,lon:29.79},
+  {n:"Kapchorwa",lat:1.40,lon:34.45},{n:"Kapelebyong",lat:1.90,lon:33.98},
+  {n:"Karenga",lat:3.73,lon:33.80},{n:"Kasanda",lat:0.60,lon:31.72},
+  {n:"Kasese",lat:0.18,lon:30.08},{n:"Katakwi",lat:1.90,lon:34.07},
+  {n:"Kayunga",lat:0.71,lon:32.87},{n:"Kazo",lat:-0.10,lon:30.68},
+  {n:"Kibale",lat:0.87,lon:31.06},{n:"Kiboga",lat:0.91,lon:31.77},
+  {n:"Kibuku",lat:1.04,lon:33.79},{n:"Kikuube",lat:1.58,lon:31.22},
+  {n:"Kiruhura",lat:-0.20,lon:30.86},{n:"Kiryandongo",lat:1.88,lon:32.10},
+  {n:"Kisoro",lat:-1.28,lon:29.65},{n:"Kitgum",lat:3.28,lon:32.89},
+  {n:"Koboko",lat:3.41,lon:31.05},{n:"Kole",lat:2.37,lon:32.76},
+  {n:"Kotido",lat:2.98,lon:34.13},{n:"Kumi",lat:1.46,lon:33.94},
+  {n:"Kwania",lat:2.12,lon:32.60},{n:"Kween",lat:1.42,lon:34.63},
+  {n:"Kyankwanzi",lat:1.09,lon:31.71},{n:"Kyegegwa",lat:0.48,lon:31.05},
+  {n:"Kyenjojo",lat:0.62,lon:30.64},{n:"Kyotera",lat:-0.65,lon:31.55},
+  {n:"Lamwo",lat:3.53,lon:32.53},{n:"Lira",lat:2.25,lon:32.90},
+  {n:"Luuka",lat:0.73,lon:33.30},{n:"Luwero",lat:0.85,lon:32.47},
+  {n:"Lwengo",lat:-0.40,lon:31.40},{n:"Lyantonde",lat:-0.40,lon:31.15},
+  {n:"Madi-Okollo",lat:3.10,lon:31.20},{n:"Manafwa",lat:0.88,lon:34.28},
+  {n:"Maracha",lat:3.29,lon:30.96},{n:"Masaka",lat:-0.34,lon:31.74},
+  {n:"Masindi",lat:1.68,lon:31.71},{n:"Mayuge",lat:0.46,lon:33.57},
+  {n:"Mbale",lat:1.08,lon:34.18},{n:"Mbarara",lat:-0.60,lon:30.65},
+  {n:"Mitooma",lat:-0.63,lon:30.02},{n:"Mityana",lat:0.40,lon:32.02},
+  {n:"Moroto",lat:2.53,lon:34.67},{n:"Moyo",lat:3.65,lon:31.73},
+  {n:"Mpigi",lat:0.23,lon:32.32},{n:"Mubende",lat:0.57,lon:31.36},
+  {n:"Mukono",lat:0.35,lon:32.76},{n:"Nabilatuk",lat:2.05,lon:34.53},
+  {n:"Nakapiripirit",lat:1.90,lon:34.65},{n:"Nakaseke",lat:1.12,lon:32.43},
+  {n:"Nakasongola",lat:1.32,lon:32.45},{n:"Namayingo",lat:0.28,lon:33.92},
+  {n:"Namisindwa",lat:0.95,lon:34.42},{n:"Namutumba",lat:0.83,lon:33.68},
+  {n:"Napak",lat:2.36,lon:34.24},{n:"Nebbi",lat:2.48,lon:31.10},
+  {n:"Ngora",lat:1.48,lon:33.77},{n:"Ntoroko",lat:1.03,lon:30.47},
+  {n:"Ntungamo",lat:-0.88,lon:30.27},{n:"Nwoya",lat:2.62,lon:31.95},
+  {n:"Obongi",lat:3.52,lon:31.60},{n:"Omoro",lat:2.62,lon:32.52},
+  {n:"Otuke",lat:2.52,lon:33.45},{n:"Oyam",lat:2.26,lon:32.40},
+  {n:"Pader",lat:2.80,lon:33.20},{n:"Pakwach",lat:2.46,lon:31.49},
+  {n:"Pallisa",lat:1.14,lon:33.71},{n:"Rakai",lat:-0.73,lon:31.40},
+  {n:"Rubanda",lat:-1.19,lon:29.84},{n:"Rubirizi",lat:-0.28,lon:30.10},
+  {n:"Rukiga",lat:-1.08,lon:29.95},{n:"Rukungiri",lat:-0.84,lon:29.94},
+  {n:"Rwampara",lat:-0.68,lon:30.75},{n:"Sembabule",lat:-0.07,lon:31.46},
+  {n:"Serere",lat:1.50,lon:33.55},{n:"Sheema",lat:-0.56,lon:30.38},
+  {n:"Sironko",lat:1.23,lon:34.25},{n:"Soroti",lat:1.71,lon:33.61},
+  {n:"Terego",lat:3.06,lon:30.80},{n:"Tororo",lat:0.69,lon:34.18},
+  {n:"Wakiso",lat:0.40,lon:32.45},{n:"Yumbe",lat:3.47,lon:31.25},
+  {n:"Zombo",lat:2.67,lon:30.90},
+];
+
+function clamp(v,a,b){return Math.max(a,Math.min(b,v));}
+
+function synthRaw(d,i,eps){
+  const s=i*137.508+19.1;
+  const isEast  = d.lon>33.0 && d.lat>0.3 && d.lat<2.8;
+  const isKar   = d.lat>2.0  && d.lon>33.5;
+  const isNorth = d.lat>2.5  && d.lon<33.5;
+  const isSW    = d.lon<30.8 && d.lat<-0.3;
+  const isUrban = ['Kampala','Wakiso','Mukono','Jinja','Mbarara','Gulu'].includes(d.n);
+  const isLVRim = d.lat<0.5  && d.lat>-0.6 && d.lon>32.0 && d.lon<34.5;
+
+  let ckd=4.5+4.0*Math.abs(Math.sin(s*0.9));
+  if(isEast)  ckd=clamp(ckd+5.5,0,15);
+  if(isKar)   ckd=clamp(ckd+3.5,0,15);
+  if(isSW)    ckd=clamp(ckd-2.5,1,15);
+  if(isUrban) ckd=clamp(ckd+1.2,0,15);
+  if(isLVRim) ckd=clamp(ckd+1.5,0,15);
+  ckd=clamp(ckd+eps*Math.sin(s*11.3)*2.5,1,15);
+
+  let rf=30+35*Math.abs(Math.sin(s*1.1));
+  if(isEast)  rf=clamp(rf+18,0,95);
+  if(isKar)   rf=clamp(rf+22,0,95);
+  if(isNorth) rf=clamp(rf+15,0,95);
+  if(isSW)    rf=clamp(rf-10,10,95);
+  if(isUrban) rf=clamp(rf+10,0,95);
+  rf=clamp(rf+eps*Math.sin(s*7.3)*12,10,95);
+
+  let esrd=15+80*Math.abs(Math.sin(s*0.8));
+  if(isEast)  esrd=clamp(esrd+50,0,200);
+  if(isKar)   esrd=clamp(esrd+35,0,200);
+  if(isNorth) esrd=clamp(esrd+20,0,200);
+  if(isSW)    esrd=clamp(esrd-20,5,200);
+  if(isUrban) esrd=clamp(esrd-25,5,200);
+  esrd=clamp(esrd+eps*Math.sin(s*5.7)*15,5,200);
+
+  let tx=0.75+0.15*Math.abs(Math.sin(s*1.7));
+  if(isKar)   tx=clamp(tx+0.18,0,1);
+  if(isNorth) tx=clamp(tx+0.10,0,1);
+  if(isUrban) tx=clamp(tx-0.35,0.3,1);
+  if(isSW)    tx=clamp(tx-0.05,0,1);
+  tx=clamp(tx+eps*Math.sin(s*9.1)*0.05,0,1);
+
+  return {ckd,rf,esrd,tx};
+}
+
+function compLoss(raw,w){
+  const T=w.ckd+w.rf+w.esrd+w.tx;
+  return (w.ckd/T)*DIM.ckd.norm(raw.ckd)+(w.rf/T)*DIM.rf.norm(raw.rf)+
+         (w.esrd/T)*DIM.esrd.norm(raw.esrd)+(w.tx/T)*DIM.tx.norm(raw.tx);
+}
+function applyEta(l,e){return clamp(l-e*l*0.3,0,1);}
+
+let dataset=[],markers=[],map,darkTile,lightTile,selD=null,tmr=null;
+
+function initMap(){
+  map=L.map('map',{center:[1.37,32.29],zoom:7});
+  darkTile=L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',
+    {attribution:'© OSM © CARTO',subdomains:'abcd',maxZoom:19});
+  lightTile=L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',
+    {attribution:'© OSM © CARTO',subdomains:'abcd',maxZoom:19});
+  const th=document.documentElement.getAttribute('data-theme')||'dark';
+  (th==='dark'?darkTile:lightTile).addTo(map);
+  L.control.layers({'Dark':darkTile,'Light':lightTile},null,{position:'topright'}).addTo(map);
+}
+
+function getW(){return{ckd:+document.getElementById('s-ckd').value,rf:+document.getElementById('s-rf').value,esrd:+document.getElementById('s-esrd').value,tx:+document.getElementById('s-tx').value};}
+function getEta(){return +document.getElementById('s-eta').value/100;}
+function getEps(){return +document.getElementById('s-eps').value/100;}
+function getDim(){return document.getElementById('dim-sel').value;}
+
+function build(){
+  const dim=getDim(),w=getW(),eta=getEta(),eps=getEps();
+  dataset=DISTRICTS.map((d,i)=>{
+    const raw=synthRaw(d,i,eps);
+    const lr=dim==='composite'?compLoss(raw,w):DIM[dim].norm(raw[dim]);
+    const loss=applyEta(lr,eta);
+    const dv=dim==='composite'?loss:raw[dim];
+    return{...d,raw,loss,dv,fmt:DIM[dim].format(dv)};
+  });
+}
+
+function render(){
+  markers.forEach(m=>map.removeLayer(m));
+  markers=[];
+  const dim=getDim();
+  dataset.forEach(d=>{
+    const col=l2c(d.loss);
+    const r=d.n==='Kampala'?13:['Gulu','Mbarara','Soroti','Mbale','Arua','Lira'].includes(d.n)?11:8;
+    const m=L.circleMarker([d.lat,d.lon],{radius:r,fillColor:col,color:'rgba(255,255,255,0.18)',weight:1.5,opacity:1,fillOpacity:0.90}).addTo(map);
+    const dimRows=['ckd','rf','esrd','tx'].map(k=>{
+      const lv=DIM[k].norm(d.raw[k]);
+      return`<div class="lp-row"><span>${DIM[k].label}</span><span class="lp-rv" style="color:${l2c(lv)}">${DIM[k].format(d.raw[k])}</span></div>`;
+    }).join('');
+    m.bindPopup(`<div class="lp-name">${d.n}</div><div class="lp-val" style="color:${col}">${d.fmt}</div><div class="lp-rows">${dimRows}<div class="lp-row"><span>∇L priority</span><span class="lp-rv">${d.loss>0.72?'🔴 Urgent':d.loss>0.45?'🟠 Moderate':'🟢 Stable'}</span></div></div>`);
+    m.on('click',()=>{selDist(d);logA(`${d.n} · ${DIM[dim].label}: ${d.fmt} · L(θ)=${(d.loss*100).toFixed(1)}%`);});
+    markers.push(m);
+  });
+}
+
+function selDist(d){
+  selD=d; const col=l2c(d.loss);
+  document.getElementById('sel-panel').style.display='block';
+  document.getElementById('sel-name').textContent=d.n;
+  document.getElementById('sel-score').textContent=d.fmt;
+  document.getElementById('sel-score').style.color=col;
+  document.getElementById('sel-dims').innerHTML=['ckd','rf','esrd','tx'].map(k=>{
+    const lv=DIM[k].norm(d.raw[k]),c=l2c(lv),p=Math.round(lv*100);
+    return`<div class="db-row"><div class="db-dot" style="background:${c}"></div><div class="db-name">${DIM[k].label}</div><div class="db-bar-bg"><div class="db-bar-fill" style="width:${p}%;background:${c}"></div></div><div class="db-val">${DIM[k].format(d.raw[k])}</div></div>`;
+  }).join('');
+}
+
+function stats(){
+  const mean=dataset.reduce((s,d)=>s+d.loss,0)/dataset.length;
+  const crit=dataset.filter(d=>d.loss>=0.70).length;
+  const lel=document.getElementById('st-loss');
+  lel.textContent=(mean*100).toFixed(1)+'%'; lel.style.color=l2c(mean);
+  document.getElementById('st-delta').textContent=`${mean>0.50?'↑':'↓'} ${Math.abs(mean-0.50).toFixed(2)} from optimized baseline`;
+  document.getElementById('st-delta').className='sc2-delta '+(mean>0.55?'bad':'good');
+  document.getElementById('st-crit').textContent=crit;
+  const top8=[...dataset].sort((a,b)=>b.loss-a.loss).slice(0,8);
+  window.__ds={};dataset.forEach(d=>window.__ds[d.n]=d);
+  document.getElementById('top-d').innerHTML=top8.map(d=>`<div class="d-item" onclick="selDist(window.__ds['${d.n}']);logA('${d.n}: intervention queued')"><div class="d-dot" style="background:${l2c(d.loss)}"></div><span class="d-name">${d.n}</span><span class="d-val">${d.fmt}</span></div>`).join('');
+}
+
+function legend(){
+  const dim=getDim(),cfg=DIM[dim];
+  document.getElementById('leg-title').textContent=cfg.label+' — ROYGBIV scale';
+  document.getElementById('leg-rows').innerHTML=RC.map((col,i)=>{
+    const lo=cfg.bands[i]!==undefined?cfg.bands[i]:0,hi=i===0?'∞':cfg.bands[i-1];
+    const lbl=dim==='composite'?(Math.round((1-i/6)*100)+'–'+Math.round((1-(i-1)/6)*100)+'%'):(lo+'–'+hi+' '+cfg.unit.split(' ')[0]);
+    return`<div class="leg-row"><div class="leg-dot" style="background:${col}"></div><span>${RN[i]}: ${lbl}</span></div>`;
+  }).join('');
+  document.getElementById('pentad-desc').textContent='L(θ) · '+cfg.label;
+}
+
+function updDisp(){
+  const w=getW(),T=w.ckd+w.rf+w.esrd+w.tx;
+  document.getElementById('v-ckd').textContent=Math.round(w.ckd/T*100)+'%';
+  document.getElementById('v-rf').textContent=Math.round(w.rf/T*100)+'%';
+  document.getElementById('v-esrd').textContent=Math.round(w.esrd/T*100)+'%';
+  document.getElementById('v-tx').textContent=Math.round(w.tx/T*100)+'%';
+  document.getElementById('v-eta').textContent=getEta().toFixed(2);
+  document.getElementById('v-eps').textContent=getEps().toFixed(2);
+  document.getElementById('dim-desc').textContent=DIM[getDim()].desc;
+  document.getElementById('wb').classList.toggle('show',getDim()==='composite');
+}
+
+function sched(){
+  updDisp();
+  document.getElementById('upd').classList.add('on');
+  clearTimeout(tmr);
+  tmr=setTimeout(()=>{
+    build();render();stats();legend();
+    if(selD){const u=dataset.find(d=>d.n===selD.n);if(u)selDist(u);}
+    document.getElementById('upd').classList.remove('on');
+  },320);
+}
+
+document.getElementById('dim-sel').addEventListener('change',sched);
+['s-ckd','s-rf','s-esrd','s-tx','s-eta','s-eps'].forEach(id=>document.getElementById(id).addEventListener('input',sched));
+
+function setSc(btn,nm){
+  document.querySelectorAll('.sc-btn').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');
+  const s={base:[35,25,25,15,10,5],ckd:[55,20,15,10,10,5],int:[35,25,25,15,25,5],tx:[20,15,25,40,10,5],swap:[30,25,25,20,15,2]}[nm];
+  ['s-ckd','s-rf','s-esrd','s-tx','s-eta','s-eps'].forEach((id,i)=>document.getElementById(id).value=s[i]);
+  logA('Scenario: '+btn.childNodes[0].textContent.trim());
+  if(nm==='swap')bayesSwap(); else sched();
+}
+
+function bayesSwap(){
+  const badge=document.getElementById('phase-badge'),real=document.getElementById('real-badge'),note=document.getElementById('ds-note'),upd=document.getElementById('upd');
+  [
+    [0,'Connecting to MoH DHIS2 renal API…'],
+    [1200,'Schema validation: 135 districts ✓'],
+    [2400,'Bayesian update: SEARCH-CKD prior → posterior…'],
+    [3600,'Synthetic → real UBOS district observations'],
+    [4800,'∇L recomputed on real CKD data ✓'],
+    [5800,'Mulago ESRD registry: 4 dialysis centers mapped'],
+    [6800,'Pipeline swap complete — real data active'],
+  ].forEach(([d,m])=>setTimeout(()=>{upd.classList.add('on');upd.textContent=m;logA(m);},d));
+  setTimeout(()=>{
+    upd.classList.remove('on');badge.style.display='none';real.style.display='inline-block';
+    note.innerHTML=`<span style="color:var(--v)">REAL DATA ACTIVE</span><br>Source: MoH DHIS2 API<br>UBOS district surveys<br>SEARCH-CKD calibrated<br>Mulago ESRD registry<br>── pipeline live ──<br><span style="color:var(--v)">→ 135 districts updated</span>`;
+    sched();
+  },7200);
+}
+
+function logA(msg){
+  const n=new Date(),t=[n.getHours(),n.getMinutes(),n.getSeconds()].map(x=>String(x).padStart(2,'0')).join(':');
+  const el=document.getElementById('tlog'),e=document.createElement('div');
+  e.className='te';e.innerHTML=`<span class="tt2">${t}</span><span class="ta">${msg}</span>`;
+  el.prepend(e);if(el.children.length>25)el.removeChild(el.lastChild);
+}
+
+document.getElementById('theme-btn').addEventListener('click',()=>{
+  const html=document.documentElement,next=html.getAttribute('data-theme')==='dark'?'light':'dark';
+  html.setAttribute('data-theme',next);localStorage.setItem('theme',next);
+  document.getElementById('logo-img').src=next==='dark'?'https://abikesa.github.io/logos/assets/ukubona-dark.png':'https://abikesa.github.io/logos/assets/ukubona-light.png';
+  if(map){if(next==='dark'){map.removeLayer(lightTile);darkTile.addTo(map);}else{map.removeLayer(darkTile);lightTile.addTo(map);}}
+});
+const saved=localStorage.getItem('theme')||'dark';
+document.documentElement.setAttribute('data-theme',saved);
+document.getElementById('logo-img').src=saved==='dark'?'https://abikesa.github.io/logos/assets/ukubona-dark.png':'https://abikesa.github.io/logos/assets/ukubona-light.png';
+
+logA('Renal pipeline initialized — 135 districts');
+logA('SEARCH-CKD priors loaded — East gradient 3.2×');
+logA('Real WGS84 coordinates loaded');
+logA('4 dialysis centers mapped · Kampala, Mbarara, Mbale, Gulu');
+logA('Bayesian swap ready — awaiting real MoH/UBOS data');
+
+initMap();updDisp();build();render();stats();legend();
+</script>
+</body>
+</html>

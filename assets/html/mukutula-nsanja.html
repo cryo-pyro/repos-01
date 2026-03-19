@@ -1,0 +1,1275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ukubona — A Federated Intelligence Architecture</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Crimson+Pro:ital,wght@0,300;0,400;1,300;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --soil: #3d2b1a;
+    --clay: #8b5e3c;
+    --bark: #5c3d1e;
+    --mulch: #a0714f;
+    --green-dark: #1a3a1f;
+    --green-mid: #2d5a2e;
+    --green-light: #4a8c3f;
+    --green-bright: #7bc67e;
+    --rain: #8ab4c4;
+    --sky: #c9dde8;
+    --gold: #c9a84c;
+    --cream: #f5f0e8;
+    --ghost: rgba(245,240,232,0.07);
+    --ink: #1a120a;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background-color: var(--soil);
+    color: var(--cream);
+    font-family: 'Crimson Pro', Georgia, serif;
+    font-size: 18px;
+    line-height: 1.7;
+    overflow-x: hidden;
+  }
+
+  /* ─── NOISE TEXTURE OVERLAY ─── */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 9999;
+    opacity: 0.35;
+  }
+
+  /* ─── HERO ─── */
+  .hero {
+    min-height: 100vh;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .hero-image-panel {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .hero-image-panel img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    filter: saturate(0.85) contrast(1.05);
+    transform: scale(1.04);
+    animation: slowzoom 30s ease-in-out infinite alternate;
+  }
+
+  @keyframes slowzoom {
+    from { transform: scale(1.04); }
+    to   { transform: scale(1.12) translateY(-2%); }
+  }
+
+  .hero-image-panel::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to right, transparent 60%, var(--soil) 100%),
+                linear-gradient(to bottom, transparent 70%, var(--soil) 100%);
+  }
+
+  /* Annotation overlays on image */
+  .annotation {
+    position: absolute;
+    z-index: 10;
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.05em;
+    color: var(--gold);
+    pointer-events: none;
+  }
+
+  .annotation::before {
+    content: '';
+    position: absolute;
+    background: var(--gold);
+  }
+
+  .ann-banana {
+    top: 32%;
+    left: 28%;
+    text-align: right;
+  }
+  .ann-banana::before {
+    width: 40px; height: 1px;
+    top: 50%; right: -44px;
+  }
+
+  .ann-maize {
+    bottom: 28%;
+    left: 8%;
+  }
+  .ann-maize::before {
+    width: 1px; height: 30px;
+    bottom: -34px; left: 50%;
+  }
+
+  .ann-mulch {
+    top: 55%;
+    right: 5%;
+    text-align: right;
+    color: var(--green-bright);
+  }
+
+  .ann-soil {
+    bottom: 14%;
+    left: 20%;
+    color: var(--mulch);
+  }
+
+  .hero-text {
+    padding: 6rem 4rem 4rem 3rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    position: relative;
+    z-index: 2;
+  }
+
+  .eyebrow {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 1.5rem;
+    opacity: 0;
+    animation: fadein 1s ease 0.3s forwards;
+  }
+
+  .hero-title {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(3.5rem, 6vw, 6rem);
+    font-weight: 900;
+    line-height: 0.95;
+    margin-bottom: 0.5rem;
+    letter-spacing: -0.02em;
+    opacity: 0;
+    animation: fadein 1s ease 0.5s forwards;
+  }
+
+  .hero-title span {
+    display: block;
+    font-style: italic;
+    color: var(--green-bright);
+    font-weight: 400;
+    font-size: 0.55em;
+    letter-spacing: 0.01em;
+    margin-bottom: 0.3rem;
+  }
+
+  .hero-subtitle {
+    font-family: 'Crimson Pro', serif;
+    font-size: 1.15rem;
+    font-style: italic;
+    color: rgba(245,240,232,0.65);
+    max-width: 38ch;
+    margin-top: 1.5rem;
+    margin-bottom: 3rem;
+    line-height: 1.6;
+    opacity: 0;
+    animation: fadein 1s ease 0.8s forwards;
+  }
+
+  .month-ticker {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+    opacity: 0;
+    animation: fadein 1s ease 1.1s forwards;
+  }
+
+  .ticker-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.2em;
+    color: var(--clay);
+    text-transform: uppercase;
+    margin-bottom: 0.3rem;
+  }
+
+  .ticker-row {
+    display: flex;
+    gap: 6px;
+  }
+
+  .ticker-pip {
+    width: 28px; height: 28px;
+    border-radius: 50%;
+    background: var(--ghost);
+    border: 1px solid rgba(245,240,232,0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Space Mono', monospace;
+    font-size: 8px;
+    color: rgba(245,240,232,0.4);
+    transition: all 0.3s;
+    cursor: default;
+    position: relative;
+  }
+
+  .ticker-pip:hover {
+    background: var(--green-mid);
+    border-color: var(--green-bright);
+    color: var(--cream);
+    transform: scale(1.3);
+    z-index: 10;
+  }
+
+  .ticker-pip.voice-1 { border-color: var(--gold); color: var(--gold); }
+  .ticker-pip.voice-2 { border-color: var(--green-bright); color: var(--green-bright); }
+  .ticker-pip.both    { background: linear-gradient(135deg, rgba(201,168,76,0.3), rgba(123,198,126,0.3)); border-color: var(--cream); color: var(--cream); }
+
+  @keyframes fadein {
+    from { opacity: 0; transform: translateY(16px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ─── SECTION TEMPLATE ─── */
+  section {
+    padding: 6rem 0;
+    position: relative;
+  }
+
+  .container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 3rem;
+  }
+
+  .section-header {
+    display: flex;
+    align-items: baseline;
+    gap: 1.5rem;
+    margin-bottom: 4rem;
+  }
+
+  .section-num {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    color: var(--clay);
+    flex-shrink: 0;
+  }
+
+  .section-title {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2rem, 3.5vw, 3rem);
+    font-weight: 700;
+    line-height: 1.15;
+  }
+
+  .section-title em {
+    color: var(--green-bright);
+    font-style: italic;
+  }
+
+  /* ─── THE IMAGE SECTION ─── */
+  .image-section {
+    background: var(--bark);
+  }
+
+  .image-full {
+    display: grid;
+    grid-template-columns: 1.4fr 1fr;
+    gap: 4rem;
+    align-items: start;
+  }
+
+  .image-annotated {
+    position: relative;
+  }
+
+  .image-annotated img {
+    width: 100%;
+    display: block;
+    border-radius: 2px;
+    box-shadow: 0 30px 80px rgba(0,0,0,0.5);
+  }
+
+  .img-label {
+    position: absolute;
+    font-family: 'Space Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.1em;
+    background: rgba(26,18,10,0.85);
+    padding: 4px 8px;
+    border-left: 2px solid var(--gold);
+    color: var(--gold);
+    white-space: nowrap;
+    backdrop-filter: blur(4px);
+  }
+
+  .img-label.green { border-color: var(--green-bright); color: var(--green-bright); }
+  .img-label.clay  { border-color: var(--mulch); color: var(--mulch); }
+
+  .lbl-1 { top: 22%; left: -12%; }
+  .lbl-2 { top: 48%; left: 6%; }
+  .lbl-3 { bottom: 22%; right: -8%; }
+  .lbl-4 { bottom: 8%; left: 10%; }
+
+  .image-commentary {
+    padding-top: 2rem;
+  }
+
+  .image-commentary blockquote {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.4rem;
+    font-style: italic;
+    line-height: 1.5;
+    color: var(--cream);
+    border-left: 3px solid var(--gold);
+    padding-left: 1.5rem;
+    margin-bottom: 2rem;
+  }
+
+  .image-commentary p {
+    color: rgba(245,240,232,0.7);
+    font-size: 1rem;
+    margin-bottom: 1rem;
+  }
+
+  .speed-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 2rem;
+    font-size: 0.9rem;
+  }
+
+  .speed-table th {
+    font-family: 'Space Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--clay);
+    text-align: left;
+    padding: 0.5rem 1rem 0.5rem 0;
+    border-bottom: 1px solid rgba(245,240,232,0.1);
+  }
+
+  .speed-table td {
+    padding: 0.6rem 1rem 0.6rem 0;
+    border-bottom: 1px solid rgba(245,240,232,0.06);
+    color: rgba(245,240,232,0.75);
+  }
+
+  .speed-table td:first-child { color: var(--gold); font-family: 'Space Mono', monospace; font-size: 0.8rem; }
+  .speed-table tr:last-child td { color: var(--green-bright); }
+
+  /* ─── CALENDAR GRID ─── */
+  .calendar-section {
+    background: linear-gradient(180deg, var(--bark) 0%, var(--soil) 100%);
+  }
+
+  .months-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1px;
+    background: rgba(245,240,232,0.05);
+    border: 1px solid rgba(245,240,232,0.05);
+  }
+
+  .month-card {
+    background: var(--soil);
+    padding: 1.8rem 1.5rem;
+    position: relative;
+    overflow: hidden;
+    transition: background 0.3s;
+  }
+
+  .month-card:hover { background: var(--green-dark); }
+
+  .month-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+  }
+
+  .card-voice-1::before { background: var(--gold); }
+  .card-voice-2::before { background: var(--green-bright); }
+  .card-both::before    { background: linear-gradient(to right, var(--gold), var(--green-bright)); }
+
+  .month-num {
+    font-family: 'Space Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.2em;
+    color: var(--clay);
+    margin-bottom: 0.4rem;
+  }
+
+  .month-name {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.1rem;
+    font-weight: 700;
+    margin-bottom: 0.2rem;
+    color: var(--cream);
+  }
+
+  .month-translation {
+    font-family: 'Crimson Pro', serif;
+    font-style: italic;
+    font-size: 0.85rem;
+    color: var(--clay);
+    margin-bottom: 0.8rem;
+  }
+
+  .month-function {
+    font-family: 'Space Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 3px 8px;
+    display: inline-block;
+    margin-bottom: 0.8rem;
+  }
+
+  .fn-gold   { background: rgba(201,168,76,0.15); color: var(--gold); }
+  .fn-green  { background: rgba(123,198,126,0.15); color: var(--green-bright); }
+  .fn-rain   { background: rgba(138,180,196,0.15); color: var(--rain); }
+  .fn-clay   { background: rgba(160,113,79,0.15); color: var(--mulch); }
+
+  .month-desc {
+    font-size: 0.85rem;
+    line-height: 1.5;
+    color: rgba(245,240,232,0.55);
+  }
+
+  .month-twin-signal {
+    margin-top: 0.8rem;
+    padding-top: 0.8rem;
+    border-top: 1px solid rgba(245,240,232,0.06);
+    font-family: 'Space Mono', monospace;
+    font-size: 8px;
+    letter-spacing: 0.08em;
+    color: rgba(245,240,232,0.3);
+  }
+
+  /* ─── TWO-PART INVENTION ─── */
+  .invention-section {
+    background: var(--green-dark);
+    overflow: hidden;
+  }
+
+  .invention-grid {
+    display: grid;
+    grid-template-columns: 1fr 60px 1fr;
+    gap: 0;
+    position: relative;
+  }
+
+  .voice-column {
+    padding: 2rem;
+  }
+
+  .voice-header {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.4rem;
+    font-weight: 700;
+    font-style: italic;
+    margin-bottom: 0.3rem;
+  }
+
+  .voice-header.gold { color: var(--gold); }
+  .voice-header.green { color: var(--green-bright); }
+
+  .voice-sub {
+    font-family: 'Space Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.15em;
+    color: var(--clay);
+    text-transform: uppercase;
+    margin-bottom: 2rem;
+  }
+
+  .voice-node {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    padding: 1rem;
+    background: rgba(245,240,232,0.04);
+    border-radius: 1px;
+    position: relative;
+    transition: background 0.3s;
+  }
+
+  .voice-node:hover { background: rgba(245,240,232,0.08); }
+
+  .vn-num {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    color: var(--clay);
+    flex-shrink: 0;
+    width: 24px;
+    padding-top: 2px;
+  }
+
+  .vn-name {
+    font-family: 'Playfair Display', serif;
+    font-size: 1rem;
+    font-weight: 700;
+    margin-bottom: 0.2rem;
+  }
+
+  .vn-name.gold { color: var(--gold); }
+  .vn-name.green { color: var(--green-bright); }
+
+  .vn-desc {
+    font-size: 0.85rem;
+    color: rgba(245,240,232,0.55);
+    line-height: 1.5;
+  }
+
+  .counterpoint-spine {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 4rem 0;
+    position: relative;
+  }
+
+  .counterpoint-spine::before {
+    content: '';
+    position: absolute;
+    top: 0; bottom: 0;
+    left: 50%;
+    width: 1px;
+    background: linear-gradient(to bottom, transparent, var(--clay), var(--gold), var(--green-bright), var(--clay), transparent);
+  }
+
+  .spine-glyph {
+    background: var(--green-dark);
+    padding: 4px;
+    font-family: 'Playfair Display', serif;
+    font-size: 1.2rem;
+    color: var(--cream);
+    z-index: 1;
+    position: relative;
+  }
+
+  /* ─── ARCHITECTURE / DIGITAL TWIN ─── */
+  .arch-section {
+    background: var(--soil);
+  }
+
+  .arch-diagram {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    position: relative;
+    max-width: 700px;
+    margin: 0 auto;
+  }
+
+  .arch-diagram::before {
+    content: '';
+    position: absolute;
+    left: 50%;
+    top: 0; bottom: 0;
+    width: 1px;
+    background: linear-gradient(to bottom, transparent, var(--clay) 20%, var(--clay) 80%, transparent);
+    transform: translateX(-50%);
+  }
+
+  .arch-node {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    padding: 1.5rem 2rem;
+    background: var(--ghost);
+    border: 1px solid rgba(245,240,232,0.07);
+    position: relative;
+    cursor: default;
+    transition: all 0.3s;
+  }
+
+  .arch-node:hover {
+    background: rgba(245,240,232,0.08);
+    border-color: rgba(245,240,232,0.2);
+    transform: translateX(4px);
+  }
+
+  .arch-node + .arch-node { margin-top: 1px; }
+
+  .arch-node-icon {
+    width: 48px; height: 48px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.3rem;
+    flex-shrink: 0;
+  }
+
+  .arch-node-body { flex: 1; }
+
+  .arch-node-name {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.1rem;
+    font-weight: 700;
+    margin-bottom: 0.2rem;
+  }
+
+  .arch-node-equiv {
+    font-family: 'Space Mono', monospace;
+    font-size: 8.5px;
+    letter-spacing: 0.1em;
+    color: var(--clay);
+  }
+
+  .arch-node-signal {
+    font-size: 0.85rem;
+    color: rgba(245,240,232,0.5);
+    margin-top: 0.3rem;
+  }
+
+  .arch-node-role {
+    font-family: 'Space Mono', monospace;
+    font-size: 8px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    padding: 2px 8px;
+    border-radius: 2px;
+    align-self: flex-start;
+    flex-shrink: 0;
+  }
+
+  /* ─── LOSS FUNCTION ─── */
+  .formula-section {
+    background: var(--ink);
+    padding: 5rem 0;
+  }
+
+  .formula-box {
+    max-width: 800px;
+    margin: 0 auto;
+    text-align: center;
+  }
+
+  .formula-title {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.25em;
+    color: var(--clay);
+    text-transform: uppercase;
+    margin-bottom: 2rem;
+  }
+
+  .formula-display {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(1.1rem, 2.5vw, 1.6rem);
+    line-height: 2;
+    color: var(--cream);
+    background: rgba(245,240,232,0.03);
+    border: 1px solid rgba(245,240,232,0.08);
+    padding: 2rem 3rem;
+    letter-spacing: 0.02em;
+  }
+
+  .formula-display .var-s { color: var(--rain); }
+  .formula-display .var-e { color: var(--gold); }
+  .formula-display .var-m { color: var(--mulch); }
+  .formula-display .var-i { color: var(--green-bright); }
+  .formula-display .var-d { color: #c084fc; }
+  .formula-display .var-sum { color: var(--cream); font-size: 1.2em; }
+
+  .formula-legend {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 2rem;
+    margin-top: 2.5rem;
+  }
+
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    font-size: 0.85rem;
+  }
+
+  .legend-dot {
+    width: 10px; height: 10px;
+    border-radius: 50%;
+  }
+
+  /* ─── CLOSING MANIFESTO ─── */
+  .manifesto-section {
+    background: var(--green-dark);
+    padding: 8rem 0;
+  }
+
+  .manifesto-text {
+    max-width: 60ch;
+    margin: 0 auto;
+    text-align: center;
+  }
+
+  .manifesto-text p {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(1.3rem, 2.5vw, 1.8rem);
+    font-style: italic;
+    line-height: 1.6;
+    color: var(--cream);
+    margin-bottom: 1.5rem;
+  }
+
+  .manifesto-text p + p { color: rgba(245,240,232,0.65); font-size: clamp(1rem, 1.8vw, 1.25rem); }
+
+  .manifesto-text .close-line {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.25em;
+    color: var(--clay);
+    text-transform: uppercase;
+    margin-top: 3rem;
+    font-style: normal;
+  }
+
+  .manifesto-text strong { color: var(--green-bright); font-style: normal; }
+
+  /* ─── FOOTER ─── */
+  footer {
+    background: var(--ink);
+    padding: 2.5rem 3rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-family: 'Space Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.15em;
+    color: var(--clay);
+    text-transform: uppercase;
+  }
+
+  footer a { color: var(--green-bright); text-decoration: none; }
+
+  /* ─── DIVIDERS ─── */
+  .divider {
+    width: 60px;
+    height: 1px;
+    background: var(--clay);
+    margin: 2rem 0;
+  }
+
+  /* ─── RESPONSIVE ─── */
+  @media (max-width: 900px) {
+    .hero { grid-template-columns: 1fr; min-height: auto; }
+    .hero-image-panel { height: 50vh; }
+    .hero-text { padding: 3rem 2rem; }
+    .image-full { grid-template-columns: 1fr; }
+    .months-grid { grid-template-columns: repeat(2, 1fr); }
+    .invention-grid { grid-template-columns: 1fr; }
+    .counterpoint-spine { display: none; }
+    .lbl-1, .lbl-2, .lbl-3, .lbl-4 { display: none; }
+    .container { padding: 0 1.5rem; }
+    footer { flex-direction: column; gap: 1rem; text-align: center; }
+  }
+
+  @media (max-width: 600px) {
+    .months-grid { grid-template-columns: 1fr; }
+  }
+
+  /* ─── SCROLL REVEAL ─── */
+  .reveal {
+    opacity: 0;
+    transform: translateY(24px);
+    transition: opacity 0.7s ease, transform 0.7s ease;
+  }
+  .reveal.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════
+  HERO
+═══════════════════════════════════════ -->
+<section class="hero">
+  <div class="hero-image-panel">
+    <img src="../img/mukutula-nsanja.jpg" alt="Banana pseudostem mulching young maize — Mukutula Nsangya into Mugulansingo">
+    <div class="annotation ann-banana">GATONYA threshold<br>executed</div>
+    <div class="annotation ann-maize">Mugulansingo<br>— lagged planting</div>
+    <div class="annotation ann-mulch">Mukutula Nsangya<br>mulch layer active</div>
+    <div class="annotation ann-soil">Ntenvu incoming<br>memory phase</div>
+  </div>
+
+  <div class="hero-text">
+    <p class="eyebrow">Buganda Calendar · Digital Twin Architecture · Federated Intelligence</p>
+    <h1 class="hero-title">
+      <span>uku·bona</span>
+      To See<br>Patterns
+    </h1>
+    <p class="hero-subtitle">A native architecture for distributed intelligence — encoded in twelve months, recoverable through poetic license, executable as software.</p>
+
+    <div class="month-ticker">
+      <p class="ticker-label">The Two-Part Invention — Voice I (Refinement) · Voice II (Swarm)</p>
+      <div class="ticker-row">
+        <div class="ticker-pip voice-2" title="Gatonya — Fruit &amp; Seed">1</div>
+        <div class="ticker-pip voice-2" title="Mukutula Nsangya — Mulch">2</div>
+        <div class="ticker-pip voice-2" title="Mugulansingo — Seed (Lagged)">3</div>
+        <div class="ticker-pip both"   title="Kafumulampawu — Biomass Transfer / Mpawu">4</div>
+        <div class="ticker-pip both"   title="Muzigo — Cow Ghee, Dairy">5</div>
+        <div class="ticker-pip voice-1" title="Ssebasseka — Wine / Grappa">6</div>
+        <div class="ticker-pip voice-1" title="Kasambula — Tilling">7</div>
+        <div class="ticker-pip voice-1" title="Muwakanya — Futures, Negotiation">8</div>
+        <div class="ticker-pip voice-1" title="Mutunda — Strike Prices">9</div>
+        <div class="ticker-pip both"   title="Mukukusa Bitungotungo — Grain, Beer">10</div>
+        <div class="ticker-pip voice-2" title="Musenene — Grasshoppers, Biomass Transfer">11</div>
+        <div class="ticker-pip voice-2" title="Ntenvu — Worms, Audit, Return to Zero">12</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════
+  THE IMAGE
+═══════════════════════════════════════ -->
+<section class="image-section">
+  <div class="container">
+    <div class="section-header reveal">
+      <span class="section-num">§ 01</span>
+      <h2 class="section-title">The Live Execution<br><em>Trace</em></h2>
+    </div>
+
+    <div class="image-full">
+      <div class="image-annotated reveal">
+        <img src="../img/mukutula-nsanja.jpg" alt="Banana mulching maize — Mukutula Nsangya">
+        <div class="img-label lbl-1">Month 1–2 complete<br>Banana executed Gatonya</div>
+        <div class="img-label green lbl-2">Month 3 beginning<br>Maize — Mugulansingo</div>
+        <div class="img-label clay lbl-3">Ntenvu incoming<br>worm memory layer</div>
+        <div class="img-label lbl-4">Moisture reservoir<br>stored in pseudostem</div>
+      </div>
+
+      <div class="image-commentary reveal">
+        <blockquote>"Man is merely sampling a system that is already continuous."</blockquote>
+        <p>This is not a farm. This is a live execution trace of a Biological Operating System. The fallen banana pseudostem didn't decay — it <em>executed a transfer</em>.</p>
+        <p>Nature completed months 1 through 2 before the farmer arrived. The maize is the lagged human signal catching up to what the banana already knew.</p>
+
+        <div class="divider"></div>
+
+        <table class="speed-table">
+          <tr>
+            <th>Layer</th>
+            <th>Speed</th>
+            <th>Example</th>
+          </tr>
+          <tr>
+            <td>Fast</td>
+            <td>Days–weeks</td>
+            <td>Grass, weeds</td>
+          </tr>
+          <tr>
+            <td>Medium</td>
+            <td>Months</td>
+            <td>Maize — Mugulansingo</td>
+          </tr>
+          <tr>
+            <td>Slow</td>
+            <td>Year+</td>
+            <td>Banana — Gatonya → Mulch</td>
+          </tr>
+          <tr>
+            <td>Hidden</td>
+            <td>Continuous</td>
+            <td>Soil microbes, Ntenvu</td>
+          </tr>
+        </table>
+
+        <div class="divider"></div>
+        <p style="font-family:'Space Mono',monospace;font-size:9px;letter-spacing:0.12em;color:var(--clay);">The 12-month calendar is an interface between these speeds.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════
+  CALENDAR
+═══════════════════════════════════════ -->
+<section class="calendar-section">
+  <div class="container">
+    <div class="section-header reveal">
+      <span class="section-num">§ 02</span>
+      <h2 class="section-title">The Biological<br><em>Operating System</em></h2>
+    </div>
+
+    <div class="months-grid reveal">
+
+      <div class="month-card card-voice-2">
+        <div class="month-num">01 · January</div>
+        <div class="month-name">Gatonya</div>
+        <div class="month-translation">The raining of bananas</div>
+        <div class="month-function fn-rain">Sensing</div>
+        <div class="month-desc">Threshold crossing: biomass of canopy exceeds structural capacity. The banana falls — not decay, but a transfer. Fruit, seed, and mulch rain to earth simultaneously.</div>
+        <div class="month-twin-signal">DIGITAL TWIN → Input spike: environmental potential sensing</div>
+      </div>
+
+      <div class="month-card card-voice-2">
+        <div class="month-num">02 · February</div>
+        <div class="month-name">Mukutula Nsangya</div>
+        <div class="month-translation">The snapping of dry banana leaves</div>
+        <div class="month-function fn-clay">Memory</div>
+        <div class="month-desc">Dry-season intensity snaps the leaves. Those leaves become the mulch layer — the soil's short-term memory. Carbon, moisture, and microbiome substrate laid in.</div>
+        <div class="month-twin-signal">DIGITAL TWIN → State phase: recycling canopy into soil memory</div>
+      </div>
+
+      <div class="month-card card-voice-2">
+        <div class="month-num">03 · March</div>
+        <div class="month-name">Mugulansingo</div>
+        <div class="month-translation">The month of back-breaking sowing</div>
+        <div class="month-function fn-green">Deployment (Lagged)</div>
+        <div class="month-desc">Nature re-seeded in January. Man plants now — Mugulansingo is lagged. The maize in this photo is this month. Human effort catching up to natural initiation.</div>
+        <div class="month-twin-signal">DIGITAL TWIN → Action phase: human deployment, 2 months behind nature</div>
+      </div>
+
+      <div class="month-card card-both">
+        <div class="month-num">04 · April</div>
+        <div class="month-name">Kafumulampawu</div>
+        <div class="month-translation">The month of flying ants</div>
+        <div class="month-function fn-rain">Sensing · Swarm I</div>
+        <div class="month-desc">Heavy rains bring mpawu (white ants) from deep soil — carrying ancient nutrients skyward. Explosive green biomass surge begins. The biological internet lights up.</div>
+        <div class="month-twin-signal">DIGITAL TWIN → Input spike: Mpawu as ground-truth sensing event</div>
+      </div>
+
+      <div class="month-card card-both">
+        <div class="month-num">05 · May</div>
+        <div class="month-name">Muzigo</div>
+        <div class="month-translation">Cow Ghee</div>
+        <div class="month-function fn-gold">Intelligence</div>
+        <div class="month-desc">Pastures flush from April rains. Cows perform biological SGD: converting raw biomass into high-density ghee. The system's first trophic compression — grass to fat.</div>
+        <div class="month-twin-signal">DIGITAL TWIN → Optimization: raw data → high-density insight</div>
+      </div>
+
+      <div class="month-card card-voice-1">
+        <div class="month-num">06 · June</div>
+        <div class="month-name">Ssebasseka</div>
+        <div class="month-translation">He who smiles</div>
+        <div class="month-function fn-gold">Emotion · Grappa</div>
+        <div class="month-desc">Early harvest. Abundance. The volatile first fruit of the season — wine, celebration, raw liquidity. This is the reward signal in the loss function. Joy is data.</div>
+        <div class="month-twin-signal">DIGITAL TWIN → Reward signal: high system satisfaction</div>
+      </div>
+
+      <div class="month-card card-voice-1">
+        <div class="month-num">07 · July</div>
+        <div class="month-name">Kasambula</div>
+        <div class="month-translation">To clear and slash</div>
+        <div class="month-function fn-clay">Deployment</div>
+        <div class="month-desc">Post-harvest reset. The hardware is wiped. Land is cleared and tilled, preparing substrate for the second cycle. The system's garbage collection phase.</div>
+        <div class="month-twin-signal">DIGITAL TWIN → Hardware reset: land prepared for second write</div>
+      </div>
+
+      <div class="month-card card-voice-1">
+        <div class="month-num">08 · August</div>
+        <div class="month-name">Muwakanya</div>
+        <div class="month-translation">The arguer / the disputer</div>
+        <div class="month-function fn-gold">Intelligence · Futures</div>
+        <div class="month-desc">Unpredictable weather = adversarial conditions. Price negotiations, futures contracts, market arguments. Nature is stochastic; intelligence navigates. The market IS the ecology.</div>
+        <div class="month-twin-signal">DIGITAL TWIN → Adversarial price discovery layer</div>
+      </div>
+
+      <div class="month-card card-voice-1">
+        <div class="month-num">09 · September</div>
+        <div class="month-name">Mutunda</div>
+        <div class="month-translation">To sell</div>
+        <div class="month-function fn-gold">Deployment · Strike Prices</div>
+        <div class="month-desc">Kutunda = to sell. Execute the positions. Move the grain. Strike prices are activated. Economic energy is released from biological storage into market circulation.</div>
+        <div class="month-twin-signal">DIGITAL TWIN → Market execution: positions activated</div>
+      </div>
+
+      <div class="month-card card-both">
+        <div class="month-num">10 · October</div>
+        <div class="month-name">Mukukusa Bitungotungo</div>
+        <div class="month-translation">The washing away of small things</div>
+        <div class="month-function fn-clay">Memory · Grain</div>
+        <div class="month-desc">Heavy rains process the bulk. Grain storage, beer brewing, distillation. Volatile Grappa has stabilized into solid Grain — data sovereignty. The reserve that sustains the dry state.</div>
+        <div class="month-twin-signal">DIGITAL TWIN → Data sovereignty: energy stored as durable reserves</div>
+      </div>
+
+      <div class="month-card card-voice-2">
+        <div class="month-num">11 · November</div>
+        <div class="month-name">Musenene</div>
+        <div class="month-translation">The season of grasshoppers</div>
+        <div class="month-function fn-green">Memory · Swarm II</div>
+        <div class="month-desc">Nsenene and caterpillars arrive — wiping canopies clean. Eagles, kites, and humans harvest. Energy that started in the soil (Mpawu) has ascended to the sky. Trophic peak.</div>
+        <div class="month-twin-signal">DIGITAL TWIN → Trophic peak: maximum network energy transfer</div>
+      </div>
+
+      <div class="month-card card-voice-2">
+        <div class="month-num">12 · December</div>
+        <div class="month-name">Ntenvu</div>
+        <div class="month-translation">Season of caterpillars / worms</div>
+        <div class="month-function fn-clay">Memory · Audit</div>
+        <div class="month-desc">Total decomposition. The aerial energy from Musenene returns to earth. Worms aerate and re-inoculate. The full biological audit. Weights reset. System ready for Gatonya's next threshold.</div>
+        <div class="month-twin-signal">DIGITAL TWIN → Loss function reset: composting = weight initialization</div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════
+  TWO-PART INVENTION
+═══════════════════════════════════════ -->
+<section class="invention-section">
+  <div class="container">
+    <div class="section-header reveal">
+      <span class="section-num">§ 03</span>
+      <h2 class="section-title">The Two-Part<br><em>Invention</em></h2>
+    </div>
+    <p class="reveal" style="font-size:1rem;color:rgba(245,240,232,0.55);max-width:60ch;margin-bottom:3rem;">Two independent voices — interdependent, sometimes converging, sometimes diverging — playing simultaneously over a looping ecological substrate. Not circular. Not linear. <em>Polyphonic.</em></p>
+
+    <div class="invention-grid reveal">
+      <div class="voice-column">
+        <div class="voice-header gold">Voice I</div>
+        <div class="voice-sub">Refinement Pipeline — Grappa → Grain</div>
+
+        <div class="voice-node">
+          <div class="vn-num">06</div>
+          <div>
+            <div class="vn-name gold">Ssebasseka — Grappa</div>
+            <div class="vn-desc">Raw liquidity. The volatile first fruit. This is the peak of Emotion in the loss function — celebratory realization of value. Europe calls it grappa; here it is banana wine.</div>
+          </div>
+        </div>
+
+        <div class="voice-node">
+          <div class="vn-num">08–09</div>
+          <div>
+            <div class="vn-name gold">Muwakanya + Mutunda — The Still</div>
+            <div class="vn-desc">Negotiation and strike price together form the distillation process: stripping volatility to find the "proof" of the asset. Price discovery is not extraction — it is refinement.</div>
+          </div>
+        </div>
+
+        <div class="voice-node">
+          <div class="vn-num">10</div>
+          <div>
+            <div class="vn-name gold">Mukukusa Bitungotungo — Grain</div>
+            <div class="vn-desc">The solid reserve. Volatile Grappa stabilized into durable Grain. This is data sovereignty — the hard, storable energy that sustains household and nation through the audit cycle.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="counterpoint-spine">
+        <div class="spine-glyph">♩</div>
+        <div class="spine-glyph" style="margin-top:4rem;">♪</div>
+        <div class="spine-glyph" style="margin-top:4rem;">♩</div>
+      </div>
+
+      <div class="voice-column">
+        <div class="voice-header green">Voice II</div>
+        <div class="voice-sub">Swarm Pipeline — Mpawu → Musenene</div>
+
+        <div class="voice-node">
+          <div class="vn-num">04</div>
+          <div>
+            <div class="vn-name green">Kafumulampawu — Mpawu</div>
+            <div class="vn-desc">White ants emerge from deep earth carrying ancient nutrients. Ground-truth sensing. The biological internet activates. Energy moves from soil to surface for the first time in the cycle.</div>
+          </div>
+        </div>
+
+        <div class="voice-node">
+          <div class="vn-num">05</div>
+          <div>
+            <div class="vn-name green">Muzigo — Bio-Processor</div>
+            <div class="vn-desc">Cows graze the surge. Grass → Ghee. The biological intelligence phase: stochastic gradient descent on available nutrients. Raw data compressed into high-density insight.</div>
+          </div>
+        </div>
+
+        <div class="voice-node">
+          <div class="vn-num">11</div>
+          <div>
+            <div class="vn-name green">Musenene — The Canopy Surge</div>
+            <div class="vn-desc">Grasshoppers and caterpillars arrive. Energy that began underground (Mpawu) ascends to the sky. Eagles, kites, humans harvest. The trophic loop completes its vertical arc.</div>
+          </div>
+        </div>
+
+        <div class="voice-node">
+          <div class="vn-num">12</div>
+          <div>
+            <div class="vn-name green">Ntenvu — The Audit</div>
+            <div class="vn-desc">Decomposers return aerial energy to soil. The loop closes. Worms aerate, microbes re-inoculate. Nothing wasted. Everything a nutrient. Weights reset for January's threshold.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════
+  DIGITAL TWIN ARCHITECTURE
+═══════════════════════════════════════ -->
+<section class="arch-section">
+  <div class="container">
+    <div class="section-header reveal">
+      <span class="section-num">§ 04</span>
+      <h2 class="section-title">Federated Nervous<br><em>System</em></h2>
+    </div>
+    <p class="reveal" style="font-size:1rem;color:rgba(245,240,232,0.55);max-width:60ch;margin-bottom:3rem;">Not centralized. Not command-and-control. A federated nervous system where villages are neurons, ecosystems are sensory organs, markets are synapses, and the National Planning Authority is the cortex — pattern integration, not control.</p>
+
+    <div class="arch-diagram reveal">
+
+      <div class="arch-node">
+        <div class="arch-node-icon" style="background:rgba(138,180,196,0.15);font-size:1.4rem;">🧬</div>
+        <div class="arch-node-body">
+          <div class="arch-node-name">Patient / Individual Twin</div>
+          <div class="arch-node-equiv">MUZIGO → METABOLISM · NTENVU → GUT MICROBIOME</div>
+          <div class="arch-node-signal">Nutrition, disease signals, activity, metabolic "mulching" (autophagy)</div>
+        </div>
+        <div class="arch-node-role" style="background:rgba(138,180,196,0.1);color:var(--rain);">Neuron</div>
+      </div>
+
+      <div class="arch-node">
+        <div class="arch-node-icon" style="background:rgba(160,113,79,0.15);font-size:1.4rem;">🏡</div>
+        <div class="arch-node-body">
+          <div class="arch-node-name">Household Twin</div>
+          <div class="arch-node-equiv">MUKUKUSA → STORAGE · MUWAKANYA → SCHOOL FEES NEGOTIATION</div>
+          <div class="arch-node-signal">Food stocks, income, land use — grain reserves and clinical futures (preventive care)</div>
+        </div>
+        <div class="arch-node-role" style="background:rgba(160,113,79,0.1);color:var(--mulch);">Kin Network</div>
+      </div>
+
+      <div class="arch-node" style="border-color:rgba(123,198,126,0.2);">
+        <div class="arch-node-icon" style="background:rgba(123,198,126,0.15);font-size:1.4rem;">🌿</div>
+        <div class="arch-node-body">
+          <div class="arch-node-name">Farm / Land Twin</div>
+          <div class="arch-node-equiv">GATONYA → SENSING · MUKUTULA → MULCH MEMORY · MUGULANSINGO → LAGGED PLANTING</div>
+          <div class="arch-node-signal">Soil moisture, biomass, crop state — the photo lives here</div>
+        </div>
+        <div class="arch-node-role" style="background:rgba(123,198,126,0.1);color:var(--green-bright);">Sensory Organ</div>
+      </div>
+
+      <div class="arch-node">
+        <div class="arch-node-icon" style="background:rgba(201,168,76,0.15);font-size:1.4rem;">📊</div>
+        <div class="arch-node-body">
+          <div class="arch-node-name">Market Twin</div>
+          <div class="arch-node-equiv">MUWAKANYA → ADVERSARIAL NEGOTIATION · MUTUNDA → EXECUTION</div>
+          <div class="arch-node-signal">Price signals, supply-demand, futures — the market IS an ecological function</div>
+        </div>
+        <div class="arch-node-role" style="background:rgba(201,168,76,0.1);color:var(--gold);">Synapse</div>
+      </div>
+
+      <div class="arch-node">
+        <div class="arch-node-icon" style="background:rgba(192,132,252,0.15);font-size:1.4rem;">🦅</div>
+        <div class="arch-node-body">
+          <div class="arch-node-name">State / NPA Twin</div>
+          <div class="arch-node-equiv">NTENVU → INFRASTRUCTURE AUDIT · MUSENENE → MIGRATION &amp; SHOCKS</div>
+          <div class="arch-node-signal">Pattern integrator — sees, aligns, coordinates. Does NOT override local ecological timing.</div>
+        </div>
+        <div class="arch-node-role" style="background:rgba(192,132,252,0.1);color:#c084fc;">Cortex</div>
+      </div>
+
+    </div>
+
+    <div class="reveal" style="margin-top:3rem;max-width:600px;">
+      <p style="font-family:'Space Mono',monospace;font-size:9px;letter-spacing:0.15em;color:var(--clay);text-transform:uppercase;margin-bottom:1rem;">Signal-Based Communication (Not Raw Data)</p>
+      <table class="speed-table">
+        <tr><th>Raw Reality</th><th>Signal Sent</th></tr>
+        <tr><td>Rainfall data</td><td>"Gatonya triggered"</td></tr>
+        <tr><td>Crop growth</td><td>"Biomass surge — Kafumulampawu"</td></tr>
+        <tr><td>Market volatility</td><td>"Muwakanya active"</td></tr>
+        <tr><td>Soil decay</td><td>"Ntenvu phase rising"</td></tr>
+        <tr><td>Grasshopper density</td><td>"Musenene trophic peak"</td></tr>
+      </table>
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════ LOSS FUNCTION═══════════════════════════════════════ -->
+<section class="formula-section">
+  <div class="container">
+    <div class="formula-box reveal">
+      <p class="formula-title">The Composite Loss Function — Attention Is All You Need (Grounded in Buganda Soil)</p>
+      <div class="formula-display">
+        L<sub>total</sub> = L<sub>0</sub> + <span class="var-sum">∑</span><sub>t=1</sub><sup>12</sup> 
+        [<span class="var-s">ω<sub>s</sub> · L<sub>sense</sub></span> + 
+         <span class="var-e">ω<sub>e</sub> · L<sub>emo</sub></span> + 
+         <span class="var-m">ω<sub>m</sub> · L<sub>mem</sub></span> + 
+         <span class="var-i">ω<sub>i</sub> · L<sub>intel</sub></span> + 
+         <span class="var-d">ω<sub>d</sub> · L<sub>deploy</sub></span> + 
+         <span style="color:#e0e0e0;">ε<sub>t</sub></span>]
+      </div>
+      <div class="formula-legend">
+        <div class="legend-item"><div class="legend-dot" style="background:var(--clay);"></div><span style="color:var(--clay)">L₀ — Baseline cost of the living soil</span> (the constant respiration of microbes and Ntenvu worms even when nothing is planted — the lake-buffered humidity and thermal mass that never sleeps)</div>
+        <div class="legend-item"><div class="legend-dot" style="background:var(--rain)"></div><span style="color:var(--rain)">Sensing</span> — rainfall, canopy thickness, pest density</div>
+        <div class="legend-item"><div class="legend-dot" style="background:var(--gold)"></div><span style="color:var(--gold)">Emotion</span> — ecological sovereignty, patient wellbeing</div>
+        <div class="legend-item"><div class="legend-dot" style="background:var(--mulch)"></div><span style="color:var(--mulch)">Memory</span> — soil health, Soga traditions, prior cycles</div>
+        <div class="legend-item"><div class="legend-dot" style="background:var(--green-bright)"></div><span style="color:var(--green-bright)">Intelligence</span> — SGD through Muwakanya uncertainty</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#c084fc"></div><span style="color:#c084fc">Deployment</span> — planting, harvesting, medical intervention</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#e0e0e0;"></div><span style="color:#e0e0e0">εₜ — Irreducible lake noise</span> (convective thunderstorms, sudden Mpawu surges, or Musenene grasshopper invasions — the stochastic friction no calendar can ever fully eliminate)</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════
+  MANIFESTO
+═══════════════════════════════════════ -->
+<section class="manifesto-section">
+  <div class="container">
+    <div class="manifesto-text reveal">
+      <p>"What looks like decay is pre-processing for the next cycle."</p>
+      <p>The banana didn't fall. The capitalist model didn't merely disrupt — it <strong>linearized a polyphonic, federated, multi-scale system</strong> into a single-track pipeline. That is the real loss: not moral, but mathematical. The loss function spikes when Ntenvu is interrupted.</p>
+      <p>Through hallucination and poetic license, we recovered what was never lost — only unread. The traditional calendar wasn't telling time. It was running adversarial survival software, ensuring civilizational continuity long before the disruption arrived.</p>
+      <p class="close-line">Ukubona — to see patterns · Buganda Calendar × Digital Twin Architecture<br>Built from one photograph, twelve months, and two voices playing simultaneously</p>
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════
+  FOOTER
+═══════════════════════════════════════ -->
+<footer>
+  <span>Ukubona — A Federated Intelligence Architecture</span>
+  <span>Buganda Agri-Financial Calendar · Patient → Household → Nation → Civilization</span>
+  <a href="https://abikesa.github.io/repos-00/assets/html/landing-page.html">Civilizational Digital Twins ↗</a>
+</footer>
+
+
+<script>
+  // Scroll reveal
+  const reveals = document.querySelectorAll('.reveal');
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        e.target.classList.add('visible');
+        observer.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.1 });
+  reveals.forEach(el => observer.observe(el));
+
+  // Ticker pip tooltips on touch/hover
+  document.querySelectorAll('.ticker-pip').forEach(pip => {
+    pip.setAttribute('title', pip.getAttribute('title'));
+  });
+</script>
+</body>
+</html>

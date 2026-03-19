@@ -1,0 +1,768 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Biographical Pentad · Ukubona LLC</title>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --col1: #1a3a5c;
+    --col2: #2d6a4f;
+    --col3: #7b5e14;
+    --col4: #7b1d1d;
+    --col5: #3d1f6b;
+    --col1-tint: #dde8f2;
+    --col2-tint: #daeee4;
+    --col3-tint: #f2e8d0;
+    --col4-tint: #f2dada;
+    --col5-tint: #e8daf2;
+    --ink:   #111;
+    --muted: #555;
+    --paper: #f9f7f3;
+    --rule:  #ccc5b5;
+    --gold:  #b8900a;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'EB Garamond', Georgia, serif;
+    background: var(--paper);
+    color: var(--ink);
+  }
+
+  /* ─── HEADER ─────────────────────────────── */
+  header {
+    background: var(--ink);
+    color: white;
+    padding: 3rem 4rem 2.5rem;
+    position: relative;
+    overflow: hidden;
+  }
+  header::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: repeating-linear-gradient(
+      90deg, transparent, transparent 19.8%, rgba(255,255,255,0.03) 20%
+    );
+    pointer-events: none;
+  }
+  .h-eyebrow {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 1rem;
+  }
+  header h1 {
+    font-size: clamp(1.7rem, 3.5vw, 2.8rem);
+    font-weight: 500;
+    line-height: 1.15;
+    margin-bottom: 0.6rem;
+  }
+  header h1 em { color: #c8b86a; font-style: italic; }
+  .h-eq {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.85rem;
+    color: rgba(255,255,255,0.45);
+    margin-top: 0.8rem;
+    letter-spacing: 0.04em;
+  }
+  .h-sub {
+    font-size: 0.82rem;
+    color: rgba(255,255,255,0.35);
+    font-style: italic;
+    margin-top: 0.4rem;
+  }
+
+  /* ─── MAIN ───────────────────────────────── */
+  main { max-width: 1460px; margin: 0 auto; padding: 3rem 2rem 6rem; }
+
+  .intro {
+    max-width: 640px;
+    margin: 0 auto 2.5rem;
+    text-align: center;
+    font-size: 1.05rem;
+    line-height: 1.75;
+    color: var(--muted);
+    font-style: italic;
+  }
+
+  /* ─── EQUATION BAR ───────────────────────── */
+  .eq-bar {
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+    flex-wrap: wrap;
+    background: var(--ink);
+    color: white;
+    padding: 1.25rem 1.75rem;
+    margin-bottom: 2.5rem;
+  }
+  .eq-tag {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.58rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--gold);
+    white-space: nowrap;
+  }
+  .eq-body {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.95rem;
+    flex: 1;
+  }
+  .eq-body .hi { color: var(--gold); }
+
+  /* ─── TABLE ──────────────────────────────── */
+  .tscroll { overflow-x: auto; box-shadow: 0 6px 40px rgba(0,0,0,0.13); }
+
+  table {
+    width: 100%;
+    min-width: 960px;
+    border-collapse: collapse;
+    table-layout: fixed;
+  }
+
+  /* column widths */
+  col.c-row  { width: 14%; }
+  col.c-data { width: 17.2%; }
+
+  /* ─── COLUMN HEADERS ─────────────────────── */
+  thead th { padding: 0; vertical-align: bottom; }
+
+  .th-corner {
+    background: var(--ink);
+    position: relative;
+  }
+  .th-corner-inner {
+    padding: 1rem 1.25rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    min-height: 140px;
+  }
+  .th-corner-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.58rem;
+    letter-spacing: 0.15em;
+    color: rgba(255,255,255,0.3);
+    text-transform: uppercase;
+    line-height: 1.6;
+  }
+  /* diagonal separator line */
+  .th-corner::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: linear-gradient(
+      to bottom right,
+      transparent calc(50% - 0.5px),
+      rgba(255,255,255,0.12) calc(50% - 0.5px),
+      rgba(255,255,255,0.12) calc(50% + 0.5px),
+      transparent calc(50% + 0.5px)
+    );
+    pointer-events: none;
+  }
+
+  .th-col {
+    background: var(--ink);
+    border-left: 1px solid rgba(255,255,255,0.08);
+  }
+  .th-col-inner {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-end;
+    min-height: 140px;
+    padding: 1.2rem 0.9rem 1.1rem;
+    text-align: center;
+  }
+  .th-col-n {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.55rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    margin-bottom: 0.35rem;
+  }
+  .th-col-sym {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 1.15rem;
+    font-weight: 500;
+    line-height: 1;
+    margin-bottom: 0.3rem;
+  }
+  .th-col-name {
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    line-height: 1.35;
+  }
+  .th-col-sub {
+    font-size: 0.66rem;
+    font-style: italic;
+    font-weight: 400;
+    text-transform: none;
+    letter-spacing: 0;
+    opacity: 0.65;
+    margin-top: 0.25rem;
+    line-height: 1.3;
+  }
+
+  /* column accent colours */
+  .th-col:nth-child(2) .th-col-inner { color: #93bfde; }
+  .th-col:nth-child(3) .th-col-inner { color: #82c9a0; }
+  .th-col:nth-child(4) .th-col-inner { color: #d4a96a; }
+  .th-col:nth-child(5) .th-col-inner { color: #d48080; }
+  .th-col:nth-child(6) .th-col-inner { color: #ab8fd4; }
+
+  /* colour bar at top of each col header */
+  .th-col::after {
+    content: '';
+    display: block;
+    height: 4px;
+    position: absolute;
+    top: 0; left: 0; right: 0;
+  }
+  .th-col { position: relative; }
+  .th-col:nth-child(2)::after { background: var(--col1); }
+  .th-col:nth-child(3)::after { background: var(--col2); }
+  .th-col:nth-child(4)::after { background: var(--col3); }
+  .th-col:nth-child(5)::after { background: var(--col4); }
+  .th-col:nth-child(6)::after { background: var(--col5); }
+
+  /* ─── ROW HEADERS ────────────────────────── */
+  .td-row {
+    background: var(--ink);
+    color: white;
+    padding: 1.2rem 1rem 1.2rem 1.4rem;
+    vertical-align: top;
+    border-top: 1px solid rgba(255,255,255,0.08);
+    position: relative;
+  }
+  /* left accent stripe per row */
+  .td-row::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 4px;
+  }
+  tr.r1 .td-row::before { background: var(--col1); }
+  tr.r2 .td-row::before { background: var(--col2); }
+  tr.r3 .td-row::before { background: var(--col3); }
+  tr.r4 .td-row::before { background: var(--col4); }
+  tr.r5 .td-row::before { background: var(--col5); }
+
+  .td-row-n {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.52rem;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--gold);
+    display: block;
+    margin-bottom: 0.3rem;
+  }
+  .td-row-name {
+    font-size: 1rem;
+    font-weight: 600;
+    display: block;
+    margin-bottom: 0.15rem;
+    letter-spacing: -0.01em;
+  }
+  .td-row-abbr {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.62rem;
+    opacity: 0.38;
+    letter-spacing: 0.1em;
+    display: block;
+    margin-bottom: 0.4rem;
+  }
+  .td-row-tag {
+    display: inline-block;
+    font-size: 0.62rem;
+    font-style: italic;
+    opacity: 0.5;
+    line-height: 1.4;
+    border-top: 1px solid rgba(255,255,255,0.15);
+    padding-top: 0.35rem;
+    margin-top: 0.1rem;
+  }
+
+  /* ─── DATA CELLS ─────────────────────────── */
+  td.cell {
+    padding: 1rem 1.15rem;
+    vertical-align: top;
+    border: 1px solid var(--rule);
+    font-size: 0.87rem;
+    line-height: 1.5;
+    cursor: default;
+    transition: filter 0.12s;
+    position: relative;
+  }
+  td.cell:hover { filter: brightness(0.94); z-index: 2; }
+
+  /* row tints */
+  tr.r1 td.cell { background: var(--col1-tint); }
+  tr.r2 td.cell { background: var(--col2-tint); }
+  tr.r3 td.cell { background: var(--col3-tint); }
+  tr.r4 td.cell { background: var(--col4-tint); }
+  tr.r5 td.cell { background: var(--col5-tint); }
+
+  /* diagonal highlight — where row stage aligns with column */
+  tr.r1 td.cell:nth-child(2),
+  tr.r2 td.cell:nth-child(3),
+  tr.r3 td.cell:nth-child(4),
+  tr.r4 td.cell:nth-child(5),
+  tr.r5 td.cell:nth-child(6) {
+    box-shadow: inset 0 0 0 2px rgba(0,0,0,0.18);
+    filter: brightness(0.92);
+  }
+
+  .cp { /* cell primary */
+    font-weight: 600;
+    font-size: 0.92rem;
+    display: block;
+    margin-bottom: 0.18rem;
+  }
+  .cs { /* cell secondary */
+    font-style: italic;
+    color: var(--muted);
+    font-size: 0.78rem;
+    display: block;
+    margin-bottom: 0.18rem;
+    line-height: 1.4;
+  }
+  .cm { /* cell mono tag */
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.68rem;
+    opacity: 0.65;
+    display: block;
+    margin-top: 0.3rem;
+  }
+
+  /* ─── KINETIC ARROW ROW ──────────────────── */
+  .arrow-strip {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0;
+    background: var(--ink);
+    padding: 0.6rem 0;
+    overflow: hidden;
+  }
+  .arrow-strip svg { display: block; }
+
+  /* ─── LEGEND ─────────────────────────────── */
+  .legend {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 0;
+    margin-top: 2.5rem;
+    border: 1px solid var(--rule);
+    overflow: hidden;
+  }
+  .lg {
+    padding: 1.1rem 1rem;
+    font-size: 0.76rem;
+    line-height: 1.5;
+    color: white;
+  }
+  .lg:nth-child(1) { background: var(--col1); }
+  .lg:nth-child(2) { background: var(--col2); }
+  .lg:nth-child(3) { background: var(--col3); }
+  .lg:nth-child(4) { background: var(--col4); }
+  .lg:nth-child(5) { background: var(--col5); }
+  .lg-sym {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.95rem;
+    display: block;
+    margin-bottom: 0.25rem;
+  }
+  .lg-name {
+    font-weight: 600;
+    font-size: 0.78rem;
+    display: block;
+    margin-bottom: 0.2rem;
+    letter-spacing: 0.02em;
+  }
+  .lg-desc { opacity: 0.72; font-style: italic; font-size: 0.7rem; }
+
+  /* ─── FOOTNOTE ───────────────────────────── */
+  .footnote {
+    margin-top: 3rem;
+    padding: 1.5rem 2rem;
+    border-left: 3px solid var(--gold);
+    background: rgba(0,0,0,0.03);
+    font-size: 0.82rem;
+    color: var(--muted);
+    line-height: 1.7;
+    font-style: italic;
+    max-width: 760px;
+  }
+  .footnote strong { color: var(--ink); font-style: normal; }
+
+  footer {
+    margin-top: 4rem;
+    text-align: center;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.62rem;
+    letter-spacing: 0.1em;
+    color: var(--muted);
+    border-top: 1px solid var(--rule);
+    padding: 1.5rem;
+  }
+
+  @media (max-width: 680px) {
+    header { padding: 2rem 1.5rem; }
+    main { padding: 1.5rem 0.75rem 4rem; }
+    .legend { grid-template-columns: 1fr 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="h-eyebrow">Ukubona LLC · Biographical Pentad · March 2026</div>
+  <h1>Five Lives, <em>One Structure</em></h1>
+  <div class="h-eq">L<sub>tot</sub> = β + Σ wᵢθᵢ + ε + f(σ) + g(λ)</div>
+  <div class="h-sub">A-Level → MD → MPH → PhDc → LLC — the same grammar, five variations</div>
+</header>
+
+<main>
+
+  <p class="intro">
+    Each row is an educational life. Each column is a stage in the optimization loop.
+    The pentad is the constraint. The biography is the bass line.
+  </p>
+
+  <div class="eq-bar">
+    <span class="eq-tag">Composite Loss</span>
+    <span class="eq-body">
+      L<sub>tot</sub> = <span class="hi">β</span> + <span class="hi">Σ wᵢθᵢ</span> + <span class="hi">ε</span> + <span class="hi">f(σ)</span> + <span class="hi">g(λ)</span>
+    </span>
+    <span class="eq-tag" style="opacity:0.45; font-style:italic; text-transform:none; letter-spacing:0;">
+      compression destroys the gradient
+    </span>
+  </div>
+
+  <!-- THE TABLE -->
+  <div class="tscroll">
+  <table>
+    <colgroup>
+      <col class="c-row">
+      <col class="c-data"><col class="c-data"><col class="c-data">
+      <col class="c-data"><col class="c-data">
+    </colgroup>
+
+    <thead>
+      <tr>
+        <th class="th-corner">
+          <div class="th-corner-inner">
+            <span class="th-corner-label">Variation ↓<br>Stage →</span>
+          </div>
+        </th>
+
+        <th class="th-col">
+          <div class="th-col-inner">
+            <span class="th-col-n">Column I</span>
+            <span class="th-col-sym">β</span>
+            <span class="th-col-name">Input</span>
+            <span class="th-col-sub">Baseline · Prior<br>Parameter Space</span>
+          </div>
+        </th>
+
+        <th class="th-col">
+          <div class="th-col-inner">
+            <span class="th-col-n">Column II</span>
+            <span class="th-col-sym">Σwθ</span>
+            <span class="th-col-name">Perception</span>
+            <span class="th-col-sub">Attention · Signal<br>Who is weighted</span>
+          </div>
+        </th>
+
+        <th class="th-col">
+          <div class="th-col-inner">
+            <span class="th-col-n">Column III</span>
+            <span class="th-col-sym">ε</span>
+            <span class="th-col-name">Logic</span>
+            <span class="th-col-sub">Noise · Uncertainty<br>Irreducible error</span>
+          </div>
+        </th>
+
+        <th class="th-col">
+          <div class="th-col-inner">
+            <span class="th-col-n">Column IV</span>
+            <span class="th-col-sym">f(σ)</span>
+            <span class="th-col-name">Action</span>
+            <span class="th-col-sub">Intervention · Stress<br>The descent step</span>
+          </div>
+        </th>
+
+        <th class="th-col">
+          <div class="th-col-inner">
+            <span class="th-col-n">Column V</span>
+            <span class="th-col-sym">g(λ)</span>
+            <span class="th-col-name">Evolution</span>
+            <span class="th-col-sub">Constraint · Update<br>New θ′</span>
+          </div>
+        </th>
+      </tr>
+    </thead>
+
+    <tbody>
+
+      <!-- ── ROW 1: A-LEVEL ── -->
+      <tr class="r1">
+        <td class="td-row">
+          <span class="td-row-n">Variation I</span>
+          <span class="td-row-name">A-Level</span>
+          <span class="td-row-abbr">PHYSICS · CHEM · MUSIC</span>
+          <span class="td-row-tag">signal &amp; structure<br>gradient perception</span>
+        </td>
+        <td class="cell">
+          <span class="cp">Physics &amp; Chemistry</span>
+          <span class="cs">Laws, orbitals, thermodynamics — the raw parameter space of reality</span>
+          <span class="cm">β = physical priors</span>
+        </td>
+        <td class="cell">
+          <span class="cp">Music &amp; Psychology</span>
+          <span class="cs">Rhythm, harmony, attention span — learning to detect sonic gradients</span>
+          <span class="cm">Σwθ = ear as attention matrix</span>
+        </td>
+        <td class="cell">
+          <span class="cp">Time Constraint</span>
+          <span class="cs">Exams impose irreducible uncertainty; no full rehearsal of the real</span>
+          <span class="cm">ε = exam variance</span>
+        </td>
+        <td class="cell">
+          <span class="cp">Life &amp; Meaning</span>
+          <span class="cs">First interventions: choosing subjects, choosing what to care about</span>
+          <span class="cm">f(σ) = adolescent stress</span>
+        </td>
+        <td class="cell">
+          <span class="cp">Structural Intuition</span>
+          <span class="cs">The pentadic instinct seeds here — pattern, constraint, variation</span>
+          <span class="cm">g(λ) = aesthetic constraint</span>
+        </td>
+      </tr>
+
+      <!-- ── ROW 2: MD ── -->
+      <tr class="r2">
+        <td class="td-row">
+          <span class="td-row-n">Variation II</span>
+          <span class="td-row-name">Medical School</span>
+          <span class="td-row-abbr">MD · MBCHB</span>
+          <span class="td-row-tag">system &amp; loss<br>descent made clinical</span>
+        </td>
+        <td class="cell">
+          <span class="cp">Anatomy &amp; Physiology</span>
+          <span class="cs">Every organ, every variable is θ — the full biological parameter space</span>
+          <span class="cm">β = baseline health state</span>
+        </td>
+        <td class="cell">
+          <span class="cp">Clinical Perception</span>
+          <span class="cs">History &amp; examination: weighting symptoms into a differential</span>
+          <span class="cm">Σwθ = diagnostic attention</span>
+        </td>
+        <td class="cell">
+          <span class="cp">Pathology &amp; Loss</span>
+          <span class="cs">Disease is deviation — L(θ) measured against the healthy norm</span>
+          <span class="cm">ε = irreducible morbidity</span>
+        </td>
+        <td class="cell">
+          <span class="cp">Treatment</span>
+          <span class="cs">Intervention is −η∇L: the gradient step toward restored function</span>
+          <span class="cm">f(σ) = surgical / pharmacological stress</span>
+        </td>
+        <td class="cell">
+          <span class="cp">Differential &amp; Update</span>
+          <span class="cs">Revised diagnosis after treatment response — θ′ in clinical time</span>
+          <span class="cm">g(λ) = primum non nocere</span>
+        </td>
+      </tr>
+
+      <!-- ── ROW 3: MPH ── -->
+      <tr class="r3">
+        <td class="td-row">
+          <span class="td-row-n">Variation III</span>
+          <span class="td-row-name">MPH</span>
+          <span class="td-row-abbr">EPI · BIOSTATISTICS</span>
+          <span class="td-row-tag">population &amp; likelihood<br>−2LL enters</span>
+        </td>
+        <td class="cell">
+          <span class="cp">Historical Bias · β</span>
+          <span class="cs">Structural determinants, prior exposures, socioeconomic baseline</span>
+          <span class="cm">β = population prior</span>
+        </td>
+        <td class="cell">
+          <span class="cp">Epidemiologic Attention</span>
+          <span class="cs">Cohort design, sampling weights — whose data enters the model</span>
+          <span class="cm">Σwθ = study design</span>
+        </td>
+        <td class="cell">
+          <span class="cp">−2 Log-Likelihood</span>
+          <span class="cs">The loss function made explicit; statistical uncertainty quantified</span>
+          <span class="cm">ε = residual variance</span>
+        </td>
+        <td class="cell">
+          <span class="cp">Intervention &amp; Policy</span>
+          <span class="cs">Public health action is population-level gradient descent</span>
+          <span class="cm">f(σ) = implementation friction</span>
+        </td>
+        <td class="cell">
+          <span class="cp">Distributive Justice</span>
+          <span class="cs">The regularization term: equity as mathematical constraint on the model</span>
+          <span class="cm">g(λ) = fairness penalty</span>
+        </td>
+      </tr>
+
+      <!-- ── ROW 4: PhDc ── -->
+      <tr class="r4">
+        <td class="td-row">
+          <span class="td-row-n">Variation IV</span>
+          <span class="td-row-name">PhDc</span>
+          <span class="td-row-abbr">CLINICAL INVESTIGATION · DATA SCIENCE</span>
+          <span class="td-row-tag">simulation &amp; update<br>digital twin emerges</span>
+        </td>
+        <td class="cell">
+          <span class="cp">Data Representation</span>
+          <span class="cs">EHR, genomics, housing — the full θ of a clinical digital twin</span>
+          <span class="cm">β = enrolled cohort baseline</span>
+        </td>
+        <td class="cell">
+          <span class="cp">Modeling &amp; Attention</span>
+          <span class="cs">Feature selection, ML weighting — which variables carry signal</span>
+          <span class="cm">Σwθ = model attention</span>
+        </td>
+        <td class="cell">
+          <span class="cp">Stochastic Uncertainty</span>
+          <span class="cs">Biological noise vs platform variance — separating ε from σ²_platform</span>
+          <span class="cm">ε ≠ σ²_platform</span>
+        </td>
+        <td class="cell">
+          <span class="cp">Trial &amp; Error · SGD</span>
+          <span class="cs">Hyperparameter tuning, clinical trial design, the learning rate η</span>
+          <span class="cm">f(σ) = compute + IRB friction</span>
+        </td>
+        <td class="cell">
+          <span class="cp">Parameter Update</span>
+          <span class="cs">Revised model after data — θ′ as updated clinical understanding</span>
+          <span class="cm">g(λ) = ethical review constraint</span>
+        </td>
+      </tr>
+
+      <!-- ── ROW 5: LLC ── -->
+      <tr class="r5">
+        <td class="td-row">
+          <span class="td-row-n">Variation V</span>
+          <span class="td-row-name">Ukubona LLC</span>
+          <span class="td-row-abbr">LLC · PENTADIC CONSTITUTION</span>
+          <span class="td-row-tag">civilization &amp; governance<br>the ecosystem</span>
+        </td>
+        <td class="cell">
+          <span class="cp">Pentadic Constitution</span>
+          <span class="cs">The 5×5 Hypergrid as institutional baseline — β at civilizational scale</span>
+          <span class="cm">β = historical debt ledger</span>
+        </td>
+        <td class="cell">
+          <span class="cp">Anthropic Commons</span>
+          <span class="cs">Who is counted in the attention matrix: HeLa, LMIC, sovereignty</span>
+          <span class="cm">Σwθ = representation mandate</span>
+        </td>
+        <td class="cell">
+          <span class="cp">Irreducible Complexity</span>
+          <span class="cs">No system fully escapes ε — but platform error can be audited out</span>
+          <span class="cm">ε = civilizational bad luck</span>
+        </td>
+        <td class="cell">
+          <span class="cp">DEBBIE Protocol</span>
+          <span class="cs">Governance as real-time intervention — the Consent Gate ∏ consent</span>
+          <span class="cm">f(σ) = institutional friction</span>
+        </td>
+        <td class="cell">
+          <span class="cp">Ecosystem Emergence</span>
+          <span class="cs">θ′ where Meaning &amp; Update are finally in phase — the cooperative minimum</span>
+          <span class="cm">g(λ) = Anthropic Welfare</span>
+        </td>
+      </tr>
+
+    </tbody>
+  </table>
+  </div>
+
+  <!-- KINETIC LOOP SVG -->
+  <div class="arrow-strip" style="margin-top:1px;">
+    <svg width="100%" height="44" viewBox="0 0 900 44" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+      <!-- background -->
+      <rect width="900" height="44" fill="#111"/>
+      <!-- labels -->
+      <text x="90"  y="18" fill="#93bfde" font-family="'JetBrains Mono',monospace" font-size="9" text-anchor="middle" letter-spacing="1">θ · Stance</text>
+      <text x="270" y="18" fill="#82c9a0" font-family="'JetBrains Mono',monospace" font-size="9" text-anchor="middle" letter-spacing="1">L(θ) · Loss</text>
+      <text x="450" y="18" fill="#d4a96a" font-family="'JetBrains Mono',monospace" font-size="9" text-anchor="middle" letter-spacing="1">∇L · Gradient</text>
+      <text x="630" y="18" fill="#d48080" font-family="'JetBrains Mono',monospace" font-size="9" text-anchor="middle" letter-spacing="1">−η∇L · Intervention</text>
+      <text x="810" y="18" fill="#ab8fd4" font-family="'JetBrains Mono',monospace" font-size="9" text-anchor="middle" letter-spacing="1">θ′ · Refinement</text>
+      <!-- arrows -->
+      <line x1="148" y1="12" x2="188" y2="12" stroke="rgba(255,255,255,0.25)" stroke-width="1"/>
+      <polygon points="188,9 196,12 188,15" fill="rgba(255,255,255,0.25)"/>
+      <line x1="328" y1="12" x2="368" y2="12" stroke="rgba(255,255,255,0.25)" stroke-width="1"/>
+      <polygon points="368,9 376,12 368,15" fill="rgba(255,255,255,0.25)"/>
+      <line x1="508" y1="12" x2="548" y2="12" stroke="rgba(255,255,255,0.25)" stroke-width="1"/>
+      <polygon points="548,9 556,12 548,15" fill="rgba(255,255,255,0.25)"/>
+      <line x1="700" y1="12" x2="740" y2="12" stroke="rgba(255,255,255,0.25)" stroke-width="1"/>
+      <polygon points="740,9 748,12 740,15" fill="rgba(255,255,255,0.25)"/>
+      <!-- return arc label -->
+      <text x="450" y="36" fill="rgba(255,255,255,0.2)" font-family="'JetBrains Mono',monospace" font-size="7.5" text-anchor="middle" letter-spacing="2">← θ′ feeds back as new β · the loop is closed →</text>
+    </svg>
+  </div>
+
+  <!-- COLUMN LEGEND -->
+  <div class="legend">
+    <div class="lg">
+      <span class="lg-sym">β</span>
+      <span class="lg-name">Input / Baseline</span>
+      <span class="lg-desc">Prior state, structural capital, historical debt. The ground you stand on.</span>
+    </div>
+    <div class="lg">
+      <span class="lg-sym">Σwθ</span>
+      <span class="lg-name">Perception / Attention</span>
+      <span class="lg-desc">Whose signal gets weighted. The attention matrix determines what is even visible.</span>
+    </div>
+    <div class="lg">
+      <span class="lg-sym">ε</span>
+      <span class="lg-name">Logic / Noise</span>
+      <span class="lg-desc">Irreducible stochasticity. What cannot be optimized away — only acknowledged.</span>
+    </div>
+    <div class="lg">
+      <span class="lg-sym">f(σ)</span>
+      <span class="lg-name">Action / Stress</span>
+      <span class="lg-desc">The intervention step. Friction, fatigue, descent — where the system earns its status.</span>
+    </div>
+    <div class="lg">
+      <span class="lg-sym">g(λ)</span>
+      <span class="lg-name">Evolution / Constraint</span>
+      <span class="lg-desc">Ethical regularization. The cooperative minimum. θ′ as updated state.</span>
+    </div>
+  </div>
+
+  <div class="footnote">
+    <strong>On compression:</strong> Each row represents a full educational life — not a summary of one.
+    The A-level student hearing Bach unabridged, the medical student facing the uncompressed anatomy of a human body,
+    the epidemiologist confronting the full variance of a population — none of these can be simplified without
+    destroying the gradient. <em>The rows are not metaphors for each other. They are variations on the same bass line.</em>
+    Read Column IV vertically: the intervention changes register at every stage, but it is always the same moment —
+    the moment where the system earns cooperative status or collapses into extraction.
+  </div>
+
+</main>
+
+<footer>
+  Ukubona LLC · Pentadic Constitution · March 2026 ·
+  L<sub>tot</sub> = β + Σwθ + ε + f(σ) + g(λ)
+</footer>
+
+</body>
+</html>

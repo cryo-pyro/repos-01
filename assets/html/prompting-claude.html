@@ -1,0 +1,686 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Image → HTML — The Ukubona Translation Protocol</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Instrument+Sans:wght@400;500&family=Fragment+Mono&display=swap" rel="stylesheet">
+
+<style>
+:root {
+  --bg:     #f7f5f0;
+  --bg1:    #efede7;
+  --bg2:    #e5e2da;
+  --border: #d4d0c8;
+  --dim:    #b8b4aa;
+  --text:   #1c1b18;
+  --muted:  #6b6860;
+  --faint:  #9a9890;
+  --ink:    #0f0e0b;
+
+  --green:  #2d6a4f;
+  --amber:  #92590a;
+  --blue:   #1a4a7a;
+  --red:    #8b1e1e;
+  --teal:   #1a5c5c;
+}
+
+*{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Instrument Sans', sans-serif;
+  font-size: 16px;
+  line-height: 1.75;
+  overflow-x: hidden;
+}
+
+/* subtle paper texture */
+body::before {
+  content:'';
+  position:fixed;inset:0;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='p'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23p)' opacity='0.03'/%3E%3C/svg%3E");
+  pointer-events:none;z-index:999;
+}
+
+.page { max-width: 860px; margin: 0 auto; padding: 0 32px 6rem; }
+
+/* ── hero ── */
+.hero {
+  padding: 5rem 0 3.5rem;
+  border-bottom: 2px solid var(--ink);
+  margin-bottom: 0;
+}
+
+.hero-eyebrow {
+  font-family: 'Fragment Mono', monospace;
+  font-size: 0.6rem;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: var(--faint);
+  margin-bottom: 1.8rem;
+}
+
+.hero-title {
+  font-family: 'Instrument Serif', serif;
+  font-size: clamp(2.8rem, 7vw, 6rem);
+  font-weight: 400;
+  line-height: 1;
+  letter-spacing: -0.02em;
+  color: var(--ink);
+  margin-bottom: 0.15em;
+}
+.hero-title em { font-style: italic; color: var(--green); }
+.hero-title .arrow { color: var(--dim); font-style: normal; }
+
+.hero-sub {
+  font-size: 0.92rem;
+  color: var(--muted);
+  max-width: 520px;
+  margin-top: 1.8rem;
+  line-height: 1.65;
+}
+
+/* ── sections ── */
+.section { padding: 3.5rem 0; border-bottom: 1px solid var(--border); }
+.section:last-of-type { border-bottom: none; }
+
+.sec-label {
+  font-family: 'Fragment Mono', monospace;
+  font-size: 0.58rem;
+  letter-spacing: 0.26em;
+  text-transform: uppercase;
+  color: var(--faint);
+  margin-bottom: 2rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+.sec-label::after { content:''; flex:1; height:1px; background:var(--border); }
+
+h2 {
+  font-family: 'Instrument Serif', serif;
+  font-size: clamp(1.6rem, 3.5vw, 2.4rem);
+  font-weight: 400;
+  line-height: 1.15;
+  color: var(--ink);
+  margin-bottom: 1.2rem;
+  letter-spacing: -0.01em;
+}
+h2 em { font-style: italic; }
+
+h3 {
+  font-family: 'Fragment Mono', monospace;
+  font-size: 0.65rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--green);
+  margin-bottom: 0.7rem;
+  font-weight: 400;
+  margin-top: 1.8rem;
+}
+
+p { color: var(--muted); margin-bottom: 1.1rem; }
+p:last-child { margin-bottom: 0; }
+strong { color: var(--text); font-weight: 500; }
+
+/* ── command box — the main "how to" ── */
+.command-box {
+  background: var(--ink);
+  color: #e8e5df;
+  border-radius: 4px;
+  padding: 2rem 2.5rem;
+  margin: 2rem 0;
+  font-family: 'Fragment Mono', monospace;
+  font-size: 0.9rem;
+  line-height: 1.9;
+  position: relative;
+  overflow: hidden;
+}
+
+.command-box::before {
+  content: 'PROMPT TEMPLATE';
+  position: absolute;
+  top: 1rem;
+  right: 1.5rem;
+  font-size: 0.55rem;
+  letter-spacing: 0.22em;
+  color: rgba(255,255,255,0.2);
+}
+
+.cmd-prompt { color: #76b900; }
+.cmd-var    { color: #f0a500; font-style: italic; }
+.cmd-opt    { color: #38b2d4; }
+.cmd-dim    { color: rgba(255,255,255,0.3); }
+
+/* ── tip cards ── */
+.tips {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1px;
+  background: var(--border);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  overflow: hidden;
+  margin: 2rem 0;
+}
+
+.tip-card {
+  background: var(--bg);
+  padding: 1.5rem 1.8rem;
+  transition: background 0.15s;
+}
+.tip-card:hover { background: var(--bg1); }
+
+.tip-num {
+  font-family: 'Instrument Serif', serif;
+  font-size: 2.2rem;
+  font-weight: 400;
+  color: var(--border);
+  line-height: 1;
+  margin-bottom: 0.5rem;
+}
+
+.tip-title {
+  font-family: 'Fragment Mono', monospace;
+  font-size: 0.62rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--green);
+  margin-bottom: 0.5rem;
+}
+
+.tip-body { font-size: 0.88rem; color: var(--muted); line-height: 1.65; }
+.tip-body strong { color: var(--text); }
+
+@media (max-width: 580px) { .tips { grid-template-columns: 1fr; } }
+
+/* ── capability matrix ── */
+.cap-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 2rem 0;
+  font-size: 0.88rem;
+}
+.cap-table th {
+  font-family: 'Fragment Mono', monospace;
+  font-size: 0.58rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--faint);
+  padding: 0.7rem 1rem;
+  text-align: left;
+  border-bottom: 2px solid var(--ink);
+  font-weight: 400;
+}
+.cap-table td {
+  padding: 0.9rem 1rem;
+  border-bottom: 1px solid var(--border);
+  color: var(--muted);
+  vertical-align: top;
+}
+.cap-table tr:last-child td { border-bottom: none; }
+.cap-table tr:hover td { background: var(--bg1); }
+.cap-table td:first-child { color: var(--text); font-weight: 500; font-family: 'Fragment Mono', monospace; font-size: 0.8rem; }
+
+.badge {
+  font-family: 'Fragment Mono', monospace;
+  font-size: 0.58rem;
+  letter-spacing: 0.1em;
+  padding: 0.2rem 0.6rem;
+  border-radius: 2px;
+  display: inline-block;
+}
+.badge-best   { background: rgba(45,106,79,0.12);  color: var(--green); border: 1px solid rgba(45,106,79,0.2); }
+.badge-good   { background: rgba(26,74,122,0.1);   color: var(--blue);  border: 1px solid rgba(26,74,122,0.2); }
+.badge-limit  { background: rgba(139,30,30,0.08);  color: var(--red);   border: 1px solid rgba(139,30,30,0.15); }
+
+/* ── case study reference ── */
+.case-ref {
+  background: var(--bg1);
+  border: 1px solid var(--border);
+  border-left: 4px solid var(--amber);
+  border-radius: 0 4px 4px 0;
+  padding: 0;
+  margin: 2rem 0;
+  overflow: hidden;
+}
+
+.case-header {
+  padding: 1rem 1.6rem;
+  background: var(--bg2);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.case-label {
+  font-family: 'Fragment Mono', monospace;
+  font-size: 0.6rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--amber);
+}
+
+.case-link {
+  font-family: 'Fragment Mono', monospace;
+  font-size: 0.65rem;
+  color: var(--blue);
+  text-decoration: none;
+  letter-spacing: 0.04em;
+  border-bottom: 1px dotted var(--blue);
+  transition: color 0.15s;
+}
+.case-link:hover { color: var(--ink); border-color: var(--ink); }
+
+.case-body { padding: 1.4rem 1.6rem; }
+.case-body p { font-size: 0.9rem; margin-bottom: 0.8rem; }
+.case-body p:last-child { margin-bottom: 0; }
+
+.case-steps {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1px;
+  background: var(--border);
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  overflow: hidden;
+  margin-top: 1.2rem;
+}
+.case-step {
+  background: var(--bg);
+  padding: 1rem 1.2rem;
+}
+.cs-num {
+  font-family: 'Instrument Serif', serif;
+  font-size: 1.6rem;
+  color: var(--dim);
+  line-height: 1;
+  margin-bottom: 0.3rem;
+}
+.cs-title {
+  font-family: 'Fragment Mono', monospace;
+  font-size: 0.6rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--amber);
+  margin-bottom: 0.3rem;
+}
+.cs-desc { font-size: 0.8rem; color: var(--muted); line-height: 1.5; }
+
+@media (max-width: 540px) {
+  .case-steps { grid-template-columns: 1fr; }
+  .case-header { flex-direction: column; align-items: flex-start; gap: 0.4rem; }
+}
+
+/* ── example prompt block ── */
+.example-block {
+  margin: 1.5rem 0;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  overflow: hidden;
+}
+.ex-label {
+  padding: 0.6rem 1.2rem;
+  background: var(--bg2);
+  border-bottom: 1px solid var(--border);
+  font-family: 'Fragment Mono', monospace;
+  font-size: 0.58rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--faint);
+}
+.ex-prompt {
+  padding: 1.1rem 1.4rem;
+  font-family: 'Fragment Mono', monospace;
+  font-size: 0.82rem;
+  line-height: 1.8;
+  background: var(--bg);
+  color: var(--text);
+}
+.ex-prompt .token-action  { color: var(--green); }
+.ex-prompt .token-style   { color: var(--amber); }
+.ex-prompt .token-context { color: var(--blue); }
+.ex-prompt .token-dim     { color: var(--faint); }
+
+/* ── limitation note ── */
+.limit-note {
+  background: var(--bg1);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--red);
+  border-radius: 0 3px 3px 0;
+  padding: 1.2rem 1.6rem;
+  margin: 1.5rem 0;
+  font-size: 0.88rem;
+  color: var(--muted);
+}
+.limit-note strong { color: var(--text); }
+
+/* ── insight ── */
+.insight {
+  background: var(--bg1);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--green);
+  border-radius: 0 3px 3px 0;
+  padding: 1.3rem 1.7rem;
+  margin: 1.8rem 0;
+  font-size: 0.92rem;
+  color: var(--muted);
+}
+.insight strong { color: var(--text); }
+.insight-label {
+  font-family: 'Fragment Mono', monospace;
+  font-size: 0.58rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--green);
+  margin-bottom: 0.5rem;
+}
+
+/* ── closing quote ── */
+.closing {
+  text-align: center;
+  padding: 3rem 2rem;
+  margin: 2rem -32px 0;
+  background: var(--bg1);
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+}
+
+.closing-quote {
+  font-family: 'Instrument Serif', serif;
+  font-size: clamp(1.3rem, 3vw, 2rem);
+  font-style: italic;
+  color: var(--ink);
+  line-height: 1.45;
+  max-width: 560px;
+  margin: 0 auto 1rem;
+}
+
+.closing-attr {
+  font-family: 'Fragment Mono', monospace;
+  font-size: 0.58rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--faint);
+}
+
+/* ── footer ── */
+footer {
+  padding: 2.5rem 0 1rem;
+  text-align: center;
+  font-family: 'Fragment Mono', monospace;
+  font-size: 0.55rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--dim);
+  border-top: 1px solid var(--border);
+  margin-top: 1rem;
+}
+
+/* ── reveal ── */
+.reveal { opacity:0; transform:translateY(18px); transition: opacity 0.6s ease, transform 0.6s ease; }
+.reveal.visible { opacity:1; transform:translateY(0); }
+</style>
+</head>
+<body>
+<div class="page">
+
+<!-- ════════════════ HERO ════════════════ -->
+<div class="hero reveal">
+  <div class="hero-eyebrow">Ukubona LLC · Workflow Documentation · 2026</div>
+  <h1 class="hero-title">
+    Image<span class="arrow"> →</span><br>
+    <em>Interactive</em><br>
+    HTML
+  </h1>
+  <p class="hero-sub">The exact workflow for translating static screenshots, charts, infographics, and wireframes into live, interactive web pages — with the Nvidia Compute Analysis as the canonical case study.</p>
+</div>
+
+
+<!-- ════════════════ THE WORKFLOW ════════════════ -->
+<div class="section reveal">
+  <div class="sec-label">The core workflow</div>
+
+  <h2>Three words and <em>an image</em></h2>
+
+  <p>The entire workflow is this: upload the image into the chat, type what you want, optionally name the aesthetic register. That's it. Here's what a complete prompt looks like:</p>
+
+  <div class="command-box">
+    <span class="cmd-dim"># Minimal — always works</span><br>
+    <span class="cmd-prompt">↗</span> Translate this into interactive HTML<br><br>
+    <span class="cmd-dim"># With aesthetic direction — gets better results</span><br>
+    <span class="cmd-prompt">↗</span> Translate this into interactive HTML,
+    <span class="cmd-opt">dark industrial like the Nvidia piece</span><br><br>
+    <span class="cmd-dim"># With specific interactions — best results</span><br>
+    <span class="cmd-prompt">↗</span> Translate this into interactive HTML.
+    <span class="cmd-opt">Make the bar chart hoverable with tooltips.</span><br>
+    <span class="cmd-opt">Add scroll reveals. </span>
+    <span class="cmd-var">[aesthetic register]</span><br><br>
+    <span class="cmd-dim"># With raw data attached — highest fidelity</span><br>
+    <span class="cmd-prompt">↗</span> Translate this chart into interactive HTML.<br>
+    Numbers: <span class="cmd-var">Nvidia 80%, Google 7%, AMD 6% ...</span>
+  </div>
+
+  <p>The image gives me layout, hierarchy, and visual language. The prompt tells me what should move. The register tells me the emotional tone. Together they are complete instructions.</p>
+</div>
+
+
+<!-- ════════════════ FOUR TIPS ════════════════ -->
+<div class="section reveal">
+  <div class="sec-label">Four tips for best results</div>
+
+  <h2>What to say <em>and how to say it</em></h2>
+
+  <div class="tips">
+    <div class="tip-card">
+      <div class="tip-num">01</div>
+      <div class="tip-title">Name what should move</div>
+      <div class="tip-body">I'll make judgment calls if you don't specify — and they'll usually be good. But <strong>"make the bar chart interactive"</strong> or <strong>"add hover states to the table rows"</strong> gives me an explicit target. The more specific the interaction, the closer the first draft lands.</div>
+    </div>
+    <div class="tip-card">
+      <div class="tip-num">02</div>
+      <div class="tip-title">Name the register</div>
+      <div class="tip-body">One sentence replaces three rounds of revision. <strong>"Dark industrial like the Nvidia piece"</strong> or <strong>"clean editorial like the sports stats doc"</strong> orients the typography, color, and motion choices immediately. Without it I invent something — which may or may not be what you wanted.</div>
+    </div>
+    <div class="tip-card">
+      <div class="tip-num">03</div>
+      <div class="tip-title">Paste the numbers</div>
+      <div class="tip-body">Chart images compress. Small labels at low resolution become ambiguous. If the data is important and you have it as text or CSV, <strong>paste it alongside the image.</strong> I'll use your exact numbers rather than approximating from pixels. Always worth a sanity-check on the output either way.</div>
+    </div>
+    <div class="tip-card">
+      <div class="tip-num">04</div>
+      <div class="tip-title">Context accelerates everything</div>
+      <div class="tip-body">If the image is from a report, name it. If it's a dashboard mockup, say what data it should show. If it's a wireframe, say who uses it. <strong>Context about purpose produces interfaces that feel designed for something</strong>, not just translated from something.</div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ════════════════ CAPABILITY MATRIX ════════════════ -->
+<div class="section reveal">
+  <div class="sec-label">What I do best</div>
+
+  <h2>Image types and <em>what they become</em></h2>
+
+  <table class="cap-table">
+    <thead>
+      <tr>
+        <th>Image type</th>
+        <th>What it becomes</th>
+        <th>Fidelity</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Static bar / line chart</td>
+        <td>Live Chart.js with tooltips, hover highlights, animated on-load draws</td>
+        <td><span class="badge badge-best">Best</span></td>
+      </tr>
+      <tr>
+        <td>Data table / spreadsheet</td>
+        <td>Sortable, filterable HTML table with row hover states and sticky headers</td>
+        <td><span class="badge badge-best">Best</span></td>
+      </tr>
+      <tr>
+        <td>Infographic / diagram</td>
+        <td>Animated SVG or sectioned HTML with scroll reveals and clickable nodes</td>
+        <td><span class="badge badge-best">Best</span></td>
+      </tr>
+      <tr>
+        <td>Dashboard screenshot</td>
+        <td>Full interactive layout: working charts, stat cards, filter controls</td>
+        <td><span class="badge badge-best">Best</span></td>
+      </tr>
+      <tr>
+        <td>Wireframe / sketch</td>
+        <td>Actual built UI — inputs, buttons, navigation, hover states</td>
+        <td><span class="badge badge-good">Good</span></td>
+      </tr>
+      <tr>
+        <td>Report page (text-heavy)</td>
+        <td>Typeset HTML with section structure, callouts, pull quotes, footnotes</td>
+        <td><span class="badge badge-good">Good</span></td>
+      </tr>
+      <tr>
+        <td>Dense spreadsheet at low res</td>
+        <td>Reconstructed from visible data — may miss small labels</td>
+        <td><span class="badge badge-limit">Verify numbers</span></td>
+      </tr>
+      <tr>
+        <td>Scanned handwriting / sketch</td>
+        <td>Interpreted, not traced — I'll produce the structure I infer</td>
+        <td><span class="badge badge-limit">Describe intent</span></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="limit-note">
+    <strong>The one real limitation:</strong> very dense small text in low-resolution images — spreadsheet screenshots, compressed PDFs rendered as images — can produce ambiguous labels. I'll do my best but will note when I'm uncertain. The fix is always to paste the numbers alongside the image.
+  </div>
+</div>
+
+
+<!-- ════════════════ EXAMPLE PROMPTS ════════════════ -->
+<div class="section reveal">
+  <div class="sec-label">Example prompts — copy and adapt</div>
+
+  <h2><em>The exact words</em> that work</h2>
+
+  <div class="example-block">
+    <div class="ex-label">Minimal — chart image</div>
+    <div class="ex-prompt">
+      <span class="token-action">Translate this into interactive HTML.</span>
+      <span class="token-dim"> Make the bars hoverable.</span>
+    </div>
+  </div>
+
+  <div class="example-block">
+    <div class="ex-label">With register — dashboard</div>
+    <div class="ex-prompt">
+      <span class="token-action">Build this dashboard as live HTML.</span>
+      <span class="token-style"> Dark, minimal, monospaced labels.</span>
+      <span class="token-context"> It's for clinical operations staff at a hospital.</span>
+    </div>
+  </div>
+
+  <div class="example-block">
+    <div class="ex-label">With data — high fidelity chart</div>
+    <div class="ex-prompt">
+      <span class="token-action">Translate this chart into interactive HTML with Chart.js.</span><br>
+      <span class="token-context">Exact numbers: Nvidia 80%, Google 7%, AMD 6%, Amazon 4%, Huawei 2%, Intel 1%.</span><br>
+      <span class="token-style">Same dark industrial aesthetic as the Nvidia compute piece.</span>
+    </div>
+  </div>
+
+  <div class="example-block">
+    <div class="ex-label">Wireframe → built UI</div>
+    <div class="ex-prompt">
+      <span class="token-action">Build this wireframe as working HTML/CSS.</span>
+      <span class="token-context"> It's a patient intake form for a clinical app.</span>
+      <span class="token-style"> Clean, accessible, light theme.</span>
+      <span class="token-dim"> All inputs should be functional.</span>
+    </div>
+  </div>
+
+  <div class="example-block">
+    <div class="ex-label">Infographic → animated</div>
+    <div class="ex-prompt">
+      <span class="token-action">Animate this infographic as an HTML page.</span>
+      <span class="token-dim"> Each section should reveal on scroll.</span>
+      <span class="token-style"> Editorial, serif typography, warm off-white background.</span>
+      <span class="token-context"> It's for an annual report.</span>
+    </div>
+  </div>
+</div>
+
+
+<!-- ════════════════ CASE STUDY ════════════════ -->
+<div class="section reveal">
+  <div class="sec-label">Canonical case study</div>
+
+  <h2>The Nvidia piece: <em>from .png to live page</em></h2>
+
+  <div class="case-ref">
+    <div class="case-header">
+      <span class="case-label">↗ Live reference — Ukubona Compute Intelligence</span>
+      <a class="case-link" href="https://abikesa.github.io/repos-00/assets/html/nvidia-winning.html" target="_blank">abikesa.github.io/repos-00/assets/html/nvidia-winning.html</a>
+    </div>
+    <div class="case-body">
+      <p>The original document was a plain HTML page with a broken <code>&lt;img&gt;</code> tag pointing to a missing <code>../img/nvidia-winning.png</code> — a static chart that wasn't even loading. The prompt was: <em>"Upgrade this one too. Majorly."</em></p>
+      <p>The output replaced the broken image with a live Chart.js area chart built from the data in the surrounding prose, added a market share grid with proportional bars, reconstructed the full analysis with the Ukubona pentadic framework applied to compute infrastructure, and wrapped it in a dark industrial aesthetic with Barlow Condensed + IBM Plex Mono typography, a scanline hero animation, and a giant "NVDA" watermark behind the title.</p>
+      <p>That's the whole workflow in one example: one broken image + three words of instruction + an aesthetic reference = a production-grade interactive analysis page.</p>
+
+      <div class="case-steps">
+        <div class="case-step">
+          <div class="cs-num">1</div>
+          <div class="cs-title">Input</div>
+          <div class="cs-desc">Plain HTML with broken <code>&lt;img&gt;</code> tag. No data. No chart. The source was the surrounding text.</div>
+        </div>
+        <div class="case-step">
+          <div class="cs-num">2</div>
+          <div class="cs-title">Prompt</div>
+          <div class="cs-desc">"Upgrade this one too. Majorly." — three words, no aesthetic spec, no data attached.</div>
+        </div>
+        <div class="case-step">
+          <div class="cs-num">3</div>
+          <div class="cs-title">Output</div>
+          <div class="cs-desc">Live Chart.js chart, market grid, pentadic analysis, dark industrial aesthetic, hero with scanline animation.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="insight">
+    <div class="insight-label">What made it work</div>
+    <p>The content had internal density — the Ukubona pentadic framework, the 70% leakage analogy, the gradient sovereignty language. <strong>Rich ideas produce rich interfaces.</strong> The design rose to meet the content because the content gave it something to carry. The aesthetic followed from the subject: compute infrastructure, hardware monopoly, industrial scale. Barlow Condensed and scanlines are the visual language of that subject. The font choice wasn't decorative — it was argumentative.</p>
+  </div>
+</div>
+
+
+<!-- ════════════════ CLOSING ════════════════ -->
+<div class="closing reveal">
+  <p class="closing-quote">Drop the image. Name what should move. Give me the register. The rest is already handled.</p>
+  <div class="closing-attr">Ukubona LLC · Image → HTML Protocol · 2026</div>
+</div>
+
+<footer>
+  Ukubona LLC &nbsp;·&nbsp; Workflow Documentation &nbsp;·&nbsp; Image → Interactive HTML &nbsp;·&nbsp; 2026
+</footer>
+
+</div><!-- /page -->
+
+<script>
+const io = new IntersectionObserver(entries => {
+  entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+}, { threshold: 0.06 });
+document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+</script>
+</body>
+</html>

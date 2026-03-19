@@ -1,0 +1,628 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Uganda Disease Intelligence Platform · Ukubona LLC × UCU</title>
+<meta name="color-scheme" content="dark light">
+<link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.min.css">
+<style>
+:root {
+  --bg:#09090c; --surf:#111116; --surf2:#18181f;
+  --brd:rgba(200,180,255,0.09); --ink:#f0eeff; --mut:#6060a0; --dim:#2a2a3a;
+  --r:#e84060; --o:#d87832; --y:#d4b832; --g:#30b870; --b:#2878e0; --i:#7040d0; --v:#30c8a0;
+  --gold:#e8c040; --silver:#a0a8c0; --cyan:#40d0e0;
+}
+[data-theme="light"]{--bg:#faf9ff;--surf:#fff;--surf2:#f0eeff;--brd:rgba(100,80,200,.1);--ink:#15152a;--mut:#6060a0;--dim:#d0cce8;}
+*{box-sizing:border-box;margin:0;padding:0;}
+html,body{height:100%;overflow:hidden;}
+body{font-family:'DM Sans',sans-serif;font-size:13px;background:var(--bg);color:var(--ink);display:flex;flex-direction:column;}
+
+/* NAV */
+.hd{display:flex;align-items:center;justify-content:space-between;padding:.55rem 1rem;background:var(--surf);border-bottom:1px solid var(--brd);flex-shrink:0;gap:.6rem;flex-wrap:wrap;position:sticky;top:0;z-index:1000;}
+.logo-wrap{display:flex;align-items:center;gap:.5rem;text-decoration:none;}
+.brand-name{font-family:'Libre Baskerville',serif;font-size:1rem;color:var(--ink);}
+.brand-tag{font-family:'DM Mono',monospace;font-size:.5rem;color:var(--mut);letter-spacing:.1em;text-transform:uppercase;}
+.hd-center{flex:1;text-align:center;}
+.hd-title{font-family:'Libre Baskerville',serif;font-size:1.08rem;color:var(--ink);}
+.hd-sub{font-family:'DM Mono',monospace;font-size:.52rem;color:var(--mut);letter-spacing:.06em;margin-top:.08rem;}
+.hd-right{display:flex;gap:.35rem;align-items:center;flex-wrap:wrap;}
+.badge{font-family:'DM Mono',monospace;font-size:.52rem;letter-spacing:.08em;text-transform:uppercase;padding:.15em .6em;border:1px solid var(--brd);border-radius:999px;color:var(--mut);}
+.badge-ucu{color:var(--gold);border-color:rgba(232,192,64,.3);}
+.icon-btn{background:var(--surf2);border:1px solid var(--brd);border-radius:6px;padding:.35rem;cursor:pointer;color:var(--mut);display:flex;align-items:center;transition:border-color .15s,color .15s;}
+.icon-btn:hover{border-color:var(--gold);color:var(--gold);}
+
+/* PENTAD TAB BAR */
+.pentad-bar{display:flex;background:var(--surf);border-bottom:1px solid var(--brd);flex-shrink:0;overflow-x:auto;}
+.pent-tab{flex:1;min-width:0;padding:.55rem .5rem;text-align:center;cursor:pointer;border-bottom:2px solid transparent;transition:border-color .18s,background .15s;font-family:'DM Mono',monospace;font-size:.58rem;letter-spacing:.06em;text-transform:uppercase;color:var(--mut);white-space:nowrap;}
+.pent-tab:hover{background:var(--surf2);color:var(--ink);}
+.pent-tab.on{border-bottom-color:var(--gold);color:var(--gold);}
+.pent-tab .pt-num{display:block;font-size:.7rem;font-weight:500;margin-bottom:.08rem;}
+.pent-tab .pt-lbl{display:block;font-size:.5rem;}
+
+/* LAYOUT */
+.body{display:flex;flex:1;overflow:hidden;min-height:0;}
+.lp{width:240px;flex-shrink:0;background:var(--surf);border-right:1px solid var(--brd);overflow-y:auto;padding:.9rem;display:flex;flex-direction:column;gap:.85rem;}
+.plbl{font-family:'DM Mono',monospace;font-size:.53rem;letter-spacing:.14em;text-transform:uppercase;color:var(--mut);padding-bottom:.28rem;border-bottom:1px solid var(--brd);}
+
+/* DISEASE PICKER */
+.dis-grid{display:flex;flex-direction:column;gap:.28rem;}
+.dis-btn{width:100%;text-align:left;padding:.42rem .6rem;background:var(--surf2);border:1px solid var(--brd);border-radius:5px;color:var(--ink);cursor:pointer;font-family:'DM Sans',sans-serif;font-size:.7rem;transition:border-color .12s,background .12s;display:flex;align-items:center;gap:.45rem;}
+.dis-btn:hover{border-color:var(--gold);background:rgba(232,192,64,.06);}
+.dis-btn.on{border-color:var(--gold);background:rgba(232,192,64,.1);color:var(--gold);}
+.dis-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+.dis-sub{font-size:.57rem;color:var(--mut);display:block;margin-top:.04rem;}
+.dis-btn.on .dis-sub{color:rgba(232,192,64,.6);}
+
+/* PENTAD INDICATOR */
+.pent-stack{display:flex;flex-direction:column;gap:0;}
+.pent-row{display:flex;align-items:stretch;gap:0;}
+.pent-node{flex:1;padding:.45rem .6rem;background:var(--surf2);border:1px solid var(--brd);border-radius:0;margin:1px;position:relative;cursor:pointer;transition:background .15s,border-color .15s;}
+.pent-node:hover{border-color:var(--gold);}
+.pent-node.ac{background:rgba(232,192,64,.1);border-color:rgba(232,192,64,.5);}
+.pent-n-num{font-family:'DM Mono',monospace;font-size:.7rem;color:var(--gold);margin-bottom:.1rem;}
+.pent-n-lbl{font-family:'Libre Baskerville',serif;font-size:.68rem;color:var(--ink);}
+.pent-n-desc{font-size:.57rem;color:var(--mut);margin-top:.05rem;line-height:1.35;}
+.pent-node.ac .pent-n-desc{color:rgba(232,192,64,.7);}
+.pent-arrow{text-align:center;padding:.05rem 0;font-family:'DM Mono',monospace;font-size:.65rem;color:var(--dim);}
+
+.formula{font-family:'DM Mono',monospace;font-size:.6rem;color:var(--mut);line-height:1.9;padding:.55rem .65rem;background:var(--surf2);border-radius:5px;border:1px solid var(--brd);}
+.formula .hl{color:var(--gold);}
+.formula .hl2{color:var(--cyan);}
+
+.sl-row{display:flex;flex-direction:column;gap:.18rem;margin-bottom:.4rem;}
+.sl-meta{display:flex;justify-content:space-between;align-items:baseline;}
+.sl-name{font-size:.66rem;opacity:.85;}
+.sl-val{font-family:'DM Mono',monospace;font-size:.62rem;color:var(--gold);}
+input[type=range]{width:100%;height:2px;appearance:none;background:var(--dim);border-radius:2px;outline:none;cursor:pointer;}
+input[type=range]::-webkit-slider-thumb{appearance:none;width:9px;height:9px;border-radius:50%;background:var(--gold);cursor:pointer;}
+.rr::-webkit-slider-thumb{background:var(--r)!important;}
+.ro::-webkit-slider-thumb{background:var(--o)!important;}
+.rg::-webkit-slider-thumb{background:var(--g)!important;}
+.rb::-webkit-slider-thumb{background:var(--b)!important;}
+.ri::-webkit-slider-thumb{background:var(--i)!important;}
+
+.sc-btn{width:100%;padding:.38rem .55rem;background:var(--surf2);border:1px solid var(--brd);border-radius:5px;color:var(--ink);font-family:'DM Sans',sans-serif;font-size:.67rem;cursor:pointer;text-align:left;margin-bottom:.25rem;transition:border-color .12s;}
+.sc-btn span{display:block;font-size:.55rem;color:var(--mut);margin-top:.04rem;}
+.sc-btn:hover{border-color:var(--gold);}
+.sc-btn.on{border-color:var(--gold);color:var(--gold);}
+
+/* MAP */
+.mc{flex:1;position:relative;min-width:0;}
+#map{width:100%;height:100%;}
+.leaflet-tile-pane{filter:brightness(.75) saturate(.65);}
+[data-theme="light"] .leaflet-tile-pane{filter:none;}
+.upd{position:absolute;top:10px;left:50%;transform:translateX(-50%);z-index:900;background:var(--surf);border:1px solid rgba(232,192,64,.4);border-radius:999px;padding:.2em .75em;font-family:'DM Mono',monospace;font-size:.55rem;color:var(--gold);opacity:0;transition:opacity .25s;pointer-events:none;white-space:nowrap;}
+.upd.on{opacity:1;}
+/* PENTAD overlay on map */
+.pent-overlay{position:absolute;bottom:80px;right:16px;z-index:800;background:rgba(9,9,12,.92);border:1px solid var(--brd);border-radius:8px;padding:.6rem .75rem;backdrop-filter:blur(4px);width:170px;}
+[data-theme="light"] .pent-overlay{background:rgba(255,255,255,.92);}
+.po-title{font-family:'DM Mono',monospace;font-size:.52rem;letter-spacing:.1em;text-transform:uppercase;color:var(--mut);margin-bottom:.35rem;}
+.po-steps{display:flex;flex-direction:column;gap:.2rem;}
+.po-step{display:flex;align-items:center;gap:.4rem;padding:.22rem .35rem;border-radius:3px;}
+.po-step.ac{background:rgba(232,192,64,.12);}
+.po-sym{font-family:'DM Mono',monospace;font-size:.62rem;color:var(--mut);min-width:30px;}
+.po-step.ac .po-sym{color:var(--gold);}
+.po-lbl{font-size:.6rem;color:var(--mut);line-height:1.3;}
+.po-step.ac .po-lbl{color:var(--ink);}
+
+.leg{position:absolute;bottom:16px;left:16px;z-index:800;background:rgba(9,9,12,.92);border:1px solid var(--brd);border-radius:7px;padding:.5rem .65rem;backdrop-filter:blur(4px);}
+[data-theme="light"] .leg{background:rgba(255,255,255,.92);}
+.leg-title{font-family:'DM Mono',monospace;font-size:.5rem;letter-spacing:.1em;text-transform:uppercase;color:var(--mut);margin-bottom:.28rem;}
+.leg-scale{display:flex;gap:2px;margin-bottom:.2rem;}
+.leg-sw{height:7px;border-radius:1px;flex:1;}
+.leg-labs{display:flex;justify-content:space-between;font-family:'DM Mono',monospace;font-size:.48rem;color:var(--mut);}
+
+/* RIGHT PANEL */
+.rp{width:228px;flex-shrink:0;background:var(--surf);border-left:1px solid var(--brd);overflow-y:auto;padding:.9rem;display:flex;flex-direction:column;gap:.85rem;}
+.sc2{background:var(--surf2);border:1px solid var(--brd);border-radius:6px;padding:.55rem .75rem;}
+.sc2-lbl{font-family:'DM Mono',monospace;font-size:.52rem;letter-spacing:.08em;text-transform:uppercase;color:var(--mut);margin-bottom:.18rem;}
+.sc2-val{font-family:'Libre Baskerville',serif;font-size:1.45rem;line-height:1;margin-bottom:.1rem;}
+.sc2-delta{font-family:'DM Mono',monospace;font-size:.55rem;color:var(--mut);}
+.sc2-delta.bad{color:var(--r);}
+.sc2-delta.good{color:var(--v);}
+.d-list{display:flex;flex-direction:column;gap:.25rem;}
+.d-item{display:flex;align-items:center;gap:.45rem;padding:.28rem .45rem;border-radius:4px;cursor:pointer;transition:background .1s;}
+.d-item:hover{background:var(--surf2);}
+.d-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;}
+.d-name{font-size:.68rem;flex:1;}
+.d-val{font-family:'DM Mono',monospace;font-size:.62rem;color:var(--mut);}
+.tlog{font-family:'DM Mono',monospace;font-size:.56rem;color:var(--mut);line-height:1.6;max-height:120px;overflow-y:auto;}
+.te{padding:.1rem 0;border-bottom:1px solid var(--brd);}
+.te:last-child{border-bottom:none;}
+.tt2{color:var(--dim);margin-right:.3rem;}
+.ta{color:var(--gold);}
+.sel-blk{padding:.6rem .75rem;background:var(--surf2);border-radius:6px;border-left:3px solid var(--gold);}
+.sel-nm{font-family:'Libre Baskerville',serif;font-size:.95rem;margin-bottom:.3rem;}
+.sel-sc{font-family:'DM Mono',monospace;font-size:1.1rem;font-weight:500;margin-bottom:.4rem;}
+.dim-bk{display:flex;flex-direction:column;gap:.25rem;}
+.db-row{display:flex;align-items:center;gap:.45rem;padding:.25rem .38rem;background:var(--surf);border-radius:3px;}
+.db-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0;}
+.db-name{font-size:.6rem;color:var(--mut);flex:1;}
+.db-bar-bg{height:2.5px;background:var(--dim);border-radius:2px;flex:1;max-width:52px;}
+.db-bar-fill{height:100%;border-radius:2px;transition:width .4s;}
+.db-val{font-family:'DM Mono',monospace;font-size:.6rem;color:var(--ink);}
+
+/* VISION PANEL */
+.vision{padding:.7rem .8rem;background:linear-gradient(135deg,rgba(232,192,64,.08),rgba(64,208,224,.05));border:1px solid rgba(232,192,64,.18);border-radius:7px;}
+.vision-title{font-family:'Libre Baskerville',serif;font-size:.82rem;margin-bottom:.4rem;color:var(--gold);}
+.vision-body{font-size:.62rem;color:var(--mut);line-height:1.7;}
+.vision-body strong{color:var(--ink);}
+
+/* POPUP */
+.leaflet-popup-content-wrapper{background:var(--surf)!important;color:var(--ink)!important;border:1px solid var(--brd)!important;border-radius:9px!important;box-shadow:0 8px 32px rgba(0,0,0,.7)!important;}
+.leaflet-popup-content{margin:.75rem!important;font-family:'DM Sans',sans-serif!important;}
+.leaflet-popup-tip{background:var(--surf)!important;}
+.lp-name{font-family:'Libre Baskerville',serif;font-size:.95rem;margin-bottom:.28rem;}
+.lp-val{font-family:'DM Mono',monospace;font-size:1.15rem;font-weight:500;margin-bottom:.28rem;}
+.lp-rows{display:flex;flex-direction:column;gap:.1rem;}
+.lp-row{display:flex;justify-content:space-between;font-size:.62rem;color:var(--mut);padding:.09rem 0;border-bottom:1px solid var(--brd);}
+.lp-row:last-child{border-bottom:none;}
+.lp-rv{color:var(--ink);font-family:'DM Mono',monospace;}
+
+@media(max-width:900px){.lp,.rp{display:none;}}
+</style>
+</head>
+<body>
+
+<header class="hd">
+  <div style="display:flex;align-items:center;gap:.5rem;">
+    <a href="https://ukubona-llc.github.io/" class="logo-wrap">
+      <svg width="36" height="36" viewBox="0 0 36 36">
+        <polygon points="18,3 32,28 4,28" fill="none" stroke="var(--gold)" stroke-width="1.2" opacity=".5"/>
+        <polygon points="18,9 28,27 8,27" fill="none" stroke="var(--gold)" stroke-width=".8" opacity=".3"/>
+        <circle cx="18" cy="18" r="3" fill="var(--gold)" opacity=".9"/>
+        <circle cx="18" cy="7" r="2" fill="var(--gold)" opacity=".5"/>
+        <circle cx="6" cy="29" r="2" fill="var(--gold)" opacity=".5"/>
+        <circle cx="30" cy="29" r="2" fill="var(--gold)" opacity=".5"/>
+      </svg>
+      <div><div class="brand-name">Ukubona</div><div class="brand-tag">LLC × UCU · Disease Intelligence</div></div>
+    </a>
+  </div>
+  <div class="hd-center">
+    <div class="hd-title">Uganda Disease Intelligence Platform</div>
+    <div class="hd-sub">Civilizational Planner · Pentadic Loss Framework · 135 Districts · Any Condition</div>
+  </div>
+  <div class="hd-right">
+    <span class="badge badge-ucu">UCU Strategic Hub</span>
+    <span class="badge">NIH · NPA · Wellcome</span>
+    <button class="icon-btn" id="theme-btn" title="Toggle theme">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+    </button>
+    <a href="https://ukubona-llc.github.io/landscape/" class="icon-btn" style="text-decoration:none;font-family:'DM Mono',monospace;font-size:.53rem;color:var(--gold);border-color:rgba(232,192,64,.25);padding:.35rem .6rem;">← Atlas</a>
+  </div>
+</header>
+
+<!-- PENTAD TAB BAR -->
+<nav class="pentad-bar" id="pentad-bar">
+  <div class="pent-tab on" onclick="setPentad(this,0)"><span class="pt-num">Ⅰ</span><span class="pt-lbl">Exposure / Risk</span></div>
+  <div class="pent-tab" onclick="setPentad(this,1)"><span class="pt-num">Ⅱ</span><span class="pt-lbl">Prevalence</span></div>
+  <div class="pent-tab" onclick="setPentad(this,2)"><span class="pt-num">Ⅲ</span><span class="pt-lbl">Incidence</span></div>
+  <div class="pent-tab" onclick="setPentad(this,3)"><span class="pt-num">Ⅳ</span><span class="pt-lbl">Treatment / Access</span></div>
+  <div class="pent-tab" onclick="setPentad(this,4)"><span class="pt-num">Ⅴ</span><span class="pt-lbl">Flourishing</span></div>
+</nav>
+
+<div class="body">
+  <aside class="lp">
+    <div>
+      <div class="plbl">Disease system</div>
+      <div class="dis-grid">
+        <button class="dis-btn on" onclick="setDis(this,'mh')">
+          <div class="dis-dot" style="background:#b080ff"></div>
+          <div><span>Mental Health</span><span class="dis-sub">Depression · Anxiety · PTSD · NPA Priority</span></div>
+        </button>
+        <button class="dis-btn" onclick="setDis(this,'renal')">
+          <div class="dis-dot" style="background:#50d080"></div>
+          <div><span>Renal / CKD</span><span class="dis-sub">CKD · ESRD · Transplant · NIH K08</span></div>
+        </button>
+        <button class="dis-btn" onclick="setDis(this,'hiv')">
+          <div class="dis-dot" style="background:#e84060"></div>
+          <div><span>HIV / AIDS</span><span class="dis-sub">Incidence · ART coverage · PMTCT</span></div>
+        </button>
+        <button class="dis-btn" onclick="setDis(this,'ncd')">
+          <div class="dis-dot" style="background:#d4a820"></div>
+          <div><span>NCDs (HTN + DM)</span><span class="dis-sub">Hypertension · Diabetes · Obesity</span></div>
+        </button>
+        <button class="dis-btn" onclick="setDis(this,'mat')">
+          <div class="dis-dot" style="background:#40c8e0"></div>
+          <div><span>Maternal Health</span><span class="dis-sub">MMR · ANC · Facility delivery</span></div>
+        </button>
+      </div>
+    </div>
+
+    <div>
+      <div class="plbl">Pentadic node</div>
+      <div class="pent-stack">
+        <div class="pent-node ac" onclick="setPentad(document.querySelectorAll('.pent-tab')[0],0)">
+          <div class="pent-n-num">Ⅰ</div>
+          <div class="pent-n-lbl">Exposure &amp; Risk</div>
+          <div class="pent-n-desc">Upstream determinants — the θ prior</div>
+        </div>
+        <div class="pent-arrow">↓</div>
+        <div class="pent-node" onclick="setPentad(document.querySelectorAll('.pent-tab')[1],1)">
+          <div class="pent-n-num">Ⅱ</div>
+          <div class="pent-n-lbl">Prevalence</div>
+          <div class="pent-n-desc">Who is currently living with condition</div>
+        </div>
+        <div class="pent-arrow">↓</div>
+        <div class="pent-node" onclick="setPentad(document.querySelectorAll('.pent-tab')[2],2)">
+          <div class="pent-n-num">Ⅲ</div>
+          <div class="pent-n-lbl">Incidence</div>
+          <div class="pent-n-desc">New cases — the gradient ∇L</div>
+        </div>
+        <div class="pent-arrow">↓</div>
+        <div class="pent-node" onclick="setPentad(document.querySelectorAll('.pent-tab')[3],3)">
+          <div class="pent-n-num">Ⅳ</div>
+          <div class="pent-n-lbl">Treatment &amp; Access</div>
+          <div class="pent-n-desc">Systems response — −η∇L</div>
+        </div>
+        <div class="pent-arrow">↓</div>
+        <div class="pent-node" onclick="setPentad(document.querySelectorAll('.pent-tab')[4],4)">
+          <div class="pent-n-num">Ⅴ</div>
+          <div class="pent-n-lbl">Flourishing</div>
+          <div class="pent-n-desc">Outcome + equity — the θ′</div>
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <div class="plbl">Loss function</div>
+      <div class="formula">θₜ → <span class="hl">L(θ)</span> → ∇L → −η∇L → <span class="hl2">θ′</span><br><br>L = Σ wᵢ · pentad_nodeᵢ(θ)<br><br><span style="color:var(--gold)">UCU as civilizational planner</span><br><span style="color:var(--cyan)">NPA ↔ MoH ↔ Systems ↔ HH ↔ Individual</span></div>
+    </div>
+
+    <div>
+      <div class="plbl">Pentad weights</div>
+      <div class="sl-row">
+        <div class="sl-meta"><span class="sl-name">Ⅰ Exposure/Risk</span><span class="sl-val" id="v-w1">20%</span></div>
+        <input type="range" class="ro" id="s-w1" min="5" max="45" value="20">
+      </div>
+      <div class="sl-row">
+        <div class="sl-meta"><span class="sl-name">Ⅱ Prevalence</span><span class="sl-val" id="v-w2">30%</span></div>
+        <input type="range" class="rg" id="s-w2" min="5" max="55" value="30">
+      </div>
+      <div class="sl-row">
+        <div class="sl-meta"><span class="sl-name">Ⅲ Incidence</span><span class="sl-val" id="v-w3">25%</span></div>
+        <input type="range" class="rr" id="s-w3" min="5" max="50" value="25">
+      </div>
+      <div class="sl-row">
+        <div class="sl-meta"><span class="sl-name">Ⅳ Treatment gap</span><span class="sl-val" id="v-w4">20%</span></div>
+        <input type="range" class="rb" id="s-w4" min="5" max="45" value="20">
+      </div>
+      <div class="sl-row">
+        <div class="sl-meta"><span class="sl-name">Ⅴ Flourishing gap</span><span class="sl-val" id="v-w5">5%</span></div>
+        <input type="range" class="ri" id="s-w5" min="2" max="20" value="5">
+      </div>
+    </div>
+
+    <div>
+      <div class="plbl">η — system learning rate</div>
+      <div class="sl-row">
+        <div class="sl-meta"><span class="sl-name">Intervention speed</span><span class="sl-val" id="v-eta">0.10</span></div>
+        <input type="range" class="rb" id="s-eta" min="1" max="35" value="10">
+      </div>
+    </div>
+
+    <div>
+      <div class="plbl">Scenarios</div>
+      <button class="sc-btn on" onclick="setSc(this,'base')">NPA / MOH baseline<span>Equal pentad weighting — policy neutral</span></button>
+      <button class="sc-btn" onclick="setSc(this,'gap')">Data gap priority<span>Ⅱ Prevalence=55% — lowest-hanging-fruit grants</span></button>
+      <button class="sc-btn" onclick="setSc(this,'treat')">Treatment crisis<span>Ⅳ Treatment=50% — systems investment case</span></button>
+      <button class="sc-btn" onclick="setSc(this,'equity')">Equity lens<span>Ⅴ Flourishing=40% — Wellcome / Gates framing</span></button>
+      <button class="sc-btn" onclick="setSc(this,'50yr')">50-year horizon<span>θ′ → θₜ₊₅₀ — UCU civilizational vision</span></button>
+    </div>
+  </aside>
+
+  <div class="mc">
+    <div id="map"></div>
+    <div class="upd" id="upd">Recomputing gradient…</div>
+
+    <!-- PENTAD OVERLAY -->
+    <div class="pent-overlay">
+      <div class="po-title">Pentadic cycle</div>
+      <div class="po-steps">
+        <div class="po-step ac" id="po0"><span class="po-sym">θₜ</span><span class="po-lbl">Parameters → priors</span></div>
+        <div class="po-step" id="po1"><span class="po-sym">L(θ)</span><span class="po-lbl">Loss computed</span></div>
+        <div class="po-step" id="po2"><span class="po-sym">∇L</span><span class="po-lbl">Gradient visible</span></div>
+        <div class="po-step" id="po3"><span class="po-sym">−η∇L</span><span class="po-lbl">Update applied</span></div>
+        <div class="po-step" id="po4"><span class="po-sym">θ′</span><span class="po-lbl">Improved landscape</span></div>
+      </div>
+    </div>
+
+    <div class="leg">
+      <div class="leg-title" id="leg-title">L(θ) — Pentadic disease loss</div>
+      <div class="leg-scale">
+        <div class="leg-sw" style="background:#e84060"></div>
+        <div class="leg-sw" style="background:#d87832"></div>
+        <div class="leg-sw" style="background:#d4b832"></div>
+        <div class="leg-sw" style="background:#30b870"></div>
+        <div class="leg-sw" style="background:#2878e0"></div>
+        <div class="leg-sw" style="background:#7040d0"></div>
+        <div class="leg-sw" style="background:#30c8a0"></div>
+      </div>
+      <div class="leg-labs"><span>High loss</span><span>Optimized</span></div>
+    </div>
+  </div>
+
+  <aside class="rp">
+    <div>
+      <div class="sc2">
+        <div class="sc2-lbl">National L(θ)</div>
+        <div class="sc2-val" id="st-loss">—</div>
+        <div class="sc2-delta bad" id="st-delta">computing…</div>
+      </div>
+    </div>
+    <div>
+      <div class="sc2">
+        <div class="sc2-lbl">Districts in red/orange</div>
+        <div class="sc2-val" id="st-crit" style="color:var(--r)">—</div>
+        <div class="sc2-delta bad">of 135 — urgent investment needed</div>
+      </div>
+    </div>
+    <div>
+      <div class="sc2">
+        <div class="sc2-lbl">Active condition</div>
+        <div class="sc2-val" id="st-dis" style="color:var(--gold)">Mental Health</div>
+        <div class="sc2-delta" id="st-dis-sub">NPA 2026 priority · Depression / PTSD</div>
+      </div>
+    </div>
+    <div>
+      <div class="sc2">
+        <div class="sc2-lbl">Active pentad node</div>
+        <div class="sc2-val" id="st-pent" style="color:var(--gold)">Ⅰ Exposure</div>
+        <div class="sc2-delta" id="st-pent-desc">Upstream determinants</div>
+      </div>
+    </div>
+
+    <div id="sel-panel" style="display:none;">
+      <div class="plbl">Selected district</div>
+      <div class="sel-blk">
+        <div class="sel-nm" id="sel-name">—</div>
+        <div class="sel-sc" id="sel-score">—</div>
+        <div class="dim-bk" id="sel-dims"></div>
+      </div>
+    </div>
+
+    <div>
+      <div class="plbl">Highest loss districts</div>
+      <div class="d-list" id="top-d"></div>
+    </div>
+
+    <div>
+      <div class="plbl">UCU strategic vision</div>
+      <div class="vision">
+        <div class="vision-title">Universities as Civilizational Planners</div>
+        <div class="vision-body">
+          <strong>UCU → NPA → MoH → Systems → Households → Individuals</strong><br><br>
+          This platform positions Uganda Christian University as the <strong>epistemic anchor</strong> for national disease surveillance — informing planners, regulators, enterprises, and ultimately every Ugandan household.<br><br>
+          The pentadic framework scales from <strong>one district to 135</strong>, and from <strong>one disease to every condition in Uganda</strong>. CKD and depression are the proof of concept. The platform is the prize.
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <div class="plbl">Funding pathways</div>
+      <div style="display:flex;flex-direction:column;gap:.3rem;">
+        <div style="padding:.4rem .5rem;background:var(--surf2);border-radius:4px;border-left:2px solid var(--cyan);font-size:.62rem;"><strong style="color:var(--cyan)">NIH NIDDK R21</strong><br><span style="color:var(--mut)">K08 edge → global kidney surveillance</span></div>
+        <div style="padding:.4rem .5rem;background:var(--surf2);border-radius:4px;border-left:2px solid #b080ff;font-size:.62rem;"><strong style="color:#b080ff">NPA Uganda</strong><br><span style="color:var(--mut)">Mental health POC → platform-first pitch</span></div>
+        <div style="padding:.4rem .5rem;background:var(--surf2);border-radius:4px;border-left:2px solid var(--gold);font-size:.62rem;"><strong style="color:var(--gold)">Wellcome Trust</strong><br><span style="color:var(--mut)">Data infrastructure + NCDs in LMICs</span></div>
+        <div style="padding:.4rem .5rem;background:var(--surf2);border-radius:4px;border-left:2px solid var(--g);font-size:.62rem;"><strong style="color:var(--g)">ISN-SOROCA</strong><br><span style="color:var(--mut)">African nephrology capacity building</span></div>
+      </div>
+    </div>
+
+    <div>
+      <div class="plbl">Transcript</div>
+      <div class="tlog" id="tlog"></div>
+    </div>
+
+    <div style="margin-top:auto;">
+      <div class="plbl">Platform status</div>
+      <div style="font-family:'DM Mono',monospace;font-size:.57rem;color:var(--mut);line-height:1.8;">
+        <span style="color:var(--gold)">PHASE I: SYNTHETIC</span><br>
+        5 disease systems loaded<br>
+        135 districts · WGS84 coords<br>
+        Pentadic loss engine active<br>
+        ── swap ready ──<br>
+        <span style="color:var(--v)">→ DHIS2 data pipeline</span><br>
+        <span style="color:var(--v)">→ UBOS district surveys</span><br>
+        <span style="color:var(--v)">→ NPA / MOH integration</span>
+      </div>
+    </div>
+  </aside>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.min.js"></script>
+<script>
+const RC=['#e84060','#d87832','#d4b832','#30b870','#2878e0','#7040d0','#30c8a0'];
+const RN=['Red','Orange','Yellow','Green','Blue','Indigo','Violet'];
+
+const DISEASES={
+  mh:{label:'Mental Health',sub:'NPA 2026 priority · Depression / PTSD',color:'#b080ff'},
+  renal:{label:'Renal / CKD',sub:'NIH K08 edge · ESRD pipeline',color:'#50d080'},
+  hiv:{label:'HIV / AIDS',sub:'PEPFAR · UNAIDS targets',color:'#e84060'},
+  ncd:{label:'NCDs (HTN + DM)',sub:'NCD STEPS 2023',color:'#d4a820'},
+  mat:{label:'Maternal Health',sub:'SDG 3.1 · Facility delivery',color:'#40c8e0'},
+};
+
+const PENTAD_LABELS=['Exposure / Risk','Prevalence','Incidence','Treatment / Access','Flourishing'];
+const PENTAD_DESCS=['Upstream determinants — θ prior','Who lives with condition now','New cases — gradient ∇L','Systems response — −η∇L','Outcomes + equity — θ′'];
+
+let curDis='mh',curPentad=0;
+
+const DISTRICTS=[
+  {n:"Abim",lat:3.00,lon:33.67},{n:"Adjumani",lat:3.38,lon:31.79},{n:"Agago",lat:2.98,lon:33.38},{n:"Alebtong",lat:2.26,lon:33.35},{n:"Amolatar",lat:1.60,lon:32.80},{n:"Amudat",lat:1.95,lon:34.93},{n:"Amuria",lat:2.03,lon:33.65},{n:"Amuru",lat:2.80,lon:31.92},{n:"Apac",lat:1.98,lon:32.54},{n:"Arua",lat:3.02,lon:30.91},{n:"Budaka",lat:1.00,lon:33.94},{n:"Bududa",lat:1.00,lon:34.33},{n:"Bugiri",lat:0.57,lon:33.75},{n:"Buhweju",lat:-0.70,lon:30.42},{n:"Buikwe",lat:0.33,lon:33.00},{n:"Bukedea",lat:1.36,lon:34.00},{n:"Bukomansimbi",lat:-0.14,lon:31.60},{n:"Bukwo",lat:1.28,lon:34.73},{n:"Bulambuli",lat:1.22,lon:34.38},{n:"Buliisa",lat:2.12,lon:31.41},{n:"Bundibugyo",lat:0.71,lon:30.07},{n:"Bunyangabu",lat:-0.50,lon:30.18},{n:"Bushenyi",lat:-0.58,lon:30.18},{n:"Busia",lat:0.46,lon:34.09},{n:"Butaleja",lat:0.90,lon:33.97},{n:"Butebo",lat:1.18,lon:34.05},{n:"Buvuma",lat:0.38,lon:33.22},{n:"Buyende",lat:1.24,lon:33.12},{n:"Dokolo",lat:1.91,lon:33.17},{n:"Gomba",lat:-0.23,lon:31.68},{n:"Gulu",lat:2.77,lon:32.30},{n:"Hoima",lat:1.43,lon:31.35},{n:"Ibanda",lat:-0.14,lon:30.50},{n:"Iganga",lat:0.61,lon:33.48},{n:"Isingiro",lat:-0.84,lon:30.82},{n:"Jinja",lat:0.42,lon:33.20},{n:"Kaabong",lat:3.52,lon:34.14},{n:"Kabale",lat:-1.25,lon:29.99},{n:"Kabarole",lat:0.65,lon:30.25},{n:"Kaberamaido",lat:1.74,lon:33.16},{n:"Kagadi",lat:0.94,lon:30.82},{n:"Kakumiro",lat:0.78,lon:31.33},{n:"Kalaki",lat:1.89,lon:33.38},{n:"Kalangala",lat:-0.32,lon:32.23},{n:"Kaliro",lat:1.04,lon:33.50},{n:"Kalungu",lat:-0.10,lon:31.78},{n:"Kampala",lat:0.32,lon:32.58},{n:"Kamuli",lat:0.95,lon:33.12},{n:"Kamwenge",lat:0.19,lon:30.45},{n:"Kanungu",lat:-0.96,lon:29.79},{n:"Kapchorwa",lat:1.40,lon:34.45},{n:"Kapelebyong",lat:1.90,lon:33.98},{n:"Karenga",lat:3.73,lon:33.80},{n:"Kasanda",lat:0.60,lon:31.72},{n:"Kasese",lat:0.18,lon:30.08},{n:"Katakwi",lat:1.90,lon:34.07},{n:"Kayunga",lat:0.71,lon:32.87},{n:"Kazo",lat:-0.10,lon:30.68},{n:"Kibale",lat:0.87,lon:31.06},{n:"Kiboga",lat:0.91,lon:31.77},{n:"Kibuku",lat:1.04,lon:33.79},{n:"Kikuube",lat:1.58,lon:31.22},{n:"Kiruhura",lat:-0.20,lon:30.86},{n:"Kiryandongo",lat:1.88,lon:32.10},{n:"Kisoro",lat:-1.28,lon:29.65},{n:"Kitgum",lat:3.28,lon:32.89},{n:"Koboko",lat:3.41,lon:31.05},{n:"Kole",lat:2.37,lon:32.76},{n:"Kotido",lat:2.98,lon:34.13},{n:"Kumi",lat:1.46,lon:33.94},{n:"Kwania",lat:2.12,lon:32.60},{n:"Kween",lat:1.42,lon:34.63},{n:"Kyankwanzi",lat:1.09,lon:31.71},{n:"Kyegegwa",lat:0.48,lon:31.05},{n:"Kyenjojo",lat:0.62,lon:30.64},{n:"Kyotera",lat:-0.65,lon:31.55},{n:"Lamwo",lat:3.53,lon:32.53},{n:"Lira",lat:2.25,lon:32.90},{n:"Luuka",lat:0.73,lon:33.30},{n:"Luwero",lat:0.85,lon:32.47},{n:"Lwengo",lat:-0.40,lon:31.40},{n:"Lyantonde",lat:-0.40,lon:31.15},{n:"Madi-Okollo",lat:3.10,lon:31.20},{n:"Manafwa",lat:0.88,lon:34.28},{n:"Maracha",lat:3.29,lon:30.96},{n:"Masaka",lat:-0.34,lon:31.74},{n:"Masindi",lat:1.68,lon:31.71},{n:"Mayuge",lat:0.46,lon:33.57},{n:"Mbale",lat:1.08,lon:34.18},{n:"Mbarara",lat:-0.60,lon:30.65},{n:"Mitooma",lat:-0.63,lon:30.02},{n:"Mityana",lat:0.40,lon:32.02},{n:"Moroto",lat:2.53,lon:34.67},{n:"Moyo",lat:3.65,lon:31.73},{n:"Mpigi",lat:0.23,lon:32.32},{n:"Mubende",lat:0.57,lon:31.36},{n:"Mukono",lat:0.35,lon:32.76},{n:"Nabilatuk",lat:2.05,lon:34.53},{n:"Nakapiripirit",lat:1.90,lon:34.65},{n:"Nakaseke",lat:1.12,lon:32.43},{n:"Nakasongola",lat:1.32,lon:32.45},{n:"Namayingo",lat:0.28,lon:33.92},{n:"Namisindwa",lat:0.95,lon:34.42},{n:"Namutumba",lat:0.83,lon:33.68},{n:"Napak",lat:2.36,lon:34.24},{n:"Nebbi",lat:2.48,lon:31.10},{n:"Ngora",lat:1.48,lon:33.77},{n:"Ntoroko",lat:1.03,lon:30.47},{n:"Ntungamo",lat:-0.88,lon:30.27},{n:"Nwoya",lat:2.62,lon:31.95},{n:"Obongi",lat:3.52,lon:31.60},{n:"Omoro",lat:2.62,lon:32.52},{n:"Otuke",lat:2.52,lon:33.45},{n:"Oyam",lat:2.26,lon:32.40},{n:"Pader",lat:2.80,lon:33.20},{n:"Pakwach",lat:2.46,lon:31.49},{n:"Pallisa",lat:1.14,lon:33.71},{n:"Rakai",lat:-0.73,lon:31.40},{n:"Rubanda",lat:-1.19,lon:29.84},{n:"Rubirizi",lat:-0.28,lon:30.10},{n:"Rukiga",lat:-1.08,lon:29.95},{n:"Rukungiri",lat:-0.84,lon:29.94},{n:"Rwampara",lat:-0.68,lon:30.75},{n:"Sembabule",lat:-0.07,lon:31.46},{n:"Serere",lat:1.50,lon:33.55},{n:"Sheema",lat:-0.56,lon:30.38},{n:"Sironko",lat:1.23,lon:34.25},{n:"Soroti",lat:1.71,lon:33.61},{n:"Terego",lat:3.06,lon:30.80},{n:"Tororo",lat:0.69,lon:34.18},{n:"Wakiso",lat:0.40,lon:32.45},{n:"Yumbe",lat:3.47,lon:31.25},{n:"Zombo",lat:2.67,lon:30.90},
+];
+
+function clamp(v,a,b){return Math.max(a,Math.min(b,v));}
+
+function synthPentad(d,i,dis,pentad){
+  const s=i*137.508+31.7*(dis==='mh'?1:dis==='renal'?2:dis==='hiv'?3:dis==='ncd'?4:5);
+  const isNorth=d.lat>2.5;const isAcholi=d.lat>2.5&&d.lon>31.5&&d.lon<33.5;
+  const isEast=d.lon>33.0&&d.lat>0.3&&d.lat<2.8;const isKar=d.lat>2.0&&d.lon>33.5;
+  const isSW=d.lon<30.8&&d.lat<-0.3;
+  const isUrban=['Kampala','Wakiso','Mukono','Jinja','Mbarara','Gulu','Lira'].includes(d.n);
+
+  let base=0.3+0.4*Math.abs(Math.sin(s*(1+pentad*0.3)));
+
+  if(dis==='mh'){
+    if(isAcholi&&pentad<=2)base=clamp(base+0.35,0,1);
+    if(isNorth)base=clamp(base+0.2,0,1);
+    if(isUrban&&pentad<=1)base=clamp(base+0.15,0,1);
+    if(isSW)base=clamp(base-0.15,0,1);
+    if(pentad===3)base=clamp(base+0.25,0,1); // treatment gap everywhere
+  } else if(dis==='renal'){
+    if(isEast&&pentad<=2)base=clamp(base+0.30,0,1);
+    if(isKar)base=clamp(base+0.20,0,1);
+    if(isSW)base=clamp(base-0.20,0,1);
+    if(pentad===3||pentad===4)base=clamp(base+0.20,0,1); // tx/flourishing gap
+  } else if(dis==='hiv'){
+    if(d.lon>32&&d.lat<0.8&&d.lat>-0.5)base=clamp(base+0.25,0,1); // lake victoria rim
+    if(isUrban&&pentad===0)base=clamp(base+0.15,0,1);
+    if(isNorth&&pentad<=1)base=clamp(base+0.20,0,1);
+  } else if(dis==='ncd'){
+    if(isUrban&&pentad<=1)base=clamp(base+0.22,0,1);
+    if(isEast&&pentad===0)base=clamp(base+0.15,0,1);
+    if(pentad===3||pentad===4)base=clamp(base+0.18,0,1);
+  } else if(dis==='mat'){
+    if(isNorth&&pentad>=1)base=clamp(base+0.25,0,1);
+    if(isKar)base=clamp(base+0.30,0,1);
+    if(isUrban&&pentad>=2)base=clamp(base-0.20,0,1);
+  }
+
+  return clamp(base+0.08*Math.sin(s*7.3+pentad),0,1);
+}
+
+function getW(){return{w1:+document.getElementById('s-w1').value,w2:+document.getElementById('s-w2').value,w3:+document.getElementById('s-w3').value,w4:+document.getElementById('s-w4').value,w5:+document.getElementById('s-w5').value};}
+function getEta(){return +document.getElementById('s-eta').value/100;}
+
+function l2c(l){if(l>=0.80)return RC[0];if(l>=0.62)return RC[1];if(l>=0.44)return RC[2];if(l>=0.26)return RC[3];if(l>=0.12)return RC[4];if(l>=0.05)return RC[5];return RC[6];}
+
+let dataset=[],markers=[],selD=null,tmr=null,map,darkTile,lightTile;
+
+function initMap(){
+  map=L.map('map',{center:[1.37,32.29],zoom:7});
+  darkTile=L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',{attribution:'© OSM © CARTO',subdomains:'abcd',maxZoom:19});
+  lightTile=L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',{attribution:'© OSM © CARTO',subdomains:'abcd',maxZoom:19});
+  darkTile.addTo(map);
+}
+
+function build(){
+  const w=getW(),eta=getEta(),T=w.w1+w.w2+w.w3+w.w4+w.w5;
+  dataset=DISTRICTS.map((d,i)=>{
+    const pvals=[0,1,2,3,4].map(p=>synthPentad(d,i,curDis,p));
+    const composite=(w.w1/T)*pvals[0]+(w.w2/T)*pvals[1]+(w.w3/T)*pvals[2]+(w.w4/T)*pvals[3]+(w.w5/T)*pvals[4];
+    const activeVal=pvals[curPentad];
+    const loss=clamp(composite-eta*composite*0.3,0,1);
+    return{...d,pvals,composite,loss,activeVal};
+  });
+}
+
+function render(){
+  markers.forEach(m=>map.removeLayer(m));markers=[];
+  dataset.forEach(d=>{
+    const dispLoss=d.pvals[curPentad]*(1-getEta()*0.3);
+    const col=l2c(dispLoss);
+    const r=d.n==='Kampala'?13:['Gulu','Mbarara','Soroti','Mbale','Arua','Lira','Jinja'].includes(d.n)?11:8;
+    const m=L.circleMarker([d.lat,d.lon],{radius:r,fillColor:col,color:'rgba(255,255,255,0.1)',weight:1.5,opacity:1,fillOpacity:0.86}).addTo(map);
+    const dRows=d.pvals.map((v,pi)=>`<div class="lp-row"><span>${PENTAD_LABELS[pi]}</span><span class="lp-rv" style="color:${l2c(v)}">${(v*100).toFixed(0)}%</span></div>`).join('');
+    m.bindPopup(`<div class="lp-name">${d.n}</div><div class="lp-val" style="color:${col}">Node ${['Ⅰ','Ⅱ','Ⅲ','Ⅳ','Ⅴ'][curPentad]}: ${(d.pvals[curPentad]*100).toFixed(0)}%</div><div class="lp-rows">${dRows}</div>`);
+    m.on('click',()=>{selDist(d);logA(`${d.n} · ${PENTAD_LABELS[curPentad]}: ${(d.pvals[curPentad]*100).toFixed(0)}%`);});
+    markers.push(m);
+  });
+}
+
+function selDist(d){
+  selD=d;const col=l2c(d.pvals[curPentad]);
+  document.getElementById('sel-panel').style.display='block';
+  document.getElementById('sel-name').textContent=d.n;
+  document.getElementById('sel-score').textContent=(d.pvals[curPentad]*100).toFixed(0)+'% loss';
+  document.getElementById('sel-score').style.color=col;
+  document.getElementById('sel-dims').innerHTML=d.pvals.map((v,pi)=>{
+    const c=l2c(v),p=Math.round(v*100);
+    return`<div class="db-row"><div class="db-dot" style="background:${c}"></div><div class="db-name">${PENTAD_LABELS[pi]}</div><div class="db-bar-bg"><div class="db-bar-fill" style="width:${p}%;background:${c}"></div></div><div class="db-val">${p}%</div></div>`;
+  }).join('');
+}
+
+function stats(){
+  const vals=dataset.map(d=>d.pvals[curPentad]);
+  const mean=vals.reduce((s,v)=>s+v,0)/vals.length;
+  const crit=vals.filter(v=>v>=0.70).length;
+  const lel=document.getElementById('st-loss');
+  lel.textContent=(mean*100).toFixed(1)+'%';lel.style.color=l2c(mean);
+  document.getElementById('st-delta').textContent=`${mean>0.50?'↑ High':'↓ Moderate'} burden · Node ${['Ⅰ','Ⅱ','Ⅲ','Ⅳ','Ⅴ'][curPentad]}`;
+  document.getElementById('st-delta').className='sc2-delta '+(mean>0.55?'bad':'good');
+  document.getElementById('st-crit').textContent=crit;
+  document.getElementById('st-dis').textContent=DISEASES[curDis].label;
+  document.getElementById('st-dis').style.color=DISEASES[curDis].color;
+  document.getElementById('st-dis-sub').textContent=DISEASES[curDis].sub;
+  document.getElementById('st-pent').textContent='Node '+['Ⅰ','Ⅱ','Ⅲ','Ⅳ','Ⅴ'][curPentad]+': '+PENTAD_LABELS[curPentad];
+  document.getElementById('st-pent-desc').textContent=PENTAD_DESCS[curPentad];
+  const top8=[...dataset].sort((a,b)=>b.pvals[curPentad]-a.pvals[curPentad]).slice(0,8);
+  window.__ds={};dataset.forEach(d=>window.__ds[d.n]=d);
+  document.getElementById('top-d').innerHTML=top8.map(d=>`<div class="d-item" onclick="selDist(window.__ds['${d.n}'])"><div class="d-dot" style="background:${l2c(d.pvals[curPentad])}"></div><span class="d-name">${d.n}</span><span class="d-val">${(d.pvals[curPentad]*100).toFixed(0)}%</span></div>`).join('');
+  // update pentad stack
+  document.querySelectorAll('.pent-node').forEach((el,i)=>el.classList.toggle('ac',i===curPentad));
+  // update overlay
+  document.querySelectorAll('.po-step').forEach((el,i)=>el.classList.toggle('ac',i===curPentad));
+}
+
+function updDisp(){
+  const w=getW(),T=w.w1+w.w2+w.w3+w.w4+w.w5;
+  ['w1','w2','w3','w4','w5'].forEach(k=>document.getElementById('v-'+k).textContent=Math.round(w[k]/T*100)+'%');
+  document.getElementById('v-eta').textContent=getEta().toFixed(2);
+}
+
+function sched(){
+  updDisp();document.getElementById('upd').classList.add('on');clearTimeout(tmr);
+  tmr=setTimeout(()=>{build();render();stats();if(selD){const u=dataset.find(d=>d.n===selD.n);if(u)selDist(u);}document.getElementById('upd').classList.remove('on');},250);
+}
+
+function setPentad(tab,idx){
+  document.querySelectorAll('.pent-tab').forEach(t=>t.classList.remove('on'));
+  tab.classList.add('on');curPentad=idx;
+  logA('Pentad: '+PENTAD_LABELS[idx]);sched();
+}
+
+function setDis(btn,dis){
+  document.querySelectorAll('.dis-btn').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');curDis=dis;
+  logA('Condition: '+DISEASES[dis].label);sched();
+}
+
+function setSc(btn,nm){
+  document.querySelectorAll('.sc-btn').forEach(b=>b.classList.remove('on'));btn.classList.add('on');
+  const c={base:[20,30,25,20,5,10],gap:[10,55,15,15,5,10],treat:[15,20,15,50,10,10],equity:[15,20,15,20,40,12],'50yr':[15,25,20,20,20,25]};
+  const v=c[nm];
+  ['s-w1','s-w2','s-w3','s-w4','s-w5','s-eta'].forEach((id,i)=>document.getElementById(id).value=v[i]);
+  if(nm==='50yr'){
+    const upd=document.getElementById('upd');
+    [[0,'Projecting 50-year horizon…'],[1000,'Compounding η across t+50…'],[2200,'θ′ landscape: 2076 projection'],[3000,'Civilizational optimum visible']].forEach(([d,m])=>setTimeout(()=>{upd.classList.add('on');upd.textContent=m;logA(m);},d));
+    setTimeout(()=>{upd.classList.remove('on');sched();},3200);
+  } else {logA('Scenario: '+btn.childNodes[0].textContent.trim());sched();}
+}
+
+function logA(msg){
+  const n=new Date(),t=[n.getHours(),n.getMinutes(),n.getSeconds()].map(x=>String(x).padStart(2,'0')).join(':');
+  const el=document.getElementById('tlog'),e=document.createElement('div');
+  e.className='te';e.innerHTML=`<span class="tt2">${t}</span><span class="ta">${msg}</span>`;
+  el.prepend(e);if(el.children.length>20)el.removeChild(el.lastChild);
+}
+
+document.getElementById('theme-btn').addEventListener('click',()=>{
+  const next=document.documentElement.getAttribute('data-theme')==='dark'?'light':'dark';
+  document.documentElement.setAttribute('data-theme',next);
+  if(map){if(next==='dark'){map.removeLayer(lightTile);darkTile.addTo(map);}else{map.removeLayer(darkTile);lightTile.addTo(map);}}
+});
+['s-w1','s-w2','s-w3','s-w4','s-w5','s-eta'].forEach(id=>document.getElementById(id).addEventListener('input',sched));
+
+logA('Disease intelligence platform — 135 districts');
+logA('5 disease systems · pentadic loss engine ready');
+logA('UCU as civilizational planner: activated');
+logA('NPA + NIH + Wellcome funding pathways loaded');
+
+initMap();updDisp();build();render();stats();
+</script>
+</body>
+</html>

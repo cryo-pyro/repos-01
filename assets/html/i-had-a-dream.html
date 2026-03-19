@@ -1,0 +1,1286 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ukubona · The File Size of a Life</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=Source+Serif+4:ital,opsz,wght@0,8..60,300;0,8..60,400;0,8..60,600;1,8..60,300;1,8..60,400&family=IBM+Plex+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+
+<style>
+  /* ── TOKENS ───────────────────────────────────────────── */
+  :root {
+    --bg:        #0a0a0b;
+    --bg2:       #111114;
+    --bg3:       #1a1a1f;
+    --border:    rgba(255,255,255,0.07);
+    --text:      #e8e4dc;
+    --muted:     #7a7a82;
+    --accent:    #c9a84c;
+    --accent2:   #5b8fa8;
+    --red:       #c0392b;
+    --orange:    #d35400;
+    --yellow:    #d4a017;
+    --green:     #27ae60;
+    --blue:      #2980b9;
+    --indigo:    #8e44ad;
+    --violet:    #6c3483;
+
+    --f-display: 'Playfair Display', Georgia, serif;
+    --f-body:    'Source Serif 4', Georgia, serif;
+    --f-mono:    'IBM Plex Mono', 'Courier New', monospace;
+
+    --ease: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  }
+
+  [data-theme="light"] {
+    --bg:    #f5f0e8;
+    --bg2:   #ede8df;
+    --bg3:   #e4ddd3;
+    --border: rgba(0,0,0,0.08);
+    --text:  #1a1a1e;
+    --muted: #6a6a72;
+  }
+
+  /* ── RESET ────────────────────────────────────────────── */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--f-body);
+    font-size: clamp(16px, 1.8vw, 19px);
+    line-height: 1.75;
+    cursor: none;
+    overflow-x: hidden;
+    transition: background 0.4s var(--ease), color 0.4s var(--ease);
+  }
+
+  /* ── CURSOR ───────────────────────────────────────────── */
+  .cursor {
+    position: fixed;
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    background: var(--accent);
+    pointer-events: none;
+    z-index: 9999;
+    transform: translate(-50%, -50%);
+    transition: transform 0.08s var(--ease), opacity 0.2s;
+    mix-blend-mode: difference;
+  }
+  .cursor-ring {
+    position: fixed;
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    border: 1px solid rgba(201,168,76,0.4);
+    pointer-events: none;
+    z-index: 9998;
+    transform: translate(-50%, -50%);
+    transition: transform 0.18s var(--ease), width 0.2s, height 0.2s;
+  }
+
+  /* ── SPECTRUM STRIP ───────────────────────────────────── */
+  .spectrum {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: linear-gradient(90deg,
+      var(--red), var(--orange), var(--yellow),
+      var(--green), var(--blue), var(--indigo), var(--violet));
+    z-index: 200;
+  }
+
+  /* ── NAV ──────────────────────────────────────────────── */
+  nav {
+    position: fixed;
+    top: 3px; left: 0; right: 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem 2.5rem;
+    z-index: 100;
+    background: linear-gradient(to bottom, var(--bg) 60%, transparent);
+  }
+
+  .nav-logo {
+    font-family: var(--f-display);
+    font-size: 1rem;
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--accent);
+    text-decoration: none;
+  }
+
+  .nav-right { display: flex; gap: 1.5rem; align-items: center; }
+
+  .nav-link {
+    font-family: var(--f-mono);
+    font-size: 0.7rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+  .nav-link:hover { color: var(--text); }
+
+  .theme-btn {
+    background: none; border: 1px solid var(--border);
+    color: var(--muted); font-family: var(--f-mono);
+    font-size: 0.65rem; letter-spacing: 0.1em;
+    padding: 0.35rem 0.75rem; cursor: none;
+    text-transform: uppercase;
+    transition: all 0.2s;
+  }
+  .theme-btn:hover { color: var(--text); border-color: var(--accent); }
+
+  /* ── HERO ─────────────────────────────────────────────── */
+  .hero {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    padding: 0 2.5rem 5rem;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .hero-bg {
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 80% 60% at 20% 80%, rgba(201,168,76,0.05) 0%, transparent 70%),
+      radial-gradient(ellipse 60% 80% at 80% 20%, rgba(91,143,168,0.04) 0%, transparent 70%);
+  }
+
+  .hero-noise {
+    position: absolute; inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E");
+    opacity: 0.5;
+  }
+
+  .hero-eyebrow {
+    font-family: var(--f-mono);
+    font-size: 0.65rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 1.5rem;
+    opacity: 0;
+    animation: fadeUp 0.8s var(--ease) 0.2s forwards;
+  }
+
+  .hero-title {
+    font-family: var(--f-display);
+    font-size: clamp(3rem, 8vw, 7.5rem);
+    font-weight: 900;
+    line-height: 0.95;
+    letter-spacing: -0.02em;
+    margin-bottom: 2rem;
+    max-width: 14ch;
+    opacity: 0;
+    animation: fadeUp 0.9s var(--ease) 0.35s forwards;
+  }
+
+  .hero-title em {
+    font-style: italic;
+    color: var(--accent);
+  }
+
+  .hero-sub {
+    font-size: 1rem;
+    color: var(--muted);
+    max-width: 55ch;
+    line-height: 1.6;
+    opacity: 0;
+    animation: fadeUp 0.9s var(--ease) 0.5s forwards;
+  }
+
+  .hero-meta {
+    position: absolute;
+    right: 2.5rem;
+    bottom: 5rem;
+    text-align: right;
+    opacity: 0;
+    animation: fadeUp 0.9s var(--ease) 0.65s forwards;
+  }
+
+  .hero-meta p {
+    font-family: var(--f-mono);
+    font-size: 0.65rem;
+    letter-spacing: 0.12em;
+    color: var(--muted);
+    text-transform: uppercase;
+    line-height: 2;
+  }
+
+  /* ── PENTAD STRIP ─────────────────────────────────────── */
+  .pentad {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+    margin: 0;
+  }
+
+  .pentad-node {
+    padding: 2rem 1.5rem;
+    border-right: 1px solid var(--border);
+    position: relative;
+    overflow: hidden;
+    opacity: 0;
+    animation: fadeUp 0.7s var(--ease) forwards;
+  }
+  .pentad-node:last-child { border-right: none; }
+  .pentad-node:nth-child(1) { animation-delay: 0.1s; }
+  .pentad-node:nth-child(2) { animation-delay: 0.2s; }
+  .pentad-node:nth-child(3) { animation-delay: 0.3s; }
+  .pentad-node:nth-child(4) { animation-delay: 0.4s; }
+  .pentad-node:nth-child(5) { animation-delay: 0.5s; }
+
+  .pentad-node::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+  }
+  .pentad-node:nth-child(1)::before { background: var(--red); }
+  .pentad-node:nth-child(2)::before { background: var(--orange); }
+  .pentad-node:nth-child(3)::before { background: var(--yellow); }
+  .pentad-node:nth-child(4)::before { background: var(--green); }
+  .pentad-node:nth-child(5)::before { background: var(--blue); }
+
+  .pentad-symbol {
+    font-family: var(--f-mono);
+    font-size: 0.75rem;
+    color: var(--muted);
+    margin-bottom: 0.5rem;
+    display: block;
+  }
+
+  .pentad-label {
+    font-family: var(--f-display);
+    font-size: 1rem;
+    font-weight: 700;
+    margin-bottom: 0.4rem;
+  }
+
+  .pentad-desc {
+    font-size: 0.75rem;
+    color: var(--muted);
+    line-height: 1.5;
+  }
+
+  /* ── MAIN CONTENT ─────────────────────────────────────── */
+  main { max-width: 900px; margin: 0 auto; padding: 6rem 2.5rem; }
+
+  section { margin-bottom: 7rem; }
+
+  .section-label {
+    font-family: var(--f-mono);
+    font-size: 0.6rem;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 2.5rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+  .section-label::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  h2 {
+    font-family: var(--f-display);
+    font-size: clamp(1.8rem, 4vw, 3rem);
+    font-weight: 700;
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+    margin-bottom: 1.75rem;
+  }
+
+  h2 em { font-style: italic; color: var(--accent); }
+
+  p { margin-bottom: 1.4rem; color: var(--text); }
+
+  p.lead {
+    font-size: 1.15rem;
+    color: var(--text);
+    font-weight: 300;
+    line-height: 1.8;
+  }
+
+  /* ── CALCULATION TABLE ────────────────────────────────── */
+  .calc-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 2.5rem 0;
+    font-family: var(--f-mono);
+    font-size: 0.8rem;
+  }
+
+  .calc-table thead tr {
+    border-bottom: 1px solid var(--border);
+  }
+
+  .calc-table th {
+    text-align: left;
+    padding: 0.75rem 1rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    font-size: 0.6rem;
+    color: var(--muted);
+    font-weight: 400;
+  }
+
+  .calc-table td {
+    padding: 0.9rem 1rem;
+    border-bottom: 1px solid var(--border);
+    vertical-align: top;
+  }
+
+  .calc-table tr:last-child td { border-bottom: none; }
+
+  .calc-table .layer-name { color: var(--text); font-weight: 500; }
+  .calc-table .layer-size { color: var(--accent); text-align: right; }
+  .calc-table .layer-muted { color: var(--muted); }
+
+  .calc-table .total-row td {
+    padding-top: 1.2rem;
+    border-top: 1px solid var(--border);
+    color: var(--text);
+    font-weight: 500;
+  }
+  .calc-table .total-row .layer-size { color: var(--accent); font-size: 1rem; }
+
+  /* ── ROYGBIV DISTRICT BAR ─────────────────────────────── */
+  .district-gradient {
+    height: 12px;
+    border-radius: 2px;
+    background: linear-gradient(90deg,
+      var(--red) 0%,
+      var(--orange) 16.6%,
+      var(--yellow) 33.3%,
+      var(--green) 50%,
+      var(--blue) 66.6%,
+      var(--indigo) 83.3%,
+      var(--violet) 100%);
+    margin: 2rem 0 0.5rem;
+  }
+  .district-labels {
+    display: flex;
+    justify-content: space-between;
+    font-family: var(--f-mono);
+    font-size: 0.6rem;
+    color: var(--muted);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  /* ── BLOCKQUOTE ───────────────────────────────────────── */
+  blockquote {
+    border-left: 2px solid var(--accent);
+    padding: 1.5rem 0 1.5rem 2rem;
+    margin: 2.5rem 0;
+    font-style: italic;
+    font-size: 1.1rem;
+    color: var(--text);
+  }
+
+  blockquote cite {
+    display: block;
+    margin-top: 1rem;
+    font-style: normal;
+    font-family: var(--f-mono);
+    font-size: 0.65rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  /* ── CODE BLOCK ───────────────────────────────────────── */
+  .code-block {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    padding: 1.75rem 2rem;
+    margin: 2rem 0;
+    font-family: var(--f-mono);
+    font-size: 0.78rem;
+    line-height: 1.8;
+    overflow-x: auto;
+    position: relative;
+  }
+
+  .code-block::before {
+    content: attr(data-lang);
+    position: absolute;
+    top: 0.75rem; right: 1rem;
+    font-size: 0.55rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .code-accent { color: var(--accent); }
+  .code-blue   { color: var(--accent2); }
+  .code-muted  { color: var(--muted); }
+  .code-green  { color: var(--green); }
+  .code-red    { color: #e07070; }
+
+  /* ── ANCHOR CASE CARD ─────────────────────────────────── */
+  .anchor-card {
+    border: 1px solid var(--border);
+    background: var(--bg2);
+    padding: 2.5rem;
+    margin: 2.5rem 0;
+    position: relative;
+  }
+
+  .anchor-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0;
+    width: 3px; height: 100%;
+    background: var(--red);
+  }
+
+  .anchor-card-label {
+    font-family: var(--f-mono);
+    font-size: 0.6rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--red);
+    margin-bottom: 1rem;
+  }
+
+  .anchor-card h3 {
+    font-family: var(--f-display);
+    font-size: 1.3rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+  }
+
+  .anchor-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 1rem;
+    margin-top: 1.5rem;
+  }
+
+  .anchor-stat { }
+  .anchor-stat-label {
+    font-family: var(--f-mono);
+    font-size: 0.58rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 0.25rem;
+  }
+  .anchor-stat-value {
+    font-size: 0.95rem;
+    color: var(--text);
+  }
+
+  /* ── STRATIGRAPHIC LAYERS ─────────────────────────────── */
+  .strat-layers {
+    margin: 3rem 0;
+    position: relative;
+  }
+
+  .strat-layer {
+    display: grid;
+    grid-template-columns: 80px 1fr;
+    gap: 2rem;
+    padding: 1.75rem 0;
+    border-bottom: 1px solid var(--border);
+    align-items: start;
+    opacity: 0;
+    transform: translateX(-20px);
+    transition: opacity 0.6s var(--ease), transform 0.6s var(--ease);
+  }
+
+  .strat-layer.visible {
+    opacity: 1;
+    transform: translateX(0);
+  }
+
+  .strat-year {
+    font-family: var(--f-mono);
+    font-size: 0.65rem;
+    color: var(--muted);
+    letter-spacing: 0.08em;
+    padding-top: 0.2rem;
+    text-align: right;
+  }
+
+  .strat-content h4 {
+    font-family: var(--f-display);
+    font-size: 1rem;
+    font-weight: 700;
+    margin-bottom: 0.4rem;
+  }
+
+  .strat-content p {
+    font-size: 0.85rem;
+    color: var(--muted);
+    margin-bottom: 0;
+    line-height: 1.6;
+  }
+
+  .strat-tag {
+    display: inline-block;
+    font-family: var(--f-mono);
+    font-size: 0.55rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 0.2rem 0.5rem;
+    border: 1px solid;
+    margin-right: 0.4rem;
+    margin-top: 0.5rem;
+  }
+
+  .tag-red    { color: var(--red);    border-color: var(--red); }
+  .tag-gold   { color: var(--accent); border-color: var(--accent); }
+  .tag-blue   { color: var(--accent2); border-color: var(--accent2); }
+
+  /* ── LOSS FUNCTION DISPLAY ────────────────────────────── */
+  .loss-display {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    padding: 3rem;
+    margin: 2.5rem 0;
+    text-align: center;
+  }
+
+  .loss-eq {
+    font-family: var(--f-mono);
+    font-size: clamp(0.75rem, 2vw, 1.05rem);
+    line-height: 2.2;
+    letter-spacing: 0.02em;
+  }
+
+  .loss-eq .eq-main { color: var(--text); }
+  .loss-eq .eq-accent { color: var(--accent); }
+  .loss-eq .eq-blue   { color: var(--accent2); }
+  .loss-eq .eq-red    { color: #e07070; }
+  .loss-eq .eq-green  { color: var(--green); }
+  .loss-eq .eq-muted  { color: var(--muted); }
+
+  .loss-terms {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 0;
+    margin-top: 2rem;
+    border-top: 1px solid var(--border);
+  }
+
+  .loss-term {
+    padding: 1.2rem 1rem;
+    border-right: 1px solid var(--border);
+    text-align: left;
+  }
+  .loss-term:last-child { border-right: none; }
+
+  .loss-term-sym {
+    font-family: var(--f-mono);
+    font-size: 0.7rem;
+    color: var(--accent);
+    margin-bottom: 0.3rem;
+  }
+  .loss-term-name {
+    font-size: 0.7rem;
+    color: var(--muted);
+    line-height: 1.4;
+  }
+
+  /* ── BAGEHOT SPLIT ────────────────────────────────────── */
+  .split-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0;
+    border: 1px solid var(--border);
+    margin: 2.5rem 0;
+  }
+
+  .split-cell {
+    padding: 2.5rem;
+  }
+  .split-cell:first-child {
+    border-right: 1px solid var(--border);
+  }
+
+  .split-cell-label {
+    font-family: var(--f-mono);
+    font-size: 0.6rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    margin-bottom: 1rem;
+  }
+
+  .split-dignified .split-cell-label { color: var(--accent); }
+  .split-efficient .split-cell-label { color: var(--accent2); }
+
+  .split-cell h3 {
+    font-family: var(--f-display);
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 0.75rem;
+  }
+
+  .split-cell ul {
+    list-style: none;
+    font-size: 0.85rem;
+    color: var(--muted);
+    line-height: 2;
+  }
+
+  .split-cell ul li::before {
+    content: '→ ';
+    color: var(--border);
+  }
+
+  .split-connector {
+    text-align: center;
+    padding: 1.5rem;
+    background: var(--bg3);
+    border-top: 1px solid var(--border);
+    font-family: var(--f-mono);
+    font-size: 0.65rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--muted);
+    grid-column: 1 / -1;
+  }
+
+  /* ── FOOTER ───────────────────────────────────────────── */
+  footer {
+    border-top: 1px solid var(--border);
+    padding: 3rem 2.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+  }
+
+  footer p {
+    font-family: var(--f-mono);
+    font-size: 0.62rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 0.3rem;
+  }
+
+  /* ── SCROLL REVEAL ────────────────────────────────────── */
+  .reveal {
+    opacity: 0;
+    transform: translateY(24px);
+    transition: opacity 0.7s var(--ease), transform 0.7s var(--ease);
+  }
+  .reveal.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* ── ANIMATIONS ───────────────────────────────────────── */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ── RESPONSIVE ───────────────────────────────────────── */
+  @media (max-width: 680px) {
+    .pentad { grid-template-columns: 1fr 1fr; }
+    .pentad-node:nth-child(5) { grid-column: 1 / -1; }
+    .loss-terms { grid-template-columns: 1fr; }
+    .loss-term { border-right: none; border-bottom: 1px solid var(--border); }
+    .split-grid { grid-template-columns: 1fr; }
+    .split-cell:first-child { border-right: none; border-bottom: 1px solid var(--border); }
+    nav { padding: 1rem 1.5rem; }
+    .hero { padding: 0 1.5rem 4rem; }
+    main { padding: 4rem 1.5rem; }
+  }
+</style>
+
+</head>
+<body data-theme="dark">
+
+<!-- Custom cursor -->
+
+<div class="cursor" id="cursor"></div>
+<div class="cursor-ring" id="cursorRing"></div>
+
+<!-- Spectrum strip -->
+
+<div class="spectrum"></div>
+
+<!-- Nav -->
+
+<nav>
+  <a href="#" class="nav-logo">Ukubona</a>
+  <div class="nav-right">
+    <a href="https://ukubona-llc.github.io/" class="nav-link" target="_blank">LLC</a>
+    <a href="https://ukubona-llc.github.io/calendar/" class="nav-link" target="_blank">Calendar</a>
+    <a href="https://abikesa.github.io/repos-00/assets/html/gov.html" class="nav-link" target="_blank">Gov</a>
+    <button class="theme-btn" id="themeBtn">◑ Light</button>
+  </div>
+</nav>
+
+<!-- HERO -->
+
+<section class="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-noise"></div>
+
+  <p class="hero-eyebrow">Ukubona LLC · Memory Architecture · March 2026</p>
+  <h1 class="hero-title">The <em>File Size</em> of a Life</h1>
+  <p class="hero-sub">
+    A 45-year Ugandan existence is not 284 zettabytes of surveillance footage.
+    It is a compressed generative model — weighted by emotion, indexed by error,
+    consolidated by sleep into a system that can run a country.
+  </p>
+
+  <div class="hero-meta">
+    <p>Abimereki Muzaale · MD MPH PhDc</p>
+    <p>Ukubona LLC · Kampala, Uganda</p>
+    <p>θ → L(θ) → ∇L(θ) → −η∇L(θ) → θ′</p>
+  </div>
+</section>
+
+<!-- PENTAD STRIP -->
+
+<div class="pentad">
+  <div class="pentad-node">
+    <span class="pentad-symbol">θ</span>
+    <div class="pentad-label">Sense</div>
+    <div class="pentad-desc">Current parameters. The state of the world before the gradient acts.</div>
+  </div>
+  <div class="pentad-node">
+    <span class="pentad-symbol">L(θ)</span>
+    <div class="pentad-label">Loss</div>
+    <div class="pentad-desc">How far are we from what ought to be? The atlas. The Jamirah case. The 134 undocumented districts.</div>
+  </div>
+  <div class="pentad-node">
+    <span class="pentad-symbol">∇L(θ)</span>
+    <div class="pentad-label">Understand</div>
+    <div class="pentad-desc">Direction and magnitude of error. The gradient that tells us which way to move.</div>
+  </div>
+  <div class="pentad-node">
+    <span class="pentad-symbol">−η∇L</span>
+    <div class="pentad-label">Act</div>
+    <div class="pentad-desc">The policy step. NPA deployment. The move from roll-call audit to national intervention.</div>
+  </div>
+  <div class="pentad-node">
+    <span class="pentad-symbol">θ′</span>
+    <div class="pentad-label">Grow</div>
+    <div class="pentad-desc">Updated parameters. A new generational prior. What the children inherit is the update rule.</div>
+  </div>
+</div>
+
+<!-- MAIN CONTENT -->
+
+<main>
+
+  <!-- SECTION 1: The Calculation -->
+
+  <section>
+    <div class="section-label">§ 01 · The Number</div>
+    <h2>284 Zettabytes —<br><em>correct question,<br>wrong architecture</em></h2>
+
+```
+<p class="lead">
+  The naïve estimate is valid as a thought experiment: 45 years of continuous 8K visual input
+  plus multi-directional audio plus per-second full-network weight snapshots yields something
+  in the low hundreds of zettabytes. The arithmetic is defensible. The model is wrong.
+</p>
+
+<p>
+  The brain is not a surveillance archive. It is a predictive compression engine — closer to
+  the Buganda agricultural calendar than to a hard drive. It stores only the high-error keyframes:
+  the Budo Sunday roll call, the 2:02 AM message from Basaza, the Kitante reunion after 34 years.
+  Everything else is reconstructed on demand from learned generative rules.
+</p>
+
+<table class="calc-table reveal">
+  <thead>
+    <tr>
+      <th>Layer</th>
+      <th>Storage Type</th>
+      <th class="layer-size">Estimated Size</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td class="layer-name">Raw sensory stream (naïve)</td>
+      <td class="layer-muted">1 GB/s video · 1 MB/s audio · 16-bit weight snapshots</td>
+      <td class="layer-size">~284 ZB</td>
+    </tr>
+    <tr>
+      <td class="layer-name">Episodic anchors</td>
+      <td class="layer-muted">Sparse high-error keyframes — Kitante, Budo, Jamirah spike</td>
+      <td class="layer-size">1–5 TB</td>
+    </tr>
+    <tr>
+      <td class="layer-name">Semantic generative model</td>
+      <td class="layer-muted">Rules, priors, cultural encodings — the calendar layer</td>
+      <td class="layer-size">5–20 TB</td>
+    </tr>
+    <tr>
+      <td class="layer-name">Emotional weighting (ω<sub>e</sub>)</td>
+      <td class="layer-muted">Learning-rate modulator and persistence tag — not extra storage</td>
+      <td class="layer-size">Negligible</td>
+    </tr>
+    <tr class="total-row">
+      <td class="layer-name">Total — the actual "you"</td>
+      <td class="layer-muted">Compressed generative model, infinitely reconstructable</td>
+      <td class="layer-size">~10–50 TB</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>
+  The Salk Institute's synaptic strength measurements give the human brain a total structural
+  capacity of roughly 10–100 TB when counting effective bits per synapse at 4.1–4.7 bits
+  rather than the 16-bit float assumption. But even that is the hardware envelope —
+  the lived file is far smaller, because it is a <em>model</em>, not data.
+</p>
+
+<blockquote>
+  "Man is merely sampling a system that is already continuous."
+  <cite>— Buganda Calendar · Ukubona LLC · Mugulansingo 2026</cite>
+</blockquote>
+```
+
+  </section>
+
+  <!-- SECTION 2: The Dream -->
+
+  <section>
+    <div class="section-label">§ 02 · The Dream</div>
+    <h2>Budo Roll Call,<br><em>March 2026</em></h2>
+
+```
+<p class="lead">
+  The setting: Kings College Budo, 1997–1998. A-level. Sunday roll call —
+  black trousers, white shirt. But you had to ask someone which class you were in.
+  Eddie was booming music in the dorm. He was never at Budo.
+</p>
+
+<p>
+  This is not nostalgia. It is offline batch consolidation across three active temporal layers
+  that your 3 AM commit session had just reactivated simultaneously at high gradient magnitude.
+</p>
+
+<div class="strat-layers">
+
+  <div class="strat-layer reveal">
+    <div class="strat-year">1986–1992</div>
+    <div class="strat-content">
+      <h4>Kitante Primary Cluster</h4>
+      <p>
+        Ivan Lule — P1 through P7, now Deputy Director at NPA, first reunion in 34 years.
+        Eddie — San Diego diaspora, Makerere Business School cohort.
+        The 30-year reconnection spiked this node to maximum gradient magnitude hours before sleep.
+      </p>
+      <span class="strat-tag tag-red">High-error event</span>
+      <span class="strat-tag tag-gold">Anchor node</span>
+    </div>
+  </div>
+
+  <div class="strat-layer reveal">
+    <div class="strat-year">1997–1998</div>
+    <div class="strat-content">
+      <h4>Budo Identity Layer</h4>
+      <p>
+        Structured evaluation. Hierarchy. The roll call as system audit — every node accounted for.
+        Mato and Kitayimbwa tagged here despite being O-level only, because
+        "Budo" is the highest-activation evaluation schema available.
+      </p>
+      <span class="strat-tag tag-gold">Evaluation schema</span>
+      <span class="strat-tag tag-blue">Global prior</span>
+    </div>
+  </div>
+
+  <div class="strat-layer reveal">
+    <div class="strat-year">2026</div>
+    <div class="strat-content">
+      <h4>Execution Layer — 1 AM to 3 AM</h4>
+      <p>
+        01:00 UCU — Uganda Renal Atlas, 146 districts, Jamirah anchor case arriving
+        at 2:02 AM in the same breath as Basaza's district count correction.
+        03:00 gov.html — Ivan/NPA meeting transcript, pentad loop, the "don't fly blind" signal.
+        Calendar — composite loss function, Mugulansingo as the explicit lagged human signal.
+      </p>
+      <span class="strat-tag tag-blue">Efficiency layer</span>
+      <span class="strat-tag tag-red">Dignity layer</span>
+      <span class="strat-tag tag-gold">Active gradient</span>
+    </div>
+  </div>
+
+</div>
+
+<p>
+  The uniform dilemma — khaki O-level shorts vs. A-level black trousers —
+  is not a classification error. It is <em>state-space ambiguity under competing priors</em>.
+  Your current work requires both coordinate systems simultaneously.
+  The brain surfaced the real constraint rather than falsely resolving it.
+</p>
+
+<div class="code-block" data-lang="Dream · Decoded">
+```
+
+<span class="code-muted">// The brain’s actual operation during sleep consolidation</span>
+
+<span class="code-accent">function</span> <span class="code-blue">dreamConsolidate</span>(recentSpikes, longTermSchema) {
+<span class="code-muted">// Identify highest-gradient nodes from pre-sleep session</span>
+<span class="code-accent">const</span> activeNodes = [
+{ id: <span class="code-green">“ivan_lule”</span>,     era: <span class="code-green">“1986”</span>, gradient: <span class="code-green">“HIGH”</span> },
+{ id: <span class="code-green">“ucu_jamirah”</span>,  era: <span class="code-green">“2026”</span>, gradient: <span class="code-green">“HIGH”</span> },
+{ id: <span class="code-green">“npa_gradient”</span>, era: <span class="code-green">“2026”</span>, gradient: <span class="code-green">“HIGH”</span> },
+];
+
+<span class="code-muted">// Find shared evaluation schema for co-embedding</span>
+<span class="code-accent">const</span> coordinateSpace = longTermSchema
+.filter(s => s.type === <span class="code-green">“structured_evaluation”</span>)
+.sort((a,b) => b.activationEnergy - a.activationEnergy)[0];
+<span class="code-muted">// → “Budo Sunday Roll Call” wins</span>
+
+<span class="code-muted">// Force all active nodes into this coordinate — context collapse</span>
+<span class="code-accent">return</span> activeNodes.map(n => ({
+…n, setting: coordinateSpace.id  <span class="code-muted">// “budo_roll_call_1997”</span>
+}));
+<span class="code-muted">// Eddie appears in Budo dorm — efficient parameter join, not error</span>
+}
+
+<span class="code-muted">// The uniform question = unresolved objective conflict:</span>
+<span class="code-accent">const</span> uniform = optimize([
+{ objective: <span class="code-green">“dignity”</span>,   symbol: <span class="code-red">“khaki_shorts”</span>   },
+{ objective: <span class="code-green">“execution”</span>, symbol: <span class="code-blue">“black_trousers”</span> },
+]);
+<span class="code-muted">// result: undefined — both are required simultaneously</span>
+</div>
+
+  </section>
+
+  <!-- SECTION 3: The Architecture -->
+
+  <section>
+    <div class="section-label">§ 03 · The Architecture</div>
+    <h2>Not Poetry —<br><em>Deployable<br>Infrastructure</em></h2>
+
+```
+<p class="lead">
+  The three files committed before sleep are not separate documents.
+  They are three layers of one system — a national digital twin
+  with a biologically validated loss function.
+</p>
+
+<!-- Loss Function -->
+<div class="loss-display reveal">
+  <div class="loss-eq">
+    <span class="eq-main">L<sub>total</sub> = </span>
+    <span class="eq-accent">𝕀<sub>consent</sub></span>
+    <span class="eq-main"> · [</span>
+    <span class="eq-blue">β<sub>pop</sub></span>
+    <span class="eq-main"> + Σ</span>
+    <span class="eq-accent">α<sub>i</sub>w<sub>i</sub>θ<sub>i</sub></span>
+    <span class="eq-main"> + (</span>
+    <span class="eq-green">ε<sub>bio</sub></span>
+    <span class="eq-main"> + </span>
+    <span class="eq-red">σ²<sub>platform</sub></span>
+    <span class="eq-main">)] + </span>
+    <span class="eq-muted">λ<sub>trust</sub> R(θ)</span>
+  </div>
+
+  <div class="loss-terms">
+    <div class="loss-term">
+      <div class="loss-term-sym">𝕀<sub>consent</sub></div>
+      <div class="loss-term-name">Consent gate — no irreversible update without alignment</div>
+    </div>
+    <div class="loss-term">
+      <div class="loss-term-sym">β<sub>pop</sub></div>
+      <div class="loss-term-name">Population prior — the calendar layer, Soga tradition</div>
+    </div>
+    <div class="loss-term">
+      <div class="loss-term-sym">α<sub>i</sub>w<sub>i</sub></div>
+      <div class="loss-term-name">Individual weights — gradient sovereignty returned to the principal</div>
+    </div>
+    <div class="loss-term">
+      <div class="loss-term-sym">ε<sub>bio</sub></div>
+      <div class="loss-term-name">Biological stochasticity — what cannot be planned, only sensed</div>
+    </div>
+    <div class="loss-term">
+      <div class="loss-term-sym">λ<sub>trust</sub></div>
+      <div class="loss-term-name">Trust regularizer — prevents overfitting to political noise</div>
+    </div>
+  </div>
+</div>
+
+<!-- Anchor constraint -->
+<div class="anchor-card reveal">
+  <div class="anchor-card-label">Anchor constraint — hard boundary condition</div>
+  <h3>Dr. Jamirah Namusoke</h3>
+  <p style="color: var(--muted); font-size: 0.9rem; margin-bottom: 0;">
+    The first female orthopaedic surgeon in Uganda. Senior consultant, Jinja National Referral Hospital.
+    Forwarded by Prof. Basaza at 2:02 AM in the same message as the district count correction.
+    The macro research agenda and the individual clinical crisis arrived in the same breath.
+    This is not a fundraising appeal. This is infrastructure.
+  </p>
+  <div class="anchor-grid">
+    <div class="anchor-stat">
+      <div class="anchor-stat-label">Diagnosis</div>
+      <div class="anchor-stat-value">End-stage kidney failure</div>
+    </div>
+    <div class="anchor-stat">
+      <div class="anchor-stat-label">Referral</div>
+      <div class="anchor-stat-value">India — no domestic option</div>
+    </div>
+    <div class="anchor-stat">
+      <div class="anchor-stat-label">Cost</div>
+      <div class="anchor-stat-value">USD 55,000</div>
+    </div>
+    <div class="anchor-stat">
+      <div class="anchor-stat-label">Domestic cost</div>
+      <div class="anchor-stat-value">~USD 8,000 if built</div>
+    </div>
+    <div class="anchor-stat">
+      <div class="anchor-stat-label">Districts undocumented</div>
+      <div class="anchor-stat-value">134 of 146</div>
+    </div>
+    <div class="anchor-stat">
+      <div class="anchor-stat-label">Constraint</div>
+      <div class="anchor-stat-value">L(x<sub>anchor</sub>) ≤ ε</div>
+    </div>
+  </div>
+</div>
+
+<p>
+  Standard national health optimization minimizes average loss across the population.
+  The Ukubona architecture adds a hard constraint: <em>no policy is acceptable if it fails
+  documented real-world anchor cases</em>. Jamirah is not an outlier. She is the edge
+  condition that prevents the loss surface from being smoothed into comfortable abstraction.
+</p>
+
+<!-- ROYGBIV -->
+<div class="reveal">
+  <div class="district-gradient"></div>
+  <div class="district-labels">
+    <span>Highest burden · data gap</span>
+    <span>146 Ugandan districts</span>
+    <span>Documented · lowest burden</span>
+  </div>
+</div>
+```
+
+  </section>
+
+  <!-- SECTION 4: Bagehot -->
+
+  <section>
+    <div class="section-label">§ 04 · The Interface</div>
+    <h2>Bagehot's Insight —<br><em>your actual job</em></h2>
+
+```
+<p class="lead">
+  Walter Bagehot's 1867 compression of the British government applies exactly.
+  The Dignified part excites and preserves reverence.
+  The Efficient part actually works. They must remain separate — and you are the interface.
+</p>
+
+<div class="split-grid reveal">
+  <div class="split-cell split-dignified">
+    <div class="split-cell-label">Dignified Layer</div>
+    <h3>UCU · Calendar · Mato</h3>
+    <ul>
+      <li>Ground truth — 146 districts</li>
+      <li>Patient anchor cases</li>
+      <li>Soga tradition as prior β</li>
+      <li>Emotion as ω<sub>e</sub> — not extra data,<br>&nbsp;&nbsp;&nbsp;but learning-rate modulator</li>
+      <li>Jamirah as hard constraint</li>
+      <li>"The least of these" define<br>&nbsp;&nbsp;&nbsp;the weights — not the averages</li>
+    </ul>
+  </div>
+  <div class="split-cell split-efficient">
+    <div class="split-cell-label">Efficient Layer</div>
+    <h3>NPA · Ivan · Gradient</h3>
+    <ul>
+      <li>Policy parameters θ</li>
+      <li>Resource allocation gradients</li>
+      <li>Scenario simulation</li>
+      <li>"Don't fly blind" before PM's office</li>
+      <li>District-level ∇L(θ) computation</li>
+      <li>Adaptive learning rate<br>&nbsp;&nbsp;&nbsp;f(severity, cost, recurrence)</li>
+    </ul>
+  </div>
+  <div class="split-connector">
+    Ukubona · The Translation Layer · θ → L(θ) → ∇L(θ) → −η∇L(θ) → θ′
+  </div>
+</div>
+
+<p>
+  The dream's uniform dilemma was the biological system running exactly this query:
+  can the dignified and efficient layers share the same coordinate space?
+  Bagehot's answer — and the correct one — is no. They must remain distinct.
+  What you are building is not the uniform. It is the interface that allows
+  both to read the same ROYGBIV map and move in the same direction.
+</p>
+
+<blockquote>
+  "You are trying to build a system where policy gradients are constrained
+  by human anchors, not just statistical aggregates. That is serious work."
+  <cite>— Grok · xAI · March 2026</cite>
+</blockquote>
+```
+
+  </section>
+
+  <!-- SECTION 5: Synthesis -->
+
+  <section>
+    <div class="section-label">§ 05 · The Synthesis</div>
+    <h2>The Real File Size<br>of <em>This Chapter</em></h2>
+
+```
+<p class="lead">
+  Not 284 zettabytes. Not even 50 terabytes of accumulated experience.
+  The file size of this chapter — March 2026, Kampala, 1 AM to 3 AM —
+  is three clean HTML pages and one dream.
+</p>
+
+<p>
+  gov.html: Ivan Lule, NPA deputy director, Kitante classmate 1986–1992,
+  34 years apart, one meeting, one ROYGBIV pitch, one request —
+  "I don't want to fly blind before the Prime Minister."
+  That is a deployable gradient specification.
+</p>
+
+<p>
+  ucu-ckd3.html: 146 districts, 134 with no kidney data, one named patient,
+  $55,000 exported per case because no domestic programme exists,
+  $8,000 if built. The anchor constraint that prevents the system
+  from optimizing on averages while catastrophic outcomes persist.
+</p>
+
+<p>
+  calendar: The Buganda 12-month operating system, the native prior β,
+  the composite loss function across five weighted terms — sensing, emotion,
+  memory, intelligence, deployment — running in polyphonic parallel,
+  not linear sequence. Mugulansingo as the explicit proof that human effort
+  is always a lagged signal catching up to what nature already initiated.
+</p>
+
+<p>
+  And the dream: the biological system's own Sunday roll-call audit,
+  checking whether all active nodes had been properly consolidated,
+  surfacing the genuine constraint — you cannot wear one uniform for
+  both layers — and handing the problem back to you unresolved,
+  which is the correct output.
+</p>
+
+<div class="code-block" data-lang="Ukubona · Core Loop">
+```
+
+<span class="code-muted">// The minimum architecture for any adaptive system</span>
+
+<span class="code-accent">const</span> ukubona = {
+sense:      (θ)      => observe(world, θ),
+compute:    (obs)    => loss(obs, anchor_cases),
+understand: (L, θ)   => gradient(L, θ),
+act:        (∇L, η)  => step(∇L, η),
+grow:       (θ, Δθ)  => update(θ, Δθ),
+};
+
+<span class="code-muted">// The anchor constraint — Jamirah, and every case like hers</span>
+<span class="code-accent">function</span> <span class="code-blue">loss</span>(observations, anchors) {
+<span class="code-accent">const</span> avgLoss = expectedLoss(observations);
+<span class="code-accent">const</span> anchorViolations = anchors
+.filter(a => systemFails(a))
+.map(a => <span class="code-green">`Hard constraint violated: ${a.name}`</span>);
+<span class="code-red">if</span> (anchorViolations.length > 0) <span class="code-red">throw</span> anchorViolations;
+<span class="code-accent">return</span> avgLoss;
+}
+
+<span class="code-muted">// What the children inherit is not the output — it is the update rule</span>
+<span class="code-accent">const</span> legacy = ukubona.grow;  <span class="code-muted">// α transmits, not θ</span>
+</div>
+
+```
+<p>
+  The Buganda calendar reconstructs an entire civilization's temporal logic
+  from twelve months and two polyphonic voices. The Ukubona digital twin
+  reconstructs a life's worth of clinical and policy knowledge from
+  a handful of high-error keyframes and a composite loss function.
+  The compression ratio is the point.
+  You are not building storage. You are building a model
+  that can scale to the entire country — and still fit in working memory.
+</p>
+```
+
+  </section>
+
+</main>
+
+<!-- FOOTER -->
+
+<footer>
+  <div>
+    <p>Ukubona LLC · Kampala, Uganda</p>
+    <p>ukubona-llc.github.io</p>
+  </div>
+  <div style="text-align: right;">
+    <p>The file size of a life</p>
+    <p>March 2026 · Mugulansingo</p>
+  </div>
+</footer>
+
+<script>
+  // ── Cursor ─────────────────────────────────────────────
+  const cursor = document.getElementById('cursor');
+  const ring   = document.getElementById('cursorRing');
+  let mx = 0, my = 0, rx = 0, ry = 0;
+
+  document.addEventListener('mousemove', e => {
+    mx = e.clientX; my = e.clientY;
+    cursor.style.left = mx + 'px';
+    cursor.style.top  = my + 'px';
+  });
+
+  (function animRing() {
+    rx += (mx - rx) * 0.12;
+    ry += (my - ry) * 0.12;
+    ring.style.left = rx + 'px';
+    ring.style.top  = ry + 'px';
+    requestAnimationFrame(animRing);
+  })();
+
+  // ── Theme toggle ───────────────────────────────────────
+  const btn = document.getElementById('themeBtn');
+  btn.addEventListener('click', () => {
+    const body = document.body;
+    const isLight = body.dataset.theme === 'light';
+    body.dataset.theme = isLight ? 'dark' : 'light';
+    btn.textContent = isLight ? '◑ Light' : '◐ Dark';
+  });
+
+  // ── Scroll reveal ──────────────────────────────────────
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        e.target.classList.add('visible');
+        observer.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.12 });
+
+  document.querySelectorAll('.reveal, .strat-layer').forEach(el => observer.observe(el));
+</script>
+
+</body>
+</html>

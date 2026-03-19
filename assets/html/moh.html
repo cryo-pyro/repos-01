@@ -1,0 +1,887 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Uganda CHEWs — Roundtable Intelligence Brief</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Serif+Display:ital@0;1&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+:root {
+  --red: #c0392b; --red-light: #e74c3c; --red-pale: #fdecea;
+  --gold: #b7860d; --gold-light: #f39c12; --gold-pale: #fef9ec;
+  --teal: #0e6b5e; --teal-light: #1abc9c; --teal-pale: #e8f8f5;
+  --navy: #1a2744; --navy-mid: #2c3e6b; --navy-pale: #eef1f8;
+  --smoke: #f5f4f0; --ink: #1a1917; --muted: #6b6660; --border: rgba(26,25,23,0.1);
+  --font-head: 'Syne', sans-serif;
+  --font-serif: 'DM Serif Display', serif;
+  --font-mono: 'JetBrains Mono', monospace;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body { background: #0e0d0c; color: #e8e5df; font-family: var(--font-head); line-height: 1.6; overflow-x: hidden; }
+
+/* ── HERO ── */
+.hero {
+  min-height: 100vh;
+  background: radial-gradient(ellipse at 20% 50%, #1a2744 0%, #0e0d0c 60%),
+              radial-gradient(ellipse at 80% 20%, #1a0a00 0%, transparent 50%);
+  display: flex; flex-direction: column; justify-content: center; align-items: flex-start;
+  padding: 5rem 6rem;
+  position: relative; overflow: hidden;
+}
+.hero::before {
+  content: '';
+  position: absolute; inset: 0;
+  background-image: repeating-linear-gradient(0deg, transparent, transparent 59px, rgba(255,255,255,0.02) 60px),
+                    repeating-linear-gradient(90deg, transparent, transparent 59px, rgba(255,255,255,0.02) 60px);
+  pointer-events: none;
+}
+.hero-badge {
+  font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.15em; text-transform: uppercase;
+  color: #f39c12; border: 1px solid rgba(243,156,18,0.4); padding: 6px 14px; border-radius: 2px;
+  margin-bottom: 2.5rem; display: inline-block;
+}
+.hero h1 {
+  font-size: clamp(3rem, 7vw, 6.5rem); font-weight: 800; line-height: 1.02;
+  letter-spacing: -0.03em; max-width: 900px; margin-bottom: 1.5rem;
+}
+.hero h1 .accent { color: #f39c12; font-style: italic; font-family: var(--font-serif); font-weight: 400; }
+.hero-sub {
+  max-width: 600px; color: #8a8680; font-size: 1.1rem; font-weight: 400; margin-bottom: 3rem;
+  line-height: 1.7;
+}
+.hero-stats { display: flex; gap: 3rem; flex-wrap: wrap; }
+.hero-stat { border-left: 2px solid #f39c12; padding-left: 1.25rem; }
+.hero-stat .num { font-size: 2.2rem; font-weight: 700; color: #f5f4f0; font-family: var(--font-mono); }
+.hero-stat .label { font-size: 0.8rem; color: #6b6660; text-transform: uppercase; letter-spacing: 0.1em; }
+.scroll-hint { position: absolute; bottom: 2.5rem; left: 6rem; font-size: 12px; color: #4a4742; font-family: var(--font-mono); letter-spacing: 0.1em; }
+
+/* ── PENTAD NAV ── */
+.pentad-nav {
+  background: #0e0d0c; border-bottom: 1px solid rgba(255,255,255,0.06);
+  position: sticky; top: 0; z-index: 100; padding: 0 6rem;
+  display: flex; align-items: center; gap: 0;
+}
+.pentad-nav a {
+  display: block; padding: 1.2rem 1.6rem; font-size: 0.78rem; font-family: var(--font-mono);
+  letter-spacing: 0.12em; text-transform: uppercase; color: #6b6660; text-decoration: none;
+  border-bottom: 2px solid transparent; transition: all 0.2s; white-space: nowrap;
+}
+.pentad-nav a:hover { color: #f39c12; border-bottom-color: #f39c12; }
+.nav-logo { margin-right: auto; font-weight: 800; font-size: 1rem; color: #e8e5df; letter-spacing: -0.02em; }
+
+/* ── SECTIONS ── */
+section { padding: 6rem; }
+section:nth-child(even) { background: #111010; }
+.section-label { font-family: var(--font-mono); font-size: 11px; text-transform: uppercase; letter-spacing: 0.18em; color: #f39c12; margin-bottom: 1rem; }
+.section-title { font-size: clamp(2rem, 4vw, 3.2rem); font-weight: 700; line-height: 1.1; letter-spacing: -0.02em; margin-bottom: 1rem; }
+.section-title em { font-family: var(--font-serif); font-weight: 400; font-style: italic; color: #a09890; }
+.section-intro { color: #8a8680; font-size: 1.05rem; max-width: 680px; line-height: 1.8; margin-bottom: 3.5rem; }
+
+/* ── PENTAD FRACTAL DIAGRAM ── */
+.pentad-ring { display: flex; justify-content: center; margin: 2rem 0 4rem; }
+.pentad-svg-wrap { width: 100%; max-width: 760px; }
+
+/* ── ROUNDTABLE GRID ── */
+.rt-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.06); }
+.rt-card { background: #111010; padding: 2.5rem; position: relative; transition: background 0.3s; }
+.rt-card:hover { background: #161513; }
+.rt-badge { font-family: var(--font-mono); font-size: 10px; text-transform: uppercase; letter-spacing: 0.15em; padding: 4px 10px; border-radius: 2px; display: inline-block; margin-bottom: 1.5rem; }
+.badge-u { background: rgba(192,57,43,0.15); color: #e74c3c; border: 1px solid rgba(192,57,43,0.3); }
+.badge-g { background: rgba(26,188,156,0.1); color: #1abc9c; border: 1px solid rgba(26,188,156,0.25); }
+.badge-o { background: rgba(243,156,18,0.1); color: #f39c12; border: 1px solid rgba(243,156,18,0.25); }
+.badge-a { background: rgba(155,89,182,0.1); color: #9b59b6; border: 1px solid rgba(155,89,182,0.25); }
+.badge-x { background: rgba(52,152,219,0.1); color: #3498db; border: 1px solid rgba(52,152,219,0.25); }
+.rt-card h3 { font-size: 1.2rem; font-weight: 700; margin-bottom: 0.6rem; }
+.rt-card p { color: #7a7670; font-size: 0.92rem; line-height: 1.75; }
+.rt-card .insight { margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px solid rgba(255,255,255,0.06); font-size: 0.85rem; color: #a09890; font-family: var(--font-mono); }
+
+/* ── CHARTS ── */
+.chart-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 2rem; margin-bottom: 2rem; }
+.chart-card { background: #161513; border: 1px solid rgba(255,255,255,0.07); border-radius: 4px; padding: 2rem; }
+.chart-card h4 { font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.12em; color: #6b6660; font-family: var(--font-mono); margin-bottom: 1.5rem; }
+.chart-wrap { position: relative; width: 100%; height: 240px; }
+
+/* ── STATUS TABLE ── */
+.status-wrap { overflow-x: auto; }
+.status-table { width: 100%; border-collapse: collapse; font-size: 0.88rem; }
+.status-table thead th { text-align: left; padding: 0.75rem 1rem; font-family: var(--font-mono); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.1em; color: #6b6660; border-bottom: 1px solid rgba(255,255,255,0.08); }
+.status-table tbody tr { border-bottom: 1px solid rgba(255,255,255,0.04); transition: background 0.15s; }
+.status-table tbody tr:hover { background: rgba(255,255,255,0.03); }
+.status-table td { padding: 0.65rem 1rem; color: #c0bdb8; }
+.status-table td:first-child { color: #e8e5df; font-weight: 600; }
+.tag { font-size: 10px; font-family: var(--font-mono); text-transform: uppercase; padding: 2px 8px; border-radius: 2px; letter-spacing: 0.08em; }
+.tag-done { background: rgba(26,188,156,0.12); color: #1abc9c; }
+.tag-ongoing { background: rgba(243,156,18,0.12); color: #f39c12; }
+.tag-pending { background: rgba(107,102,96,0.15); color: #8a8680; }
+
+/* ── DATA FLOW ── */
+.flow-wrap { margin: 2rem 0; }
+
+/* ── COST BREAKDOWN ── */
+.cost-bars { display: flex; flex-direction: column; gap: 1rem; margin: 2rem 0; }
+.cost-bar-row { display: flex; align-items: center; gap: 1rem; }
+.cost-bar-label { font-size: 0.85rem; color: #a09890; min-width: 180px; }
+.cost-bar-track { flex: 1; background: rgba(255,255,255,0.06); height: 28px; border-radius: 2px; overflow: hidden; position: relative; }
+.cost-bar-fill { height: 100%; border-radius: 2px; display: flex; align-items: center; padding-left: 12px; font-family: var(--font-mono); font-size: 12px; font-weight: 500; transition: width 1s cubic-bezier(0.4, 0, 0.2, 1); }
+.cost-bar-fill.b1 { background: linear-gradient(90deg, #c0392b, #e74c3c); color: #fff; }
+.cost-bar-fill.b2 { background: linear-gradient(90deg, #1a5276, #2980b9); color: #fff; }
+.cost-bar-fill.b3 { background: linear-gradient(90deg, #1a7a4a, #27ae60); color: #fff; }
+.cost-bar-fill.b4 { background: linear-gradient(90deg, #7d3c98, #9b59b6); color: #fff; }
+.cost-bar-fill.b5 { background: linear-gradient(90deg, #7d6608, #f39c12); color: #1a1917; }
+
+/* ── SCALE UP TIMELINE ── */
+.timeline { position: relative; padding-left: 2px; }
+.timeline::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 1px; background: rgba(255,255,255,0.1); }
+.tl-item { padding: 0 0 2.5rem 2.5rem; position: relative; }
+.tl-dot { position: absolute; left: -6px; top: 4px; width: 12px; height: 12px; border-radius: 50%; background: #f39c12; box-shadow: 0 0 0 3px rgba(243,156,18,0.2); }
+.tl-dot.done { background: #1abc9c; box-shadow: 0 0 0 3px rgba(26,188,156,0.2); }
+.tl-dot.pending { background: #4a4742; box-shadow: 0 0 0 3px rgba(74,71,66,0.3); }
+.tl-year { font-family: var(--font-mono); font-size: 11px; color: #6b6660; letter-spacing: 0.1em; margin-bottom: 0.4rem; }
+.tl-title { font-size: 1.05rem; font-weight: 700; margin-bottom: 0.3rem; }
+.tl-meta { font-size: 0.85rem; color: #7a7670; }
+.tl-num { font-family: var(--font-mono); color: #f39c12; font-weight: 500; }
+
+/* ── KPI GRID ── */
+.kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 1.5px; background: rgba(255,255,255,0.06); margin-bottom: 3rem; }
+.kpi-card { background: #111010; padding: 1.75rem 1.5rem; }
+.kpi-value { font-size: 2rem; font-weight: 700; font-family: var(--font-mono); color: #f5f4f0; line-height: 1; margin-bottom: 0.4rem; }
+.kpi-label { font-size: 0.78rem; color: #6b6660; text-transform: uppercase; letter-spacing: 0.1em; }
+.kpi-sub { font-size: 0.82rem; color: #4a9970; margin-top: 0.3rem; font-family: var(--font-mono); }
+
+/* ── MATH SUBSTRATE ── */
+.math-block { background: #161513; border: 1px solid rgba(255,255,255,0.07); border-left: 3px solid #f39c12; padding: 2rem 2rem 2rem 2.5rem; margin: 2rem 0; border-radius: 2px; }
+.math-block pre { font-family: var(--font-mono); font-size: 0.9rem; color: #c0bdb8; line-height: 2; overflow-x: auto; }
+.math-block .comment { color: #4a4742; }
+
+/* ── FOOTER ── */
+footer { background: #0a0908; padding: 4rem 6rem; border-top: 1px solid rgba(255,255,255,0.06); }
+.footer-inner { display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 2rem; }
+.footer-brand { font-weight: 800; font-size: 1.1rem; letter-spacing: -0.02em; margin-bottom: 0.5rem; }
+.footer-tagline { font-size: 0.82rem; color: #4a4742; font-family: var(--font-mono); }
+.footer-links { display: flex; gap: 2rem; flex-wrap: wrap; }
+.footer-links a { color: #4a4742; font-size: 0.82rem; text-decoration: none; font-family: var(--font-mono); transition: color 0.2s; }
+.footer-links a:hover { color: #f39c12; }
+
+/* ── ANIMATIONS ── */
+@keyframes fadeUp { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes pulse-ring { 0%, 100% { opacity: 0.4; } 50% { opacity: 1; } }
+.fade-up { animation: fadeUp 0.7s ease both; }
+.delay-1 { animation-delay: 0.1s; } .delay-2 { animation-delay: 0.2s; } .delay-3 { animation-delay: 0.3s; }
+
+/* Divider */
+.divider { height: 1px; background: rgba(255,255,255,0.06); margin: 0 6rem; }
+
+@media (max-width: 800px) {
+  section, .hero, footer { padding: 3rem 1.5rem; }
+  .pentad-nav { padding: 0 1.5rem; overflow-x: auto; }
+  .divider { margin: 0 1.5rem; }
+  .hero h1 { font-size: 2.4rem; }
+  .hero-stats { gap: 1.5rem; }
+}
+</style>
+</head>
+<body>
+
+<!-- HERO -->
+<div class="hero" id="top">
+  <span class="hero-badge">Ukubona × MoH Uganda · Roundtable Intelligence Brief · 2025</span>
+  <h1 class="fade-up">Uganda's<br><span class="accent">21,900 Frontline</span><br>Health Workers</h1>
+  <p class="hero-sub fade-up delay-1">A pentad-fractal analysis of the Costed CHEWs Framework & Operational Plan 2024/25–2029/30 — from individual worker to civilizational health outcome. Five AI voices. One convergence.</p>
+  <div class="hero-stats fade-up delay-2">
+    <div class="hero-stat">
+      <div class="num">21,900</div>
+      <div class="label">CHEWs Target</div>
+    </div>
+    <div class="hero-stat">
+      <div class="num">US$48M</div>
+      <div class="label">5-Year Budget</div>
+    </div>
+    <div class="hero-stat">
+      <div class="num">146</div>
+      <div class="label">Districts</div>
+    </div>
+    <div class="hero-stat">
+      <div class="num">5%</div>
+      <div class="label">Prior Supervision Rate</div>
+    </div>
+  </div>
+  <div class="scroll-hint">↓ scroll to explore</div>
+</div>
+
+<!-- NAV -->
+<nav class="pentad-nav">
+  <span class="nav-logo">CHEWs·UG</span>
+  <a href="#pentad">Pentad</a>
+  <a href="#roundtable">Roundtable</a>
+  <a href="#data">Live Data</a>
+  <a href="#scale">Scale-Up</a>
+  <a href="#cost">Costs</a>
+  <a href="#ecosystem">Ecosystem</a>
+</nav>
+
+<!-- PENTAD FRACTAL -->
+<section id="pentad">
+  <div class="section-label">Layer 0 — Architecture</div>
+  <h2 class="section-title">The <em>Pentad</em> of Community Health</h2>
+  <p class="section-intro">Every layer of the CHEWs system nests inside the next — worker inside parish inside district inside nation inside the civilizational arc of UHC 2030. Stochastic gradient descent: θ → L(θ) → ∇L → −η∇L → θ′. The twin does not report. It converges.</p>
+
+  <div class="pentad-ring">
+    <svg class="pentad-svg-wrap" viewBox="0 0 760 480" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <!-- Outer rings - civilizational -->
+      <circle cx="380" cy="240" r="220" stroke="rgba(243,156,18,0.15)" stroke-width="1" stroke-dasharray="4 6"/>
+      <circle cx="380" cy="240" r="175" stroke="rgba(243,156,18,0.2)" stroke-width="1" stroke-dasharray="4 5"/>
+      <circle cx="380" cy="240" r="132" stroke="rgba(26,188,156,0.25)" stroke-width="1" stroke-dasharray="3 5"/>
+      <circle cx="380" cy="240" r="92" stroke="rgba(155,89,182,0.3)" stroke-width="1" stroke-dasharray="3 4"/>
+      <circle cx="380" cy="240" r="55" stroke="rgba(231,76,60,0.35)" stroke-width="1.5"/>
+
+      <!-- Civilization layer -->
+      <text x="380" y="32" text-anchor="middle" font-family="'JetBrains Mono'" font-size="11" fill="rgba(243,156,18,0.6)" letter-spacing="3">L5 · CIVILIZATIONAL</text>
+      <text x="380" y="48" text-anchor="middle" font-family="'JetBrains Mono'" font-size="10" fill="rgba(243,156,18,0.4)">UHC 2030 · SDG3 · Uganda</text>
+
+      <!-- Government layer label -->
+      <text x="600" y="130" font-family="'JetBrains Mono'" font-size="11" fill="rgba(26,188,156,0.7)" letter-spacing="2">L4 · GOVT</text>
+      <text x="600" y="146" font-family="'JetBrains Mono'" font-size="10" fill="rgba(26,188,156,0.45)">MoH · 146 Districts</text>
+      <line x1="590" y1="139" x2="510" y2="200" stroke="rgba(26,188,156,0.2)" stroke-width="0.5" stroke-dasharray="3 4"/>
+
+      <!-- Enterprise/District label -->
+      <text x="590" y="310" font-family="'JetBrains Mono'" font-size="11" fill="rgba(155,89,182,0.7)" letter-spacing="2">L3 · DISTRICT</text>
+      <text x="590" y="326" font-family="'JetBrains Mono'" font-size="10" fill="rgba(155,89,182,0.45)">DHO · Sub-county</text>
+      <line x1="580" y1="318" x2="464" y2="282" stroke="rgba(155,89,182,0.2)" stroke-width="0.5" stroke-dasharray="3 4"/>
+
+      <!-- Household layer -->
+      <text x="80" y="330" font-family="'JetBrains Mono'" font-size="11" fill="rgba(52,152,219,0.7)" letter-spacing="2">L2 · PARISH</text>
+      <text x="80" y="346" font-family="'JetBrains Mono'" font-size="10" fill="rgba(52,152,219,0.45)">VHTs · Households</text>
+      <line x1="165" y1="338" x2="300" y2="290" stroke="rgba(52,152,219,0.2)" stroke-width="0.5" stroke-dasharray="3 4"/>
+
+      <!-- Personal layer -->
+      <text x="60" y="140" font-family="'JetBrains Mono'" font-size="11" fill="rgba(231,76,60,0.8)" letter-spacing="2">L1 · CHEW</text>
+      <text x="60" y="156" font-family="'JetBrains Mono'" font-size="10" fill="rgba(231,76,60,0.5)">The individual worker</text>
+      <line x1="162" y1="148" x2="326" y2="210" stroke="rgba(231,76,60,0.25)" stroke-width="0.5" stroke-dasharray="3 4"/>
+
+      <!-- Central pentagon shape -->
+      <polygon points="380,196 416,218 404,256 356,256 344,218" fill="rgba(231,76,60,0.08)" stroke="#e74c3c" stroke-width="1.5"/>
+
+      <!-- Core center -->
+      <circle cx="380" cy="240" r="22" fill="#1a1917" stroke="rgba(243,156,18,0.6)" stroke-width="1.5"/>
+      <text x="380" y="236" text-anchor="middle" font-family="'Syne'" font-size="9" fill="#f39c12" letter-spacing="1">CHEWs</text>
+      <text x="380" y="249" text-anchor="middle" font-family="'JetBrains Mono'" font-size="8" fill="rgba(243,156,18,0.6)">θ′</text>
+
+      <!-- Gradient arrows from center outward -->
+      <line x1="380" y1="218" x2="380" y2="80" stroke="rgba(243,156,18,0.12)" stroke-width="1"/>
+      <line x1="400" y1="236" x2="540" y2="236" stroke="rgba(243,156,18,0.12)" stroke-width="1"/>
+      <line x1="360" y1="236" x2="220" y2="236" stroke="rgba(243,156,18,0.12)" stroke-width="1"/>
+      <line x1="390" y1="258" x2="460" y2="380" stroke="rgba(243,156,18,0.12)" stroke-width="1"/>
+      <line x1="370" y1="258" x2="300" y2="380" stroke="rgba(243,156,18,0.12)" stroke-width="1"/>
+
+      <!-- Loss function annotation -->
+      <text x="380" y="456" text-anchor="middle" font-family="'JetBrains Mono'" font-size="11" fill="rgba(255,255,255,0.2)">L_total(θ) = Σ wₖ Lₖ(θₖ) · where k ∈ {worker, parish, district, nation, UHC}</text>
+    </svg>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ROUNDTABLE -->
+<section id="roundtable">
+  <div class="section-label">Layer 2 — Perspectives</div>
+  <h2 class="section-title">The <em>Roundtable</em></h2>
+  <p class="section-intro">Five AI voices — Ukubona, Google, OpenAI, Anthropic, xAI — each bringing a different gradient to Uganda's community health optimization problem. The document is the loss function. CHEWs are the update step.</p>
+
+  <div class="rt-grid">
+    <!-- Ukubona -->
+    <div class="rt-card">
+      <span class="rt-badge badge-u">U · Ukubona</span>
+      <h3>See the Gradient Others Call Noise</h3>
+      <p>The CHEWs framework is Uganda's government-sanctioned implementation of stochastic gradient descent on the national health loss function. Each CHEW is a θ-update: a living parameter deployed at the parish node. The MoU (UGX 8 Trillion) is the learning rate budget. Andrew Bbaale and Life Care Diagnostics — sole Abbott distributors — are supply-side infrastructure coupling. The eCHIS tablet is the forward pass; VHT data ingestion is the gradient signal.</p>
+      <div class="insight">→ L₁(θ) = worker loss · L₂ = parish · L₃ = district · L₄ = MoH · L₅ = UHC</div>
+    </div>
+
+    <!-- Google -->
+    <div class="rt-card">
+      <span class="rt-badge badge-g">G · Google</span>
+      <h3>The Landscape: Structural Bottleneck → Intervention</h3>
+      <p>Progress toward UHC 2030 is structurally blocked: 5% VHT supervision rates, 15% health assistant vacancy fill, a growing NCD+infectious triple burden. CHEWs are the corrective signal. User Behavior correction: by managing trigger alerts, zero-dose followups, and model household mentoring, CHEWs reduce the dropout in community-to-facility referral chains. Unit cost optimization from US$2,933 (pilot) → US$2,194 (scale) demonstrates iterative convergence.</p>
+      <div class="insight">→ Scaling budget: ~US$48M for 21,900 CHEWs across 146 LGs</div>
+    </div>
+
+    <!-- OpenAI -->
+    <div class="rt-card">
+      <span class="rt-badge badge-o">O · OpenAI</span>
+      <h3>Clear, Structured, Actionable</h3>
+      <p>The framework addresses six structured objectives: governance, selection/retention, training, resource toolkit, M&E, enabling environment. Two CHEWs per parish (1M + 1F). Six months intensive training — 22 modules spanning NCDs, climate change, eCHIS, One Health. Monthly stipend US$50–100. The pilot (Mayuge, Lira District, Lira City) showed improved VHT reporting, immunization, ANC4+ attendance. Scale-up: 21,900 CHEWs total, 146 LGs, ~US$124M at 100% coverage.</p>
+      <div class="insight">→ 46% of cost: CHEW allowances · 18%: digital systems · 17%: equipment</div>
+    </div>
+
+    <!-- Anthropic -->
+    <div class="rt-card">
+      <span class="rt-badge badge-a">A · Anthropic</span>
+      <h3>Comprehensive Structural Reform</h3>
+      <p>This is Uganda's revised national strategy — a professional cadre introduced 2018, piloted 2022–2024, now entering national scale-up. The CHEW model: professional supervisors and mentors to VHTs, not direct service providers. Key distinction: CHEWs act as bridge between communities and health system, performing surveillance, data collection via eCHIS, supply chain management, and trigger-alert response (danger signs, zero-dose children). Operational plan provides district-level SoPs for selection, training, certification, deployment.</p>
+      <div class="insight">→ Theory of change: input → output → community health outcomes → UHC</div>
+    </div>
+
+    <!-- xAI -->
+    <div class="rt-card">
+      <span class="rt-badge badge-x">X · xAI</span>
+      <h3>Costed Roadmap: The Raw Calculus</h3>
+      <p>Uganda's costed roadmap to professionalize parish-level community health supervision. Key operational updates vs 2018: age criteria modified (25–35 new entrants, 35–45 ex-VHTs); curriculum expanded 16→22 modules; toolkit standardized with digital + analog tools; supervision clarified through Assistant Health Educators. UGX 175.23B (~US$48M) 5-year total. Many SoPs still pending development (Annex 2). KPIs: health education sessions, referrals completed, model households, immunization, ANC4+, supervision coverage.</p>
+      <div class="insight">→ Grand total: UGX 175.23B · 21,900 CHEWs · 2 per parish · 6-month training</div>
+    </div>
+
+    <!-- Convergence -->
+    <div class="rt-card" style="background: #1a1410; border: 1px solid rgba(243,156,18,0.2);">
+      <span class="rt-badge" style="background: rgba(243,156,18,0.15); color: #f39c12; border: 1px solid rgba(243,156,18,0.35);">∑ · Convergence</span>
+      <h3>Where the Roundtable Agrees</h3>
+      <p>All five voices converge on three truths: (1) The 5% VHT supervision rate is the core loss function to minimize. (2) CHEWs are the gradient update — trained, incentivized, digitally equipped. (3) The eCHIS tablet is the instrument of measurement without which no optimization is possible. The cost-per-CHEW is not an expense. It is the learning rate. Uganda has chosen η = US$2,194/year. The question is whether the optimization landscape is convex.</p>
+      <div class="insight">→ ∇L → 0 when all 21,900 CHEWs are deployed, reporting, and supervised</div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- LIVE DATA -->
+<section id="data">
+  <div class="section-label">Layer 3 — Live Status</div>
+  <h2 class="section-title">District <em>Deployment</em> Data</h2>
+  <p class="section-intro">Real data from CHEWs_status.xlsx — 70 districts, multiple implementing partners, three training cohorts. The map is incomplete. That incompleteness is the gradient.</p>
+
+  <!-- KPI Cards -->
+  <div class="kpi-grid">
+    <div class="kpi-card">
+      <div class="kpi-value">70</div>
+      <div class="kpi-label">Districts in Pipeline</div>
+      <div class="kpi-sub">↑ of 146 total</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-value">~6,870</div>
+      <div class="kpi-label">CHEWs Trained (est)</div>
+      <div class="kpi-sub">↑ 2024–2025 cohorts</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-value">38</div>
+      <div class="kpi-label">Completed Training</div>
+      <div class="kpi-sub">↑ 2024 + 2025</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-value">30</div>
+      <div class="kpi-label">Yet to Start</div>
+      <div class="kpi-sub">↓ 2026 cohort</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-value">2</div>
+      <div class="kpi-label">Ongoing</div>
+      <div class="kpi-sub">→ Buikwe, Mukono</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-value">6</div>
+      <div class="kpi-label">Implementing Partners</div>
+      <div class="kpi-sub">Global Fund, USAID, UCREP…</div>
+    </div>
+  </div>
+
+  <!-- Charts -->
+  <div class="chart-grid">
+    <div class="chart-card">
+      <h4>CHEWs by Partner (Completed Training)</h4>
+      <div class="chart-wrap">
+        <canvas id="partnerChart"></canvas>
+      </div>
+    </div>
+    <div class="chart-card">
+      <h4>Training Status Distribution</h4>
+      <div class="chart-wrap">
+        <canvas id="statusChart"></canvas>
+      </div>
+    </div>
+    <div class="chart-card">
+      <h4>Scale-Up Trajectory: CHEWs by Year</h4>
+      <div class="chart-wrap">
+        <canvas id="trajectoryChart"></canvas>
+      </div>
+    </div>
+    <div class="chart-card">
+      <h4>Top 12 Districts by CHEW Count</h4>
+      <div class="chart-wrap" style="height: 280px;">
+        <canvas id="districtChart"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <!-- Status Table (sample) -->
+  <div class="status-wrap">
+    <table class="status-table">
+      <thead>
+        <tr>
+          <th>District</th>
+          <th>CHEWs</th>
+          <th>Partner</th>
+          <th>Status</th>
+          <th>Year</th>
+        </tr>
+      </thead>
+      <tbody id="districtTableBody"></tbody>
+    </table>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- SCALE UP -->
+<section id="scale">
+  <div class="section-label">Layer 4 — Optimization</div>
+  <h2 class="section-title">The <em>Scale-Up</em> Sequence</h2>
+  <p class="section-intro">21,900 CHEWs across 146 local governments — deployed in rolling cohorts from 2024 through 2030. Each cohort is an iteration. The loss function is distance from UHC.</p>
+
+  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; align-items: start; flex-wrap: wrap;">
+    <div class="timeline">
+      <div class="tl-item">
+        <div class="tl-dot done"></div>
+        <div class="tl-year">2022–2024 · PILOT</div>
+        <div class="tl-title">Proof of Concept</div>
+        <div class="tl-meta">Mayuge, Lira District, Lira City. Implementation science model. <span class="tl-num">3 districts</span> · Evidence base established.</div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-dot done"></div>
+        <div class="tl-year">2024 · EARLY SCALE</div>
+        <div class="tl-title">First Wave: 7 districts</div>
+        <div class="tl-meta">Kyotera, Kazo, Namutumba, Maracha, Koboko, Kyenjojo, Ngora. Global Fund. <span class="tl-num">~1,242 CHEWs</span></div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-dot"></div>
+        <div class="tl-year">2024/25 · YEAR 1</div>
+        <div class="tl-title">26 New Local Governments</div>
+        <div class="tl-meta">Target: <span class="tl-num">3,900 CHEWs</span> · Annual cost: <span class="tl-num">~US$22M</span></div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-dot pending"></div>
+        <div class="tl-year">2025/26–2026/27 · YEARS 2–3</div>
+        <div class="tl-title">35 New LGs × 2 Years</div>
+        <div class="tl-meta">Target: <span class="tl-num">14,400 cumulative CHEWs</span> · ~US$30M/year</div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-dot pending"></div>
+        <div class="tl-year">2028/29–2029/30 · YEARS 4–5</div>
+        <div class="tl-title">Final 50 Local Governments</div>
+        <div class="tl-meta">Target: <span class="tl-num">21,900 total CHEWs</span> · ~US$21M/year · All 146 LGs covered</div>
+      </div>
+    </div>
+
+    <div>
+      <div class="math-block">
+        <pre>
+<span class="comment">// CHEWs Optimization Substrate</span>
+
+θ_parish,t+1 = θ_parish,t − η · ∇L_parish
+
+where:
+  η     = US$2,194 / CHEW / year
+  ∇L    = (target_coverage − actual_coverage)
+  θ     = CHEW competency vector
+  L₁    = worker loss (skills, motivation)
+  L₂    = parish loss (VHT reporting %)
+  L₃    = district loss (immunization, ANC4+)
+  L₄    = national loss (UHC distance)
+
+<span class="comment">// Pilot showed ∇L < 0:</span>
+<span class="comment">// VHT reporting ↑, immunization ↑, ANC ↑</span>
+<span class="comment">// → gradient is real. Scale is the question.</span>
+
+Total budget = Σᵢ ηᵢ × n_CHEWs,ᵢ × years
+             = US$48,048,600 (90% LG reach)
+             = US$123,876,237 (100% LG reach)
+        </pre>
+      </div>
+
+      <div style="margin-top: 2rem;">
+        <div style="font-size: 0.85rem; color: #6b6660; font-family: var(--font-mono); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 1.5rem;">Selection Criteria</div>
+        <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+          <div style="display: flex; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 0.75rem;">
+            <span style="color: #a09890; font-size: 0.88rem;">Education</span>
+            <span style="color: #e8e5df; font-size: 0.88rem; font-family: var(--font-mono);">Senior 4 (UCE)</span>
+          </div>
+          <div style="display: flex; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 0.75rem;">
+            <span style="color: #a09890; font-size: 0.88rem;">Age (new entrant)</span>
+            <span style="color: #e8e5df; font-size: 0.88rem; font-family: var(--font-mono);">25–35 yrs</span>
+          </div>
+          <div style="display: flex; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 0.75rem;">
+            <span style="color: #a09890; font-size: 0.88rem;">Age (ex-VHT)</span>
+            <span style="color: #e8e5df; font-size: 0.88rem; font-family: var(--font-mono);">35–45 yrs</span>
+          </div>
+          <div style="display: flex; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 0.75rem;">
+            <span style="color: #a09890; font-size: 0.88rem;">Per parish</span>
+            <span style="color: #e8e5df; font-size: 0.88rem; font-family: var(--font-mono);">2 (1M + 1F mandatory)</span>
+          </div>
+          <div style="display: flex; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 0.75rem;">
+            <span style="color: #a09890; font-size: 0.88rem;">Training duration</span>
+            <span style="color: #e8e5df; font-size: 0.88rem; font-family: var(--font-mono);">6 months (4+2)</span>
+          </div>
+          <div style="display: flex; justify-content: space-between;">
+            <span style="color: #a09890; font-size: 0.88rem;">Monthly stipend</span>
+            <span style="color: #f39c12; font-size: 0.88rem; font-family: var(--font-mono);">US$50–100</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- COST -->
+<section id="cost">
+  <div class="section-label">Layer 5 — Investment</div>
+  <h2 class="section-title">The <em>Cost</em> Structure</h2>
+  <p class="section-intro">US$48M for 90% LG reach. US$124M for 100%. Every dollar is a gradient step. The annualized unit cost per CHEW fell from US$2,933 (pilot) to US$2,194 (scale) — a 25% efficiency gain through iteration.</p>
+
+  <div class="cost-bars">
+    <div class="cost-bar-row">
+      <div class="cost-bar-label">CHEW Allowances / Stipends</div>
+      <div class="cost-bar-track">
+        <div class="cost-bar-fill b1" style="width: 46%" data-target="46">46%</div>
+      </div>
+    </div>
+    <div class="cost-bar-row">
+      <div class="cost-bar-label">Digital Systems (eCHIS Tablets)</div>
+      <div class="cost-bar-track">
+        <div class="cost-bar-fill b2" style="width: 18%" data-target="18">18%</div>
+      </div>
+    </div>
+    <div class="cost-bar-row">
+      <div class="cost-bar-label">Equipment & Toolkit</div>
+      <div class="cost-bar-track">
+        <div class="cost-bar-fill b3" style="width: 17%" data-target="17">17%</div>
+      </div>
+    </div>
+    <div class="cost-bar-row">
+      <div class="cost-bar-label">Training (Initial + Refresher)</div>
+      <div class="cost-bar-track">
+        <div class="cost-bar-fill b4" style="width: 13%" data-target="13">13%</div>
+      </div>
+    </div>
+    <div class="cost-bar-row">
+      <div class="cost-bar-label">Supervision, M&E, Coordination</div>
+      <div class="cost-bar-track">
+        <div class="cost-bar-fill b5" style="width: 6%" data-target="6">6%</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="chart-grid" style="margin-top: 3rem;">
+    <div class="chart-card">
+      <h4>Annual Cost Projection (US$M)</h4>
+      <div class="chart-wrap">
+        <canvas id="annualCostChart"></canvas>
+      </div>
+    </div>
+    <div class="chart-card">
+      <h4>Cumulative CHEWs Deployed</h4>
+      <div class="chart-wrap">
+        <canvas id="cumulativeChart"></canvas>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ECOSYSTEM -->
+<section id="ecosystem">
+  <div class="section-label">Layer ∞ — Convergence</div>
+  <h2 class="section-title">The <em>Ecosystem</em></h2>
+  <p class="section-intro">CHEWs are not a standalone intervention. They are a node in Uganda's health system graph — interfacing with VHTs, health facilities, district offices, the Parish Development Model, implementing partners, and the eCHIS digital backbone. The app question (Twaagala Sseente) is not cosmetic. It is the data pipeline that makes the gradient measurable.</p>
+
+  <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1.5rem; margin-bottom: 3rem;">
+    <div style="background: #161513; border: 1px solid rgba(255,255,255,0.07); padding: 2rem; border-radius: 4px;">
+      <div style="font-size: 0.75rem; font-family: var(--font-mono); text-transform: uppercase; letter-spacing: 0.12em; color: #e74c3c; margin-bottom: 1rem;">Data Layer</div>
+      <h4 style="font-size: 1rem; margin-bottom: 0.75rem;">eCHIS → DHIS2 → MoH</h4>
+      <p style="font-size: 0.88rem; color: #7a7670; line-height: 1.7;">VHT data ingested via eCHIS tablets. CHEWs analyze local health profiles. Aggregate to DHIS2. MoH gets the national gradient signal. Format: XLS, CSV, SQL. The app question is pipeline architecture, not UI.</p>
+    </div>
+    <div style="background: #161513; border: 1px solid rgba(255,255,255,0.07); padding: 2rem; border-radius: 4px;">
+      <div style="font-size: 0.75rem; font-family: var(--font-mono); text-transform: uppercase; letter-spacing: 0.12em; color: #3498db; margin-bottom: 1rem;">Supply Layer</div>
+      <h4 style="font-size: 1rem; margin-bottom: 0.75rem;">Life Care Diagnostics × Abbott</h4>
+      <p style="font-size: 0.88rem; color: #7a7670; line-height: 1.7;">Sole distributor of Abbott diagnostic products in Uganda. CHEW toolkit includes BP machines, glucometers, RDTs, MUAC tapes. Supply chain coupling is a critical dependency — and a commercial opportunity.</p>
+    </div>
+    <div style="background: #161513; border: 1px solid rgba(255,255,255,0.07); padding: 2rem; border-radius: 4px;">
+      <div style="font-size: 0.75rem; font-family: var(--font-mono); text-transform: uppercase; letter-spacing: 0.12em; color: #1abc9c; margin-bottom: 1rem;">Finance Layer</div>
+      <h4 style="font-size: 1rem; margin-bottom: 0.75rem;">MoU · UGX 8 Trillion</h4>
+      <p style="font-size: 0.88rem; color: #7a7670; line-height: 1.7;">The headline figure from the government MoU. Multi-partner financing: Global Fund (Africa Frontline First/BIRCH), USAID, World Bank, UCREP, UN agencies. District-coded stipend system via MoFPED.</p>
+    </div>
+    <div style="background: #161513; border: 1px solid rgba(255,255,255,0.07); padding: 2rem; border-radius: 4px;">
+      <div style="font-size: 0.75rem; font-family: var(--font-mono); text-transform: uppercase; letter-spacing: 0.12em; color: #f39c12; margin-bottom: 1rem;">Governance Layer</div>
+      <h4 style="font-size: 1rem; margin-bottom: 0.75rem;">Meddy Rutayisire, MD → Paul Mbaka</h4>
+      <p style="font-size: 0.88rem; color: #7a7670; line-height: 1.7;">Community Health Dept chain: Dr. Rutayisire under Paul Mbaka (formerly WHO/Grace). HPEC leads quality assurance. DHOs manage selection and district-level rollout. Independent consultant: Dr. Raymond Tweheyo.</p>
+    </div>
+  </div>
+
+  <!-- Final convergence statement -->
+  <div style="border: 1px solid rgba(243,156,18,0.2); background: rgba(243,156,18,0.04); padding: 3rem; border-radius: 4px; text-align: center;">
+    <div style="font-family: var(--font-mono); font-size: 11px; text-transform: uppercase; letter-spacing: 0.2em; color: rgba(243,156,18,0.6); margin-bottom: 1.5rem;">Convergence Statement</div>
+    <p style="font-family: 'DM Serif Display', serif; font-size: 1.8rem; line-height: 1.5; color: #e8e5df; max-width: 700px; margin: 0 auto 1.5rem; font-style: italic;">
+      "Uganda has chosen η = US$2,194/year. The question is whether the optimization landscape is convex — and whether the data pipeline is honest enough to measure the gradient."
+    </p>
+    <p style="font-size: 0.85rem; color: #4a4742; font-family: var(--font-mono);">— Ukubona Roundtable · Kampala–Baltimore · 2025</p>
+    <div style="margin-top: 2rem; font-family: var(--font-mono); font-size: 1rem; color: rgba(243,156,18,0.7); letter-spacing: 0.1em;">θ → L(θ) → ∇L → −η∇L → θ′</div>
+    <div style="font-family: var(--font-mono); font-size: 0.8rem; color: #4a4742; margin-top: 0.5rem;">Worker · Parish · District · Nation · UHC</div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-inner">
+    <div>
+      <div class="footer-brand">CHEWs · Uganda</div>
+      <div class="footer-tagline">Roundtable Intelligence Brief · MoH Uganda 2024/25–2029/30</div>
+    </div>
+    <div class="footer-links">
+      <a href="#top">↑ Top</a>
+      <a href="#pentad">Pentad</a>
+      <a href="#roundtable">Roundtable</a>
+      <a href="#data">Data</a>
+      <a href="https://abikesa.github.io/repos-00/assets/html/landing-page.html">Ukubona →</a>
+    </div>
+  </div>
+</footer>
+
+<script>
+// ── DISTRICT DATA (from CHEWs_status.xlsx) ──
+const districtData = [
+  {n:'Kyotera', c:132, p:'Global Fund', s:'Completed Training', y:2024},
+  {n:'Kazo', c:102, p:'Global Fund', s:'Completed Training', y:2024},
+  {n:'Namutumba', c:222, p:'Global Fund', s:'Completed Training', y:2024},
+  {n:'Maracha', c:182, p:'Global Fund', s:'Completed Training', y:2024},
+  {n:'Koboko', c:124, p:'Global Fund', s:'Completed Training', y:2024},
+  {n:'Kyenjojo', c:334, p:'Global Fund', s:'Completed Training', y:2024},
+  {n:'Ngora', c:146, p:'Global Fund', s:'Completed Training', y:2024},
+  {n:'Rubirizi', c:106, p:'Global Fund', s:'Completed Training', y:2025},
+  {n:'Kitgum', c:166, p:'Global Fund', s:'Completed Training', y:2025},
+  {n:'Kalangala', c:34, p:'Global Fund', s:'Completed Training', y:2025},
+  {n:'Buliisa', c:78, p:'Global Fund', s:'Completed Training', y:2025},
+  {n:'Arua District', c:64, p:'Global Fund', s:'Completed Training', y:2025},
+  {n:'Amudat', c:88, p:'Global Fund', s:'Completed Training', y:2025},
+  {n:'Nakaseke', c:142, p:'UCREP', s:'Completed Training', y:2025},
+  {n:'Kwania', c:98, p:'UCREP/World Bank', s:'Completed Training', y:2025},
+  {n:'Kween', c:202, p:'UCREP/World Bank', s:'Completed Training', y:2025},
+  {n:'Butaleja', c:152, p:'UCREP/World Bank', s:'Completed Training', y:2025},
+  {n:'Lwengo', c:90, p:'UCREP/World Bank', s:'Completed Training', y:2025},
+  {n:'Nakasongola', c:136, p:'UCREP/World Bank', s:'Completed Training', y:2025},
+  {n:'Luwero', c:202, p:'UCREP/World Bank', s:'Completed Training', y:2025},
+  {n:'Lira City', c:74, p:'USAID', s:'Completed Training', y:2025},
+  {n:'Lira District', c:92, p:'USAID', s:'Completed Training', y:2025},
+  {n:'Mayuge', c:168, p:'USAID', s:'Completed Training', y:2025},
+  {n:'Kakumiro', c:210, p:'Global Fund', s:'Completed Training', y:2025},
+  {n:'Kalungu', c:74, p:'Global Fund', s:'Completed Training', y:2025},
+  {n:'Mitooma', c:158, p:'Global Fund', s:'Completed Training', y:2025},
+  {n:'Kisoro', c:142, p:'Global Fund', s:'Completed Training', y:2025},
+  {n:'Mbale', c:180, p:'Global Fund', s:'Completed Training', y:2025},
+  {n:'Bukedea', c:304, p:'Global Fund', s:'Completed Training', y:2025},
+  {n:'Bunyangabu', c:110, p:'Global Fund', s:'Completed Training', y:2025},
+  {n:'Namayingo', c:100, p:'USAID', s:'Completed Training', y:2025},
+  {n:'Mbarara', c:92, p:'USAID', s:'Completed Training', y:2025},
+  {n:'Mbarara City', c:46, p:'USAID', s:'Completed Training', y:2025},
+  {n:'Kole', c:108, p:'USAID', s:'Completed Training', y:2025},
+  {n:'Iganga', c:106, p:'USAID', s:'Completed Training', y:2025},
+  {n:'Rukungiri', c:210, p:'USAID', s:'Completed Training', y:2025},
+  {n:'Omoro', c:130, p:'USAID', s:'Completed Training', y:2025},
+  {n:'Kassanda', c:184, p:'Global Fund', s:'Completed Training', y:2025},
+  {n:'Buikwe', c:134, p:'DOD', s:'Ongoing', y:2026},
+  {n:'Mukono', c:194, p:'DOD', s:'Ongoing', y:2026},
+  {n:'Budaka', c:152, p:'Baylor Eastern', s:'Yet to Start', y:2026},
+  {n:'Butebo', c:122, p:'Baylor Eastern', s:'Yet to Start', y:2026},
+  {n:'Nabilatuk', c:52, p:'Baylor Eastern', s:'Yet to Start', y:2026},
+  {n:'Napak', c:114, p:'Baylor Eastern', s:'Yet to Start', y:2026},
+  {n:'Fort Portal City', c:50, p:'Baylor Western', s:'Yet to Start', y:2026},
+  {n:'Hoima City', c:32, p:'Baylor Western', s:'Yet to Start', y:2026},
+  {n:'Hoima District', c:110, p:'Baylor Western', s:'Yet to Start', y:2026},
+  {n:'Kabarole', c:104, p:'Baylor Western', s:'Yet to Start', y:2026},
+  {n:'Lyantonde', c:60, p:'IDI', s:'Yet to Start', y:2026},
+  {n:'Butambala', c:50, p:'IDI', s:'Yet to Start', y:2026},
+  {n:'Arua City', c:108, p:'IDI', s:'Yet to Start', y:2026},
+  {n:'Agago', c:234, p:'JCRC', s:'Yet to Start', y:2026},
+  {n:'Ibanda', c:122, p:'JCRC', s:'Yet to Start', y:2026},
+  {n:'Kabale', c:158, p:'JCRC', s:'Yet to Start', y:2026},
+  {n:'Jinja City', c:52, p:'MJAP', s:'Yet to Start', y:2026},
+  {n:'Jinja District', c:68, p:'MJAP', s:'Yet to Start', y:2026},
+  {n:'Kamuli', c:180, p:'MJAP', s:'Yet to Start', y:2026},
+  {n:'Dokolo', c:142, p:'UHA', s:'Yet to Start', y:2026},
+  {n:'Kaberamaido', c:56, p:'AIC/CDC', s:'Yet to Start', y:2026},
+  {n:'Oyam', c:148, p:'UNICEF', s:'Yet to Start', y:2026},
+  {n:'Sembabule', c:130, p:'UNICEF', s:'Yet to Start', y:2026},
+  {n:'Busia', c:140, p:'UNICEF', s:'Yet to Start', y:2026},
+  {n:'Gomba', c:98, p:'UNICEF', s:'Yet to Start', y:2026},
+  {n:'Mbale City', c:126, p:'UNICEF', s:'Yet to Start', y:2026},
+  {n:'Nwoya', c:88, p:'UNICEF', s:'Yet to Start', y:2026},
+  {n:'Otuke', c:106, p:'UNICEF', s:'Yet to Start', y:2026},
+  {n:'Terego', c:84, p:'UNICEF', s:'Yet to Start', y:2026},
+  {n:'Kikuube', c:58, p:'UNICEF', s:'Yet to Start', y:2026},
+];
+
+// Partner totals
+const partnerTotals = {};
+districtData.filter(d => d.s === 'Completed Training').forEach(d => {
+  const pk = d.p.split('/')[0].trim();
+  partnerTotals[pk] = (partnerTotals[pk] || 0) + d.c;
+});
+
+// Status counts
+const statusCounts = {done: 0, ongoing: 0, pending: 0};
+districtData.forEach(d => {
+  if (d.s === 'Completed Training') statusCounts.done++;
+  else if (d.s === 'Ongoing') statusCounts.ongoing++;
+  else statusCounts.pending++;
+});
+
+// Populate table
+const tbody = document.getElementById('districtTableBody');
+districtData.slice(0, 25).forEach(d => {
+  const tag = d.s === 'Completed Training' ? 'tag-done' : d.s === 'Ongoing' ? 'tag-ongoing' : 'tag-pending';
+  const label = d.s === 'Completed Training' ? 'Done' : d.s === 'Ongoing' ? 'Active' : 'Pending';
+  tbody.innerHTML += `<tr>
+    <td>${d.n}</td>
+    <td style="font-family:'JetBrains Mono';color:#f39c12">${d.c}</td>
+    <td>${d.p}</td>
+    <td><span class="tag ${tag}">${label}</span></td>
+    <td style="font-family:'JetBrains Mono';color:#6b6660">${d.y}</td>
+  </tr>`;
+});
+
+// ── CHARTS ──
+const darkBg = 'transparent';
+const gridColor = 'rgba(255,255,255,0.05)';
+const textColor = '#6b6660';
+const defaultFont = { family: "'JetBrains Mono', monospace", size: 11 };
+
+// Partner chart
+new Chart(document.getElementById('partnerChart'), {
+  type: 'bar',
+  data: {
+    labels: Object.keys(partnerTotals),
+    datasets: [{
+      data: Object.values(partnerTotals),
+      backgroundColor: ['#c0392b','#2980b9','#27ae60','#f39c12','#9b59b6'],
+      borderRadius: 2, borderWidth: 0
+    }]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: { legend: { display: false } },
+    scales: {
+      x: { ticks: { color: textColor, font: defaultFont }, grid: { color: gridColor } },
+      y: { ticks: { color: textColor, font: defaultFont }, grid: { color: gridColor } }
+    }
+  }
+});
+
+// Status chart
+new Chart(document.getElementById('statusChart'), {
+  type: 'doughnut',
+  data: {
+    labels: ['Completed Training', 'Ongoing', 'Yet to Start'],
+    datasets: [{
+      data: [statusCounts.done, statusCounts.ongoing, statusCounts.pending],
+      backgroundColor: ['#1abc9c','#f39c12','#4a4742'],
+      borderWidth: 0, hoverOffset: 4
+    }]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: {
+      legend: { position: 'bottom', labels: { color: textColor, font: defaultFont, padding: 16, boxWidth: 10, borderRadius: 2 } }
+    }
+  }
+});
+
+// Trajectory chart
+new Chart(document.getElementById('trajectoryChart'), {
+  type: 'line',
+  data: {
+    labels: ['Pilot\n2022-24','FY 2024/25','FY 2025/26','FY 2026/27','FY 2027/28','FY 2028/29','FY 2029/30'],
+    datasets: [{
+      label: 'Cumulative CHEWs',
+      data: [300, 3900, 9150, 14400, 14400, 18150, 21900],
+      borderColor: '#f39c12', backgroundColor: 'rgba(243,156,18,0.08)',
+      fill: true, tension: 0.4, pointBackgroundColor: '#f39c12', pointRadius: 4, borderWidth: 2
+    }]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: { legend: { display: false } },
+    scales: {
+      x: { ticks: { color: textColor, font: defaultFont }, grid: { color: gridColor } },
+      y: { ticks: { color: textColor, font: defaultFont, callback: v => v.toLocaleString() }, grid: { color: gridColor } }
+    }
+  }
+});
+
+// Top districts
+const topDistricts = [...districtData].sort((a,b) => b.c - a.c).slice(0,12);
+new Chart(document.getElementById('districtChart'), {
+  type: 'bar',
+  data: {
+    labels: topDistricts.map(d => d.n),
+    datasets: [{
+      data: topDistricts.map(d => d.c),
+      backgroundColor: topDistricts.map(d =>
+        d.s === 'Completed Training' ? '#1abc9c' : d.s === 'Ongoing' ? '#f39c12' : '#4a4742'
+      ),
+      borderRadius: 2, borderWidth: 0
+    }]
+  },
+  options: {
+    indexAxis: 'y', responsive: true, maintainAspectRatio: false,
+    plugins: { legend: { display: false } },
+    scales: {
+      x: { ticks: { color: textColor, font: defaultFont }, grid: { color: gridColor } },
+      y: { ticks: { color: textColor, font: { family: "'JetBrains Mono', monospace", size: 10 } }, grid: { display: false } }
+    }
+  }
+});
+
+// Annual cost chart
+new Chart(document.getElementById('annualCostChart'), {
+  type: 'bar',
+  data: {
+    labels: ['2024/25','2025/26','2026/27','2027/28','2028/29','2029/30'],
+    datasets: [{
+      label: 'US$M',
+      data: [22.1, 29.7, 29.7, 0, 21.2, 21.2],
+      backgroundColor: ['#c0392b','#e74c3c','#e74c3c','rgba(255,255,255,0.1)','#c0392b','#c0392b'],
+      borderRadius: 2, borderWidth: 0
+    }]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: { legend: { display: false } },
+    scales: {
+      x: { ticks: { color: textColor, font: defaultFont }, grid: { color: gridColor } },
+      y: { ticks: { color: textColor, font: defaultFont, callback: v => '$'+v+'M' }, grid: { color: gridColor } }
+    }
+  }
+});
+
+// Cumulative CHEWs by cost
+new Chart(document.getElementById('cumulativeChart'), {
+  type: 'line',
+  data: {
+    labels: ['2024/25','2025/26','2026/27','2027/28','2028/29','2029/30'],
+    datasets: [{
+      label: 'CHEWs',
+      data: [3900, 9150, 14400, 14400, 18150, 21900],
+      borderColor: '#1abc9c', backgroundColor: 'rgba(26,188,156,0.08)',
+      fill: true, tension: 0.3, pointBackgroundColor: '#1abc9c', pointRadius: 5, borderWidth: 2
+    }]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: { legend: { display: false } },
+    scales: {
+      x: { ticks: { color: textColor, font: defaultFont }, grid: { color: gridColor } },
+      y: { ticks: { color: textColor, font: defaultFont, callback: v => v.toLocaleString() }, grid: { color: gridColor } }
+    }
+  }
+});
+</script>
+</body>
+</html>

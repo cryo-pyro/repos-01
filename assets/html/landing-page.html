@@ -1,0 +1,1121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Ukubona LLC — Digital Twin OS</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=Source+Serif+4:ital,opsz,wght@0,8..60,300;0,8..60,400;0,8..60,600;1,8..60,300;1,8..60,400&family=IBM+Plex+Mono:wght@300;400;500&display=swap" rel="stylesheet"/>
+<style>
+  :root {
+    --bg: #0a0a0b;
+    --bg2: #111114;
+    --bg3: #18181d;
+    --text: #e8e4dc;
+    --text2: #a09a90;
+    --text3: #6a6460;
+    --accent: #c8a96e;
+    --accent2: #8b5e3c;
+    --red: #e05c4b;
+    --orange: #e8874a;
+    --yellow: #d4b84a;
+    --green: #6aaa6e;
+    --blue: #5a8fc4;
+    --indigo: #7070c8;
+    --violet: #9a6ab0;
+    --border: rgba(200,169,110,0.15);
+    --border2: rgba(200,169,110,0.08);
+    --mono: 'IBM Plex Mono', monospace;
+    --serif: 'Source Serif 4', serif;
+    --display: 'Playfair Display', serif;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--serif);
+    font-size: 17px;
+    line-height: 1.7;
+    cursor: none;
+    overflow-x: hidden;
+  }
+
+  /* Custom cursor */
+  #cursor {
+    position: fixed; top: 0; left: 0;
+    width: 20px; height: 20px;
+    border: 1.5px solid var(--accent);
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 9999;
+    mix-blend-mode: difference;
+    transition: transform 0.15s ease, opacity 0.15s ease;
+    transform: translate(-50%, -50%);
+  }
+  #cursor-dot {
+    position: fixed; top: 0; left: 0;
+    width: 4px; height: 4px;
+    background: var(--accent);
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 9999;
+    transform: translate(-50%, -50%);
+  }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar { width: 3px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--accent2); }
+
+  /* ── SPECTRUM STRIP ── */
+  .spectrum-strip {
+    position: fixed; top: 0; left: 0; right: 0;
+    height: 3px;
+    background: linear-gradient(90deg,
+      var(--red) 0%, var(--orange) 16.6%, var(--yellow) 33.3%,
+      var(--green) 50%, var(--blue) 66.6%, var(--indigo) 83.3%, var(--violet) 100%);
+    z-index: 1000;
+  }
+
+  /* ── NAV ── */
+  nav {
+    position: fixed; top: 3px; left: 0; right: 0;
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 18px 48px;
+    background: rgba(10,10,11,0.92);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border2);
+    z-index: 999;
+  }
+  .nav-logo {
+    font-family: var(--display);
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: var(--accent);
+    letter-spacing: 0.04em;
+    text-decoration: none;
+  }
+  .nav-logo span {
+    font-style: italic;
+    font-weight: 400;
+    font-size: 0.85rem;
+    color: var(--text3);
+    margin-left: 10px;
+    font-family: var(--mono);
+  }
+  .nav-links { display: flex; gap: 36px; align-items: center; }
+  .nav-links a {
+    font-family: var(--mono);
+    font-size: 0.75rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text2);
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+  .nav-links a:hover { color: var(--accent); }
+  .nav-cta {
+    font-family: var(--mono);
+    font-size: 0.72rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--bg);
+    background: var(--accent);
+    padding: 8px 20px;
+    border: none;
+    cursor: none;
+    text-decoration: none;
+    transition: opacity 0.2s;
+  }
+  .nav-cta:hover { opacity: 0.85; }
+
+  /* ── HERO ── */
+  .hero {
+    min-height: 100vh;
+    display: flex; flex-direction: column; justify-content: center;
+    padding: 120px 48px 80px;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero-bg {
+    position: absolute; inset: 0;
+    background:
+      radial-gradient(ellipse 70% 60% at 80% 50%, rgba(200,169,110,0.05) 0%, transparent 70%),
+      radial-gradient(ellipse 40% 50% at 15% 70%, rgba(90,143,196,0.04) 0%, transparent 60%);
+  }
+  .hero-grid {
+    position: absolute; inset: 0;
+    background-image:
+      linear-gradient(rgba(200,169,110,0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(200,169,110,0.04) 1px, transparent 1px);
+    background-size: 60px 60px;
+    mask-image: radial-gradient(ellipse 80% 80% at 50% 50%, black 40%, transparent 100%);
+  }
+  .hero-eyebrow {
+    font-family: var(--mono);
+    font-size: 0.72rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 24px;
+    opacity: 0;
+    animation: fadeUp 0.8s 0.2s forwards;
+  }
+  .hero h1 {
+    font-family: var(--display);
+    font-size: clamp(3rem, 7vw, 7rem);
+    font-weight: 900;
+    line-height: 1.0;
+    max-width: 900px;
+    opacity: 0;
+    animation: fadeUp 0.8s 0.4s forwards;
+  }
+  .hero h1 em {
+    font-style: italic;
+    font-weight: 400;
+    color: var(--accent);
+  }
+  .hero-sub {
+    margin-top: 32px;
+    max-width: 560px;
+    color: var(--text2);
+    font-size: 1.1rem;
+    line-height: 1.8;
+    opacity: 0;
+    animation: fadeUp 0.8s 0.6s forwards;
+  }
+  .hero-math {
+    margin-top: 40px;
+    font-family: var(--mono);
+    font-size: 0.82rem;
+    color: var(--text3);
+    letter-spacing: 0.03em;
+    opacity: 0;
+    animation: fadeUp 0.8s 0.8s forwards;
+  }
+  .hero-math .eq {
+    color: var(--accent);
+    margin-right: 6px;
+  }
+  .hero-actions {
+    margin-top: 48px;
+    display: flex; gap: 16px; align-items: center;
+    opacity: 0;
+    animation: fadeUp 0.8s 1.0s forwards;
+  }
+  .btn-primary {
+    font-family: var(--mono);
+    font-size: 0.75rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--bg);
+    background: var(--accent);
+    padding: 14px 32px;
+    text-decoration: none;
+    transition: opacity 0.2s;
+    cursor: none;
+  }
+  .btn-primary:hover { opacity: 0.85; }
+  .btn-ghost {
+    font-family: var(--mono);
+    font-size: 0.75rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text2);
+    border: 1px solid var(--border);
+    padding: 13px 32px;
+    text-decoration: none;
+    transition: border-color 0.2s, color 0.2s;
+    cursor: none;
+  }
+  .btn-ghost:hover { border-color: var(--accent); color: var(--accent); }
+
+  /* ── PENTAD STRIP ── */
+  .pentad-strip {
+    display: flex;
+    border-top: 1px solid var(--border2);
+    border-bottom: 1px solid var(--border2);
+    margin: 0;
+  }
+  .pentad-node {
+    flex: 1;
+    padding: 28px 24px;
+    border-right: 1px solid var(--border2);
+    position: relative;
+    overflow: hidden;
+    transition: background 0.3s;
+  }
+  .pentad-node:last-child { border-right: none; }
+  .pentad-node:hover { background: rgba(200,169,110,0.04); }
+  .pentad-node .level {
+    font-family: var(--mono);
+    font-size: 0.65rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--text3);
+    margin-bottom: 8px;
+  }
+  .pentad-node .label {
+    font-family: var(--display);
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 4px;
+  }
+  .pentad-node .sublabel {
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    color: var(--text3);
+  }
+  .pentad-node .dot {
+    position: absolute; top: 16px; right: 16px;
+    width: 8px; height: 8px;
+    border-radius: 50%;
+  }
+
+  /* ── SECTION WRAPPER ── */
+  section {
+    padding: 100px 48px;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+  .section-full {
+    padding: 100px 48px;
+    max-width: 100%;
+    border-top: 1px solid var(--border2);
+  }
+  .section-eyebrow {
+    font-family: var(--mono);
+    font-size: 0.68rem;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 20px;
+  }
+  .section-title {
+    font-family: var(--display);
+    font-size: clamp(2rem, 4vw, 3.5rem);
+    font-weight: 700;
+    line-height: 1.1;
+    margin-bottom: 24px;
+  }
+  .section-title em { font-style: italic; color: var(--accent); }
+  .section-body {
+    color: var(--text2);
+    max-width: 680px;
+    line-height: 1.85;
+  }
+
+  /* ── WHAT WE BUILD ── */
+  .services-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1px;
+    background: var(--border2);
+    margin-top: 60px;
+    border: 1px solid var(--border2);
+  }
+  .service-card {
+    background: var(--bg);
+    padding: 40px 36px;
+    transition: background 0.3s;
+    position: relative;
+  }
+  .service-card:hover { background: var(--bg3); }
+  .service-card .icon {
+    font-family: var(--mono);
+    font-size: 1.6rem;
+    margin-bottom: 20px;
+    line-height: 1;
+  }
+  .service-card h3 {
+    font-family: var(--display);
+    font-size: 1.3rem;
+    font-weight: 700;
+    margin-bottom: 12px;
+  }
+  .service-card p {
+    color: var(--text2);
+    font-size: 0.92rem;
+    line-height: 1.75;
+  }
+  .service-card .tag {
+    margin-top: 20px;
+    font-family: var(--mono);
+    font-size: 0.65rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--accent2);
+    border: 1px solid var(--accent2);
+    display: inline-block;
+    padding: 3px 10px;
+  }
+
+  /* ── CREDENTIALS ── */
+  .cred-layout {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 80px;
+    align-items: start;
+    margin-top: 60px;
+  }
+  .cred-item {
+    padding: 36px;
+    border: 1px solid var(--border2);
+    position: relative;
+    overflow: hidden;
+    transition: border-color 0.3s;
+  }
+  .cred-item:hover { border-color: var(--border); }
+  .cred-item::before {
+    content: '';
+    position: absolute; top: 0; left: 0;
+    width: 3px; height: 100%;
+  }
+  .cred-item.md::before { background: var(--red); }
+  .cred-item.mph::before { background: var(--blue); }
+  .cred-item.phd::before { background: var(--violet); }
+  .cred-badge {
+    font-family: var(--mono);
+    font-size: 2rem;
+    font-weight: 500;
+    color: var(--accent);
+    margin-bottom: 12px;
+  }
+  .cred-item h3 {
+    font-family: var(--display);
+    font-size: 1.2rem;
+    font-weight: 700;
+    margin-bottom: 12px;
+  }
+  .cred-item p { color: var(--text2); font-size: 0.9rem; line-height: 1.75; }
+  .cred-item .eq-line {
+    margin-top: 16px;
+    font-family: var(--mono);
+    font-size: 0.75rem;
+    color: var(--text3);
+    border-top: 1px solid var(--border2);
+    padding-top: 16px;
+  }
+
+  /* ── LOSS FUNCTION BLOCK ── */
+  .loss-block {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    padding: 48px;
+    margin-top: 60px;
+    position: relative;
+    overflow: hidden;
+  }
+  .loss-block::before {
+    content: 'L(θ)';
+    position: absolute; right: 40px; top: 30px;
+    font-family: var(--display);
+    font-size: 6rem;
+    font-style: italic;
+    font-weight: 900;
+    color: rgba(200,169,110,0.06);
+    pointer-events: none;
+    line-height: 1;
+  }
+  .loss-block .mono-eq {
+    font-family: var(--mono);
+    font-size: 0.88rem;
+    color: var(--accent);
+    line-height: 2.2;
+  }
+  .loss-block .mono-comment {
+    font-family: var(--mono);
+    font-size: 0.78rem;
+    color: var(--text3);
+  }
+
+  /* ── TIERS ── */
+  .tiers-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 1px;
+    background: var(--border2);
+    border: 1px solid var(--border2);
+    margin-top: 60px;
+  }
+  .tier-card {
+    background: var(--bg);
+    padding: 36px 24px;
+    display: flex; flex-direction: column;
+    transition: background 0.3s;
+  }
+  .tier-card:hover { background: var(--bg3); }
+  .tier-card.featured {
+    background: var(--bg2);
+    border-top: 3px solid var(--accent);
+  }
+  .tier-level {
+    font-family: var(--mono);
+    font-size: 0.62rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--text3);
+    margin-bottom: 12px;
+  }
+  .tier-name {
+    font-family: var(--display);
+    font-size: 1.3rem;
+    font-weight: 700;
+    margin-bottom: 16px;
+  }
+  .tier-price {
+    font-family: var(--mono);
+    font-size: 1.5rem;
+    font-weight: 500;
+    color: var(--accent);
+    margin-bottom: 4px;
+  }
+  .tier-price-sub {
+    font-family: var(--mono);
+    font-size: 0.68rem;
+    color: var(--text3);
+    margin-bottom: 24px;
+  }
+  .tier-features {
+    list-style: none;
+    flex: 1;
+    margin-bottom: 28px;
+  }
+  .tier-features li {
+    font-size: 0.85rem;
+    color: var(--text2);
+    padding: 8px 0;
+    border-bottom: 1px solid var(--border2);
+    display: flex; align-items: flex-start; gap: 8px;
+    line-height: 1.5;
+  }
+  .tier-features li::before {
+    content: '→';
+    font-family: var(--mono);
+    color: var(--accent);
+    font-size: 0.75rem;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+  .tier-cta {
+    font-family: var(--mono);
+    font-size: 0.68rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text2);
+    border: 1px solid var(--border);
+    padding: 10px 16px;
+    text-decoration: none;
+    text-align: center;
+    display: block;
+    transition: all 0.2s;
+    cursor: none;
+  }
+  .tier-cta:hover { border-color: var(--accent); color: var(--accent); }
+  .tier-card.featured .tier-cta {
+    background: var(--accent); color: var(--bg);
+    border-color: var(--accent);
+  }
+  .tier-card.featured .tier-cta:hover { opacity: 0.85; }
+
+  /* ── PROVERB / PHILOSOPHY BLOCK ── */
+  .proverb-block {
+    background: var(--bg2);
+    border-left: 4px solid var(--accent);
+    padding: 60px 80px;
+    position: relative;
+    overflow: hidden;
+  }
+  .proverb-block::after {
+    content: '"';
+    position: absolute; right: 60px; bottom: -20px;
+    font-family: var(--display);
+    font-size: 20rem;
+    font-style: italic;
+    color: rgba(200,169,110,0.04);
+    line-height: 1;
+    pointer-events: none;
+  }
+  .proverb-text {
+    font-family: var(--display);
+    font-size: clamp(1.4rem, 3vw, 2.2rem);
+    font-style: italic;
+    font-weight: 400;
+    line-height: 1.6;
+    max-width: 800px;
+    margin-bottom: 32px;
+  }
+  .proverb-text strong {
+    font-style: normal;
+    font-weight: 700;
+    color: var(--accent);
+  }
+  .proverb-attr {
+    font-family: var(--mono);
+    font-size: 0.75rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text3);
+  }
+  .proverb-chain {
+    margin-top: 40px;
+    display: flex; flex-wrap: wrap; align-items: center; gap: 0;
+    font-family: var(--mono);
+    font-size: 0.75rem;
+    color: var(--text3);
+  }
+  .chain-node {
+    background: var(--bg3);
+    border: 1px solid var(--border2);
+    padding: 8px 16px;
+    color: var(--text2);
+  }
+  .chain-arrow {
+    padding: 0 10px;
+    color: var(--accent);
+  }
+
+  /* ── CLIENTS ── */
+  .clients-row {
+    display: flex; gap: 40px; flex-wrap: wrap; align-items: start;
+    margin-top: 50px;
+  }
+  .client-card {
+    flex: 1; min-width: 220px;
+    padding: 28px;
+    border: 1px solid var(--border2);
+    transition: border-color 0.3s;
+  }
+  .client-card:hover { border-color: var(--border); }
+  .client-name {
+    font-family: var(--display);
+    font-size: 1.05rem;
+    font-weight: 700;
+    margin-bottom: 6px;
+  }
+  .client-sector {
+    font-family: var(--mono);
+    font-size: 0.65rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--accent2);
+    margin-bottom: 12px;
+  }
+  .client-desc {
+    font-size: 0.85rem;
+    color: var(--text2);
+    line-height: 1.65;
+  }
+
+  /* ── FOOTER ── */
+  footer {
+    border-top: 1px solid var(--border2);
+    padding: 60px 48px;
+    display: flex; justify-content: space-between; align-items: flex-end;
+    flex-wrap: wrap; gap: 32px;
+    background: var(--bg2);
+  }
+  .footer-brand {
+    font-family: var(--display);
+    font-size: 1.8rem;
+    font-weight: 900;
+    color: var(--accent);
+    line-height: 1;
+    margin-bottom: 8px;
+  }
+  .footer-tagline {
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    color: var(--text3);
+    letter-spacing: 0.12em;
+  }
+  .footer-links {
+    display: flex; flex-direction: column; gap: 8px;
+    font-family: var(--mono);
+    font-size: 0.72rem;
+    letter-spacing: 0.1em;
+  }
+  .footer-links a {
+    color: var(--text3); text-decoration: none;
+    transition: color 0.2s;
+  }
+  .footer-links a:hover { color: var(--accent); }
+  .footer-eq {
+    font-family: var(--mono);
+    font-size: 0.72rem;
+    color: var(--text3);
+    text-align: right;
+    line-height: 1.9;
+  }
+  .footer-eq .hi { color: var(--accent); }
+
+  /* ── ANIMATIONS ── */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(28px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  .fade-up {
+    opacity: 0;
+    transform: translateY(24px);
+    transition: opacity 0.7s ease, transform 0.7s ease;
+  }
+  .fade-up.visible {
+    opacity: 1; transform: translateY(0);
+  }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 900px) {
+    nav { padding: 16px 24px; }
+    .nav-links { display: none; }
+    .hero { padding: 100px 24px 60px; }
+    section { padding: 70px 24px; }
+    .section-full { padding: 70px 24px; }
+    .services-grid { grid-template-columns: 1fr; }
+    .cred-layout { grid-template-columns: 1fr; gap: 24px; }
+    .tiers-grid { grid-template-columns: 1fr; }
+    .proverb-block { padding: 40px 28px; }
+    footer { padding: 40px 24px; }
+    .pentad-strip { flex-direction: column; }
+  }
+  @media (max-width: 1100px) {
+    .tiers-grid { grid-template-columns: repeat(3, 1fr); }
+  }
+</style>
+</head>
+<body>
+
+<div class="spectrum-strip"></div>
+<div id="cursor"></div>
+<div id="cursor-dot"></div>
+
+<!-- NAV -->
+<nav>
+  <a class="nav-logo" href="#">Ukubona LLC <span>Digital Twin OS</span></a>
+  <div class="nav-links">
+    <a href="#services">Services</a>
+    <a href="#tiers">Tiers</a>
+    <a href="#credentials">About</a>
+    <a href="#philosophy">Philosophy</a>
+    <a href="#contact" class="nav-cta">Request Twin</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-grid"></div>
+  <div class="hero-eyebrow">Ukubona LLC · Full-Stack Digital Twin OS</div>
+  <h1>See the<br/><em>gradient</em><br/>others call noise.</h1>
+  <p class="hero-sub">
+    We build living digital twins across five nested scales —
+    from the individual patient to civilization infrastructure —
+    as maintained, self-updating operational systems, not static dashboards.
+  </p>
+  <div class="hero-math">
+    <span class="eq">θ → L(θ) → ∇L → −η∇L → θ′</span>
+    &nbsp;·&nbsp; Stochastic Gradient Descent as universal architecture
+  </div>
+  <div class="hero-actions">
+    <a href="#tiers" class="btn-primary">Explore Subscriptions</a>
+    <a href="#philosophy" class="btn-ghost">Kiti kya Muwogo →</a>
+  </div>
+</div>
+
+<!-- PENTAD STRIP -->
+<div class="pentad-strip">
+  <div class="pentad-node">
+    <div class="dot" style="background:var(--red)"></div>
+    <div class="level">Layer 1</div>
+    <div class="label">Personal</div>
+    <div class="sublabel">Patient · Individual</div>
+  </div>
+  <div class="pentad-node">
+    <div class="dot" style="background:var(--orange)"></div>
+    <div class="level">Layer 2</div>
+    <div class="label">Household</div>
+    <div class="sublabel">Family · Kin Network</div>
+  </div>
+  <div class="pentad-node">
+    <div class="dot" style="background:var(--yellow)"></div>
+    <div class="level">Layer 3</div>
+    <div class="label">Enterprise</div>
+    <div class="sublabel">Clinic · Insurer · Firm</div>
+  </div>
+  <div class="pentad-node">
+    <div class="dot" style="background:var(--green)"></div>
+    <div class="level">Layer 4</div>
+    <div class="label">Government</div>
+    <div class="sublabel">Regulator · Ministry · District</div>
+  </div>
+  <div class="pentad-node">
+    <div class="dot" style="background:var(--blue)"></div>
+    <div class="level">Layer 5</div>
+    <div class="label">Civilizational</div>
+    <div class="sublabel">NPA · UCU · Energy · Environment</div>
+  </div>
+</div>
+
+<!-- SERVICES -->
+<div class="section-full" id="services">
+  <section>
+    <div class="section-eyebrow fade-up">What We Build</div>
+    <h2 class="section-title fade-up">Not dashboards.<br/><em>Optimization engines.</em></h2>
+    <p class="section-body fade-up">
+      Every twin Ukubona builds is a continuous learning system —
+      a closed loop from data to model to policy to new data.
+      The UI surface (API access, LLM interface, visualizations)
+      is merely the readable layer atop a rigorous mathematical substrate.
+    </p>
+    <div class="services-grid">
+      <div class="service-card fade-up">
+        <div class="icon">🧬</div>
+        <h3>Clinical Twin</h3>
+        <p>Living model of an individual patient — capturing latent variables, diagnostic ambiguity, treatment trajectory, and longitudinal risk. Built on 20+ years of transplant and perioperative clinical priors.</p>
+        <span class="tag">L₁ · Patient</span>
+      </div>
+      <div class="service-card fade-up">
+        <div class="icon">🏠</div>
+        <h3>Household Twin</h3>
+        <p>Kin-network model: caregiver burden, health-seeking behavior, financial vulnerability, and the propagation of health shocks across the family unit. Feeds both clinical and enterprise layers.</p>
+        <span class="tag">L₂ · Family</span>
+      </div>
+      <div class="service-card fade-up">
+        <div class="icon">🏥</div>
+        <h3>Enterprise Twin</h3>
+        <p>Operational model for clinics, insurers, and firms. Maps workflow bottlenecks, payment model dynamics, workforce capacity, and the composite loss across service delivery.</p>
+        <span class="tag">L₃ · System</span>
+      </div>
+      <div class="service-card fade-up">
+        <div class="icon">🏛️</div>
+        <h3>Government Twin</h3>
+        <p>District-to-ministry modeling across 133 Ugandan districts. Regulatory friction, resource allocation, epidemic response, and policy gradient — formalized as dynamical systems, not spreadsheets.</p>
+        <span class="tag">L₄ · Regulator</span>
+      </div>
+      <div class="service-card fade-up">
+        <div class="icon">🌍</div>
+        <h3>Civilizational Twin</h3>
+        <p>50-year infrastructure planning models integrating health, energy, environment, demographics, and education. Built for National Planning Authorities, universities, and data center engineers.</p>
+        <span class="tag">L₅ · Civilization</span>
+      </div>
+      <div class="service-card fade-up">
+        <div class="icon">⚙️</div>
+        <h3>Composite Architecture</h3>
+        <p>Multi-scale deployments coupling two or more layers into a federated twin network with shared gradient propagation. The full pentadic structure as a single self-stabilizing OS.</p>
+        <span class="tag">L_total · Federated</span>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- LOSS FUNCTION -->
+<div class="section-full" style="background:var(--bg2);">
+  <section>
+    <div class="section-eyebrow fade-up">The Mathematical Substrate</div>
+    <h2 class="section-title fade-up">One <em>loss function</em><br/>to rule them all.</h2>
+    <p class="section-body fade-up">
+      Every Ukubona twin formalizes the client's problem as a composite loss
+      over nested stochastic gradient descent. This is not metaphor — it is
+      the operational specification from which all UI, API, and reporting
+      surfaces are derived.
+    </p>
+    <div class="loss-block fade-up">
+      <div class="mono-eq">
+        L_total(θ) = Σₖ wₖ Lₖ(θₖ, {θⱼ}<sub>j≠k</sub>)<br/>
+        <br/>
+        <span style="color:var(--text3)">where:</span><br/>
+        L₁ = clinical loss &nbsp;·&nbsp; morbidity, mortality, QoL, toxicity<br/>
+        L₂ = household loss &nbsp;·&nbsp; caregiver burden, access, financial shock<br/>
+        L₃ = system loss &nbsp;·&nbsp; cost efficiency, equity, workforce, supply chain<br/>
+        L₄ = regulatory loss &nbsp;·&nbsp; policy adherence, disease burden, district equity<br/>
+        L₅ = civilizational loss &nbsp;·&nbsp; life expectancy, productivity, sustainability, resilience<br/>
+        <br/>
+        θₖ,ₜ₊₁ = θₖ,ₜ − ηₖ ∇Lₖ(θₖ,ₜ)
+      </div>
+      <div class="mono-comment" style="margin-top:24px">
+        // Coupling terms couple gradients across layers. System self-stabilizes when ∇L_total → 0.<br/>
+        // The twin does not report. It converges.
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- TIERS / PRICING -->
+<div class="section-full" id="tiers">
+  <section>
+    <div class="section-eyebrow fade-up">Subscription Architecture</div>
+    <h2 class="section-title fade-up">Five scales.<br/><em>One OS.</em></h2>
+    <p class="section-body fade-up">
+      Each tier delivers a maintained twin at that layer of the pentad.
+      Tiers compose — a government client includes layers 1–4.
+      All subscriptions include API access, quarterly model updates,
+      and direct engagement with the Ukubona team.
+    </p>
+    <div class="tiers-grid">
+      <!-- Personal -->
+      <div class="tier-card fade-up">
+        <div class="tier-level">Layer 1 · Personal</div>
+        <div class="tier-name">Personal Twin</div>
+        <div class="tier-price">$150</div>
+        <div class="tier-price-sub">/ month</div>
+        <ul class="tier-features">
+          <li>Longitudinal health risk model</li>
+          <li>Perioperative & chronic disease optimization</li>
+          <li>LLM-powered clinical interface</li>
+          <li>Quarterly model refresh</li>
+          <li>Secure data ingestion pipeline</li>
+        </ul>
+        <a href="#contact" class="tier-cta">Get Started</a>
+      </div>
+      <!-- Household -->
+      <div class="tier-card fade-up">
+        <div class="tier-level">Layer 2 · Household</div>
+        <div class="tier-name">Household Twin</div>
+        <div class="tier-price">$450</div>
+        <div class="tier-price-sub">/ month · up to 6 members</div>
+        <ul class="tier-features">
+          <li>Family kin-network model</li>
+          <li>Health-seeking behavior patterns</li>
+          <li>Financial shock propagation</li>
+          <li>Caregiver burden tracking</li>
+          <li>All Personal tier features</li>
+        </ul>
+        <a href="#contact" class="tier-cta">Get Started</a>
+      </div>
+      <!-- Enterprise -->
+      <div class="tier-card featured fade-up">
+        <div class="tier-level">Layer 3 · Enterprise</div>
+        <div class="tier-name">Enterprise Twin</div>
+        <div class="tier-price">$2,400</div>
+        <div class="tier-price-sub">/ month · clinic / insurer / firm</div>
+        <ul class="tier-features">
+          <li>Operational systems twin</li>
+          <li>Workflow & bottleneck modeling</li>
+          <li>Payment model dynamics</li>
+          <li>Workforce & supply chain loss</li>
+          <li>FastAPI SGD backend + dashboard</li>
+          <li>Monthly model updates</li>
+        </ul>
+        <a href="#contact" class="tier-cta">Get Started</a>
+      </div>
+      <!-- Government -->
+      <div class="tier-card fade-up">
+        <div class="tier-level">Layer 4 · Government</div>
+        <div class="tier-name">Government Twin</div>
+        <div class="tier-price">$8,000</div>
+        <div class="tier-price-sub">/ month · ministry / district</div>
+        <ul class="tier-features">
+          <li>District-to-national modeling</li>
+          <li>133-district network architecture</li>
+          <li>Policy gradient simulation</li>
+          <li>Epidemic & burden forecasting</li>
+          <li>Regulatory compliance tracking</li>
+          <li>All Enterprise features</li>
+        </ul>
+        <a href="#contact" class="tier-cta">Get Started</a>
+      </div>
+      <!-- Civilizational -->
+      <div class="tier-card fade-up">
+        <div class="tier-level">Layer 5 · Civilizational</div>
+        <div class="tier-name">Civilizational Twin</div>
+        <div class="tier-price">Custom</div>
+        <div class="tier-price-sub">/ month · NPA / UCU / energy</div>
+        <ul class="tier-features">
+          <li>50-year infrastructure planning</li>
+          <li>Health × energy × environment coupling</li>
+          <li>Demographic transition modeling</li>
+          <li>Data center load optimization</li>
+          <li>National Planning Authority integration</li>
+          <li>Full pentadic federated twin</li>
+        </ul>
+        <a href="#contact" class="tier-cta">Inquire →</a>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- CREDENTIALS -->
+<div class="section-full" id="credentials" style="background:var(--bg2);">
+  <section>
+    <div class="section-eyebrow fade-up">The Triad</div>
+    <h2 class="section-title fade-up">Why MD + MPH + PhDc<br/><em>is the architecture.</em></h2>
+    <p class="section-body fade-up">
+      The nested complexity of five-scale digital twins requires a founder
+      who has lived at every layer simultaneously. Silicon Valley can build interfaces.
+      It cannot replicate the clinical, epidemiological, and mathematical priors
+      required to build a true Game of Care.
+    </p>
+    <div class="cred-layout">
+      <div>
+        <div class="cred-item md fade-up" style="margin-bottom:16px">
+          <div class="cred-badge">MD</div>
+          <h3>The Local Gradient</h3>
+          <p>Clinical medicine is the ground truth. It provides intimate understanding of the irreducible complexity, variance, and high-dimensional noise of individual human biology. Where a data scientist sees tabular inputs, an MD sees latent variables.</p>
+          <div class="eq-line">θ_patient — the true state of the patient is never fully observed</div>
+        </div>
+        <div class="cred-item mph fade-up">
+          <div class="cred-badge">MPH</div>
+          <h3>The Ecosystem</h3>
+          <p>Public health scales clinical intuition to the population level, mapping structural constraints: clinic workflows, insurance payment models, regulatory bottlenecks, and the friction across 133 districts. The macroscopic view of how individual interventions cascade upward.</p>
+          <div class="eq-line">∇L_system — the network gradient others mistake for administrative overhead</div>
+        </div>
+      </div>
+      <div>
+        <div class="cred-item phd fade-up" style="margin-bottom:16px">
+          <div class="cred-badge">PhDc</div>
+          <h3>The Rigorous Calculus</h3>
+          <p>Clinical and epidemiological knowledge, formalized into strict mathematics. Clinical investigation and systems engineering background translates biological and social realities into stochastic gradient descent and recursive pentadic structures — building dynamic, self-updating twins rather than abandoned databases.</p>
+          <div class="eq-line">L_total(θ) — the composite loss the government was never able to measure</div>
+        </div>
+        <div class="cred-item fade-up" style="border-color:var(--border); padding:36px;">
+          <div class="section-eyebrow" style="margin-bottom:16px">20+ years · Johns Hopkins</div>
+          <p style="color:var(--text2); font-size:0.9rem; line-height:1.8">
+            Transplant surgery · Living kidney donor risk modeling ·
+            NIH K08-AG065520 · Perioperative outcomes research ·
+            Population health systems · Mathematical optimization.
+            <br/><br/>
+            The rarest training for the rarest problem: building digital twins
+            that preserve the uncompressed dimensions of reality rather than
+            flattening them into static, brittle dashboards.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- CLIENTS -->
+<div class="section-full" id="clients">
+  <section>
+    <div class="section-eyebrow fade-up">Current Clients</div>
+    <h2 class="section-title fade-up">The colony<br/><em>is already converging.</em></h2>
+    <div class="clients-row">
+      <div class="client-card fade-up">
+        <div class="client-name">Strata Stone Partners</div>
+        <div class="client-sector">Real Estate · Import · Enterprise Twin</div>
+        <div class="client-desc">Loss function weighting cost overruns, schedule delays, capital idle, risk, and profit — deployed as a FastAPI + NumPy SGD backend via Render.com.</div>
+      </div>
+      <div class="client-card fade-up">
+        <div class="client-name">Dr. Paul Kasenene</div>
+        <div class="client-sector">Functional Medicine · Personal Twin</div>
+        <div class="client-desc">Clinical twin integrating functional medicine priors with longitudinal risk modeling and personalized optimization infrastructure.</div>
+      </div>
+      <div class="client-card fade-up">
+        <div class="client-name">Kingdom AI · Martin Muhwezi</div>
+        <div class="client-sector">Organizational Development · Enterprise Twin</div>
+        <div class="client-desc">The Muhwezi Pentad (Be→Become→Boost→Broaden→Build) mapped onto SGD as a genuine homomorphism. Steward's Dashboard with η slider and Sabbath Protocol.</div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- PHILOSOPHY -->
+<div class="section-full" id="philosophy" style="background:var(--bg2);">
+  <section>
+    <div class="section-eyebrow fade-up">Epistemic Prior</div>
+    <h2 class="section-title fade-up">Kiti kya Muwogo —<br/><em>the stem knows where to root.</em></h2>
+    <div class="proverb-block fade-up" style="margin-top:48px">
+      <div class="proverb-text">
+        In the red lateritic soils of the Victoria Basin, one discards a cassava stem
+        only to watch it take root and thrive —
+        <strong>anywhere, without cultivation.</strong>
+        <br/><br/>
+        Kiti kya muwogo: we root in the red laterite,
+        forage the gradient, and lay the pheromone trail
+        the colony follows home.
+      </div>
+      <div class="proverb-attr">— Ukubona LLC · Epistemic Foundation</div>
+      <div class="proverb-chain">
+        <span class="chain-node">cassava stem</span>
+        <span class="chain-arrow">→</span>
+        <span class="chain-node">stochastic scout</span>
+        <span class="chain-arrow">→</span>
+        <span class="chain-node">composite loss L(θₜ)</span>
+        <span class="chain-arrow">→</span>
+        <span class="chain-node">pheromone trail</span>
+        <span class="chain-arrow">→</span>
+        <span class="chain-node">colony convergence</span>
+      </div>
+    </div>
+    <p class="section-body fade-up" style="margin-top:48px">
+      Ugandan smallholder farmers discovered, through centuries of practice, that cassava
+      propagates from discarded stems without supervision. That is empirical Bayesian reasoning,
+      encoded in proverb. The proverb is the math — shipped without LaTeX,
+      propagated without citation, survived without a server.
+      <br/><br/>
+      <em>Ukubona</em> — <em>to see</em>, in Zulu — is the exact epistemic act of Bayesian
+      gradient foraging. This is intellectual property no one in Palo Alto can copy.
+      Laterite-grown. Gradient-grown.
+    </p>
+  </section>
+</div>
+
+<!-- CONTACT -->
+<div class="section-full" id="contact">
+  <section style="text-align:center; max-width:600px; margin:0 auto;">
+    <div class="section-eyebrow fade-up">Request a Twin</div>
+    <h2 class="section-title fade-up" style="text-align:center">Ready to<br/><em>see the gradient?</em></h2>
+    <p class="section-body fade-up" style="text-align:center; margin:0 auto 40px; max-width:460px">
+      Tell us your scale and problem. We'll formalize your composite loss
+      and propose the right twin architecture within two weeks.
+    </p>
+    <div class="fade-up" style="display:flex; flex-direction:column; gap:12px; align-items:center">
+      <a href="mailto:ukubona.llc@gmail.com" class="btn-primary" style="display:inline-block; min-width:240px; text-align:center">hello@ukubona.io</a>
+      <a href="https://ukubona-llc.github.io" class="btn-ghost" style="display:inline-block; min-width:240px; text-align:center">ukubona-llc.github.io →</a>
+    </div>
+  </section>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div>
+    <div class="footer-brand">Ukubona</div>
+    <div class="footer-tagline">To see · Digital Twin OS · Kampala · Baltimore</div>
+  </div>
+  <div class="footer-links">
+    <a href="#services">Services</a>
+    <a href="#tiers">Pricing</a>
+    <a href="#credentials">About</a>
+    <a href="#philosophy">Philosophy</a>
+    <a href="https://abikesa.github.io/repos-00/assets/html/kiti-kya-muwogo.html">Kiti kya Muwogo</a>
+  </div>
+  <div class="footer-eq">
+    <span class="hi">θ → L(θ) → ∇L → −η∇L → θ′</span><br/>
+    Personal · Household · Enterprise · Government · Civilizational<br/>
+    MD · MPH · PhDc · Johns Hopkins · 20 years<br/>
+    © 2025 Ukubona LLC · All rights reserved
+  </div>
+</footer>
+
+<script>
+  // Custom cursor
+  const cursor = document.getElementById('cursor');
+  const dot = document.getElementById('cursor-dot');
+  document.addEventListener('mousemove', e => {
+    cursor.style.left = e.clientX + 'px';
+    cursor.style.top = e.clientY + 'px';
+    dot.style.left = e.clientX + 'px';
+    dot.style.top = e.clientY + 'px';
+  });
+  document.querySelectorAll('a, button, .tier-card, .service-card').forEach(el => {
+    el.addEventListener('mouseenter', () => cursor.style.transform = 'translate(-50%,-50%) scale(1.8)');
+    el.addEventListener('mouseleave', () => cursor.style.transform = 'translate(-50%,-50%) scale(1)');
+  });
+
+  // Scroll animations
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach((entry, i) => {
+      if (entry.isIntersecting) {
+        setTimeout(() => entry.target.classList.add('visible'), 60);
+      }
+    });
+  }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+
+  document.querySelectorAll('.fade-up').forEach(el => observer.observe(el));
+</script>
+</body>
+</html>

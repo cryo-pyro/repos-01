@@ -1,0 +1,1793 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Uganda Renal Atlas — Ukubona LLC × UCU · Collaboration Brief</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=IBM+Plex+Mono:wght@300;400;500&family=Source+Serif+4:ital,opsz,wght@0,8..60,300;0,8..60,400;0,8..60,600;1,8..60,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.min.css">
+<style>
+:root {
+  --ink: #0d0c0a;
+  --paper: #f7f2e9;
+  --cream: #eee9da;
+  --warm-white: #faf7f2;
+  --rust: #b5421a;
+  --amber: #c97b1a;
+  --gold: #b89020;
+  --teal: #1a6b5a;
+  --slate: #3d4455;
+  --muted: #7a7263;
+  --rule: rgba(13,12,10,0.11);
+  --r:#c0392b; --o:#d87030; --y:#d4b832; --g:#27ae60; --b:#2980b9; --i:#6c3483; --v:#1a6b5a;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--paper);
+  color: var(--ink);
+  line-height: 1.6;
+  overflow-x: hidden;
+}
+
+/* Grain texture */
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 9999;
+  opacity: 0.4;
+}
+
+/* ─── HERO ─── */
+.hero {
+  display: grid;
+  grid-template-columns: 55% 45%;
+  min-height: 100vh;
+}
+
+.hero-left {
+  background: var(--ink);
+  color: var(--paper);
+  padding: 80px 64px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.hero-right {
+  background: var(--cream);
+  position: relative;
+  overflow: hidden;
+}
+
+.hero-kicker {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.62rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--amber);
+  border: 1px solid rgba(201,123,26,0.4);
+  display: inline-block;
+  padding: 5px 11px;
+  margin-bottom: 48px;
+  opacity: 0;
+  animation: up 0.7s 0.15s ease forwards;
+}
+
+.hero-eyebrow {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.68rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: rgba(247,242,233,0.35);
+  margin-bottom: 20px;
+  opacity: 0;
+  animation: up 0.7s 0.3s ease forwards;
+}
+
+.hero-title {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(2.8rem, 4.5vw, 5rem);
+  font-weight: 900;
+  line-height: 1;
+  letter-spacing: -0.02em;
+  margin-bottom: 36px;
+  opacity: 0;
+  animation: up 0.7s 0.42s ease forwards;
+}
+
+.hero-title em { font-style: italic; color: #e07040; }
+
+.hero-body {
+  font-family: 'Source Serif 4', serif;
+  font-size: 1.05rem;
+  color: rgba(247,242,233,0.72);
+  line-height: 1.85;
+  max-width: 42ch;
+  margin-bottom: 56px;
+  opacity: 0;
+  animation: up 0.7s 0.56s ease forwards;
+}
+
+.hero-meta-block {
+  opacity: 0;
+  animation: up 0.7s 0.72s ease forwards;
+}
+
+.hero-meta-row {
+  display: flex;
+  gap: 12px;
+  align-items: baseline;
+  padding: 10px 0;
+  border-top: 1px solid rgba(247,242,233,0.08);
+  font-size: 0.88rem;
+}
+
+.hero-meta-row:last-child { border-bottom: 1px solid rgba(247,242,233,0.08); }
+
+.meta-label {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.6rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--amber);
+  min-width: 90px;
+  flex-shrink: 0;
+}
+
+.meta-value {
+  color: rgba(247,242,233,0.75);
+  font-size: 0.9rem;
+  line-height: 1.4;
+}
+
+/* ─── MAP IN HERO ─── */
+#hero-map {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  animation: fadeIn 1.2s 0.9s ease forwards;
+}
+
+.hero-map-label {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 20px 32px;
+  background: linear-gradient(to top, rgba(238,233,218,1) 0%, rgba(238,233,218,0) 100%);
+  z-index: 1000;
+  pointer-events: none;
+}
+
+.hero-map-caption {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.58rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 8px;
+}
+
+.roygbiv-bar {
+  height: 7px;
+  border-radius: 3px;
+  background: linear-gradient(to right, var(--r), var(--o), var(--y), var(--g), var(--b), var(--i), var(--v));
+  margin-bottom: 6px;
+}
+
+.roygbiv-labels {
+  display: flex;
+  justify-content: space-between;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.5rem;
+  color: var(--muted);
+  letter-spacing: 0.06em;
+}
+
+/* ─── NAV ─── */
+nav {
+  position: sticky;
+  top: 0;
+  background: rgba(247,242,233,0.96);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--rule);
+  z-index: 500;
+  padding: 0 64px;
+  display: flex;
+  align-items: center;
+  gap: 0;
+}
+
+.nav-brand {
+  font-family: 'Playfair Display', serif;
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--ink);
+  padding: 16px 0;
+  margin-right: auto;
+  text-decoration: none;
+}
+
+nav a.nav-link {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.63rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--muted);
+  text-decoration: none;
+  padding: 20px 16px;
+  border-bottom: 2px solid transparent;
+  transition: all 0.2s;
+}
+
+nav a.nav-link:hover { color: var(--rust); border-bottom-color: var(--rust); }
+
+.nav-cta {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.6rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--amber);
+  text-decoration: none;
+  border: 1px solid rgba(201,123,26,0.35);
+  padding: 8px 14px;
+  margin-left: 16px;
+  transition: all 0.2s;
+}
+
+.nav-cta:hover { background: var(--amber); color: white; }
+
+/* ─── PROSE SECTIONS ─── */
+.section {
+  padding: 96px 64px;
+  max-width: 1380px;
+  margin: 0 auto;
+}
+
+.section-rule { height: 1px; background: var(--rule); margin: 0 64px; }
+
+.section-kicker {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.62rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--rust);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.section-kicker::before {
+  content: '';
+  display: inline-block;
+  width: 20px;
+  height: 1px;
+  background: var(--rust);
+}
+
+.section-title {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(1.9rem, 3vw, 3rem);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+  margin-bottom: 20px;
+  max-width: 22ch;
+}
+
+.section-intro {
+  font-family: 'Source Serif 4', serif;
+  font-size: 1.05rem;
+  color: var(--slate);
+  max-width: 58ch;
+  line-height: 1.85;
+  margin-bottom: 56px;
+}
+
+/* ─── STAT CARDS ─── */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1px;
+  background: var(--rule);
+  border: 1px solid var(--rule);
+  margin-bottom: 72px;
+}
+
+.stat-card {
+  background: var(--paper);
+  padding: 36px 32px;
+  position: relative;
+  overflow: hidden;
+  transition: background 0.2s;
+}
+
+.stat-card:hover { background: var(--cream); }
+
+.stat-card::before {
+  content: '';
+  position: absolute;
+  left: 0; top: 0; bottom: 0;
+  width: 3px;
+  background: var(--rust);
+  transform: scaleY(0);
+  transform-origin: bottom;
+  transition: transform 0.3s;
+}
+
+.stat-card:hover::before { transform: scaleY(1); }
+
+.stat-num {
+  font-family: 'Playfair Display', serif;
+  font-size: 3.4rem;
+  font-weight: 900;
+  line-height: 1;
+  letter-spacing: -0.03em;
+  color: var(--rust);
+  margin-bottom: 6px;
+}
+
+.stat-unit {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.62rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 14px;
+}
+
+.stat-body {
+  font-family: 'Source Serif 4', serif;
+  font-size: 0.9rem;
+  color: var(--slate);
+  line-height: 1.65;
+  margin-bottom: 12px;
+}
+
+.stat-cite {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.55rem;
+  letter-spacing: 0.06em;
+  color: var(--muted);
+  opacity: 0.65;
+}
+
+/* ─── PULL QUOTE ─── */
+.pull-quote {
+  border-left: 4px solid var(--rust);
+  padding: 24px 36px;
+  background: var(--cream);
+  margin: 48px 0;
+}
+
+.pull-quote p {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.3rem;
+  font-style: italic;
+  line-height: 1.55;
+  color: var(--ink);
+  margin-bottom: 14px;
+}
+
+.pull-quote cite {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.62rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--muted);
+  font-style: normal;
+}
+
+/* ─── RISK SECTION (dark) ─── */
+.dark-section {
+  background: var(--ink);
+  color: var(--paper);
+  padding: 96px 64px;
+  position: relative;
+  overflow: hidden;
+}
+
+.dark-section::before {
+  content: 'RISK';
+  position: absolute;
+  top: -30px;
+  right: -20px;
+  font-family: 'Playfair Display', serif;
+  font-size: 22rem;
+  font-weight: 900;
+  color: rgba(255,255,255,0.02);
+  line-height: 1;
+  pointer-events: none;
+  user-select: none;
+}
+
+.dark-inner { max-width: 1380px; margin: 0 auto; }
+
+.dark-section .section-kicker { color: var(--amber); }
+.dark-section .section-kicker::before { background: var(--amber); }
+.dark-section .section-title { color: var(--paper); }
+.dark-section .section-intro { color: rgba(247,242,233,0.65); }
+
+.risk-layout {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 72px;
+  align-items: start;
+}
+
+.risk-bars { display: flex; flex-direction: column; gap: 22px; }
+
+.risk-item { display: grid; grid-template-columns: 155px 1fr 44px; align-items: center; gap: 14px; }
+
+.risk-label {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.68rem;
+  letter-spacing: 0.04em;
+  color: rgba(247,242,233,0.6);
+  text-align: right;
+}
+
+.risk-track {
+  height: 5px;
+  background: rgba(255,255,255,0.07);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.risk-fill {
+  height: 100%;
+  border-radius: 3px;
+  width: 0;
+  transition: width 1.8s cubic-bezier(0.4,0,0.2,1);
+}
+
+.risk-pct {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.66rem;
+  color: rgba(247,242,233,0.4);
+}
+
+.east-west-box {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.09);
+  padding: 28px;
+  margin-top: 28px;
+}
+
+.ew-label {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.58rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--amber);
+  margin-bottom: 18px;
+}
+
+.ew-pair {
+  display: flex;
+  gap: 32px;
+  align-items: flex-end;
+  margin-bottom: 14px;
+}
+
+.ew-num {
+  font-family: 'Playfair Display', serif;
+  font-size: 2.8rem;
+  font-weight: 900;
+  line-height: 1;
+}
+
+.ew-caption {
+  font-size: 0.8rem;
+  color: rgba(247,242,233,0.45);
+  line-height: 1.4;
+  padding-bottom: 6px;
+}
+
+/* ─── MAP SECTION ─── */
+.map-section {
+  background: var(--ink);
+  padding: 96px 64px;
+}
+
+.map-inner { max-width: 1380px; margin: 0 auto; }
+
+.map-section .section-kicker { color: var(--amber); }
+.map-section .section-kicker::before { background: var(--amber); }
+.map-section .section-title { color: var(--paper); }
+.map-section .section-intro { color: rgba(247,242,233,0.65); }
+
+.map-layout {
+  display: grid;
+  grid-template-columns: 1fr 340px;
+  gap: 48px;
+  align-items: start;
+}
+
+#main-map {
+  height: 520px;
+  border-radius: 4px;
+  overflow: hidden;
+  border: 1px solid rgba(255,255,255,0.07);
+}
+
+.map-legend-panel {
+  padding: 0;
+}
+
+.legend-title {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.6rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--amber);
+  margin-bottom: 14px;
+}
+
+.legend-scale {
+  height: 10px;
+  border-radius: 4px;
+  background: linear-gradient(to right, var(--r), var(--o), var(--y), var(--g), var(--b), var(--i), var(--v));
+  margin-bottom: 8px;
+}
+
+.legend-ends {
+  display: flex;
+  justify-content: space-between;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.53rem;
+  color: rgba(247,242,233,0.4);
+  margin-bottom: 24px;
+  letter-spacing: 0.06em;
+}
+
+.legend-rows { display: flex; flex-direction: column; gap: 10px; }
+
+.legend-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.legend-dot {
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.legend-text {
+  font-size: 0.8rem;
+  color: rgba(247,242,233,0.65);
+  line-height: 1.4;
+}
+
+.legend-text strong { color: var(--paper); }
+
+.map-note {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.55rem;
+  letter-spacing: 0.07em;
+  color: rgba(247,242,233,0.25);
+  margin-top: 20px;
+  line-height: 1.7;
+}
+
+.map-live-link {
+  display: block;
+  margin-top: 20px;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.62rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--amber);
+  text-decoration: none;
+  border: 1px solid rgba(201,123,26,0.3);
+  padding: 10px 14px;
+  text-align: center;
+  transition: all 0.2s;
+}
+
+.map-live-link:hover { background: var(--amber); color: var(--ink); }
+
+/* ─── TRANSPLANT TIMELINE ─── */
+.timeline-outer {
+  position: relative;
+}
+
+.timeline-line {
+  position: absolute;
+  left: 8px;
+  top: 8px;
+  bottom: 0;
+  width: 1px;
+  background: var(--rule);
+}
+
+.tl-item {
+  display: grid;
+  grid-template-columns: 24px 1fr;
+  gap: 24px;
+  padding-bottom: 40px;
+}
+
+.tl-dot {
+  width: 13px;
+  height: 13px;
+  border-radius: 50%;
+  background: var(--paper);
+  border: 2px solid var(--rust);
+  margin-top: 4px;
+  position: relative;
+  z-index: 1;
+  flex-shrink: 0;
+  transition: background 0.2s;
+}
+
+.tl-item:hover .tl-dot { background: var(--rust); }
+
+.tl-item.current .tl-dot {
+  background: var(--rust);
+  width: 15px;
+  height: 15px;
+  box-shadow: 0 0 0 4px rgba(181,66,26,0.2);
+}
+
+.tl-year {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.63rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--rust);
+  margin-bottom: 6px;
+}
+
+.tl-item.current .tl-year { color: var(--rust); font-weight: 500; }
+
+.tl-event {
+  font-family: 'Source Serif 4', serif;
+  font-size: 0.92rem;
+  color: var(--slate);
+  line-height: 1.6;
+}
+
+.tl-event strong { color: var(--ink); font-weight: 600; }
+
+/* ─── DATA TABLE ─── */
+table.clean-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.88rem;
+  margin-bottom: 32px;
+}
+
+.clean-table thead th {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.59rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--muted);
+  padding: 12px 18px;
+  text-align: left;
+  border-bottom: 2px solid var(--rule);
+  background: var(--cream);
+}
+
+.clean-table tbody tr {
+  border-bottom: 1px solid var(--rule);
+  transition: background 0.12s;
+}
+
+.clean-table tbody tr:hover { background: var(--cream); }
+
+.clean-table td {
+  padding: 13px 18px;
+  color: var(--slate);
+  vertical-align: middle;
+  font-family: 'Source Serif 4', serif;
+}
+
+.clean-table td:first-child { font-weight: 600; color: var(--ink); }
+
+.badge {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.57rem;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  padding: 3px 8px;
+  border-radius: 2px;
+}
+
+.b-red { background: rgba(181,66,26,0.1); color: var(--rust); }
+.b-amber { background: rgba(201,123,26,0.1); color: var(--amber); }
+.b-teal { background: rgba(26,107,90,0.1); color: var(--teal); }
+.b-grey { background: rgba(122,114,99,0.1); color: var(--muted); }
+
+/* ─── DELIVERABLES ─── */
+.deliv-section {
+  background: var(--cream);
+  padding: 96px 64px;
+  border-top: 1px solid var(--rule);
+  border-bottom: 1px solid var(--rule);
+}
+
+.deliv-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1px;
+  background: var(--rule);
+  border: 1px solid var(--rule);
+}
+
+.deliv-card {
+  background: var(--paper);
+  padding: 36px 32px;
+  position: relative;
+  transition: background 0.2s;
+}
+
+.deliv-card:hover { background: var(--warm-white); }
+
+.deliv-num {
+  font-family: 'Playfair Display', serif;
+  font-size: 4.5rem;
+  font-weight: 900;
+  color: rgba(13,12,10,0.04);
+  line-height: 1;
+  margin-bottom: -10px;
+}
+
+.deliv-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.15rem;
+  font-weight: 700;
+  margin-bottom: 14px;
+  color: var(--ink);
+}
+
+.deliv-body {
+  font-family: 'Source Serif 4', serif;
+  font-size: 0.9rem;
+  color: var(--slate);
+  line-height: 1.7;
+}
+
+.deliv-tag {
+  display: inline-block;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.55rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--teal);
+  border: 1px solid rgba(26,107,90,0.25);
+  padding: 3px 8px;
+  margin-top: 14px;
+}
+
+/* ─── FUNDING ─── */
+.funding-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 24px;
+}
+
+.funding-card {
+  border: 1px solid var(--rule);
+  padding: 32px;
+  transition: border-color 0.2s, transform 0.2s;
+  background: var(--paper);
+}
+
+.funding-card:hover { border-color: var(--rust); transform: translateY(-2px); }
+
+.funding-org {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.05rem;
+  font-weight: 700;
+  margin-bottom: 6px;
+  color: var(--ink);
+}
+
+.funding-amount {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.68rem;
+  letter-spacing: 0.08em;
+  color: var(--amber);
+  margin-bottom: 14px;
+}
+
+.funding-fit {
+  font-family: 'Source Serif 4', serif;
+  font-size: 0.9rem;
+  color: var(--slate);
+  line-height: 1.65;
+}
+
+.funding-fit strong { color: var(--ink); }
+
+/* ─── TEAM ─── */
+.team-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1px;
+  background: var(--rule);
+  border: 1px solid var(--rule);
+}
+
+.team-card {
+  background: var(--paper);
+  padding: 36px 28px;
+  transition: background 0.2s;
+}
+
+.team-card:hover { background: var(--cream); }
+
+.team-role {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.59rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--rust);
+  margin-bottom: 10px;
+}
+
+.team-name {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.4rem;
+  font-weight: 700;
+  line-height: 1.1;
+  margin-bottom: 4px;
+  color: var(--ink);
+}
+
+.team-affil {
+  font-size: 0.78rem;
+  color: var(--muted);
+  margin-bottom: 18px;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.6rem;
+  letter-spacing: 0.06em;
+}
+
+.team-bio {
+  font-family: 'Source Serif 4', serif;
+  font-size: 0.88rem;
+  color: var(--slate);
+  line-height: 1.65;
+}
+
+/* ─── METHODOLOGY BOX ─── */
+.method-box {
+  background: var(--cream);
+  border: 1px solid var(--rule);
+  padding: 36px;
+  margin: 40px 0;
+}
+
+.method-box-title {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.6rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 20px;
+}
+
+.phase-row {
+  display: grid;
+  grid-template-columns: 80px 1fr;
+  gap: 20px;
+  padding: 14px 0;
+  border-bottom: 1px solid var(--rule);
+  align-items: start;
+}
+
+.phase-row:last-child { border-bottom: none; }
+
+.phase-when {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.62rem;
+  letter-spacing: 0.08em;
+  color: var(--rust);
+  padding-top: 2px;
+}
+
+.phase-what {
+  font-family: 'Source Serif 4', serif;
+  font-size: 0.92rem;
+  color: var(--slate);
+  line-height: 1.55;
+}
+
+.phase-what strong { color: var(--ink); font-family: 'DM Sans', sans-serif; font-size: 0.9rem; }
+
+/* ─── GAP BAR ─── */
+.gap-bar-section {
+  background: var(--cream);
+  border: 1px solid var(--rule);
+  padding: 28px 32px;
+  margin-top: 8px;
+}
+
+.gap-bar-title {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.58rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 18px;
+}
+
+.gap-row {
+  display: grid;
+  grid-template-columns: 140px 1fr 70px;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 12px;
+}
+
+.gap-label {
+  font-family: 'Source Serif 4', serif;
+  font-size: 0.82rem;
+  color: var(--slate);
+}
+
+.gap-track {
+  height: 10px;
+  background: var(--rule);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.gap-fill { height: 100%; border-radius: 2px; }
+.gap-pct {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.66rem;
+  color: var(--muted);
+  text-align: right;
+}
+
+/* ─── FOOTER ─── */
+footer {
+  background: var(--ink);
+  color: var(--paper);
+  padding: 64px;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: end;
+  gap: 40px;
+}
+
+.footer-hed {
+  font-family: 'Playfair Display', serif;
+  font-size: 2.6rem;
+  font-weight: 900;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+  margin-bottom: 16px;
+}
+
+.footer-body {
+  font-family: 'Source Serif 4', serif;
+  font-size: 0.95rem;
+  color: rgba(247,242,233,0.5);
+  max-width: 44ch;
+  line-height: 1.75;
+}
+
+.footer-links {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  text-align: right;
+}
+
+.footer-links a {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.65rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--amber);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.footer-links a:hover { color: var(--paper); }
+
+.footer-copy {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.56rem;
+  color: rgba(247,242,233,0.2);
+  margin-top: 48px;
+  grid-column: 1 / -1;
+  border-top: 1px solid rgba(255,255,255,0.06);
+  padding-top: 24px;
+  letter-spacing: 0.08em;
+}
+
+/* ─── TWO COL ─── */
+.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 72px; align-items: start; }
+.three-col { display: grid; grid-template-columns: repeat(3, 1fr); gap: 40px; }
+
+/* ─── ANIMATIONS ─── */
+.reveal {
+  opacity: 0;
+  transform: translateY(22px);
+  transition: opacity 0.65s ease, transform 0.65s ease;
+}
+
+.reveal.visible { opacity: 1; transform: translateY(0); }
+
+@keyframes up {
+  from { opacity: 0; transform: translateY(18px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* ─── LEAFLET CUSTOM ─── */
+.leaflet-popup-content-wrapper {
+  background: var(--ink) !important;
+  color: var(--paper) !important;
+  border-radius: 4px !important;
+  border: none !important;
+  box-shadow: 0 6px 24px rgba(0,0,0,0.5) !important;
+}
+.leaflet-popup-content { margin: 10px 14px !important; }
+.leaflet-popup-tip { background: var(--ink) !important; }
+.popup-name { font-family: 'Playfair Display', serif; font-size: 0.95rem; margin-bottom: 4px; }
+.popup-val { font-family: 'IBM Plex Mono', monospace; font-size: 0.8rem; color: var(--amber); }
+.popup-detail { font-size: 0.75rem; color: rgba(247,242,233,0.55); margin-top: 4px; line-height: 1.5; }
+
+/* ─── RESPONSIVE ─── */
+@media (max-width: 960px) {
+  .hero { grid-template-columns: 1fr; }
+  .hero-right { height: 340px; }
+  nav { padding: 0 24px; overflow-x: auto; }
+  .section, .dark-section, .map-section, .deliv-section, footer { padding: 64px 24px; }
+  .section-rule { margin: 0 24px; }
+  .stats-grid, .two-col, .three-col, .risk-layout, .funding-grid, .team-grid, .deliv-grid { grid-template-columns: 1fr; gap: 24px; }
+  .map-layout { grid-template-columns: 1fr; }
+  #main-map { height: 380px; }
+}
+</style>
+</head>
+<body>
+
+<!-- HERO -->
+<header class="hero">
+  <div class="hero-left">
+    <div>
+      <div class="hero-kicker">Collaboration Brief · March 2026</div>
+      <div class="hero-eyebrow">Ukubona LLC × Uganda Christian University</div>
+      <h1 class="hero-title">Mapping Kidney<br>Disease Across<br><em>All 135</em><br>Ugandan Districts</h1>
+      <p class="hero-body">Uganda has no national record of where kidney disease strikes hardest, who bears the greatest burden, or which communities have no access to treatment. This project builds that map — and uses it as the foundation for serious grant funding and a 50-year research agenda at UCU.</p>
+    </div>
+    <div class="hero-meta-block">
+      <div class="hero-meta-row">
+        <span class="meta-label">Lead PI</span>
+        <span class="meta-value">Dr. Abimereki Muzaale · Johns Hopkins University / Ukubona LLC</span>
+      </div>
+      <div class="hero-meta-row">
+        <span class="meta-label">Co-PI</span>
+        <span class="meta-value">Prof. Robert Basaza · Uganda Christian University, Kampala</span>
+      </div>
+      <div class="hero-meta-row">
+        <span class="meta-label">Funders</span>
+        <span class="meta-value">NIH NIDDK · Wellcome Trust · Uganda National Planning Authority · ISN</span>
+      </div>
+      <div class="hero-meta-row">
+        <span class="meta-label">Live Platform</span>
+        <span class="meta-value"><a href="https://ukubona-llc.github.io/landscape/" target="_blank" style="color:var(--amber); text-decoration:none;">ukubona-llc.github.io/landscape/ ↗</a></span>
+      </div>
+    </div>
+  </div>
+  <div class="hero-right">
+    <div id="hero-map"></div>
+    <div class="hero-map-label">
+      <div class="hero-map-caption">District CKD burden — colour scale (red = highest; violet = lowest / best studied)</div>
+      <div class="roygbiv-bar"></div>
+      <div class="roygbiv-labels"><span>Highest burden / data gap</span><span>Lowest / documented</span></div>
+    </div>
+  </div>
+</header>
+
+<!-- NAV -->
+<nav>
+  <a class="nav-brand" href="#">Uganda Renal Atlas</a>
+  <a class="nav-link" href="#burden">Scale</a>
+  <a class="nav-link" href="#risk">Risk Factors</a>
+  <a class="nav-link" href="#map">The Map</a>
+  <a class="nav-link" href="#transplant">Transplant</a>
+  <a class="nav-link" href="#deliverables">Deliverables</a>
+  <a class="nav-link" href="#funding">Funding</a>
+  <a class="nav-link" href="#team">Team</a>
+  <a class="nav-cta" href="https://ukubona-llc.github.io/landscape/" target="_blank">↗ Live Atlas</a>
+</nav>
+
+<!-- BURDEN -->
+<section class="section" id="burden">
+  <div class="reveal">
+    <div class="section-kicker">The Scale of the Problem</div>
+    <h2 class="section-title">How Big Is Uganda's Kidney Crisis?</h2>
+    <p class="section-intro">Kidney disease is largely silent — patients often have no symptoms until more than half their kidney function is already lost. By the time they reach a clinic, options are few, expensive, and geographically concentrated in Kampala. The numbers below give a sense of the problem's scale.</p>
+  </div>
+
+  <div class="stats-grid reveal">
+    <div class="stat-card">
+      <div class="stat-num">2–7%</div>
+      <div class="stat-unit">General population with kidney disease</div>
+      <div class="stat-body">Between 2 and 7 in every hundred Ugandans have some form of chronic kidney disease (CKD). Among people living with HIV — roughly 1.4 million Ugandans — the rate rises to about 15 in every hundred. Most have no idea.</div>
+      <div class="stat-cite">PMC9438417 · Global Dialysis Perspective: Uganda</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num">12.5%</div>
+      <div class="stat-unit">CKD prevalence in eastern Uganda</div>
+      <div class="stat-body">Eastern Uganda carries more than three times the kidney disease burden of southwestern Uganda, where the rate is 3.9%. A difference this large — within a single country — cannot be explained away. It demands a district-level investigation to understand why, and to direct resources accordingly.</div>
+      <div class="stat-cite">Muiru et al. · SEARCH-CKD study · PLOS One 2020</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num">123+</div>
+      <div class="stat-unit">Districts with no published kidney data</div>
+      <div class="stat-body">Of Uganda's 135 administrative districts, fewer than twelve have any published kidney disease data. The remaining 123 — home to tens of millions of people — are a complete blank on the scientific map. This is the gap we are closing.</div>
+      <div class="stat-cite">Ukubona Atlas Landscape Survey · 2026</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num">4</div>
+      <div class="stat-unit">Dialysis centres in the whole country</div>
+      <div class="stat-body">Uganda's 44 million people are served by four dialysis centres, concentrated in Kampala and regional towns. Mulago and Kiruddu hospitals together provide approximately 2,600 dialysis sessions per month — a fraction of what is needed. A patient in Kaabong or Kotido district faces a journey of hundreds of kilometres for each treatment.</div>
+      <div class="stat-cite">Daily Monitor Uganda · 2024</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num">≈ 0</div>
+      <div class="stat-unit">Kidney transplants performed in Uganda*</div>
+      <div class="stat-body">Uganda's first domestic kidney transplants were performed at Mulago Hospital in 2023 — a historic milestone. Fewer than ten procedures were completed before the programme was suspended in 2024 pending a regulatory framework. Every patient who needs a transplant is currently referred abroad, to Kenya, India or Turkey.</div>
+      <div class="stat-cite">*Mulago pilot suspended 2024 · Monitor Uganda</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num">$30,000</div>
+      <div class="stat-unit">Cost of a kidney transplant abroad</div>
+      <div class="stat-body">A kidney transplant in India — the most common destination for Ugandan patients — costs between $25,000 and $35,000 US dollars, out of pocket. Estimates suggest a domestic programme, once established, could deliver the same procedure for around $8,000. The economic case for domestic investment is overwhelming.</div>
+      <div class="stat-cite">Africanews · Uganda Parliament debate · 2022</div>
+    </div>
+  </div>
+
+  <div class="pull-quote reveal">
+    <p>"In Uganda, about two percent of the population have end-stage kidney disease, and many are aware that non-communicable diseases are on the rise — twenty-five percent of the population are hypertensive."</p>
+    <cite>— Uganda Ministry of Health official, Mulago kidney programme media briefing, 2024</cite>
+  </div>
+</section>
+
+<div class="section-rule"></div>
+
+<!-- RISK FACTORS -->
+<div class="dark-section" id="risk">
+  <div class="dark-inner">
+    <div class="reveal">
+      <div class="section-kicker">What Drives Kidney Disease in Uganda</div>
+      <h2 class="section-title">Risk Factors: A Profile<br>Unlike the West</h2>
+      <p class="section-intro">The causes of kidney disease in Uganda are not identical to those in high-income countries. HIV infection is a major driver. Hypertension — affecting roughly one in four Ugandan adults — is the single largest contributor. But the most striking finding is how many cases remain unexplained by any known risk factor.</p>
+    </div>
+
+    <div class="risk-layout">
+      <div>
+        <div class="risk-bars reveal" id="riskBars">
+          <div style="font-family:'IBM Plex Mono',monospace; font-size:0.6rem; letter-spacing:0.14em; text-transform:uppercase; color:rgba(247,242,233,0.3); margin-bottom:16px">Prevalence among CKD patients (approximate)</div>
+          <div class="risk-item">
+            <div class="risk-label">Hypertension</div>
+            <div class="risk-track"><div class="risk-fill" data-pct="78" style="background:linear-gradient(to right,#c0392b,#e74c3c)"></div></div>
+            <div class="risk-pct">78%</div>
+          </div>
+          <div class="risk-item">
+            <div class="risk-label">Unknown / no cause found</div>
+            <div class="risk-track"><div class="risk-fill" data-pct="66" style="background:linear-gradient(to right,#9b59b6,#8e44ad)"></div></div>
+            <div class="risk-pct">66%</div>
+          </div>
+          <div class="risk-item">
+            <div class="risk-label">HIV infection</div>
+            <div class="risk-track"><div class="risk-fill" data-pct="55" style="background:linear-gradient(to right,#c0392b,#e74c3c)"></div></div>
+            <div class="risk-pct">55%</div>
+          </div>
+          <div class="risk-item">
+            <div class="risk-label">Diabetes</div>
+            <div class="risk-track"><div class="risk-fill" data-pct="38" style="background:linear-gradient(to right,#e67e22,#f39c12)"></div></div>
+            <div class="risk-pct">38%</div>
+          </div>
+          <div class="risk-item">
+            <div class="risk-label">Protein in urine (proteinuria)</div>
+            <div class="risk-track"><div class="risk-fill" data-pct="42" style="background:linear-gradient(to right,#e67e22,#f39c12)"></div></div>
+            <div class="risk-pct">42%</div>
+          </div>
+          <div class="risk-item">
+            <div class="risk-label">Age 60 years or older</div>
+            <div class="risk-track"><div class="risk-fill" data-pct="45" style="background:linear-gradient(to right,#f1c40f,#f39c12)"></div></div>
+            <div class="risk-pct">45%</div>
+          </div>
+          <div class="risk-item">
+            <div class="risk-label">Malnutrition / low birth weight</div>
+            <div class="risk-track"><div class="risk-fill" data-pct="32" style="background:linear-gradient(to right,#2ecc71,#27ae60)"></div></div>
+            <div class="risk-pct">32%</div>
+          </div>
+        </div>
+        <p style="font-family:'IBM Plex Mono',monospace; font-size:0.55rem; letter-spacing:0.07em; color:rgba(247,242,233,0.25); margin-top:16px">Note: categories overlap; individual patients may have multiple risk factors. Sources: Muiru 2020, Kalyesubula 2017, WHO Uganda 2023.</p>
+      </div>
+
+      <div class="reveal">
+        <p style="font-family:'Source Serif 4',serif; font-size:1rem; color:rgba(247,242,233,0.72); line-height:1.85; margin-bottom:28px">
+          The single most important finding from the SEARCH-CKD study — the largest multi-country kidney disease survey in rural East Africa — is that <strong style="color:var(--paper)">two thirds of CKD cases in the region have no identifiable risk factor</strong> from the standard clinical checklist. This is not a data quality problem. It strongly suggests that Uganda-specific factors — endemic infections, traditional herbal medicines that are toxic to the kidneys, agricultural chemicals, or genetic variants common in eastern African populations — are driving a substantial share of the disease burden. These factors are entirely unstudied.
+        </p>
+        <p style="font-family:'Source Serif 4',serif; font-size:1rem; color:rgba(247,242,233,0.72); line-height:1.85; margin-bottom:28px">
+          This is precisely why a district-level atlas is the most important scientific investment Uganda can make in kidney health: before anything can be prevented or treated, the burden must first be measured, and its distribution understood.
+        </p>
+
+        <div class="east-west-box">
+          <div class="ew-label">The geographic gradient — within Uganda</div>
+          <div class="ew-pair">
+            <div>
+              <div class="ew-num" style="color:#c0392b">12.5%</div>
+              <div class="ew-caption">CKD prevalence<br>Eastern Uganda<br><span style="font-size:0.7rem">(Mbale, Tororo, Soroti subregions)</span></div>
+            </div>
+            <div style="font-family:'Playfair Display',serif; font-size:2.5rem; color:rgba(247,242,233,0.15); align-self:center">vs</div>
+            <div>
+              <div class="ew-num" style="color:#2ecc71">3.9%</div>
+              <div class="ew-caption">CKD prevalence<br>Southwestern Uganda<br><span style="font-size:0.7rem">(Kabale, Mbarara subregions)</span></div>
+            </div>
+          </div>
+          <div style="height:1px; background:rgba(255,255,255,0.06); margin-bottom:14px"></div>
+          <p style="font-size:0.78rem; color:rgba(247,242,233,0.35); font-family:'IBM Plex Mono',monospace; font-size:0.55rem; letter-spacing:0.06em">Source: Muiru et al., SEARCH-CKD, PLOS One 2020</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MAP SECTION -->
+<div class="map-section" id="map">
+  <div class="map-inner">
+    <div class="reveal">
+      <div class="section-kicker">Where the Burden Falls</div>
+      <h2 class="section-title">Uganda's 135 Districts:<br>A Map of What We Know<br>and What We Don't</h2>
+      <p class="section-intro">The map below shows Uganda's districts colour-coded from red (highest estimated burden or no data at all) to violet (lowest burden or best-documented). Right now, the red areas represent both high disease burden and complete scientific ignorance — we cannot yet tell them apart. That is what this project is designed to change.</p>
+    </div>
+
+    <div class="map-layout reveal">
+      <div>
+        <div id="main-map"></div>
+        <p style="font-family:'IBM Plex Mono',monospace; font-size:0.55rem; letter-spacing:0.07em; color:rgba(247,242,233,0.25); margin-top:10px">Click any district for details. Red/orange = high estimated burden or zero published data. Violet = published prevalence studies available. Synthetic Phase I data — real district surveys will update this map in Phase II.</p>
+        <a class="map-live-link" href="https://ukubona-llc.github.io/landscape/" target="_blank">↗ Open the full interactive atlas at ukubona-llc.github.io/landscape/</a>
+      </div>
+
+      <div class="map-legend-panel">
+        <div class="legend-title">Colour scale — disease burden and data coverage</div>
+        <div class="legend-scale"></div>
+        <div class="legend-ends"><span>Highest burden / no data</span><span>Lowest / documented</span></div>
+        <div class="legend-rows">
+          <div class="legend-row">
+            <div class="legend-dot" style="background:#c0392b"></div>
+            <div class="legend-text"><strong>Red:</strong> Very high CKD burden or complete absence of published data. Urgent research priority.</div>
+          </div>
+          <div class="legend-row">
+            <div class="legend-dot" style="background:#d87030"></div>
+            <div class="legend-text"><strong>Orange:</strong> High burden. Some data exists but is thin and geographically unrepresentative.</div>
+          </div>
+          <div class="legend-row">
+            <div class="legend-dot" style="background:#d4b832"></div>
+            <div class="legend-text"><strong>Yellow:</strong> Moderate burden estimated. Regional data available, but district-level precision is lacking.</div>
+          </div>
+          <div class="legend-row">
+            <div class="legend-dot" style="background:#27ae60"></div>
+            <div class="legend-text"><strong>Green:</strong> Lower estimated burden. Multiple community surveys available for cross-referencing.</div>
+          </div>
+          <div class="legend-row">
+            <div class="legend-dot" style="background:#2980b9"></div>
+            <div class="legend-text"><strong>Blue:</strong> Low burden with reasonable documentation. Policy-ready data in place.</div>
+          </div>
+          <div class="legend-row">
+            <div class="legend-dot" style="background:#6c3483"></div>
+            <div class="legend-text"><strong>Indigo / Violet:</strong> Best-studied districts. Sufficient data to anchor national estimates.</div>
+          </div>
+        </div>
+        <div class="map-note">
+          Phase I (current): estimates derived from published literature and regional surveys. Synthetic values used where no data exists. Phase II: UCU student teams will conduct district-level extraction to replace synthetic estimates with real data.
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- TRANSPLANT SECTION -->
+<section class="section" id="transplant">
+  <div class="reveal">
+    <div class="section-kicker">The Transplant Crisis</div>
+    <h2 class="section-title">Sixty Years with No<br>Kidney Transplant Programme</h2>
+    <p class="section-intro">Uganda is one of very few countries in sub-Saharan Africa that has never established a sustained kidney transplant programme. For sixty years, patients wealthy enough to travel have gone to India, Kenya, or Turkey. Those who cannot afford it have faced dialysis — if they are lucky enough to live near a centre — or death. The timeline below traces this history and charts where we are headed.</p>
+  </div>
+
+  <div class="two-col">
+    <div>
+      <div class="timeline-outer reveal">
+        <div class="timeline-line"></div>
+        <div class="tl-item">
+          <div class="tl-dot"></div>
+          <div>
+            <div class="tl-year">1960s – 1990s</div>
+            <div class="tl-event">Uganda gains independence but inherits almost no kidney care infrastructure. Patients with end-stage kidney failure receive palliative care only. Kenya begins building transplant capacity at Kenyatta National Hospital. Ugandan patients begin making the journey to Nairobi.</div>
+          </div>
+        </div>
+        <div class="tl-item">
+          <div class="tl-dot"></div>
+          <div>
+            <div class="tl-year">2000s – 2010s</div>
+            <div class="tl-event">India — particularly Bangalore and Mumbai — emerges as the primary transplant destination for Ugandan patients. Cost: $25,000–$35,000 per procedure, entirely out-of-pocket. As of 2012, Uganda has just <strong>two dialysis chairs</strong> and <strong>two specialist nephrologists</strong> in the entire country. Informal transplant tourism routes are well-established.</div>
+          </div>
+        </div>
+        <div class="tl-item">
+          <div class="tl-dot"></div>
+          <div>
+            <div class="tl-year">2020</div>
+            <div class="tl-event">Uganda's Parliament passes the Human Organ Donation and Tissue Transplant Bill. The law — still awaiting Presidential assent — would designate licensed transplant centres, regulate donor consent, and permit domestic transplants for the first time. Significant progress, but implementation remains stalled.</div>
+          </div>
+        </div>
+        <div class="tl-item">
+          <div class="tl-dot"></div>
+          <div>
+            <div class="tl-year">2022</div>
+            <div class="tl-event">Uganda's dialysis capacity has grown substantially: <strong>94 chairs</strong> and <strong>14 nephrologists</strong> nationally — remarkable growth from 2012. Parliament debates cost estimates: a domestic transplant would cost roughly $8,000 versus $30,000 abroad. The economic and equity argument for a domestic programme is clear.</div>
+          </div>
+        </div>
+        <div class="tl-item">
+          <div class="tl-dot"></div>
+          <div>
+            <div class="tl-year">December 2023 – 2024</div>
+            <div class="tl-event">Mulago National Referral Hospital performs Uganda's first kidney transplants — a historic milestone. A small team of Ugandan surgeons, with support from a visiting Indian surgical team, completes approximately four to ten procedures. The programme is suspended in 2024 while the Ministry of Health develops a regulatory framework. Patients return to the medical tourism queue.</div>
+          </div>
+        </div>
+        <div class="tl-item current">
+          <div class="tl-dot"></div>
+          <div>
+            <div class="tl-year">March 2026 — Now</div>
+            <div class="tl-event"><strong>This collaboration begins.</strong> Ukubona LLC and Uganda Christian University launch the first systematic, district-level mapping of kidney disease burden across Uganda. The atlas will generate the preliminary data required for NIH NIDDK and Wellcome Trust grant applications, and provide the scientific underpinning for Uganda's domestic transplant programme reinstatement.</div>
+          </div>
+        </div>
+        <div class="tl-item">
+          <div class="tl-dot" style="border-color:var(--teal)"></div>
+          <div>
+            <div class="tl-year" style="color:var(--teal)">Month 4 → Beyond</div>
+            <div class="tl-event">First grant applications submitted based on atlas preliminary data. UCU-led student publications from Phase II. Expansion to mental health, HIV, and maternal health disease layers. UCU becomes the national reference centre for district-level disease surveillance in Uganda.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="reveal">
+      <table class="clean-table">
+        <thead>
+          <tr>
+            <th>Transplant Destination</th>
+            <th>Estimated Cost (USD)</th>
+            <th>Distance from Kampala</th>
+            <th>Current Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>India (Bangalore, Mumbai)</td>
+            <td>$25,000 – $35,000</td>
+            <td>6,500 km</td>
+            <td><span class="badge b-red">Primary destination</span></td>
+          </tr>
+          <tr>
+            <td>Kenya (Nairobi, Eldoret)</td>
+            <td>$15,000 – $25,000</td>
+            <td>700 km</td>
+            <td><span class="badge b-amber">Preferred regional option</span></td>
+          </tr>
+          <tr>
+            <td>Turkey (Istanbul)</td>
+            <td>$20,000 – $30,000</td>
+            <td>5,500 km</td>
+            <td><span class="badge b-amber">Growing demand</span></td>
+          </tr>
+          <tr>
+            <td>Uganda — Mulago Hospital</td>
+            <td>~$10,000</td>
+            <td>0 km</td>
+            <td><span class="badge b-grey">Suspended · 2024</span></td>
+          </tr>
+          <tr>
+            <td>Uganda — with legislation + scale</td>
+            <td>~$8,000</td>
+            <td>0 km</td>
+            <td><span class="badge b-teal">Goal of this programme</span></td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="gap-bar-section">
+        <div class="gap-bar-title">The Treatment Gap — How Many Patients Are Actually Receiving Care?</div>
+        <div class="gap-row">
+          <div class="gap-label">Need kidney treatment</div>
+          <div class="gap-track"><div class="gap-fill" style="width:100%; background:var(--rust)"></div></div>
+          <div class="gap-pct">~880,000</div>
+        </div>
+        <div class="gap-row">
+          <div class="gap-label">Receiving dialysis</div>
+          <div class="gap-track"><div class="gap-fill" style="width:10%; background:var(--amber)"></div></div>
+          <div class="gap-pct">&lt; 5%</div>
+        </div>
+        <div class="gap-row">
+          <div class="gap-label">Have had a transplant</div>
+          <div class="gap-track"><div class="gap-fill" style="width:1%; background:var(--teal)"></div></div>
+          <div class="gap-pct">&lt; 0.1%</div>
+        </div>
+        <p style="font-family:'Source Serif 4',serif; font-size:0.8rem; color:var(--muted); margin-top:14px; font-style:italic; line-height:1.6">Based on 2% estimated end-stage kidney disease prevalence (Ministry of Health) applied to Uganda's 44 million population. The vast majority of patients in the gap receive palliative care or die without any renal replacement therapy.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="section-rule"></div>
+
+<!-- METHODOLOGY / HOW IT WORKS -->
+<section class="section">
+  <div class="reveal">
+    <div class="section-kicker">How This Project Works</div>
+    <h2 class="section-title">A Living Map, Not<br>a One-Off Survey</h2>
+    <p class="section-intro">Most disease mapping projects produce a single report that becomes outdated within a few years. This project is designed differently: the atlas is a living platform that improves with each research cycle, each new dataset, and each student cohort that contributes to it. Every new piece of evidence moves the map closer to reality.</p>
+  </div>
+
+  <div class="two-col reveal">
+    <div>
+      <p style="font-family:'Source Serif 4',serif; font-size:1rem; color:var(--slate); line-height:1.85; margin-bottom:24px">
+        The core logic is straightforward. We begin with what the published literature already tells us — patchy, concentrated in a handful of districts, but sufficient to establish a starting point. We identify the places where the evidence is weakest: those are the districts most urgently in need of study. We then deploy UCU students and public health researchers to close those gaps systematically, district by district, working outward from where data is richest toward where it is entirely absent.
+      </p>
+      <p style="font-family:'Source Serif 4',serif; font-size:1rem; color:var(--slate); line-height:1.85; margin-bottom:24px">
+        The atlas is the output of each cycle — a publicly accessible, interactively browsable map that any clinician, health planner, policymaker, or researcher can consult to understand the kidney disease landscape across Uganda. It will be hosted at UCU and linked from the National Planning Authority's health data portal.
+      </p>
+      <p style="font-family:'Source Serif 4',serif; font-size:1rem; color:var(--slate); line-height:1.85">
+        The platform is also designed to expand. Once the CKD and kidney disease layers are established — our first case study — the same infrastructure can be used to map mental health, HIV, maternal mortality, hypertension, and diabetes burden at district level. This makes it directly relevant to the NPA's stated priority of mental health surveillance, and positions UCU as Uganda's leading institution for public health intelligence.
+      </p>
+    </div>
+
+    <div>
+      <div class="method-box">
+        <div class="method-box-title">Phase-by-phase plan</div>
+        <div class="phase-row">
+          <div class="phase-when">Now</div>
+          <div class="phase-what"><strong>Framework and atlas delivered to UCU</strong><br>Concept note, timelines, initial literature seed list, and this platform handed to Prof. Basaza and the UCU research team.</div>
+        </div>
+        <div class="phase-row">
+          <div class="phase-when">Wk 1–2</div>
+          <div class="phase-what"><strong>Literature search — Phase I</strong><br>Systematic search of PubMed, African Journals OnLine (AJOL), and grey literature for all published data on CKD, ESRD, hypertension, and diabetes in Uganda, district by district.</div>
+        </div>
+        <div class="phase-row">
+          <div class="phase-when">Wk 2–4</div>
+          <div class="phase-what"><strong>Student data extraction — Phase II</strong><br>UCU Master of Public Health and medical students trained to extract, standardise, and geocode study-level data. Each student generates a citable contribution toward the atlas publication.</div>
+        </div>
+        <div class="phase-row">
+          <div class="phase-when">Wk 5–10</div>
+          <div class="phase-what"><strong>Atlas integration and publication</strong><br>Real district-level data replaces synthetic estimates on the live platform. Data paper submitted under UCU–Hopkins joint authorship. Platform made available to Ministry of Health and NPA.</div>
+        </div>
+        <div class="phase-row">
+          <div class="phase-when">Month 4</div>
+          <div class="phase-what"><strong>First grant submission</strong><br>NIH NIDDK R21 specific aims page and preliminary data package submitted. Wellcome Trust and ISN-SOROCA applications in parallel. NPA proof-of-concept brief on CKD–mental health co-morbidity submitted to NPA secretariat.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- DELIVERABLES -->
+<div class="deliv-section" id="deliverables">
+  <div style="max-width:1380px; margin:0 auto">
+    <div class="reveal">
+      <div class="section-kicker">What UCU Receives</div>
+      <h2 class="section-title">First-Iteration Deliverables<br>for the Partnership</h2>
+      <p class="section-intro">Prof. Basaza and the team asked for an initial concept and a timeline. What follows is considerably more than that — a complete first iteration including infrastructure, data, and grant-ready materials.</p>
+    </div>
+
+    <div class="deliv-grid">
+      <div class="deliv-card reveal">
+        <div class="deliv-num">01</div>
+        <div class="deliv-title">A Living Disease Atlas — Public and Citable</div>
+        <div class="deliv-body">A publicly accessible interactive platform showing kidney disease burden across all 135 Ugandan districts. Clinicians, planners, journalists, and funders can explore the data by district, compare regions, and see exactly where evidence is lacking. Hosted at UCU and linked from Ukubona LLC. Updated with each research cycle. Citable via a permanent DOI for use in grant applications and publications.</div>
+        <div class="deliv-tag">Live at Wk 10 · doi assigned</div>
+      </div>
+      <div class="deliv-card reveal">
+        <div class="deliv-num">02</div>
+        <div class="deliv-title">A Systematic Literature Review — UCU-Led and Publishable</div>
+        <div class="deliv-body">A comprehensive, peer-review-ready systematic review of all published and grey literature on kidney disease, hypertension, and diabetes in Uganda at district level. Standardised data extraction database. Submitted to an open-access African public health journal with UCU faculty and student authors on the byline. This will be the most complete such resource ever assembled for Uganda.</div>
+        <div class="deliv-tag">Submitted Wk 8 · UCU first-author</div>
+      </div>
+      <div class="deliv-card reveal">
+        <div class="deliv-num">03</div>
+        <div class="deliv-title">A Student Research Pipeline with Real Publications</div>
+        <div class="deliv-body">A structured framework for MPH and medical students at UCU to contribute meaningfully to research — not as data-entry workers, but as documented co-authors. Clear protocols, extraction templates, and a contribution log that ensures each participating student has a citable publication in their CV. This is UCU's long-term capacity building engine.</div>
+        <div class="deliv-tag">Protocol ready Wk 1</div>
+      </div>
+      <div class="deliv-card reveal">
+        <div class="deliv-num">04</div>
+        <div class="deliv-title">A Grant Pre-Application Package</div>
+        <div class="deliv-body">A polished NIH-format specific aims page and preliminary data summary built from Phase I–II outputs — ready to submit to NIH NIDDK and adaptable for Wellcome Trust and NPA applications. Includes a letter-of-support template for UCU institutional signature, a budget framework, and a two-page NPA brief specifically addressing the mental health co-morbidity angle (depression is twice as prevalent in CKD patients).</div>
+        <div class="deliv-tag">Ready Month 4</div>
+      </div>
+      <div class="deliv-card reveal">
+        <div class="deliv-num">05</div>
+        <div class="deliv-title">A Transplant Tourism Audit</div>
+        <div class="deliv-body">The first systematic quantitative estimate of Ugandans who have undergone kidney transplants abroad — drawing on Ministry of Health referral records, billing data from partner hospitals in Nairobi and India, and social media signal analysis. This establishes the economic and equity case for domestic capacity. Formatted as a policy brief for the Ministry of Health and as a data supplement for grant applications.</div>
+        <div class="deliv-tag">Policy brief Month 3</div>
+      </div>
+      <div class="deliv-card reveal">
+        <div class="deliv-num">06</div>
+        <div class="deliv-title">A Platform Expandable to Any Condition</div>
+        <div class="deliv-body">CKD is the first case study. The platform architecture is designed from the outset to support any disease. Mental health — the NPA's current stated priority — is the immediate next layer. HIV, maternal mortality, diabetes, and hypertension follow. UCU can present this to funders and government partners not as a kidney project, but as Uganda's national disease intelligence infrastructure.</div>
+        <div class="deliv-tag">Mental health layer at Wk 12</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- FUNDING -->
+<section class="section" id="funding">
+  <div class="reveal">
+    <div class="section-kicker">Funding Strategy</div>
+    <h2 class="section-title">Realistic Paths to<br>Sustained Funding</h2>
+    <p class="section-intro">The combination of Dr. Muzaale's NIH track record, Hopkins institutional credibility, UCU's community access, and Prof. Basaza's policy network opens funding channels that would be inaccessible to either institution working alone. Below are the four most realistic pathways.</p>
+  </div>
+
+  <div class="funding-grid reveal">
+    <div class="funding-card">
+      <div class="funding-org">NIH National Institute of Diabetes and Digestive and Kidney Diseases — R21 Exploratory Grant</div>
+      <div class="funding-amount">$275,000 · 2 years</div>
+      <div class="funding-fit">
+        <strong>Fit: Very strong.</strong> Dr. Muzaale's K08-AG065520 — a prestigious NIH career development award on kidney donor outcomes — is a direct methodological predecessor to this work. An R21 application for "characterising chronic kidney disease epidemiology in sub-Saharan Africa using geospatial mapping methods" aligns with the NIDDK's published global health priorities (PA-21-213). UCU provides community access; Hopkins provides methods rigour and grant management infrastructure. The preliminary data produced in Phase I–II is precisely what this application needs.
+      </div>
+    </div>
+    <div class="funding-card">
+      <div class="funding-org">Wellcome Trust — African Programmes in Science</div>
+      <div class="funding-amount">£150,000 – £500,000 · 3–5 years</div>
+      <div class="funding-fit">
+        <strong>Fit: Strong.</strong> Wellcome's Science in Africa initiative specifically supports early-career African scientists embedded in African institutions generating high-quality research with direct policy impact. Prof. Basaza and the UCU student pipeline make this a compelling application. The CKD–HIV intersection — particularly the high burden of kidney disease among people living with HIV in Uganda — aligns with Wellcome's priority area at the boundary of infectious and non-communicable disease.
+      </div>
+    </div>
+    <div class="funding-card">
+      <div class="funding-org">Uganda National Planning Authority — Health Intelligence Pilot</div>
+      <div class="funding-amount">$30,000 – $80,000 · Proof of concept</div>
+      <div class="funding-fit">
+        <strong>Fit: Moderate, with strategy.</strong> The NPA's stated 2026 priority is mental health surveillance. Our approach is to present kidney disease as the proof-of-concept for a platform that will deliver mental health data in Phase II. The hook: depression is twice as prevalent in patients with CKD, meaning a kidney surveillance platform is simultaneously a mental health data infrastructure. The NPA gets a demonstration of something it cannot currently build internally.
+      </div>
+    </div>
+    <div class="funding-card">
+      <div class="funding-org">International Society of Nephrology — SOROCA Programme</div>
+      <div class="funding-amount">$10,000 – $50,000 · 1 year</div>
+      <div class="funding-fit">
+        <strong>Fit: Very strong for seed funding.</strong> ISN's Special Operations for Renal Outcomes in Central Africa grant is designed exactly for this type of low-resource CKD mapping project. The UCU–Hopkins partnership is the ideal profile: local African institutional capacity combined with international methodological credibility. SOROCA funding can cover Phase I–II costs and generate the preliminary data for the larger NIH R21 application that follows.
+      </div>
+    </div>
+  </div>
+
+  <div class="pull-quote reveal">
+    <p>"The greatest gap is not the cost of a transplant. It is the cost of not knowing where the kidneys are failing — and why."</p>
+    <cite>— Dr. Abimereki Muzaale, framing the Ukubona × UCU research agenda, 2026</cite>
+  </div>
+</section>
+
+<div class="section-rule"></div>
+
+<!-- TEAM -->
+<section class="section" id="team" style="padding-bottom:48px">
+  <div class="reveal">
+    <div class="section-kicker">The Team</div>
+    <h2 class="section-title">Who Is Leading This</h2>
+  </div>
+</section>
+
+<div style="max-width:1380px; margin:0 auto; padding:0 64px 96px">
+  <div class="team-grid reveal">
+    <div class="team-card">
+      <div class="team-role">Lead PI · Grant Strategy & Methods</div>
+      <div class="team-name">Dr. Abimereki Muzaale</div>
+      <div class="team-affil">Johns Hopkins University · Ukubona LLC · NIH K08-AG065520</div>
+      <div class="team-bio">Transplant epidemiologist at Johns Hopkins with over a decade of research on living kidney donor outcomes, surgical risk, and the long-term consequences of nephrectomy. His NIH K08 award established him as one of the leading researchers in quantifying the risks and benefits of kidney donation in the United States. This project brings that methodological expertise to Uganda — inverting the question from "who can safely donate?" to "who is already losing their kidneys, and where?" Leads the technical platform architecture, grant writing, and international partnerships.</div>
+    </div>
+    <div class="team-card">
+      <div class="team-role">Co-PI · Uganda Research Team & Policy</div>
+      <div class="team-name">Prof. Robert Basaza</div>
+      <div class="team-affil">Uganda Christian University · School of Public Health</div>
+      <div class="team-bio">Public health economist and health policy expert with extensive experience in health systems research in Uganda and the wider East African region. Professor Basaza leads the Uganda-based research operations, manages the UCU student pipeline, and maintains the institutional relationships with the Ministry of Health, the National Planning Authority, and district health offices that will be essential for translating atlas findings into policy action. Co-PI on all grant applications.</div>
+    </div>
+    <div class="team-card">
+      <div class="team-role">Systems & Platform Strategy</div>
+      <div class="team-name">Paul Luswata</div>
+      <div class="team-affil">Ukubona LLC · Platform Architecture</div>
+      <div class="team-bio">Strategy and systems consultant responsible for the technical architecture of the data platform. Ensures that the multi-disease dropdown structure, district-level data pipelines, and interactive atlas infrastructure are built to scale cleanly from the CKD pilot to a full Uganda-wide disease burden platform. Manages the transition from synthetic Phase I data to real Phase II district survey data, and oversees the student contribution tracking and publication pipeline.</div>
+    </div>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div>
+    <div class="footer-hed">Ready to Map<br>the Gradient.</div>
+    <p class="footer-body">The infrastructure is in place. The preliminary data exists. The grant pathways are identified. This is the first iteration — a proof of concept built specifically to generate the evidence that unlocks sustained, major funding for kidney disease research at UCU and across Uganda.</p>
+  </div>
+  <div class="footer-links">
+    <a href="https://ukubona-llc.github.io/landscape/" target="_blank">↗ Full Interactive Atlas</a>
+    <a href="https://grantome.com/grant/NIH/K08-AG065520-01" target="_blank">↗ NIH K08 Grant Record</a>
+    <a href="https://ukubona-llc.github.io" target="_blank">↗ Ukubona LLC</a>
+    <a href="https://www.ucu.ac.ug" target="_blank">↗ Uganda Christian University</a>
+  </div>
+  <div class="footer-copy">© 2026 Ukubona LLC × Uganda Christian University · Kampala, Uganda · 0°19′N 32°35′E · Prepared for Prof. Robert Basaza and the UCU School of Public Health · March 2026</div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.min.js"></script>
+<script>
+// ── DISTRICT DATA with real WGS84 centroids ──────────────────
+const DISTRICTS = [
+  {n:"Abim",lat:3.00,lon:33.67,ck:1},{n:"Adjumani",lat:3.38,lon:31.79,ck:2},
+  {n:"Agago",lat:2.98,lon:33.38,ck:1},{n:"Alebtong",lat:2.26,lon:33.35,ck:2},
+  {n:"Amolatar",lat:1.60,lon:32.80,ck:2},{n:"Amudat",lat:1.95,lon:34.93,ck:1},
+  {n:"Amuria",lat:2.03,lon:33.65,ck:2},{n:"Amuru",lat:2.80,lon:31.92,ck:2},
+  {n:"Apac",lat:1.98,lon:32.54,ck:3},{n:"Arua",lat:3.02,lon:30.91,ck:3},
+  {n:"Budaka",lat:1.00,lon:33.94,ck:1},{n:"Bududa",lat:1.00,lon:34.33,ck:1},
+  {n:"Bugiri",lat:0.57,lon:33.75,ck:1},{n:"Buhweju",lat:-0.70,lon:30.42,ck:5},
+  {n:"Buikwe",lat:0.33,lon:33.00,ck:4},{n:"Bukedea",lat:1.36,lon:34.00,ck:1},
+  {n:"Bukomansimbi",lat:-0.14,lon:31.60,ck:5},{n:"Bukwo",lat:1.28,lon:34.73,ck:1},
+  {n:"Bulambuli",lat:1.22,lon:34.38,ck:1},{n:"Buliisa",lat:2.12,lon:31.41,ck:3},
+  {n:"Bundibugyo",lat:0.71,lon:30.07,ck:4},{n:"Bunyangabu",lat:-0.50,lon:30.18,ck:6},
+  {n:"Bushenyi",lat:-0.58,lon:30.18,ck:6},{n:"Busia",lat:0.46,lon:34.09,ck:1},
+  {n:"Butaleja",lat:0.90,lon:33.97,ck:1},{n:"Butebo",lat:1.18,lon:34.05,ck:1},
+  {n:"Buvuma",lat:0.38,lon:33.22,ck:3},{n:"Buyende",lat:1.24,lon:33.12,ck:2},
+  {n:"Dokolo",lat:1.91,lon:33.17,ck:2},{n:"Gomba",lat:-0.23,lon:31.68,ck:5},
+  {n:"Gulu",lat:2.77,lon:32.30,ck:3},{n:"Hoima",lat:1.43,lon:31.35,ck:3},
+  {n:"Ibanda",lat:-0.14,lon:30.50,ck:5},{n:"Iganga",lat:0.61,lon:33.48,ck:1},
+  {n:"Isingiro",lat:-0.84,lon:30.82,ck:6},{n:"Jinja",lat:0.42,lon:33.20,ck:3},
+  {n:"Kaabong",lat:3.52,lon:34.14,ck:1},{n:"Kabale",lat:-1.25,lon:29.99,ck:6},
+  {n:"Kabarole",lat:0.65,lon:30.25,ck:5},{n:"Kaberamaido",lat:1.74,lon:33.16,ck:2},
+  {n:"Kagadi",lat:0.94,lon:30.82,ck:4},{n:"Kakumiro",lat:0.78,lon:31.33,ck:4},
+  {n:"Kalaki",lat:1.89,lon:33.38,ck:2},{n:"Kalangala",lat:-0.32,lon:32.23,ck:4},
+  {n:"Kaliro",lat:1.04,lon:33.50,ck:2},{n:"Kalungu",lat:-0.10,lon:31.78,ck:5},
+  {n:"Kampala",lat:0.32,lon:32.58,ck:4},{n:"Kamuli",lat:0.95,lon:33.12,ck:2},
+  {n:"Kamwenge",lat:0.19,lon:30.45,ck:5},{n:"Kanungu",lat:-0.96,lon:29.79,ck:6},
+  {n:"Kapchorwa",lat:1.40,lon:34.45,ck:1},{n:"Kapelebyong",lat:1.90,lon:33.98,ck:1},
+  {n:"Karenga",lat:3.73,lon:33.80,ck:1},{n:"Kasanda",lat:0.60,lon:31.72,ck:4},
+  {n:"Kasese",lat:0.18,lon:30.08,ck:4},{n:"Katakwi",lat:1.90,lon:34.07,ck:1},
+  {n:"Kayunga",lat:0.71,lon:32.87,ck:3},{n:"Kazo",lat:-0.10,lon:30.68,ck:5},
+  {n:"Kibale",lat:0.87,lon:31.06,ck:4},{n:"Kiboga",lat:0.91,lon:31.77,ck:4},
+  {n:"Kibuku",lat:1.04,lon:33.79,ck:1},{n:"Kikuube",lat:1.58,lon:31.22,ck:3},
+  {n:"Kiruhura",lat:-0.20,lon:30.86,ck:5},{n:"Kiryandongo",lat:1.88,lon:32.10,ck:3},
+  {n:"Kisoro",lat:-1.28,lon:29.65,ck:6},{n:"Kitgum",lat:3.28,lon:32.89,ck:2},
+  {n:"Koboko",lat:3.41,lon:31.05,ck:2},{n:"Kole",lat:2.37,lon:32.76,ck:2},
+  {n:"Kotido",lat:2.98,lon:34.13,ck:1},{n:"Kumi",lat:1.46,lon:33.94,ck:1},
+  {n:"Kwania",lat:2.12,lon:32.60,ck:2},{n:"Kween",lat:1.42,lon:34.63,ck:1},
+  {n:"Kyankwanzi",lat:1.09,lon:31.71,ck:4},{n:"Kyegegwa",lat:0.48,lon:31.05,ck:5},
+  {n:"Kyenjojo",lat:0.62,lon:30.64,ck:5},{n:"Kyotera",lat:-0.65,lon:31.55,ck:5},
+  {n:"Lamwo",lat:3.53,lon:32.53,ck:1},{n:"Lira",lat:2.25,lon:32.90,ck:3},
+  {n:"Luuka",lat:0.73,lon:33.30,ck:2},{n:"Luwero",lat:0.85,lon:32.47,ck:4},
+  {n:"Lwengo",lat:-0.40,lon:31.40,ck:5},{n:"Lyantonde",lat:-0.40,lon:31.15,ck:5},
+  {n:"Madi-Okollo",lat:3.10,lon:31.20,ck:2},{n:"Manafwa",lat:0.88,lon:34.28,ck:1},
+  {n:"Maracha",lat:3.29,lon:30.96,ck:2},{n:"Masaka",lat:-0.34,lon:31.74,ck:5},
+  {n:"Masindi",lat:1.68,lon:31.71,ck:3},{n:"Mayuge",lat:0.46,lon:33.57,ck:1},
+  {n:"Mbale",lat:1.08,lon:34.18,ck:1},{n:"Mbarara",lat:-0.60,lon:30.65,ck:6},
+  {n:"Mitooma",lat:-0.63,lon:30.02,ck:6},{n:"Mityana",lat:0.40,lon:32.02,ck:4},
+  {n:"Moroto",lat:2.53,lon:34.67,ck:1},{n:"Moyo",lat:3.65,lon:31.73,ck:2},
+  {n:"Mpigi",lat:0.23,lon:32.32,ck:4},{n:"Mubende",lat:0.57,lon:31.36,ck:4},
+  {n:"Mukono",lat:0.35,lon:32.76,ck:4},{n:"Nabilatuk",lat:2.05,lon:34.53,ck:1},
+  {n:"Nakapiripirit",lat:1.90,lon:34.65,ck:1},{n:"Nakaseke",lat:1.12,lon:32.43,ck:4},
+  {n:"Nakasongola",lat:1.32,lon:32.45,ck:3},{n:"Namayingo",lat:0.28,lon:33.92,ck:2},
+  {n:"Namisindwa",lat:0.95,lon:34.42,ck:1},{n:"Namutumba",lat:0.83,lon:33.68,ck:1},
+  {n:"Napak",lat:2.36,lon:34.24,ck:1},{n:"Nebbi",lat:2.48,lon:31.10,ck:2},
+  {n:"Ngora",lat:1.48,lon:33.77,ck:1},{n:"Ntoroko",lat:1.03,lon:30.47,ck:5},
+  {n:"Ntungamo",lat:-0.88,lon:30.27,ck:6},{n:"Nwoya",lat:2.62,lon:31.95,ck:2},
+  {n:"Obongi",lat:3.52,lon:31.60,ck:1},{n:"Omoro",lat:2.62,lon:32.52,ck:2},
+  {n:"Otuke",lat:2.52,lon:33.45,ck:1},{n:"Oyam",lat:2.26,lon:32.40,ck:2},
+  {n:"Pader",lat:2.80,lon:33.20,ck:1},{n:"Pakwach",lat:2.46,lon:31.49,ck:2},
+  {n:"Pallisa",lat:1.14,lon:33.71,ck:1},{n:"Rakai",lat:-0.73,lon:31.40,ck:5},
+  {n:"Rubanda",lat:-1.19,lon:29.84,ck:6},{n:"Rubirizi",lat:-0.28,lon:30.10,ck:6},
+  {n:"Rukiga",lat:-1.08,lon:29.95,ck:6},{n:"Rukungiri",lat:-0.84,lon:29.94,ck:6},
+  {n:"Rwampara",lat:-0.68,lon:30.75,ck:5},{n:"Sembabule",lat:-0.07,lon:31.46,ck:5},
+  {n:"Serere",lat:1.50,lon:33.55,ck:1},{n:"Sheema",lat:-0.56,lon:30.38,ck:6},
+  {n:"Sironko",lat:1.23,lon:34.25,ck:1},{n:"Soroti",lat:1.71,lon:33.61,ck:2},
+  {n:"Terego",lat:3.06,lon:30.80,ck:2},{n:"Tororo",lat:0.69,lon:34.18,ck:1},
+  {n:"Wakiso",lat:0.40,lon:32.45,ck:4},{n:"Yumbe",lat:3.47,lon:31.25,ck:2},
+  {n:"Zombo",lat:2.67,lon:30.90,ck:3},
+];
+
+// 1=red(high burden/no data), 6=violet(low/studied)
+const CK_COLORS = {
+  1:'#c0392b', 2:'#d87030', 3:'#d4b832', 4:'#27ae60', 5:'#2980b9', 6:'#6c3483'
+};
+const CK_LABELS = {
+  1:'High estimated burden / no published data',
+  2:'Above-average burden / sparse data',
+  3:'Moderate burden / some regional data available',
+  4:'Below-average burden / moderate data coverage',
+  5:'Lower burden / reasonable data coverage',
+  6:'Lowest burden estimate / best-studied districts'
+};
+const CK_DESC = {
+  1:'Eastern and northern districts — highest CKD signal in published literature. Most have zero district-specific studies.',
+  2:'Elevated burden, limited evidence base. Priority for Phase II student extraction.',
+  3:'Regional estimates available. District-level precision needed.',
+  4:'Moderate burden with several community surveys available for cross-referencing.',
+  5:'Well-studied relative to Ugandan average. Serves as anchor for national estimates.',
+  6:'South-western Uganda. Lowest CKD prevalence in SEARCH-CKD study (3.9%). Best data coverage.'
+};
+
+function initHeroMap() {
+  const m = L.map('hero-map', { zoomControl: false, attributionControl: false, dragging: false, scrollWheelZoom: false, doubleClickZoom: false, touchZoom: false });
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png', {subdomains:'abcd'}).addTo(m);
+  m.setView([1.37, 32.3], 6.5);
+  DISTRICTS.forEach(d => {
+    L.circleMarker([d.lat, d.lon], {
+      radius: 7, fillColor: CK_COLORS[d.ck], color: 'rgba(255,255,255,0.5)', weight: 1, fillOpacity: 0.9
+    }).addTo(m);
+  });
+}
+
+function initMainMap() {
+  const m = L.map('main-map', { zoomControl: true, attributionControl: false });
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_nolabels/{z}/{x}/{y}{r}.png', {
+    attribution: '© OSM © CARTO', subdomains: 'abcd', maxZoom: 14
+  }).addTo(m);
+  m.setView([1.37, 32.3], 7);
+
+  DISTRICTS.forEach(d => {
+    const large = ['Kampala','Gulu','Mbarara','Mbale','Arua','Lira','Jinja','Soroti'].includes(d.n);
+    const m2 = L.circleMarker([d.lat, d.lon], {
+      radius: large ? 12 : 8,
+      fillColor: CK_COLORS[d.ck],
+      color: 'rgba(255,255,255,0.2)',
+      weight: 1.5,
+      fillOpacity: 0.88
+    }).addTo(m);
+    m2.bindPopup(
+      `<div class="popup-name">${d.n} District</div>` +
+      `<div class="popup-val">${CK_LABELS[d.ck]}</div>` +
+      `<div class="popup-detail">${CK_DESC[d.ck]}</div>` +
+      `<div class="popup-detail" style="margin-top:6px; border-top:1px solid rgba(255,255,255,0.1); padding-top:6px">Phase I estimate · Click to explore at <a href="https://ukubona-llc.github.io/landscape/" target="_blank" style="color:#c97b1a">full atlas ↗</a></div>`
+    );
+  });
+
+  // Add lake labels
+  L.marker([0.0, 33.0], {icon: L.divIcon({html:'<span style="font-family:Georgia,serif;font-size:10px;color:rgba(100,160,200,0.7);font-style:italic;white-space:nowrap">Lake Victoria</span>',className:'',iconAnchor:[40,8]})}).addTo(m);
+  L.marker([1.7, 31.6], {icon: L.divIcon({html:'<span style="font-family:Georgia,serif;font-size:9px;color:rgba(100,160,200,0.7);font-style:italic;white-space:nowrap">Lake Albert</span>',className:'',iconAnchor:[35,8]})}).addTo(m);
+}
+
+// ── SCROLL REVEAL ─────────────────────────────────────────────
+const observer = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      e.target.classList.add('visible');
+      if (e.target.id === 'riskBars') {
+        setTimeout(() => {
+          document.querySelectorAll('.risk-fill').forEach(bar => {
+            bar.style.width = bar.dataset.pct + '%';
+          });
+        }, 200);
+      }
+    }
+  });
+}, { threshold: 0.1 });
+
+document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+// ── INIT ───────────────────────────────────────────────────────
+window.addEventListener('load', () => {
+  initHeroMap();
+  initMainMap();
+});
+</script>
+</body>
+</html>

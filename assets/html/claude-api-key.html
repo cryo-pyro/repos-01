@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ukubona · Your Personal Health Twin</title>
+<style>
+  :root {
+    --bg: #faf9f7;
+    --bg2: #f2f0eb;
+    --bg3: #e8e5de;
+    --text0: #1a1916;
+    --text1: #4a4843;
+    --text2: #8a8780;
+    --blue: #185FA5;
+    --blue-light: #E6F1FB;
+    --blue-mid: #378ADD;
+    --teal: #0F6E56;
+    --teal-light: #E1F5EE;
+    --amber: #854F0B;
+    --amber-light: #FAEEDA;
+    --purple: #534AB7;
+    --purple-light: #EEEDFE;
+    --coral: #993C1D;
+    --coral-light: #FAECE7;
+    --serif: 'Georgia', 'Times New Roman', serif;
+    --sans: -apple-system, 'Helvetica Neue', Arial, sans-serif;
+    --mono: 'SF Mono', 'Fira Code', monospace;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body { background: var(--bg); color: var(--text0); font-family: var(--sans); line-height: 1.7; }
+
+  /* NAV */
+  nav { background: var(--bg); border-bottom: 1px solid var(--bg3); padding: 16px 32px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; }
+  .nav-brand { font-family: var(--mono); font-size: 13px; font-weight: 500; color: var(--blue); letter-spacing: 0.06em; }
+  .nav-brand span { color: var(--text2); font-weight: 400; }
+  .nav-links { display: flex; gap: 24px; }
+  .nav-links a { font-size: 13px; color: var(--text1); text-decoration: none; }
+  .nav-links a:hover { color: var(--text0); }
+  .nav-cta { background: var(--text0); color: var(--bg); border: none; border-radius: 8px; padding: 8px 18px; font-size: 13px; font-family: var(--sans); cursor: pointer; text-decoration: none; }
+
+  /* HERO */
+  .hero { max-width: 760px; margin: 0 auto; padding: 96px 32px 80px; text-align: center; }
+  .hero-eyebrow { font-family: var(--mono); font-size: 11px; letter-spacing: 0.12em; color: var(--text2); text-transform: uppercase; margin-bottom: 20px; }
+  .hero h1 { font-family: var(--serif); font-size: clamp(36px, 6vw, 60px); font-weight: 400; line-height: 1.15; color: var(--text0); margin-bottom: 24px; }
+  .hero h1 em { font-style: italic; color: var(--blue); }
+  .hero-sub { font-size: 18px; color: var(--text1); max-width: 560px; margin: 0 auto 40px; line-height: 1.6; }
+  .hero-btns { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+  .btn-primary { background: var(--text0); color: var(--bg); border: none; border-radius: 10px; padding: 14px 28px; font-size: 15px; font-family: var(--sans); cursor: pointer; text-decoration: none; display: inline-block; }
+  .btn-secondary { background: transparent; color: var(--text0); border: 1px solid var(--bg3); border-radius: 10px; padding: 14px 28px; font-size: 15px; font-family: var(--sans); cursor: pointer; text-decoration: none; display: inline-block; }
+  .btn-secondary:hover { background: var(--bg2); }
+
+  /* SECTION */
+  section { padding: 80px 32px; }
+  .section-inner { max-width: 900px; margin: 0 auto; }
+  .section-label { font-family: var(--mono); font-size: 11px; letter-spacing: 0.12em; color: var(--text2); text-transform: uppercase; margin-bottom: 12px; }
+  .section-title { font-family: var(--serif); font-size: clamp(28px, 4vw, 40px); font-weight: 400; line-height: 1.2; margin-bottom: 20px; }
+  .section-body { font-size: 17px; color: var(--text1); max-width: 640px; line-height: 1.75; }
+
+  /* PENTAD */
+  .pentad { display: grid; grid-template-columns: repeat(5, minmax(0,1fr)); gap: 2px; margin: 48px 0; border-radius: 16px; overflow: hidden; }
+  .pentad-step { padding: 28px 20px; text-align: center; cursor: pointer; transition: filter 0.2s; }
+  .pentad-step:hover { filter: brightness(0.95); }
+  .pentad-step .greek { font-family: var(--serif); font-size: 28px; color: inherit; opacity: 0.6; display: block; margin-bottom: 6px; }
+  .pentad-step .roman { font-family: var(--mono); font-size: 10px; letter-spacing: 0.1em; opacity: 0.5; display: block; margin-bottom: 8px; }
+  .pentad-step .label { font-size: 13px; font-weight: 500; line-height: 1.3; }
+  .pentad-step .desc { font-size: 11px; margin-top: 4px; opacity: 0.65; line-height: 1.4; }
+  .p1 { background: var(--blue-light); color: var(--blue); }
+  .p2 { background: var(--coral-light); color: var(--coral); }
+  .p3 { background: var(--amber-light); color: var(--amber); }
+  .p4 { background: var(--teal-light); color: var(--teal); }
+  .p5 { background: var(--purple-light); color: var(--purple); }
+
+  /* EXPLAINER STEPS */
+  .steps { display: flex; flex-direction: column; gap: 0; margin: 48px 0; }
+  .step-row { display: grid; grid-template-columns: 72px 1fr; gap: 24px; padding: 32px 0; border-top: 1px solid var(--bg3); }
+  .step-row:last-child { border-bottom: 1px solid var(--bg3); }
+  .step-num { font-family: var(--serif); font-size: 48px; color: var(--bg3); line-height: 1; padding-top: 4px; text-align: right; }
+  .step-content h3 { font-size: 20px; font-weight: 500; margin-bottom: 8px; }
+  .step-content p { font-size: 16px; color: var(--text1); line-height: 1.7; }
+  .step-tag { display: inline-block; font-family: var(--mono); font-size: 10px; letter-spacing: 0.08em; padding: 3px 8px; border-radius: 4px; margin-bottom: 10px; }
+
+  /* MODALITIES */
+  .modalities { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin: 40px 0; }
+  .modality-card { background: var(--bg); border: 1px solid var(--bg3); border-radius: 14px; padding: 24px; }
+  .modality-icon { font-size: 28px; margin-bottom: 12px; display: block; }
+  .modality-card h4 { font-size: 15px; font-weight: 500; margin-bottom: 6px; }
+  .modality-card p { font-size: 13px; color: var(--text1); line-height: 1.5; }
+  .modality-card .eta { font-family: var(--mono); font-size: 10px; color: var(--text2); margin-top: 8px; }
+
+  /* ANALOGY */
+  .analogy { background: var(--bg2); border-radius: 20px; padding: 48px; margin: 48px 0; }
+  .analogy h3 { font-family: var(--serif); font-size: 26px; font-weight: 400; margin-bottom: 16px; }
+  .analogy p { font-size: 16px; color: var(--text1); line-height: 1.75; max-width: 600px; }
+  .analogy .compare { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-top: 32px; }
+  .compare-side { background: var(--bg); border-radius: 12px; padding: 20px; }
+  .compare-side h4 { font-size: 13px; font-weight: 500; margin-bottom: 10px; color: var(--text2); text-transform: uppercase; letter-spacing: 0.08em; }
+  .compare-side ul { list-style: none; }
+  .compare-side li { font-size: 14px; color: var(--text1); padding: 5px 0; border-bottom: 1px solid var(--bg3); display: flex; align-items: baseline; gap: 8px; }
+  .compare-side li:last-child { border: none; }
+  .compare-side li::before { content: '→'; color: var(--text2); flex-shrink: 0; }
+
+  /* COST */
+  .cost-box { background: var(--teal-light); border: 1px solid #9FE1CB; border-radius: 14px; padding: 32px; margin: 32px 0; }
+  .cost-box h4 { font-size: 17px; font-weight: 500; color: var(--teal); margin-bottom: 12px; }
+  .cost-box p { font-size: 15px; color: #085041; line-height: 1.7; }
+  .cost-calc { display: flex; gap: 16px; flex-wrap: wrap; margin-top: 20px; }
+  .cost-item { background: white; border-radius: 10px; padding: 14px 20px; min-width: 140px; }
+  .cost-item .val { font-family: var(--mono); font-size: 22px; font-weight: 500; color: var(--teal); }
+  .cost-item .desc { font-size: 12px; color: var(--text2); margin-top: 2px; }
+
+  /* FAQ */
+  .faq { margin: 40px 0; }
+  .faq-item { border-top: 1px solid var(--bg3); padding: 20px 0; cursor: pointer; }
+  .faq-item:last-child { border-bottom: 1px solid var(--bg3); }
+  .faq-q { font-size: 16px; font-weight: 500; display: flex; justify-content: space-between; align-items: center; gap: 16px; }
+  .faq-q::after { content: '+'; font-size: 22px; font-weight: 300; color: var(--text2); flex-shrink: 0; transition: transform 0.2s; }
+  .faq-item.open .faq-q::after { transform: rotate(45deg); }
+  .faq-a { font-size: 15px; color: var(--text1); line-height: 1.7; max-height: 0; overflow: hidden; transition: max-height 0.3s ease, margin-top 0.2s; }
+  .faq-item.open .faq-a { max-height: 400px; margin-top: 12px; }
+
+  /* FOOTER */
+  footer { background: var(--text0); color: var(--bg2); padding: 48px 32px; }
+  .footer-inner { max-width: 900px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 24px; }
+  .footer-brand { font-family: var(--mono); font-size: 13px; }
+  .footer-brand p { font-size: 12px; color: var(--text2); margin-top: 4px; }
+  .footer-note { font-size: 12px; color: var(--text2); max-width: 360px; line-height: 1.6; }
+
+  /* DIVIDER */
+  .alt { background: var(--bg2); }
+
+  @media (max-width: 600px) {
+    .pentad { grid-template-columns: 1fr 1fr; }
+    .pentad-step:last-child { grid-column: 1 / -1; }
+    .analogy .compare { grid-template-columns: 1fr; }
+    nav .nav-links { display: none; }
+    .step-row { grid-template-columns: 40px 1fr; gap: 16px; }
+    .step-num { font-size: 32px; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-brand">UKUBONA <span>// learning twin</span></div>
+  <div class="nav-links">
+    <a href="#what">What it is</a>
+    <a href="#how">How it works</a>
+    <a href="#modalities">Input modes</a>
+    <a href="#faq">Questions</a>
+  </div>
+  <a href="https://abikesa.github.io/repos-00/assets/ui/learning-twin.html" class="nav-cta" target="_blank">Open twin →</a>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-eyebrow">Ukubona · Pentad v2.0</div>
+  <h1>Your health, modelled as a <em>learning system</em></h1>
+  <p class="hero-sub">A personal digital twin that updates its understanding of your condition every time you share something new — text, voice, a photo, or a lab result.</p>
+  <div class="hero-btns">
+    <a href="https://abikesa.github.io/repos-00/assets/ui/learning-twin.html" class="btn-primary" target="_blank">Open your twin</a>
+    <a href="#what" class="btn-secondary">Understand it first</a>
+  </div>
+</div>
+
+<!-- WHAT IS IT -->
+<section id="what">
+  <div class="section-inner">
+    <div class="section-label">What it is</div>
+    <h2 class="section-title">Not a chatbot. A model that learns.</h2>
+    <p class="section-body">Most health apps give you information. This twin does something different — it holds a live model of your specific condition and updates that model as new evidence arrives. Think of it less like a search engine and more like a clinician who is always listening, never forgetting, and getting sharper over time.</p>
+
+    <div class="analogy">
+      <h3>The navigation analogy</h3>
+      <p>A ship's GPS doesn't just know where you are once. It continuously takes in signals — speed, heading, depth — and updates its estimate of position. The longer it runs, the more accurate it becomes. Your learning twin works the same way, but for your health.</p>
+      <div class="compare">
+        <div class="compare-side">
+          <h4>Traditional medicine</h4>
+          <ul>
+            <li>Snapshot at each appointment</li>
+            <li>You remember your history</li>
+            <li>Each visit starts from scratch</li>
+            <li>Diagnosis is a fixed label</li>
+          </ul>
+        </div>
+        <div class="compare-side">
+          <h4>Learning twin</h4>
+          <ul>
+            <li>Continuously updated model</li>
+            <li>Twin remembers everything</li>
+            <li>Each update builds on the last</li>
+            <li>Diagnosis is a live probability</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- THE PENTAD -->
+<section class="alt" id="pentad">
+  <div class="section-inner">
+    <div class="section-label">The framework</div>
+    <h2 class="section-title">Five lenses. One loop.</h2>
+    <p class="section-body">Every condition in the twin is seen through five stages — borrowed from how engineers model complex systems. The key insight: stage five always feeds back into stage one. The system never stops learning.</p>
+
+    <div class="pentad">
+      <div class="pentad-step p1">
+        <span class="greek">θₜ</span>
+        <span class="roman">I</span>
+        <div class="label">Anatomy &amp; physiology</div>
+        <div class="desc">Your baseline state. The starting parameters.</div>
+      </div>
+      <div class="pentad-step p2">
+        <span class="greek">L</span>
+        <span class="roman">II</span>
+        <div class="label">Pathology</div>
+        <div class="desc">The error signal. What feels wrong.</div>
+      </div>
+      <div class="pentad-step p3">
+        <span class="greek">∇L</span>
+        <span class="roman">III</span>
+        <div class="label">Pathophysiology</div>
+        <div class="desc">The gradient. What is causing the error.</div>
+      </div>
+      <div class="pentad-step p4">
+        <span class="greek">−η∇L</span>
+        <span class="roman">IV</span>
+        <div class="label">Treatment</div>
+        <div class="desc">The correction. Acting to reduce the error.</div>
+      </div>
+      <div class="pentad-step p5">
+        <span class="greek">θₜ₊₁</span>
+        <span class="roman">V</span>
+        <div class="label">Plasticity</div>
+        <div class="desc">The update. Your new baseline. Then repeat.</div>
+      </div>
+    </div>
+
+    <p class="section-body" style="margin-top: 0;">For the aquagenic pruritus case: your normal skin state → itch signal after water contact → the temperature change as trigger → hot shower plus quick covering → learned avoidance as your new baseline. Then the loop starts again at that new baseline.</p>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section id="how">
+  <div class="section-inner">
+    <div class="section-label">How it works</div>
+    <h2 class="section-title">What actually happens when you push an update</h2>
+
+    <div class="steps">
+      <div class="step-row">
+        <div class="step-num">1</div>
+        <div class="step-content">
+          <div class="step-tag" style="background:var(--blue-light); color:var(--blue);">perceiver</div>
+          <h3>You share something new</h3>
+          <p>Type a note, speak into your phone, upload a photo of your skin, or drop in a PDF from your doctor. The twin accepts anything — it is fully multimodal.</p>
+        </div>
+      </div>
+      <div class="step-row">
+        <div class="step-num">2</div>
+        <div class="step-content">
+          <div class="step-tag" style="background:var(--amber-light); color:var(--amber);">gradient computer</div>
+          <h3>An AI reads the signal</h3>
+          <p>A large language model — acting as a clinical reasoning engine — analyses what you shared and returns a gradient vector: which diagnoses this evidence supports or argues against, and how strongly.</p>
+        </div>
+      </div>
+      <div class="step-row">
+        <div class="step-num">3</div>
+        <div class="step-content">
+          <div class="step-tag" style="background:var(--teal-light); color:var(--teal);">update rule</div>
+          <h3>The belief state shifts</h3>
+          <p>The twin applies the gradient to its current probability distribution across diagnoses. The shift is scaled by a learning rate — bigger for hard evidence like lab results, smaller for subjective descriptions.</p>
+        </div>
+      </div>
+      <div class="step-row">
+        <div class="step-num">4</div>
+        <div class="step-content">
+          <div class="step-tag" style="background:var(--purple-light); color:var(--purple);">fractal property</div>
+          <h3>The new state becomes the foundation</h3>
+          <p>θₜ₊₁ becomes the new θₜ. The updated twin state is saved as a versioned snapshot. Every past version is preserved. Ukubona is not the end — the loop continues with each new piece of information.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- INPUT MODES -->
+<section class="alt" id="modalities">
+  <div class="section-inner">
+    <div class="section-label">Input modes</div>
+    <h2 class="section-title">Four ways to feed the twin</h2>
+    <p class="section-body">Each input mode carries a different level of evidential weight, reflected in the learning rate η. Hard clinical data moves the needle more than a subjective description — by design.</p>
+
+    <div class="modalities">
+      <div class="modality-card">
+        <span class="modality-icon">✍️</span>
+        <h4>Text</h4>
+        <p>Type anything — a symptom description, a trigger you noticed, a note from a consultation.</p>
+        <div class="eta">η = 0.2 · lower confidence, subjective</div>
+      </div>
+      <div class="modality-card">
+        <span class="modality-icon">🎙</span>
+        <h4>Voice</h4>
+        <p>Speak naturally. Your words are transcribed and fed into the gradient computer. Useful when your hands are busy or you want to narrate in the moment.</p>
+        <div class="eta">η = 0.3 · slightly richer than typed text</div>
+      </div>
+      <div class="modality-card">
+        <span class="modality-icon">📷</span>
+        <h4>Image</h4>
+        <p>Photograph your skin, a rash, a medication label, or a printed result. The AI analyses what it sees clinically.</p>
+        <div class="eta">η = 0.5 · objective visual evidence</div>
+      </div>
+      <div class="modality-card">
+        <span class="modality-icon">📄</span>
+        <h4>PDF / EHR</h4>
+        <p>Upload a lab report, a pathology result, or a printed EHR page. The AI extracts the relevant values and updates accordingly.</p>
+        <div class="eta">η = 0.8 · structured clinical data</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- COST -->
+<section id="cost">
+  <div class="section-inner">
+    <div class="section-label">What it costs</div>
+    <h2 class="section-title">Less than a cup of coffee per month</h2>
+    <p class="section-body">The twin calls the Anthropic API directly from your browser. You need your own API key — there is no subscription, no middleman, and your data never touches a third-party server.</p>
+
+    <div class="cost-box">
+      <h4>Real numbers for personal use</h4>
+      <p>Each gradient computation (one update) uses roughly 700 tokens. At current Anthropic pricing, that is less than half a cent per update.</p>
+      <div class="cost-calc">
+        <div class="cost-item">
+          <div class="val">~$0.004</div>
+          <div class="desc">per update</div>
+        </div>
+        <div class="cost-item">
+          <div class="val">~$0.40</div>
+          <div class="desc">per 100 updates</div>
+        </div>
+        <div class="cost-item">
+          <div class="val">$5</div>
+          <div class="desc">minimum top-up, lasts months</div>
+        </div>
+      </div>
+    </div>
+
+    <p class="section-body" style="margin-top: 24px;">Get your key at <strong>console.anthropic.com</strong> → API Keys → Create new key. Paste it once into the top bar of your twin. It is stored only in your browser and never sent anywhere except directly to Anthropic.</p>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section class="alt" id="faq">
+  <div class="section-inner">
+    <div class="section-label">Questions</div>
+    <h2 class="section-title">What people ask</h2>
+
+    <div class="faq">
+      <div class="faq-item" onclick="toggleFaq(this)">
+        <div class="faq-q">Is this a replacement for my doctor?</div>
+        <div class="faq-a">No — and it is not designed to be. The twin is a reasoning tool that helps you track, articulate, and understand your condition better. It does not prescribe, diagnose definitively, or replace clinical judgement. Think of it as a sophisticated health journal that can reason about what you share.</div>
+      </div>
+      <div class="faq-item" onclick="toggleFaq(this)">
+        <div class="faq-q">Where does my data go?</div>
+        <div class="faq-a">Your observations are sent directly from your browser to the Anthropic API for analysis, and then discarded. The twin state is stored only in your browser's local memory and in the versioned JSON files you choose to download. There is no cloud storage, no account, no database. What you download is yours.</div>
+      </div>
+      <div class="faq-item" onclick="toggleFaq(this)">
+        <div class="faq-q">What does "belief state" mean?</div>
+        <div class="faq-a">The twin maintains a probability distribution across a set of candidate diagnoses — for example, aquagenic pruritus 68%, xerosis 17%, urticaria 6%, polycythemia vera 9%. This is the "belief state." Every new observation shifts these probabilities according to how much the evidence supports or argues against each diagnosis. It is not a final answer; it is a live estimate that gets sharper as more evidence arrives.</div>
+      </div>
+      <div class="faq-item" onclick="toggleFaq(this)">
+        <div class="faq-q">What is η (eta)?</div>
+        <div class="faq-a">η is the learning rate — a number between 0 and 1 that controls how much a single piece of evidence can shift the belief state. A low η (like 0.2 for text) means the twin updates cautiously; one description cannot overturn accumulated evidence. A high η (like 0.8 for a lab result) means strong clinical data creates a more decisive shift. You can override the default for any update.</div>
+      </div>
+      <div class="faq-item" onclick="toggleFaq(this)">
+        <div class="faq-q">What does "θₜ₊₁ becomes new θₜ" mean?</div>
+        <div class="faq-a">This is the fractal property of the Ukubona framework. After each update, the new state becomes the starting point for the next cycle. The twin never resets to zero — it carries the accumulated evidence of every previous update forward. This is what makes it a learning system rather than a static record.</div>
+      </div>
+      <div class="faq-item" onclick="toggleFaq(this)">
+        <div class="faq-q">Can I use this for conditions other than skin?</div>
+        <div class="faq-a">Yes. The Ukubona Pentad framework is general. The current twin is configured for a dermatology differential, but the same architecture can be adapted to any condition with a defined diagnostic space. The framework has been applied conceptually to cardiology, neurology, and chronic disease management.</div>
+      </div>
+      <div class="faq-item" onclick="toggleFaq(this)">
+        <div class="faq-q">What do I do with the downloaded JSON files?</div>
+        <div class="faq-a">Three options. First, keep them as your personal health record — a timestamped log of every observation and how the twin's understanding shifted. Second, share them with your clinician as a structured summary of your condition over time. Third, drop them back into a future version of the twin to restore a previous state — the fractal loop continues.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section id="start" style="background: var(--text0); color: var(--bg);">
+  <div class="section-inner" style="text-align: center; padding: 80px 32px;">
+    <div style="font-family: var(--mono); font-size: 11px; letter-spacing: 0.12em; color: var(--text2); text-transform: uppercase; margin-bottom: 20px;">ready</div>
+    <h2 style="font-family: var(--serif); font-size: clamp(28px, 4vw, 44px); font-weight: 400; margin-bottom: 20px; color: var(--bg);">Start building your twin</h2>
+    <p style="font-size: 17px; color: #888780; max-width: 480px; margin: 0 auto 40px; line-height: 1.6;">You need one thing: an Anthropic API key. Everything else is already there.</p>
+    <div style="display: flex; gap: 12px; justify-content: center; flex-wrap: wrap;">
+      <a href="https://abikesa.github.io/repos-00/assets/ui/learning-twin.html" target="_blank" style="background: var(--bg); color: var(--text0); border: none; border-radius: 10px; padding: 14px 28px; font-size: 15px; font-family: var(--sans); cursor: pointer; text-decoration: none; display: inline-block;">Open your twin →</a>
+      <a href="https://console.anthropic.com" target="_blank" style="background: transparent; color: var(--bg2); border: 1px solid #333; border-radius: 10px; padding: 14px 28px; font-size: 15px; font-family: var(--sans); cursor: pointer; text-decoration: none; display: inline-block;">Get API key</a>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="footer-inner">
+    <div class="footer-brand">
+      UKUBONA LLC
+      <p>Personalized health intelligence</p>
+    </div>
+    <div class="footer-note">
+      This tool is for informational and research purposes. It does not constitute medical advice and is not a substitute for consultation with a qualified healthcare professional.
+    </div>
+  </div>
+</footer>
+
+<script>
+function toggleFaq(el) {
+  el.classList.toggle('open');
+}
+</script>
+</body>
+</html>

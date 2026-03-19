@@ -1,0 +1,220 @@
+
+<div style="font-family: var(--font-mono); padding: 1rem 0;">
+
+<div style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; margin-bottom: 1.5rem;">
+  <div style="background: var(--color-background-secondary); border-radius: var(--border-radius-md); padding: 12px;">
+    <div style="font-size: 11px; color: var(--color-text-secondary); margin-bottom: 4px;">twin id</div>
+    <div style="font-size: 13px; font-weight: 500; color: var(--color-text-primary);">P-NON-3175</div>
+  </div>
+  <div style="background: var(--color-background-secondary); border-radius: var(--border-radius-md); padding: 12px;">
+    <div style="font-size: 11px; color: var(--color-text-secondary); margin-bottom: 4px;">top dx</div>
+    <div style="font-size: 13px; font-weight: 500; color: var(--color-text-primary);" id="top-dx">aquagenic</div>
+  </div>
+  <div style="background: var(--color-background-secondary); border-radius: var(--border-radius-md); padding: 12px;">
+    <div style="font-size: 11px; color: var(--color-text-secondary); margin-bottom: 4px;">confidence</div>
+    <div style="font-size: 13px; font-weight: 500; color: var(--color-text-primary);" id="top-conf">60%</div>
+  </div>
+  <div style="background: var(--color-background-secondary); border-radius: var(--border-radius-md); padding: 12px;">
+    <div style="font-size: 11px; color: var(--color-text-secondary); margin-bottom: 4px;">updates</div>
+    <div style="font-size: 13px; font-weight: 500; color: var(--color-text-primary);" id="update-count">0</div>
+  </div>
+</div>
+
+<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+  <div style="background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); padding: 1rem;">
+    <div style="font-size: 11px; color: var(--color-text-secondary); margin-bottom: 12px; letter-spacing: 0.05em;">belief state θₜ</div>
+    <div id="belief-bars"></div>
+  </div>
+
+  <div style="background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); padding: 1rem;">
+    <div style="font-size: 11px; color: var(--color-text-secondary); margin-bottom: 8px; letter-spacing: 0.05em;">belief evolution L(θ)</div>
+    <div style="position: relative; height: 160px;">
+      <canvas id="evoChart"></canvas>
+    </div>
+  </div>
+</div>
+
+<div style="background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); padding: 1rem; margin-bottom: 1rem;">
+  <div style="font-size: 11px; color: var(--color-text-secondary); margin-bottom: 8px; letter-spacing: 0.05em;">push observation → ∇L</div>
+  <div style="display: flex; gap: 8px; margin-bottom: 8px;">
+    <input type="text" id="obs-input" placeholder="describe symptom, trigger, or context..." style="flex: 1; font-family: var(--font-mono); font-size: 12px;" />
+    <select id="modality" style="font-size: 12px; font-family: var(--font-mono); width: auto; padding: 0 8px;">
+      <option value="0.2">text (η=0.2)</option>
+      <option value="0.5">image (η=0.5)</option>
+      <option value="0.8">lab (η=0.8)</option>
+      <option value="1.0">biopsy (η=1.0)</option>
+    </select>
+    <button onclick="pushUpdate()" style="font-family: var(--font-mono); font-size: 12px; padding: 0 16px;">∇ compute</button>
+  </div>
+
+  <div style="display: flex; gap: 6px; flex-wrap: wrap;">
+    <button onclick="quickObs('itch after cold shower, no rash visible')" style="font-size: 11px; padding: 4px 10px; font-family: var(--font-mono);">cold shower + itch</button>
+    <button onclick="quickObs('hives appeared, red welts on arms')" style="font-size: 11px; padding: 4px 10px; font-family: var(--font-mono);">hives on arms</button>
+    <button onclick="quickObs('blood count shows high hematocrit, JAK2 positive')" style="font-size: 11px; padding: 4px 10px; font-family: var(--font-mono);">JAK2+ lab</button>
+    <button onclick="quickObs('dry skin patches, no water trigger')" style="font-size: 11px; padding: 4px 10px; font-family: var(--font-mono);">dry skin only</button>
+    <button onclick="resetTwin()" style="font-size: 11px; padding: 4px 10px; font-family: var(--font-mono); color: var(--color-text-danger);">↺ reset</button>
+  </div>
+</div>
+
+<div style="background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); padding: 1rem;">
+  <div style="font-size: 11px; color: var(--color-text-secondary); margin-bottom: 8px; letter-spacing: 0.05em;">reasoning trace // gradient log</div>
+  <div id="trace-log" style="font-size: 11px; color: var(--color-text-secondary); max-height: 120px; overflow-y: auto; line-height: 1.8;"></div>
+</div>
+
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script>
+const DIAGNOSES = {
+  aquagenic_pruritus: { label: 'aquagenic pruritus', color: '#378ADD' },
+  urticaria:          { label: 'urticaria',           color: '#D85A30' },
+  xerosis:            { label: 'xerosis',             color: '#888780' },
+  polycythemia_vera:  { label: 'polycythemia vera',   color: '#7F77DD' }
+};
+
+const GRADIENTS = {
+  'itch after cold shower, no rash visible':       { aquagenic_pruritus: 0.30, urticaria: -0.15, xerosis: -0.05, polycythemia_vera: 0.02 },
+  'hives appeared, red welts on arms':             { aquagenic_pruritus: -0.25, urticaria: 0.40, xerosis: -0.10, polycythemia_vera: -0.05 },
+  'blood count shows high hematocrit, JAK2 positive': { aquagenic_pruritus: 0.05, urticaria: -0.20, xerosis: -0.15, polycythemia_vera: 0.50 },
+  'dry skin patches, no water trigger':            { aquagenic_pruritus: -0.10, urticaria: -0.10, xerosis: 0.35, polycythemia_vera: -0.05 },
+};
+
+let state = { aquagenic_pruritus: 0.60, urticaria: 0.10, xerosis: 0.20, polycythemia_vera: 0.10 };
+let history = [Object.assign({}, state)];
+let updateCount = 0;
+
+function normalize(s) {
+  const total = Object.values(s).reduce((a,b) => a + b, 0);
+  const out = {};
+  for (const k in s) out[k] = Math.max(0, s[k]) / total;
+  return out;
+}
+
+function inferGradient(text) {
+  const t = text.toLowerCase();
+  const g = { aquagenic_pruritus: 0, urticaria: 0, xerosis: 0, polycythemia_vera: 0 };
+  if (t.includes('water') || t.includes('shower') || t.includes('swim') || t.includes('bath')) g.aquagenic_pruritus += 0.20;
+  if (t.includes('itch') || t.includes('pruritus')) g.aquagenic_pruritus += 0.10;
+  if (t.includes('cold') || t.includes('temperature') || t.includes('shiver')) g.aquagenic_pruritus += 0.10;
+  if (t.includes('hive') || t.includes('wheal') || t.includes('welt') || t.includes('rash')) { g.urticaria += 0.30; g.aquagenic_pruritus -= 0.15; }
+  if (t.includes('no rash') || t.includes('no hive') || t.includes('clear skin')) { g.urticaria -= 0.20; g.aquagenic_pruritus += 0.10; }
+  if (t.includes('dry') || t.includes('flak') || t.includes('crack')) g.xerosis += 0.25;
+  if (t.includes('jak2') || t.includes('hematocrit') || t.includes('polycyth') || t.includes('blood count')) g.polycythemia_vera += 0.40;
+  if (t.includes('shirt') || t.includes('naked') || t.includes('uncloth')) g.aquagenic_pruritus += 0.10;
+  return g;
+}
+
+function updateState(grad, eta) {
+  const next = {};
+  for (const k in state) next[k] = state[k] + eta * (grad[k] || 0);
+  return normalize(next);
+}
+
+function renderBars() {
+  const sorted = Object.entries(state).sort((a,b) => b[1]-a[1]);
+  document.getElementById('belief-bars').innerHTML = sorted.map(([k, v]) => {
+    const d = DIAGNOSES[k];
+    return `<div style="margin-bottom: 8px;">
+      <div style="display: flex; justify-content: space-between; font-size: 11px; margin-bottom: 3px;">
+        <span style="color: var(--color-text-secondary);">${d.label}</span>
+        <span style="font-weight: 500; color: var(--color-text-primary);">${(v*100).toFixed(1)}%</span>
+      </div>
+      <div style="height: 4px; background: var(--color-border-tertiary); border-radius: 2px;">
+        <div style="height: 4px; width: ${(v*100).toFixed(1)}%; background: ${d.color}; border-radius: 2px; transition: width 0.5s ease;"></div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function renderMetrics() {
+  const top = Object.entries(state).sort((a,b) => b[1]-a[1])[0];
+  document.getElementById('top-dx').textContent = DIAGNOSES[top[0]].label.split(' ')[0];
+  document.getElementById('top-conf').textContent = (top[1]*100).toFixed(0) + '%';
+  document.getElementById('update-count').textContent = updateCount;
+}
+
+const evoCtx = document.getElementById('evoChart');
+const evoChart = new Chart(evoCtx, {
+  type: 'line',
+  data: {
+    labels: ['t₀'],
+    datasets: Object.entries(DIAGNOSES).map(([k, d]) => ({
+      label: d.label,
+      data: [state[k]],
+      borderColor: d.color,
+      backgroundColor: 'transparent',
+      borderWidth: 1.5,
+      pointRadius: 2,
+      tension: 0.4
+    }))
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: { legend: { display: false } },
+    scales: {
+      y: { min: 0, max: 1, ticks: { font: { family: 'monospace', size: 10 }, callback: v => (v*100).toFixed(0)+'%' }, grid: { color: 'rgba(128,128,128,0.1)' } },
+      x: { ticks: { font: { family: 'monospace', size: 10 } }, grid: { display: false } }
+    }
+  }
+});
+
+function updateChart() {
+  const t = 't' + updateCount;
+  evoChart.data.labels.push(t);
+  evoChart.data.datasets.forEach((ds, i) => {
+    const k = Object.keys(DIAGNOSES)[i];
+    ds.data.push(state[k]);
+  });
+  evoChart.update();
+}
+
+function addTrace(text, eta, grad) {
+  const log = document.getElementById('trace-log');
+  const shifts = Object.entries(grad).filter(([,v]) => Math.abs(v) > 0.01)
+    .sort((a,b) => Math.abs(b[1]) - Math.abs(a[1]))
+    .map(([k, v]) => `${v>0?'↑':'↓'} ${DIAGNOSES[k].label}`)
+    .join(' · ');
+  const line = document.createElement('div');
+  line.innerHTML = `<span style="color: var(--color-text-tertiary);">[t${updateCount}]</span> η=${eta} · "${text.slice(0,40)}${text.length>40?'…':''}" → ${shifts}`;
+  log.prepend(line);
+}
+
+function pushUpdate() {
+  const input = document.getElementById('obs-input');
+  const obs = input.value.trim();
+  if (!obs) return;
+  const eta = parseFloat(document.getElementById('modality').value);
+  const grad = GRADIENTS[obs] || inferGradient(obs);
+  state = updateState(grad, eta);
+  updateCount++;
+  history.push(Object.assign({}, state));
+  addTrace(obs, eta, grad);
+  renderBars();
+  renderMetrics();
+  updateChart();
+  input.value = '';
+}
+
+function quickObs(text) {
+  document.getElementById('obs-input').value = text;
+  pushUpdate();
+}
+
+function resetTwin() {
+  state = { aquagenic_pruritus: 0.60, urticaria: 0.10, xerosis: 0.20, polycythemia_vera: 0.10 };
+  updateCount = 0;
+  history = [Object.assign({}, state)];
+  evoChart.data.labels = ['t₀'];
+  evoChart.data.datasets.forEach((ds, i) => {
+    ds.data = [Object.values(state)[i]];
+  });
+  evoChart.update();
+  document.getElementById('trace-log').innerHTML = '';
+  renderBars();
+  renderMetrics();
+}
+
+renderBars();
+renderMetrics();
+</script>

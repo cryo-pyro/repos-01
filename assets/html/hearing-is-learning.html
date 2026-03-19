@@ -1,0 +1,913 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hearing Is Learning · Ukubona LLC</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=Source+Serif+4:ital,opsz,wght@0,8..60,300;0,8..60,400;0,8..60,600;1,8..60,300;1,8..60,400&family=IBM+Plex+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  /* ─── UKUBONA TOKENS ─────────────────────────────── */
+  :root {
+    --bg:         #0d0d0e;
+    --bg2:        #131316;
+    --bg3:        #1a1a1f;
+    --border:     rgba(255,255,255,0.07);
+    --text:       #e8e4da;
+    --muted:      #888076;
+    --accent1:    #c8963e;   /* amber  — Calibrate */
+    --accent2:    #7eb8c4;   /* teal   — Taste     */
+    --accent3:    #9b7ec8;   /* violet — Soul      */
+    --accent4:    #6aaa7d;   /* sage   — Mind      */
+    --accent5:    #c85f5f;   /* coral  — Body      */
+    --rule:       rgba(200,150,62,0.35);
+    --stamp-bg:   rgba(200,150,62,0.06);
+    --serif:      'Playfair Display', Georgia, serif;
+    --body-serif: 'Source Serif 4', Georgia, serif;
+    --mono:       'IBM Plex Mono', monospace;
+  }
+  [data-theme="light"] {
+    --bg:    #f5f1e8;
+    --bg2:   #ede8db;
+    --bg3:   #e4dece;
+    --border:rgba(0,0,0,0.09);
+    --text:  #1a1612;
+    --muted: #7a7060;
+    --rule:  rgba(160,100,20,0.3);
+    --stamp-bg: rgba(160,100,20,0.06);
+  }
+
+  /* ─── RESET / BASE ──────────────────────────────── */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { font-size: 18px; scroll-behavior: smooth; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--body-serif);
+    line-height: 1.72;
+    min-height: 100vh;
+  }
+  ::selection { background: var(--accent1); color: #000; }
+
+  /* ─── LAYOUT ────────────────────────────────────── */
+  .page {
+    max-width: 780px;
+    margin: 0 auto;
+    padding: 0 2rem 6rem;
+  }
+
+  /* ─── TOP BAR ───────────────────────────────────── */
+  .topbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.2rem 0;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 3.5rem;
+    font-family: var(--mono);
+    font-size: 0.72rem;
+    letter-spacing: 0.08em;
+    color: var(--muted);
+  }
+  .topbar a { color: var(--muted); text-decoration: none; }
+  .topbar a:hover { color: var(--accent1); }
+  .theme-btn {
+    background: none; border: 1px solid var(--border);
+    color: var(--muted); cursor: pointer;
+    font-family: var(--mono); font-size: 0.7rem;
+    padding: 0.3rem 0.65rem; border-radius: 2px;
+    transition: border-color 0.2s, color 0.2s;
+  }
+  .theme-btn:hover { border-color: var(--accent1); color: var(--accent1); }
+
+  /* ─── MODEL STAMP ───────────────────────────────── */
+  .model-stamp {
+    background: var(--stamp-bg);
+    border: 1px solid var(--rule);
+    border-radius: 3px;
+    padding: 0.9rem 1.2rem;
+    margin-bottom: 2.4rem;
+    font-family: var(--mono);
+    font-size: 0.68rem;
+    letter-spacing: 0.06em;
+    color: var(--muted);
+    display: flex;
+    gap: 2rem;
+    flex-wrap: wrap;
+  }
+  .model-stamp span { color: var(--accent1); }
+
+  /* ─── SECTION RULE ──────────────────────────────── */
+  .sec-rule {
+    height: 1px;
+    background: linear-gradient(to right, var(--accent1), transparent);
+    margin: 3rem 0 2rem;
+    opacity: 0.4;
+  }
+
+  /* ─── HERO ──────────────────────────────────────── */
+  .hero { padding: 2rem 0 3rem; }
+  .kicker {
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    letter-spacing: 0.15em;
+    color: var(--accent1);
+    text-transform: uppercase;
+    margin-bottom: 1.2rem;
+  }
+  h1.display {
+    font-family: var(--serif);
+    font-size: clamp(2.4rem, 6vw, 3.8rem);
+    font-weight: 900;
+    line-height: 1.1;
+    margin-bottom: 1rem;
+    letter-spacing: -0.02em;
+  }
+  h1.display em { color: var(--accent1); font-style: italic; }
+  .subtitle {
+    font-family: var(--body-serif);
+    font-size: 1.1rem;
+    color: var(--muted);
+    font-style: italic;
+    max-width: 600px;
+    line-height: 1.6;
+    margin-bottom: 2rem;
+  }
+
+  /* ─── PENTAD STRIP ──────────────────────────────── */
+  .pentad-strip {
+    display: flex;
+    gap: 0;
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    overflow: hidden;
+    margin: 2.5rem 0;
+    font-family: var(--mono);
+    font-size: 0.65rem;
+  }
+  .pnode {
+    flex: 1;
+    padding: 0.7rem 0.5rem;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    border-right: 1px solid var(--border);
+    transition: background 0.2s;
+    cursor: default;
+  }
+  .pnode:last-child { border-right: none; }
+  .pnode:hover { background: var(--bg3); }
+  .pnode .roman { font-size: 0.6rem; color: var(--muted); letter-spacing: 0.1em; }
+  .pnode .label { font-size: 0.75rem; font-weight: 500; }
+  .pnode .math { color: var(--muted); font-size: 0.6rem; }
+  .pnode.p1 .label { color: var(--accent1); }
+  .pnode.p2 .label { color: var(--accent2); }
+  .pnode.p3 .label { color: var(--accent3); }
+  .pnode.p4 .label { color: var(--accent4); }
+  .pnode.p5 .label { color: var(--accent5); }
+
+  /* ─── BODY PROSE ────────────────────────────────── */
+  h2 {
+    font-family: var(--serif);
+    font-size: 1.65rem;
+    font-weight: 700;
+    line-height: 1.25;
+    margin: 2.5rem 0 0.9rem;
+    letter-spacing: -0.01em;
+  }
+  h3 {
+    font-family: var(--serif);
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: var(--muted);
+    margin: 2rem 0 0.6rem;
+    font-style: italic;
+  }
+  p { margin-bottom: 1.2rem; }
+  p:last-child { margin-bottom: 0; }
+  strong { color: var(--accent1); font-weight: 600; }
+  em { font-style: italic; }
+
+  /* ─── LAYER BLOCKS ──────────────────────────────── */
+  .layer {
+    border-left: 3px solid;
+    padding: 1.6rem 1.6rem 1.6rem 1.8rem;
+    background: var(--bg2);
+    border-radius: 0 3px 3px 0;
+    margin: 2rem 0;
+    opacity: 0;
+    transform: translateY(18px);
+    transition: opacity 0.55s ease, transform 0.55s ease;
+  }
+  .layer.visible { opacity: 1; transform: none; }
+  .layer.l1 { border-color: var(--accent1); }
+  .layer.l2 { border-color: var(--accent2); }
+  .layer.l3 { border-color: var(--accent3); }
+  .layer.l4 { border-color: var(--accent4); }
+  .layer.l5 { border-color: var(--accent5); }
+  .layer-head {
+    display: flex;
+    align-items: baseline;
+    gap: 0.9rem;
+    margin-bottom: 0.9rem;
+    flex-wrap: wrap;
+  }
+  .layer-num {
+    font-family: var(--mono);
+    font-size: 0.65rem;
+    letter-spacing: 0.12em;
+    color: var(--muted);
+  }
+  .layer-name {
+    font-family: var(--serif);
+    font-size: 1.25rem;
+    font-weight: 700;
+  }
+  .layer-math {
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    color: var(--muted);
+  }
+  .l1 .layer-name { color: var(--accent1); }
+  .l2 .layer-name { color: var(--accent2); }
+  .l3 .layer-name { color: var(--accent3); }
+  .l4 .layer-name { color: var(--accent4); }
+  .l5 .layer-name { color: var(--accent5); }
+
+  /* ─── CIPHER GRID (MCR table) ───────────────────── */
+  .cipher-grid {
+    margin: 1.8rem 0;
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    overflow: hidden;
+    font-family: var(--mono);
+    font-size: 0.7rem;
+  }
+  .cg-row {
+    display: grid;
+    grid-template-columns: 1.4fr 2fr 2fr;
+    border-bottom: 1px solid var(--border);
+  }
+  .cg-row:last-child { border-bottom: none; }
+  .cg-row.header { background: var(--bg3); color: var(--muted); font-size: 0.62rem; letter-spacing: 0.08em; }
+  .cg-cell { padding: 0.55rem 0.8rem; border-right: 1px solid var(--border); }
+  .cg-cell:last-child { border-right: none; }
+
+  /* ─── STACK VIS (TEA-M) ─────────────────────────── */
+  .stack-vis {
+    margin: 1.8rem 0;
+    display: flex;
+    flex-direction: column-reverse;
+    gap: 2px;
+    font-family: var(--mono);
+    font-size: 0.7rem;
+  }
+  .sv-row {
+    display: flex;
+    align-items: stretch;
+    gap: 2px;
+  }
+  .sv-label {
+    width: 90px;
+    padding: 0.55rem 0.7rem;
+    background: var(--bg3);
+    color: var(--muted);
+    display: flex;
+    align-items: center;
+    font-size: 0.65rem;
+    letter-spacing: 0.06em;
+  }
+  .sv-bar {
+    flex: 1;
+    padding: 0.55rem 0.9rem;
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    color: #000;
+    font-weight: 500;
+    font-size: 0.7rem;
+  }
+  .sv-note { color: rgba(0,0,0,0.55); font-size: 0.62rem; }
+  .sv-row.tea-m .sv-bar  { background: var(--accent1); }
+  .sv-row.tea-e .sv-bar  { background: var(--accent2); }
+  .sv-row.tea-ea .sv-bar { background: var(--accent3); }
+  .sv-row.tea-t .sv-bar  { background: var(--accent4); }
+  .sv-row.tea-r .sv-bar  { background: var(--accent5); }
+
+  /* ─── PASSCODE VIZ (comparison before/after) ─────── */
+  .passcode-viz {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2px;
+    margin: 1.8rem 0;
+    font-family: var(--mono);
+    font-size: 0.68rem;
+    border-radius: 3px;
+    overflow: hidden;
+  }
+  .pv-col {
+    background: var(--bg2);
+    padding: 1rem 1.1rem;
+    border: 1px solid var(--border);
+  }
+  .pv-col.before { border-color: var(--accent5); }
+  .pv-col.after  { border-color: var(--accent4); }
+  .pv-title { font-size: 0.62rem; letter-spacing: 0.1em; color: var(--muted); margin-bottom: 0.6rem; text-transform: uppercase; }
+  .pv-col.before .pv-title { color: var(--accent5); }
+  .pv-col.after  .pv-title { color: var(--accent4); }
+  .pv-line { margin: 0.2rem 0; line-height: 1.5; }
+  .pv-dim { color: var(--muted); }
+  .pv-live { color: var(--text); }
+  .pv-dead { color: var(--accent5); text-decoration: line-through; opacity: 0.6; }
+  .pv-new  { color: var(--accent4); }
+
+  /* ─── CHAIN ─────────────────────────────────────── */
+  .chain {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    flex-wrap: wrap;
+    font-family: var(--mono);
+    font-size: 0.72rem;
+    margin: 1.5rem 0;
+    padding: 0.9rem 1.1rem;
+    background: var(--bg3);
+    border-radius: 3px;
+    border: 1px solid var(--border);
+  }
+  .chain-node {
+    padding: 0.25rem 0.6rem;
+    border-radius: 2px;
+    font-size: 0.7rem;
+    white-space: nowrap;
+  }
+  .chain-node.c1 { background: rgba(200,150,62,0.18); color: var(--accent1); }
+  .chain-node.c2 { background: rgba(126,184,196,0.18); color: var(--accent2); }
+  .chain-node.c3 { background: rgba(155,126,200,0.18); color: var(--accent3); }
+  .chain-node.c4 { background: rgba(106,170,125,0.18); color: var(--accent4); }
+  .chain-node.c5 { background: rgba(200,95,95,0.18); color: var(--accent5); }
+  .chain-arrow { color: var(--muted); }
+
+  /* ─── PULL QUOTE ────────────────────────────────── */
+  .pull {
+    font-family: var(--serif);
+    font-size: 1.25rem;
+    font-style: italic;
+    line-height: 1.5;
+    color: var(--muted);
+    border-left: 2px solid var(--accent1);
+    padding: 0.8rem 1.4rem;
+    margin: 2rem 0;
+  }
+  .pull cite {
+    display: block;
+    font-family: var(--mono);
+    font-size: 0.65rem;
+    font-style: normal;
+    letter-spacing: 0.08em;
+    color: var(--accent1);
+    margin-top: 0.5rem;
+  }
+
+  /* ─── GENERAL LAW BOX ───────────────────────────── */
+  .law-box {
+    background: var(--bg3);
+    border: 1px solid var(--rule);
+    border-radius: 3px;
+    padding: 1.4rem 1.6rem;
+    margin: 2rem 0;
+    text-align: center;
+  }
+  .law-box p {
+    font-family: var(--serif);
+    font-size: 1.05rem;
+    font-style: italic;
+    margin-bottom: 0.5rem;
+    color: var(--text);
+  }
+  .law-box .law-code {
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    color: var(--muted);
+    letter-spacing: 0.06em;
+  }
+
+  /* ─── NESTED PENTAD TABLE ───────────────────────── */
+  .np-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    margin: 1.5rem 0;
+  }
+  .np-table th {
+    background: var(--bg3);
+    color: var(--muted);
+    font-size: 0.62rem;
+    letter-spacing: 0.08em;
+    text-align: left;
+    padding: 0.5rem 0.8rem;
+    border: 1px solid var(--border);
+  }
+  .np-table td {
+    padding: 0.5rem 0.8rem;
+    border: 1px solid var(--border);
+    vertical-align: top;
+    line-height: 1.45;
+  }
+  .np-table tr:nth-child(even) td { background: var(--bg2); }
+  .np-table td:first-child { color: var(--muted); }
+  .np-table td:nth-child(2).c1 { color: var(--accent1); }
+  .np-table td:nth-child(2).c2 { color: var(--accent2); }
+  .np-table td:nth-child(2).c3 { color: var(--accent3); }
+  .np-table td:nth-child(2).c4 { color: var(--accent4); }
+  .np-table td:nth-child(2).c5 { color: var(--accent5); }
+
+  /* ─── FOOTER ────────────────────────────────────── */
+  .footer {
+    margin-top: 5rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--border);
+    font-family: var(--mono);
+    font-size: 0.65rem;
+    color: var(--muted);
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  /* ─── RESPONSIVE ────────────────────────────────── */
+  @media (max-width: 600px) {
+    .pentad-strip { flex-wrap: wrap; }
+    .pnode { flex: 0 0 calc(50% - 1px); }
+    .passcode-viz { grid-template-columns: 1fr; }
+    .cipher-grid .cg-row { grid-template-columns: 1.2fr 1.5fr; }
+    .cipher-grid .cg-row .cg-cell:nth-child(3) { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<div class="page">
+
+  <!-- TOP BAR -->
+  <nav class="topbar">
+    <div>
+      <a href="https://ukubona-llc.github.io/repos-00/">Ukubona LLC</a>
+      <span style="margin: 0 0.6rem;">·</span>
+      <a href="https://abikesa.github.io/repos-00/">repos</a>
+    </div>
+    <button class="theme-btn" onclick="toggleTheme()">☀ Light</button>
+  </nav>
+
+  <!-- MODEL STAMP -->
+  <div class="model-stamp">
+    <div>DOCUMENT <span>hearing-is-learning.html</span></div>
+    <div>FRAMEWORK <span>Pentad v3 · MCR · TEA-M</span></div>
+    <div>DATE <span>March 2026</span></div>
+    <div>UKUBONA <span>LLC</span></div>
+  </div>
+
+  <!-- HERO -->
+  <header class="hero">
+    <div class="kicker">Pentadic Architecture · Musical Mastery · Harmonic Cognition</div>
+    <h1 class="display">Hearing Is <em>Learning</em></h1>
+    <p class="subtitle">
+      Why three decades of composition and performance did not produce harmonic
+      fluency — and why $5,000 and three weeks unlocked Bach, Black gospel,
+      and the continuous gradient thereafter.
+    </p>
+  </header>
+
+  <!-- PENTAD STRIP -->
+  <div class="pentad-strip" aria-label="The Pentad">
+    <div class="pnode p1"><span class="roman">I</span><span class="label">Calibrate</span><span class="math">θ</span></div>
+    <div class="pnode p2"><span class="roman">II</span><span class="label">Taste</span><span class="math">L(θ)</span></div>
+    <div class="pnode p3"><span class="roman">III</span><span class="label">Soul</span><span class="math">∇L</span></div>
+    <div class="pnode p4"><span class="roman">IV</span><span class="label">Mind</span><span class="math">−η∇L</span></div>
+    <div class="pnode p5"><span class="roman">V</span><span class="label">Body</span><span class="math">θ′</span></div>
+  </div>
+
+  <!-- INTRO -->
+  <p>
+    The claim is precise: <strong>to see is to learn</strong>. But the claim requires a corollary — and the corollary is the more uncomfortable proposition: <em>to hear, for most of your musical life, was not learning</em>. Years of composition, organ performance, New Jack Swing–inflected gospel with Heaven Bound, O- and A-level music study — none of it produced harmonic fluency with Bach or Black gospel. The bassline was retrievable. The melody was retrievable. The inner harmonic architecture remained opaque.
+  </p>
+  <p>
+    This document maps that journey through the Pentad with precision, identifies the exact dimensional deficit using Vaughn Braithwaite's MCR system, and derives a general law. Then it reveals something hidden in the story: the TEA-M stack you discovered constitutes a harmonic pentad <em>nested inside</em> the learning pentad — and that structural equivalence explains why the learning rate did not merely improve, but became self-sustaining.
+  </p>
+
+  <div class="sec-rule"></div>
+
+  <!-- ═══════════════════════════════════════════════
+       PART ONE: THE PENTADIC ACCOUNT
+  ════════════════════════════════════════════════ -->
+  <h2>Part I · The Pentadic Account of Musical Mastery</h2>
+
+  <!-- LAYER I: CALIBRATE -->
+  <div class="layer l1">
+    <div class="layer-head">
+      <span class="layer-num">I · CALIBRATE</span>
+      <span class="layer-name">The Prior</span>
+      <span class="layer-math">θ</span>
+    </div>
+    <p>
+      The initial parameter state was genuinely substantial. O- and A-level music training, organist at King's College Budo 1994–1996, six years composing and performing with Heaven Bound. These produced deep, stable encodings of rhythmic structure, melodic contour, and bassline reproduction. The system could track outer voices and groove with genuine fluency.
+    </p>
+    <p>
+      But in Vaughn Braithwaite's MCR framework — <strong>Melody · Chord · Rhythm</strong> — the prior was effectively two-dimensional:
+    </p>
+    <div class="passcode-viz">
+      <div class="pv-col before">
+        <div class="pv-title">Prior θ (before 2023)</div>
+        <div class="pv-line pv-live">M · Melody ✓</div>
+        <div class="pv-line pv-dead">C · Chord ✗</div>
+        <div class="pv-line pv-live">R · Rhythm ✓</div>
+      </div>
+      <div class="pv-col after">
+        <div class="pv-title">Updated θ′ (after Vaughn)</div>
+        <div class="pv-line pv-live">M · Melody ✓</div>
+        <div class="pv-line pv-new">C · Chord ✓ (12-dim)</div>
+        <div class="pv-line pv-live">R · Rhythm ✓</div>
+      </div>
+    </div>
+    <p>
+      The harmonic parameter space was under-specified. Without a coordinate system for the Chord axis, the brain cannot represent extensions (9, 11, 13), altered tones, tritone substitutions, or the inner-voice motion that constitutes advanced harmonic orchestration. Bach and Black gospel appeared as acoustic complexity without coordinates — <em>topology without a map</em>.
+    </p>
+  </div>
+
+  <!-- LAYER II: TASTE -->
+  <div class="layer l2">
+    <div class="layer-head">
+      <span class="layer-num">II · TASTE</span>
+      <span class="layer-name">The Loss — Sensory Dead-End</span>
+      <span class="layer-math">L(θ)</span>
+    </div>
+    <p>
+      This is where listening lives. When hearing Bach or advanced gospel harmony, the ear detects a discrepancy between the target and the internal model. Bassline and melody register clearly. The inner harmonic motion collapses into undifferentiated complexity. The system perceives the gap — but cannot resolve it.
+    </p>
+    <div class="pull">
+      "I can hear it but I can't explain what's happening."
+      <cite>— the canonical plateau statement, applicable across decades of musical exposure</cite>
+    </div>
+    <p>
+      This is not a failure of effort or of listening hours. It is a structural impossibility. Without a harmonic coordinate system, the loss L(θ) is sensed but not <em>decomposable</em>. The brain experiences the error as diffuse discomfort — "my chords are unconvincing" — but receives no directional signal. The learning rate does not merely slow. It approaches zero, because the gradient is not yet computable.
+    </p>
+    <div class="law-box">
+      <p>Listening is sensing, not learning.</p>
+      <div class="law-code">II without III → learning rate → ≈ 0</div>
+    </div>
+  </div>
+
+  <!-- LAYER III: SOUL -->
+  <div class="layer l3">
+    <div class="layer-head">
+      <span class="layer-num">III · SOUL</span>
+      <span class="layer-name">The Gradient — Direction Becomes Legible</span>
+      <span class="layer-math">∇L</span>
+    </div>
+    <p>
+      The breakthrough occurs when a framework converts sensory error into structured direction. Vaughn Braithwaite's core intervention was deceptively simple: <strong>music perception must be intervalic</strong>. Not "learn more chords" — but install the chromatic coordinate grid first. Name every interval by ear, across all twelve half-steps, before anything else.
+    </p>
+    <p>
+      This is the gradient. Before the vocabulary existed, the loss landscape was felt but not navigable. After interval recognition, every chord became a stack of measurable distances. The opaque harmonic field resolved into topology:
+    </p>
+    <div class="cipher-grid">
+      <div class="cg-row header">
+        <div class="cg-cell">Perception Mode</div>
+        <div class="cg-cell">Input Signal</div>
+        <div class="cg-cell">Internal Representation</div>
+      </div>
+      <div class="cg-row">
+        <div class="cg-cell" style="color:var(--accent5)">Before training</div>
+        <div class="cg-cell">C7♭9♯11</div>
+        <div class="cg-cell" style="color:var(--muted)">complex chord blob → noise</div>
+      </div>
+      <div class="cg-row">
+        <div class="cg-cell" style="color:var(--accent4)">After training</div>
+        <div class="cg-cell">C7♭9♯11</div>
+        <div class="cg-cell">root · +M3 · +m7 · +♭9 · +♯11</div>
+      </div>
+    </div>
+    <p>
+      Once the interval grid is installed, the system can ask: <em>What distance is that? What stack is implied? What voice-leading constraint is operating?</em> The loss landscape is now navigable. This is the gradient.
+    </p>
+  </div>
+
+  <!-- LAYER IV: MIND -->
+  <div class="layer l4">
+    <div class="layer-head">
+      <span class="layer-num">IV · MIND</span>
+      <span class="layer-name">The Descent — Structured Practice</span>
+      <span class="layer-math">−η∇L</span>
+    </div>
+    <p>
+      Once direction exists, practice becomes computational rather than merely repetitive. The interval drills, harmonic naming exercises, chord-stack analysis, and vocabulary internalization performed exactly one function: they forced the brain to build the harmonic coordinate grid into permanent retrieval. The effort (η) was now being applied along a legible gradient.
+    </p>
+    <p>
+      The most subtle thing in the account is the observation about <strong>voice-leading between inner voices</strong> — a low learning rate process. This is not metaphorical. In advanced harmony, chords do not jump. They transform through minimal motion:
+    </p>
+    <div class="cipher-grid">
+      <div class="cg-row header">
+        <div class="cg-cell">Progression</div>
+        <div class="cg-cell">Inner Voice 1</div>
+        <div class="cg-cell">Inner Voice 2</div>
+      </div>
+      <div class="cg-row">
+        <div class="cg-cell">C7 → Fmaj7</div>
+        <div class="cg-cell">E → F (½ step)</div>
+        <div class="cg-cell">B♭ → A (½ step)</div>
+      </div>
+      <div class="cg-row">
+        <div class="cg-cell">G7alt → Cmaj9</div>
+        <div class="cg-cell">F → E (½ step)</div>
+        <div class="cg-cell">A♭ → G (½ step)</div>
+      </div>
+    </div>
+    <p>
+      Harmony evolves like gradient descent on a smooth surface — not discrete blocks, but continuous geometric deformation. This is precisely why Bach feels <em>inevitable</em> once the coordinate system is installed. The logic was always present; the coordinates were missing.
+    </p>
+  </div>
+
+  <!-- LAYER V: BODY -->
+  <div class="layer l5">
+    <div class="layer-head">
+      <span class="layer-num">V · BODY</span>
+      <span class="layer-name">The Update — Embodied Competence</span>
+      <span class="layer-math">θ′</span>
+    </div>
+    <p>
+      The internal model updates. Now when hearing Bach or gospel harmony, intervals register immediately, harmonic stacks are inferred, and voice-leading becomes interpretable as geometry rather than noise. The earlier statement becomes true:
+    </p>
+    <div class="law-box">
+      <p>Hearing is learning.</p>
+      <div class="law-code">Not because hearing changed — because the system can now compute updates from what it hears.</div>
+    </div>
+    <p>
+      Critically, this is not the end of the loop. It is the beginning of the continuous one. Because θ′ now possesses the vocabulary to compute the gradient, every subsequent musical encounter automatically traverses the full cycle. The plateau disappears.
+    </p>
+  </div>
+
+  <!-- THE LOOP -->
+  <div class="chain">
+    <span class="chain-node c1">θ (Calibrate)</span>
+    <span class="chain-arrow">→</span>
+    <span class="chain-node c2">L(θ) (Taste)</span>
+    <span class="chain-arrow">→</span>
+    <span class="chain-node c3">∇L (Soul)</span>
+    <span class="chain-arrow">→</span>
+    <span class="chain-node c4">−η∇L (Mind)</span>
+    <span class="chain-arrow">→</span>
+    <span class="chain-node c5">θ′ (Body)</span>
+    <span class="chain-arrow">→</span>
+    <span class="chain-node c1">θ″ (Calibrate)</span>
+    <span class="chain-arrow">→ ∞</span>
+  </div>
+
+  <div class="sec-rule"></div>
+
+  <!-- ═══════════════════════════════════════════════
+       PART TWO: TEA-M AS NESTED PENTAD
+  ════════════════════════════════════════════════ -->
+  <h2>Part II · TEA-M: The Harmonic Pentad Nested Inside the Learning Pentad</h2>
+
+  <p>
+    The TEA-M framework you discovered — <strong>Tension · Extensions · Alterations · Melody</strong> — is not merely a mnemonic for harmonic complexity. It constitutes a second pentad, embedded inside the harmonic stack, that mirrors the learning pentad structurally. This is why once the interval vocabulary appeared, the learning rate did not just improve. It became self-sustaining. The brain now had a five-layer architecture for parsing harmony at real-time speed.
+  </p>
+
+  <h3>The pop compression regime</h3>
+  <p>
+    Pop, R&B, and New Jack Swing deliberately collapse the harmonic search space. The TEA-M prior for most produced music looks like this:
+  </p>
+
+  <div class="cipher-grid">
+    <div class="cg-row header">
+      <div class="cg-cell">Layer</div>
+      <div class="cg-cell">Pop / NJS Regime</div>
+      <div class="cg-cell">Bach / Black Gospel</div>
+    </div>
+    <div class="cg-row">
+      <div class="cg-cell" style="color:var(--accent4)">T (Tension)</div>
+      <div class="cg-cell">7ths dominant, min7</div>
+      <div class="cg-cell">Continuous: leading-tone pulls</div>
+    </div>
+    <div class="cg-row">
+      <div class="cg-cell" style="color:var(--accent2)">E (Extensions)</div>
+      <div class="cg-cell">Occasional 9, rare 11/13</div>
+      <div class="cg-cell">Dense: 9, 11, 13 stacked</div>
+    </div>
+    <div class="cg-row">
+      <div class="cg-cell" style="color:var(--accent3)">A (Alterations)</div>
+      <div class="cg-cell">Minimal: ♭9 rare, ♯11 absent</div>
+      <div class="cg-cell">Heavy: ♭9 ♯9 ♯11 ♭13</div>
+    </div>
+    <div class="cg-row">
+      <div class="cg-cell" style="color:var(--accent1)">M (Melody)</div>
+      <div class="cg-cell">Predominantly pentatonic</div>
+      <div class="cg-cell">Chromatic, interacts with inner voices</div>
+    </div>
+  </div>
+
+  <p>
+    The pop prior works because pentatonic melody avoids half-step tension. The brain only needs to track melody + rhythm + bass. The missing Chord dimension does not impede performance or enjoyment. But it makes Bach and gospel <em>uncomputable</em> without a coordinate expansion.
+  </p>
+
+  <h3>The TEA-M stack as vertical pentad</h3>
+
+  <div class="stack-vis" aria-label="Harmonic stack from root to melody">
+    <div class="sv-row tea-r">
+      <div class="sv-label">I · ROOT</div>
+      <div class="sv-bar">Root <span class="sv-note">tonal center · θ of the chord</span></div>
+    </div>
+    <div class="sv-row tea-t">
+      <div class="sv-label">II · TENSION</div>
+      <div class="sv-bar">7th <span class="sv-note">directional instability · the loss signal</span></div>
+    </div>
+    <div class="sv-row tea-e">
+      <div class="sv-label">III · EXTENSIONS</div>
+      <div class="sv-bar">9 · 11 · 13 <span class="sv-note">gradient field · harmonic color</span></div>
+    </div>
+    <div class="sv-row tea-ea">
+      <div class="sv-label">IV · ALTERATIONS</div>
+      <div class="sv-bar">♭9 ♯9 ♯11 ♭13 <span class="sv-note">chromatic distortion · forced resolution</span></div>
+    </div>
+    <div class="sv-row tea-m">
+      <div class="sv-label">V · MELODY</div>
+      <div class="sv-bar">Melodic line <span class="sv-note">realized trajectory · θ′ audible</span></div>
+    </div>
+  </div>
+
+  <h3>The mapping between the two pentads</h3>
+
+  <table class="np-table">
+    <thead>
+      <tr>
+        <th>Position</th>
+        <th>Learning Pentad</th>
+        <th>Harmonic Pentad (TEA-M)</th>
+        <th>Structural Role</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>I</td>
+        <td class="c1">Calibrate · θ</td>
+        <td>Root</td>
+        <td>Coordinate origin · reference point</td>
+      </tr>
+      <tr>
+        <td>II</td>
+        <td class="c2">Taste · L(θ)</td>
+        <td>Tension (7th)</td>
+        <td>Instability signal · motion required</td>
+      </tr>
+      <tr>
+        <td>III</td>
+        <td class="c3">Soul · ∇L</td>
+        <td>Extensions (9, 11, 13)</td>
+        <td>Gradient field · directions available</td>
+      </tr>
+      <tr>
+        <td>IV</td>
+        <td class="c4">Mind · −η∇L</td>
+        <td>Alterations (♭♯)</td>
+        <td>Chromatic intervention · forced update</td>
+      </tr>
+      <tr>
+        <td>V</td>
+        <td class="c5">Body · θ′</td>
+        <td>Melody</td>
+        <td>Realized trajectory · the update made audible</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <p>
+    The mapping is not decorative. It explains something about how experienced musicians navigate harmony in real time. When a jazz pianist hears a complex chord change, they are not performing five separate operations. The nested structure means the entire pentad fires as a single gestalt. Root identifies the coordinate system. Tension specifies the direction. Extensions color the gradient field. Alterations indicate chromatic distortion. Melody completes the trajectory. The brain executes this as one perception.
+  </p>
+
+  <div class="sec-rule"></div>
+
+  <!-- ═══════════════════════════════════════════════
+       PART THREE: WHY BACH AND GOSPEL
+  ════════════════════════════════════════════════ -->
+  <h2>Part III · Why Bach and Gospel Specifically</h2>
+
+  <p>
+    Your observation is accurate: pop music allows M+R dominance and the missing Chord dimension does not impede performance. Bach and Black gospel are different because they are <em>harmonic sciences</em> — the entire semantic content lives in the inner voices.
+  </p>
+
+  <div class="cipher-grid">
+    <div class="cg-row header">
+      <div class="cg-cell">Tradition</div>
+      <div class="cg-cell">Harmonic Signature</div>
+      <div class="cg-cell">Voice-Leading Rule</div>
+    </div>
+    <div class="cg-row">
+      <div class="cg-cell" style="color:var(--accent1)">J.S. Bach</div>
+      <div class="cg-cell">Dense counterpoint · secondary dominants · chromatic passing tones</div>
+      <div class="cg-cell">Every inner voice moves independently by smallest interval</div>
+    </div>
+    <div class="cg-row">
+      <div class="cg-cell" style="color:var(--accent3)">Black Gospel</div>
+      <div class="cg-cell">Heavy extensions · altered dominants · tritone substitutions · chromatic approach</div>
+      <div class="cg-cell">Inner voices glide while outer voices may leap</div>
+    </div>
+  </div>
+
+  <p>
+    Both traditions solve the same mathematical problem from different coordinates. Bach operates in the language of counterpoint — four independent voices navigating the harmonic field simultaneously. Black gospel operates in the language of jazz-inflected vertical stacks — extended dominants resolving through chromatic gravity. The interval vocabulary functions as a coordinate transform that makes both systems legible from the same perceptual apparatus.
+  </p>
+
+  <div class="pull">
+    The chord-stack vocabulary you acquired is essentially a coordinate transform that lets the ear perceive harmonic structure that was always present but previously uncomputable.
+  </div>
+
+  <div class="sec-rule"></div>
+
+  <!-- ═══════════════════════════════════════════════
+       GENERAL LAW
+  ════════════════════════════════════════════════ -->
+  <h2>The General Law</h2>
+
+  <div class="law-box">
+    <p>Sensation without vocabulary halts learning.</p>
+    <div class="law-code" style="margin-top:0.8rem">II alone → stagnation at local minimum<br>
+    I → II → III → IV → V → I′ → continuous gradient</div>
+  </div>
+
+  <p>
+    The principle generalizes exactly. A clinical digital twin that tracks symptoms but lacks the metabolic vocabulary to compute direction is trapped at Stage II. An enterprise that accumulates operational data without the conceptual framework to identify gradients will mistake data collection for learning. A civilization that senses civilizational loss but lacks the institutional vocabulary to compute policy gradients will oscillate at the Taste layer indefinitely.
+  </p>
+
+  <p>
+    In every domain, the transition from merely sensing to truly learning requires the same intervention: a structural prior that gives names to intervals. The name is the gradient. Without the name, the error is uncomputable.
+  </p>
+
+  <div class="chain">
+    <span class="chain-node c2">Symptom felt</span>
+    <span class="chain-arrow">≠</span>
+    <span class="chain-node c3">Gradient computed</span>
+    <span style="color:var(--muted);font-family:var(--mono);font-size:0.7rem;margin-left:0.4rem">· the gap is the vocabulary</span>
+  </div>
+
+  <p>
+    Your musical journey demonstrates that the investment ($5,000, three weeks of sessions, rigorous interval drills) was not buying skill. It was buying <em>coordinates</em>. Once the coordinates existed, the skill accumulated automatically — because every listening experience now automatically computed a gradient and executed a descent step. The learning became perpetual.
+  </p>
+
+  <p>
+    This is what "to see is to learn" means with precision: vision naturally delivers spatial structure, hierarchy, and topology. The trained ear, after Vaughn's intervention, delivers exactly the same class of structured information about harmony. The claim is not metaphorical. The brain is genuinely constructing harmonic topology — which is why experienced musicians say they <em>see</em> the changes.
+  </p>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div>Ukubona LLC · Intellectual Architecture</div>
+    <div>Pentad v3 · MCR · TEA-M · Stratigraphic Variant</div>
+    <div>March 2026</div>
+  </footer>
+
+</div>
+
+<script>
+  /* theme toggle */
+  function toggleTheme() {
+    const html = document.documentElement;
+    const btn  = document.querySelector('.theme-btn');
+    if (html.dataset.theme === 'dark') {
+      html.dataset.theme = 'light';
+      btn.textContent = '☾ Dark';
+    } else {
+      html.dataset.theme = 'dark';
+      btn.textContent = '☀ Light';
+    }
+    try { localStorage.setItem('ukubona-theme', html.dataset.theme); } catch(e) {}
+  }
+
+  /* restore theme */
+  try {
+    const saved = localStorage.getItem('ukubona-theme');
+    if (saved) {
+      document.documentElement.dataset.theme = saved;
+      document.querySelector('.theme-btn').textContent = saved === 'light' ? '☾ Dark' : '☀ Light';
+    }
+  } catch(e) {}
+
+  /* scroll-triggered fade-in */
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        e.target.classList.add('visible');
+        observer.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.08 });
+
+  document.querySelectorAll('.layer').forEach((el, i) => {
+    el.style.transitionDelay = `${i * 0.05}s`;
+    observer.observe(el);
+  });
+</script>
+</body>
+</html>

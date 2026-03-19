@@ -1,0 +1,1266 @@
+.<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ukubona — Seeing, Blindly</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Space+Mono:wght@400;700&family=Bebas+Neue&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --void: #000000;
+    --abyss: #050508;
+    --deep: #0a0a12;
+    --surface: #12121e;
+    --ghost: rgba(255,255,255,0.04);
+    --phantom: rgba(255,255,255,0.08);
+    --signal: #00e5ff;
+    --hazard: #ff4444;
+    --update: #39ff14;
+    --equilibrium: #b388ff;
+    --gold: #ffd54f;
+    --text-primary: rgba(255,255,255,0.92);
+    --text-secondary: rgba(255,255,255,0.5);
+    --text-ghost: rgba(255,255,255,0.15);
+    --mono: 'Space Mono', monospace;
+    --serif: 'Cormorant Garamond', serif;
+    --display: 'Bebas Neue', sans-serif;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--abyss);
+    color: var(--text-primary);
+    font-family: var(--serif);
+    overflow-x: hidden;
+    cursor: none;
+  }
+
+  /* CUSTOM CURSOR */
+  .cursor {
+    position: fixed;
+    width: 12px; height: 12px;
+    background: var(--signal);
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 9999;
+    transform: translate(-50%, -50%);
+    transition: transform 0.1s, background 0.3s;
+    mix-blend-mode: screen;
+  }
+  .cursor-ring {
+    position: fixed;
+    width: 40px; height: 40px;
+    border: 1px solid rgba(0,229,255,0.3);
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 9998;
+    transform: translate(-50%, -50%);
+    transition: transform 0.15s ease-out, width 0.3s, height 0.3s, border-color 0.3s;
+  }
+
+  /* NOISE TEXTURE OVERLAY */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.035'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 1000;
+    opacity: 0.4;
+  }
+
+  /* SCANLINES */
+  body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 2px,
+      rgba(0,0,0,0.03) 2px,
+      rgba(0,0,0,0.03) 4px
+    );
+    pointer-events: none;
+    z-index: 999;
+  }
+
+  /* ─── HERO ─────────────────────────────────────────── */
+  .hero {
+    position: relative;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 8vw 10vw;
+    overflow: hidden;
+  }
+
+  .hero-grid {
+    position: absolute;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(0,229,255,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,229,255,0.03) 1px, transparent 1px);
+    background-size: 60px 60px;
+    animation: grid-drift 20s linear infinite;
+  }
+
+  @keyframes grid-drift {
+    from { transform: translateY(0); }
+    to { transform: translateY(60px); }
+  }
+
+  .hero-glow {
+    position: absolute;
+    width: 600px; height: 600px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(0,229,255,0.06) 0%, transparent 70%);
+    top: -100px; right: -100px;
+    animation: breathe 8s ease-in-out infinite;
+  }
+
+  .hero-glow-2 {
+    position: absolute;
+    width: 400px; height: 400px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(179,136,255,0.04) 0%, transparent 70%);
+    bottom: -50px; left: 20%;
+    animation: breathe 12s ease-in-out infinite reverse;
+  }
+
+  @keyframes breathe {
+    0%, 100% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.1); opacity: 0.7; }
+  }
+
+  .hero-eyeline {
+    font-family: var(--mono);
+    font-size: 0.65rem;
+    letter-spacing: 0.3em;
+    color: var(--signal);
+    text-transform: uppercase;
+    margin-bottom: 2rem;
+    opacity: 0;
+    animation: fadein 1s 0.3s forwards;
+  }
+
+  .hero-title {
+    font-family: var(--display);
+    font-size: clamp(5rem, 15vw, 14rem);
+    line-height: 0.85;
+    letter-spacing: -0.02em;
+    color: var(--text-primary);
+    opacity: 0;
+    animation: slidein 1s 0.5s cubic-bezier(0.16,1,0.3,1) forwards;
+    position: relative;
+    z-index: 2;
+  }
+
+  .hero-title span.ghost-text {
+    color: transparent;
+    -webkit-text-stroke: 1px rgba(255,255,255,0.15);
+    display: block;
+  }
+
+  .hero-subtitle {
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: clamp(1.2rem, 2.5vw, 2rem);
+    color: var(--text-secondary);
+    margin-top: 1.5rem;
+    max-width: 520px;
+    line-height: 1.4;
+    opacity: 0;
+    animation: fadein 1s 0.9s forwards;
+  }
+
+  .hero-meta {
+    font-family: var(--mono);
+    font-size: 0.6rem;
+    letter-spacing: 0.2em;
+    color: var(--text-ghost);
+    margin-top: 3rem;
+    opacity: 0;
+    animation: fadein 1s 1.2s forwards;
+  }
+
+  .hero-meta span { color: var(--hazard); }
+
+  @keyframes fadein {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
+  @keyframes slidein {
+    from { opacity: 0; transform: translateY(40px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ─── DATA INCIDENT TICKER ──────────────────────────── */
+  .ticker-wrap {
+    position: relative;
+    background: rgba(255,68,68,0.06);
+    border-top: 1px solid rgba(255,68,68,0.2);
+    border-bottom: 1px solid rgba(255,68,68,0.2);
+    overflow: hidden;
+    padding: 0.8rem 0;
+  }
+
+  .ticker-label {
+    position: absolute;
+    left: 0;
+    top: 0;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    padding: 0 1.5rem;
+    background: var(--hazard);
+    font-family: var(--mono);
+    font-size: 0.6rem;
+    letter-spacing: 0.2em;
+    color: #000;
+    font-weight: 700;
+    z-index: 2;
+    white-space: nowrap;
+  }
+
+  .ticker-track {
+    display: flex;
+    gap: 4rem;
+    animation: ticker 30s linear infinite;
+    padding-left: calc(100px + 4rem);
+    white-space: nowrap;
+  }
+
+  .ticker-track span {
+    font-family: var(--mono);
+    font-size: 0.65rem;
+    letter-spacing: 0.1em;
+    color: var(--text-secondary);
+  }
+
+  .ticker-track span.highlight { color: var(--hazard); }
+
+  @keyframes ticker {
+    from { transform: translateX(0); }
+    to { transform: translateX(-50%); }
+  }
+
+  /* ─── SECTIONS SHARED ───────────────────────────────── */
+  section {
+    padding: 8vw 10vw;
+    position: relative;
+  }
+
+  .section-label {
+    font-family: var(--mono);
+    font-size: 0.6rem;
+    letter-spacing: 0.35em;
+    color: var(--signal);
+    text-transform: uppercase;
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+  }
+
+  .section-label::after {
+    content: '';
+    display: block;
+    width: 40px;
+    height: 1px;
+    background: var(--signal);
+    opacity: 0.4;
+  }
+
+  h2 {
+    font-family: var(--display);
+    font-size: clamp(2.5rem, 6vw, 5rem);
+    line-height: 0.9;
+    letter-spacing: 0.02em;
+    margin-bottom: 2rem;
+  }
+
+  /* ─── PENTAD SECTION ────────────────────────────────── */
+  .pentad-section {
+    background: var(--deep);
+  }
+
+  .pentad-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 1px;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.05);
+    margin-top: 3rem;
+  }
+
+  .pentad-card {
+    background: var(--surface);
+    padding: 2rem 1.5rem;
+    position: relative;
+    overflow: hidden;
+    cursor: default;
+    transition: background 0.4s;
+  }
+
+  .pentad-card::before {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 2px;
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.5s cubic-bezier(0.16,1,0.3,1);
+  }
+
+  .pentad-card:hover { background: rgba(255,255,255,0.04); }
+  .pentad-card:hover::before { transform: scaleX(1); }
+
+  .p1::before { background: var(--equilibrium); }
+  .p2::before { background: var(--hazard); }
+  .p3::before { background: var(--signal); }
+  .p4::before { background: var(--update); }
+  .p5::before { background: var(--gold); }
+
+  .pentad-num {
+    font-family: var(--mono);
+    font-size: 0.55rem;
+    letter-spacing: 0.3em;
+    opacity: 0.3;
+    margin-bottom: 1rem;
+  }
+
+  .pentad-icon {
+    font-size: 1.8rem;
+    margin-bottom: 1rem;
+    display: block;
+  }
+
+  .pentad-name {
+    font-family: var(--display);
+    font-size: 1.4rem;
+    letter-spacing: 0.05em;
+    margin-bottom: 0.5rem;
+  }
+
+  .pentad-zulu {
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    margin-bottom: 1rem;
+  }
+
+  .pentad-math {
+    font-family: var(--mono);
+    font-size: 0.65rem;
+    color: var(--signal);
+    opacity: 0.7;
+    margin-bottom: 1rem;
+  }
+
+  .pentad-desc {
+    font-size: 0.85rem;
+    line-height: 1.6;
+    color: var(--text-secondary);
+  }
+
+  /* ─── PHANTOM SECTION ───────────────────────────────── */
+  .phantom-section {
+    background: var(--abyss);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .phantom-bg {
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse 60% 80% at 80% 50%, rgba(255,68,68,0.03) 0%, transparent 70%);
+  }
+
+  .phantom-layout {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6rem;
+    align-items: start;
+    margin-top: 3rem;
+  }
+
+  .phantom-quote {
+    font-family: var(--serif);
+    font-size: clamp(1.4rem, 3vw, 2.2rem);
+    font-style: italic;
+    line-height: 1.4;
+    color: var(--text-primary);
+    position: relative;
+    padding-left: 2rem;
+  }
+
+  .phantom-quote::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 0.3em;
+    width: 3px;
+    height: calc(100% - 0.3em);
+    background: var(--hazard);
+  }
+
+  .phantom-cases {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+
+  .phantom-case {
+    background: var(--ghost);
+    border: 1px solid rgba(255,255,255,0.06);
+    padding: 1.5rem;
+    position: relative;
+    transition: border-color 0.3s, background 0.3s;
+  }
+
+  .phantom-case:hover {
+    background: var(--phantom);
+    border-color: rgba(255,68,68,0.2);
+  }
+
+  .phantom-case-tag {
+    font-family: var(--mono);
+    font-size: 0.55rem;
+    letter-spacing: 0.25em;
+    color: var(--hazard);
+    margin-bottom: 0.8rem;
+  }
+
+  .phantom-case-title {
+    font-family: var(--display);
+    font-size: 1.1rem;
+    letter-spacing: 0.05em;
+    margin-bottom: 0.5rem;
+  }
+
+  .phantom-case-body {
+    font-size: 0.85rem;
+    line-height: 1.6;
+    color: var(--text-secondary);
+  }
+
+  .phantom-equation {
+    font-family: var(--mono);
+    font-size: 0.75rem;
+    color: var(--signal);
+    margin-top: 0.8rem;
+    padding-top: 0.8rem;
+    border-top: 1px solid rgba(255,255,255,0.06);
+    opacity: 0.7;
+  }
+
+  /* ─── LIVE DATA INCIDENT ────────────────────────────── */
+  .incident-section {
+    background: var(--deep);
+  }
+
+  .incident-terminal {
+    background: #000;
+    border: 1px solid rgba(0,229,255,0.15);
+    padding: 2rem;
+    margin-top: 3rem;
+    font-family: var(--mono);
+    font-size: 0.72rem;
+    line-height: 2;
+    position: relative;
+  }
+
+  .incident-terminal::before {
+    content: '● ● ●';
+    position: absolute;
+    top: 0.8rem; left: 1rem;
+    font-size: 0.5rem;
+    color: rgba(255,255,255,0.2);
+    letter-spacing: 0.3em;
+  }
+
+  .t-time { color: var(--text-ghost); }
+  .t-label { color: var(--signal); }
+  .t-value { color: var(--text-primary); }
+  .t-hazard { color: var(--hazard); }
+  .t-update { color: var(--update); }
+  .t-phantom { color: var(--equilibrium); }
+  .t-gold { color: var(--gold); }
+  .t-comment { color: rgba(255,255,255,0.25); font-style: italic; }
+
+  .blink {
+    animation: blink 1s step-end infinite;
+  }
+  @keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0; }
+  }
+
+  /* ─── MAPPING TABLE ─────────────────────────────────── */
+  .mapping-section {
+    background: var(--abyss);
+  }
+
+  .mapping-grid {
+    display: grid;
+    grid-template-columns: 1.2fr repeat(4, 1fr);
+    gap: 1px;
+    background: rgba(255,255,255,0.04);
+    margin-top: 3rem;
+    font-size: 0.8rem;
+  }
+
+  .mg-header {
+    background: var(--surface);
+    padding: 1rem 1.2rem;
+    font-family: var(--mono);
+    font-size: 0.55rem;
+    letter-spacing: 0.2em;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+  }
+
+  .mg-row-label {
+    background: rgba(255,255,255,0.02);
+    padding: 1rem 1.2rem;
+    font-family: var(--display);
+    font-size: 1rem;
+    letter-spacing: 0.05em;
+    display: flex;
+    align-items: center;
+  }
+
+  .mg-cell {
+    background: var(--abyss);
+    padding: 1rem 1.2rem;
+    line-height: 1.5;
+    color: var(--text-secondary);
+    font-size: 0.78rem;
+    transition: background 0.3s;
+  }
+
+  .mg-cell:hover { background: var(--ghost); color: var(--text-primary); }
+
+  .mg-accent-1 { border-left: 2px solid var(--equilibrium); }
+  .mg-accent-2 { border-left: 2px solid var(--hazard); }
+  .mg-accent-3 { border-left: 2px solid var(--signal); }
+  .mg-accent-4 { border-left: 2px solid var(--update); }
+  .mg-accent-5 { border-left: 2px solid var(--gold); }
+
+  /* ─── HAZARD VISUALIZER ─────────────────────────────── */
+  .hazard-section {
+    background: var(--deep);
+    padding-bottom: 10vw;
+  }
+
+  .hazard-canvas-wrap {
+    position: relative;
+    margin-top: 3rem;
+    height: 260px;
+    background: #000;
+    border: 1px solid rgba(0,229,255,0.1);
+    overflow: hidden;
+  }
+
+  #hazardCanvas {
+    width: 100%;
+    height: 100%;
+  }
+
+  .hazard-legend {
+    display: flex;
+    gap: 2rem;
+    margin-top: 1.5rem;
+    flex-wrap: wrap;
+  }
+
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-family: var(--mono);
+    font-size: 0.6rem;
+    letter-spacing: 0.15em;
+    color: var(--text-secondary);
+  }
+
+  .legend-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+  }
+
+  /* ─── BAYESIAN UPDATE ───────────────────────────────── */
+  .bayes-section {
+    background: var(--abyss);
+  }
+
+  .bayes-flow {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    margin-top: 3rem;
+    overflow-x: auto;
+    padding-bottom: 1rem;
+  }
+
+  .bayes-node {
+    flex: 0 0 auto;
+    text-align: center;
+    width: 160px;
+  }
+
+  .bayes-circle {
+    width: 80px; height: 80px;
+    border-radius: 50%;
+    margin: 0 auto 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    position: relative;
+    transition: transform 0.3s;
+  }
+
+  .bayes-circle:hover { transform: scale(1.1); }
+
+  .bc-1 { background: rgba(179,136,255,0.1); border: 1px solid rgba(179,136,255,0.3); }
+  .bc-2 { background: rgba(255,68,68,0.1); border: 1px solid rgba(255,68,68,0.3); }
+  .bc-3 { background: rgba(0,229,255,0.1); border: 1px solid rgba(0,229,255,0.3); }
+  .bc-4 { background: rgba(57,255,20,0.1); border: 1px solid rgba(57,255,20,0.3); }
+  .bc-5 { background: rgba(255,213,79,0.1); border: 1px solid rgba(255,213,79,0.3); }
+
+  .bayes-node-label {
+    font-family: var(--display);
+    font-size: 0.9rem;
+    letter-spacing: 0.05em;
+    margin-bottom: 0.3rem;
+  }
+
+  .bayes-node-sub {
+    font-family: var(--mono);
+    font-size: 0.55rem;
+    color: var(--text-ghost);
+    letter-spacing: 0.1em;
+  }
+
+  .bayes-arrow {
+    flex: 0 0 auto;
+    width: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-ghost);
+    font-size: 1.2rem;
+    padding-bottom: 2rem;
+  }
+
+  /* ─── GROK QUOTE ────────────────────────────────────── */
+  .grok-section {
+    background: var(--surface);
+    border-top: 1px solid rgba(255,255,255,0.05);
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+  }
+
+  .grok-inner {
+    max-width: 800px;
+  }
+
+  .grok-quote-big {
+    font-family: var(--serif);
+    font-size: clamp(1.8rem, 4vw, 3rem);
+    font-style: italic;
+    line-height: 1.35;
+    color: var(--text-primary);
+    margin-bottom: 1.5rem;
+  }
+
+  .grok-quote-big em {
+    color: var(--signal);
+    font-style: normal;
+  }
+
+  .grok-attr {
+    font-family: var(--mono);
+    font-size: 0.6rem;
+    letter-spacing: 0.25em;
+    color: var(--text-ghost);
+  }
+
+  /* ─── FOOTER ────────────────────────────────────────── */
+  footer {
+    padding: 4rem 10vw;
+    background: var(--void);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 2rem;
+    border-top: 1px solid rgba(255,255,255,0.04);
+  }
+
+  .footer-brand {
+    font-family: var(--display);
+    font-size: 1.8rem;
+    letter-spacing: 0.1em;
+    color: var(--text-primary);
+  }
+
+  .footer-brand span { color: var(--signal); }
+
+  .footer-meta {
+    font-family: var(--mono);
+    font-size: 0.55rem;
+    letter-spacing: 0.2em;
+    color: var(--text-ghost);
+    text-align: right;
+    line-height: 2;
+  }
+
+  /* ─── SCROLL REVEAL ─────────────────────────────────── */
+  .reveal {
+    opacity: 0;
+    transform: translateY(30px);
+    transition: opacity 0.8s cubic-bezier(0.16,1,0.3,1), transform 0.8s cubic-bezier(0.16,1,0.3,1);
+  }
+
+  .reveal.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* ─── RESPONSIVE ────────────────────────────────────── */
+  @media (max-width: 900px) {
+    .pentad-grid { grid-template-columns: 1fr 1fr; }
+    .phantom-layout { grid-template-columns: 1fr; gap: 3rem; }
+    .mapping-grid { grid-template-columns: 1fr 1fr; }
+    .bayes-flow { flex-direction: column; }
+    .bayes-arrow { transform: rotate(90deg); padding-bottom: 0; padding-right: 2rem; }
+    footer { flex-direction: column; text-align: center; }
+    .footer-meta { text-align: center; }
+  }
+
+  @media (max-width: 600px) {
+    .pentad-grid { grid-template-columns: 1fr; }
+    section { padding: 14vw 6vw; }
+    .hero { padding: 14vw 6vw; }
+    .mapping-grid { grid-template-columns: 1fr; }
+  }
+
+  /* pulse dot */
+  .pulse-dot {
+    display: inline-block;
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--hazard);
+    animation: pulse 2s ease-in-out infinite;
+    vertical-align: middle;
+    margin-right: 0.5rem;
+  }
+
+  @keyframes pulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(255,68,68,0.7); }
+    50% { box-shadow: 0 0 0 8px rgba(255,68,68,0); }
+  }
+</style>
+</head>
+<body>
+
+<!-- CURSOR -->
+<div class="cursor" id="cursor"></div>
+<div class="cursor-ring" id="cursorRing"></div>
+
+<!-- ═══ HERO ═══════════════════════════════════════════════════════ -->
+<section class="hero">
+  <div class="hero-grid"></div>
+  <div class="hero-glow"></div>
+  <div class="hero-glow-2"></div>
+
+  <p class="hero-eyeline">Ukubona LLC &nbsp;·&nbsp; Digital Twin Architecture &nbsp;·&nbsp; θ → L(θ) → ∇L → SGD → θ′</p>
+
+  <h1 class="hero-title">
+    UKUBONA
+    <span class="ghost-text">BLINDLY</span>
+  </h1>
+
+  <p class="hero-subtitle">
+    Ghosts can't be seen — so we built a system that learns from the fact that it can't see them.<br>
+    <em>We ain't gon' be ghosted by our own architecture.</em>
+  </p>
+
+  <p class="hero-meta">
+    <span>▲ INCIDENT LOG</span> &nbsp;&nbsp;
+    06:17 — 2.1GB &nbsp;·&nbsp; 05:00 — 1.6GB &nbsp;·&nbsp;
+    <span>05:07 — 0.0GB [PHANTOM DETECTED]</span> &nbsp;&nbsp;
+    <span>∆ = 1.6GB / 7min ≈ 30 Mbps</span>
+  </p>
+</section>
+
+<!-- ═══ TICKER ══════════════════════════════════════════════════════ -->
+<div class="ticker-wrap">
+  <div class="ticker-label"><span class="pulse-dot"></span>INCIDENT</div>
+  <div class="ticker-track" id="ticker">
+    <span>ε >> f(x) &nbsp;·&nbsp; NOISE DOMINATES SIGNAL</span>
+    <span class="highlight">1.6GB / 7min · PHANTOM TRANSFER DETECTED</span>
+    <span>h(t) = f(t)/S(t) &nbsp;·&nbsp; HAZARD SPIKE</span>
+    <span class="highlight">iCloud daemon · Low Data Mode: OFF → ON</span>
+    <span>Jan→Mar: +103GB hotspot · 85% non-intentional</span>
+    <span class="highlight">θ₁ = θ₀ - η∇L &nbsp;·&nbsp; MANUAL SGD APPLIED</span>
+    <span>Aquagenic pruritus · itch w/o rash · phantom confirmed</span>
+    <span class="highlight">BAYESIAN UPDATE: Prior(daemon=0) → Posterior(daemon=1)</span>
+    <span>ε >> f(x) &nbsp;·&nbsp; NOISE DOMINATES SIGNAL</span>
+    <span class="highlight">1.6GB / 7min · PHANTOM TRANSFER DETECTED</span>
+    <span>h(t) = f(t)/S(t) &nbsp;·&nbsp; HAZARD SPIKE</span>
+    <span class="highlight">iCloud daemon · Low Data Mode: OFF → ON</span>
+    <span>Jan→Mar: +103GB hotspot · 85% non-intentional</span>
+    <span class="highlight">θ₁ = θ₀ - η∇L &nbsp;·&nbsp; MANUAL SGD APPLIED</span>
+    <span>Aquagenic pruritus · itch w/o rash · phantom confirmed</span>
+    <span class="highlight">BAYESIAN UPDATE: Prior(daemon=0) → Posterior(daemon=1)</span>
+  </div>
+</div>
+
+<!-- ═══ PENTAD ══════════════════════════════════════════════════════ -->
+<section class="pentad-section">
+  <div class="section-label">Layer 00 · Core Architecture</div>
+  <h2 class="reveal">THE PENTAD</h2>
+
+  <div class="pentad-grid reveal">
+    <div class="pentad-card p1">
+      <div class="pentad-num">01 / 05</div>
+      <span class="pentad-icon">🌍</span>
+      <div class="pentad-name">LANDSCAPE</div>
+      <div class="pentad-zulu">Indawo — The World-State</div>
+      <div class="pentad-math">θ &nbsp;·&nbsp; Prior Model</div>
+      <div class="pentad-desc">The current generative model of reality. Home of the phantom — the ghost exists here as <em>absence</em>. Presence through not-being-seen.</div>
+    </div>
+    <div class="pentad-card p2">
+      <div class="pentad-num">02 / 05</div>
+      <span class="pentad-icon">⚡</span>
+      <div class="pentad-name">LOSS / HAZARD</div>
+      <div class="pentad-zulu">Ingozi — The Signal of Wrongness</div>
+      <div class="pentad-math">L(θ) &nbsp;·&nbsp; h(t) = f(t)/S(t)</div>
+      <div class="pentad-desc">Mismatch between expectation and observation. The 1.6GB spike. The itch without a rash. Heat without action. Loss made visceral.</div>
+    </div>
+    <div class="pentad-card p3">
+      <div class="pentad-num">03 / 05</div>
+      <span class="pentad-icon">📡</span>
+      <div class="pentad-name">GRADIENT</div>
+      <div class="pentad-zulu">Umqondo — The Direction of Truth</div>
+      <div class="pentad-math">∇L &nbsp;·&nbsp; δ = r + γV(s′) − V(s)</div>
+      <div class="pentad-desc">Dopamine spike. Prediction error. The "WTF???" moment that carries signal about what needs to change. Anomaly becomes arrow.</div>
+    </div>
+    <div class="pentad-card p4">
+      <div class="pentad-num">04 / 05</div>
+      <span class="pentad-icon">🔄</span>
+      <div class="pentad-name">UPDATE</div>
+      <div class="pentad-zulu">Ukufunda — The Learning Step</div>
+      <div class="pentad-math">θ ← θ − η∇L &nbsp;·&nbsp; SGD</div>
+      <div class="pentad-desc">Enabling Low Data Mode. Synaptic weight change. Posterior update. Blindness in one cycle becomes vision in the next. Bayesian at heart.</div>
+    </div>
+    <div class="pentad-card p5">
+      <div class="pentad-num">05 / 05</div>
+      <span class="pentad-icon">⚖️</span>
+      <div class="pentad-name">EQUILIBRIUM</div>
+      <div class="pentad-zulu">Ukuthula — The New Stillness</div>
+      <div class="pentad-math">θ′ &nbsp;·&nbsp; Updated Ecosystem</div>
+      <div class="pentad-desc">iPhone cools in 5 minutes. Loss decreases. The organism re-stabilizes at a higher fidelity state. Until the next ghost appears.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ PHANTOM ═════════════════════════════════════════════════════ -->
+<section class="phantom-section">
+  <div class="phantom-bg"></div>
+  <div class="section-label">Layer 01 · The Invisible</div>
+  <h2 class="reveal">THE PHANTOM<br>PRINCIPLE</h2>
+
+  <div class="phantom-layout">
+    <div>
+      <p class="phantom-quote reveal">
+        "There needs no ghost, my lord, come from the grave to tell us this."
+      </p>
+      <p style="margin-top: 2rem; font-size: 0.9rem; line-height: 1.7; color: var(--text-secondary); max-width: 480px;" class="reveal">
+        The ghost exists in Layer 1 — the Landscape — but only as <strong>absence</strong>. You don't observe it directly. You infer it from hazard spikes, from heat, from data vanishing. The phantom is the unobserved variable that forces a Bayesian update. Blindness in one cycle becomes vision in the next.
+      </p>
+      <p style="margin-top: 1.5rem; font-family: var(--mono); font-size: 0.65rem; color: var(--signal); letter-spacing: 0.15em; opacity: 0.8;" class="reveal">
+        PHANTOM ∈ LANDSCAPE &nbsp;·&nbsp; DETECTED ONLY THROUGH L(θ) SPIKE
+      </p>
+    </div>
+    <div class="phantom-cases reveal">
+      <div class="phantom-case">
+        <div class="phantom-case-tag">CASE 001 · DIGITAL</div>
+        <div class="phantom-case-title">The 1.6GB Ghost</div>
+        <div class="phantom-case-body">iPhone hot. MacBook browsing GitHub. No video. No heavy app. 1.6GB vanishes in 7 minutes. Stimulus: hotspot enabled. Symptom: data hemorrhage. Visible cause: none.</div>
+        <div class="phantom-equation">stimulus → latent daemon → spike&nbsp;&nbsp;·&nbsp;&nbsp;iCloud + macOS background sync</div>
+      </div>
+      <div class="phantom-case">
+        <div class="phantom-case-tag">CASE 002 · BIOLOGICAL</div>
+        <div class="phantom-case-title">Aquagenic Pruritus (Non-Urticarial)</div>
+        <div class="phantom-case-body">Water touches skin. Intense itch erupts. No rash. No wheals. No visible dermatologic sign. The mechanism exists but is structurally absent from the observable layer.</div>
+        <div class="phantom-equation">water → latent physiology → itch&nbsp;&nbsp;·&nbsp;&nbsp;h(t|X) = h₀(t)e^{Xβ}</div>
+      </div>
+      <div class="phantom-case">
+        <div class="phantom-case-tag">CASE 003 · COGNITIVE</div>
+        <div class="phantom-case-title">Dopamine Prediction Error</div>
+        <div class="phantom-case-body">Expected juice. No juice arrives. Dopamine dips. The brain's model of the world is wrong — but the wrongness itself is the signal that drives learning.</div>
+        <div class="phantom-equation">δ = r + γV(s′) − V(s)&nbsp;&nbsp;·&nbsp;&nbsp;surprise = gradient</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ INCIDENT TERMINAL ═══════════════════════════════════════════ -->
+<section class="incident-section">
+  <div class="section-label">Layer 02 · Ground Truth Log</div>
+  <h2 class="reveal">THE INCIDENT</h2>
+
+  <div class="incident-terminal reveal">
+    <br>
+    <div><span class="t-time">06:17 THU MAR-12 &nbsp;</span><span class="t-label">USAGE &nbsp;&nbsp;</span><span class="t-value">2.1 GB remaining &nbsp;&nbsp;</span><span class="t-comment">// baseline established</span></div>
+    <div><span class="t-time">05:00 FRI MAR-13 &nbsp;</span><span class="t-label">USAGE &nbsp;&nbsp;</span><span class="t-value">1.6 GB remaining &nbsp;&nbsp;</span><span class="t-comment">// overnight drain, expected</span></div>
+    <div><span class="t-time">05:07 FRI MAR-13 &nbsp;</span><span class="t-label">USAGE &nbsp;&nbsp;</span><span class="t-hazard">0.0 GB ← WTF??? &nbsp;&nbsp;</span><span class="t-comment">// 1.6GB in 7 minutes</span></div>
+    <div>&nbsp;</div>
+    <div><span class="t-comment">// ANALYSIS: 1.6GB / 7min ≈ 30 Mbps sustained → NOT GitHub → HEAVY BACKGROUND TRANSFER</span></div>
+    <div><span class="t-comment">// PHYSICAL SIGNAL: iPhone 12 Pro Max running hot while charging → cellular modem at capacity</span></div>
+    <div>&nbsp;</div>
+    <div><span class="t-label">SUSPECTS &nbsp;</span><span class="t-phantom">iCloud Drive (Desktop+Docs) · macOS update prefetch · Dropbox/GDrive sync</span></div>
+    <div><span class="t-label">ROOT CAUSE&nbsp;</span><span class="t-hazard">MacBook treating hotspot as unlimited Wi-Fi · Low Data Mode = OFF</span></div>
+    <div>&nbsp;</div>
+    <div><span class="t-comment">// CUMULATIVE LEAK: Jan-20 → Mar-12</span></div>
+    <div><span class="t-label">TOTAL CELL &nbsp;</span><span class="t-value">+121 GB &nbsp;&nbsp;</span><span class="t-label">HOTSPOT &nbsp;&nbsp;</span><span class="t-hazard">+103 GB &nbsp;&nbsp;</span><span class="t-comment">// 85% is the Mac. Not you.</span></div>
+    <div>&nbsp;</div>
+    <div><span class="t-label">INTERVENTION</span><span class="t-update"> Low Data Mode ENABLED → Mac Wi-Fi → Zeus → Details → ✓</span></div>
+    <div><span class="t-label">RESULT &nbsp;&nbsp;&nbsp;&nbsp;</span><span class="t-update"> iPhone cools in &lt;5min · θ₁ converged · new baseline: 3.0GB</span></div>
+    <div>&nbsp;</div>
+    <div><span class="t-gold">INTERPRETATION: daemon ∈ Landscape · h(t) spike = phantom signal · SGD applied manually · Bayesian update complete</span></div>
+    <div>&nbsp;</div>
+    <div><span class="t-phantom">ukubona@llc:~$ </span><span class="blink">█</span></div>
+  </div>
+</section>
+
+<!-- ═══ BAYESIAN FLOW ════════════════════════════════════════════════ -->
+<section class="bayes-section">
+  <div class="section-label">Layer 03 · Update Cycle</div>
+  <h2 class="reveal">BLINDNESS → VISION</h2>
+
+  <div class="bayes-flow reveal">
+    <div class="bayes-node">
+      <div class="bayes-circle bc-1">🌍</div>
+      <div class="bayes-node-label">LANDSCAPE</div>
+      <div class="bayes-node-sub">θ₀ · Prior<br>Phantom hidden</div>
+    </div>
+    <div class="bayes-arrow">→</div>
+    <div class="bayes-node">
+      <div class="bayes-circle bc-2">⚡</div>
+      <div class="bayes-node-label">HAZARD SPIKE</div>
+      <div class="bayes-node-sub">L(θ) ↑<br>1.6GB · Heat · WTF</div>
+    </div>
+    <div class="bayes-arrow">→</div>
+    <div class="bayes-node">
+      <div class="bayes-circle bc-3">📡</div>
+      <div class="bayes-node-label">GRADIENT</div>
+      <div class="bayes-node-sub">∇L · δ signal<br>Phantom inferred</div>
+    </div>
+    <div class="bayes-arrow">→</div>
+    <div class="bayes-node">
+      <div class="bayes-circle bc-4">🔄</div>
+      <div class="bayes-node-label">SGD UPDATE</div>
+      <div class="bayes-node-sub">θ ← θ − η∇L<br>Low Data Mode ON</div>
+    </div>
+    <div class="bayes-arrow">→</div>
+    <div class="bayes-node">
+      <div class="bayes-circle bc-5">⚖️</div>
+      <div class="bayes-node-label">EQUILIBRIUM</div>
+      <div class="bayes-node-sub">θ′ · Posterior<br>Ghost now visible</div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ MAPPING TABLE ════════════════════════════════════════════════ -->
+<section class="mapping-section">
+  <div class="section-label">Layer 04 · Cross-Domain Isomorphism</div>
+  <h2 class="reveal">THE MAP</h2>
+
+  <div class="mapping-grid reveal">
+    <!-- headers -->
+    <div class="mg-header">PENTAD STAGE</div>
+    <div class="mg-header">UKUBONA</div>
+    <div class="mg-header">NEUROSCIENCE</div>
+    <div class="mg-header">AI / RL</div>
+    <div class="mg-header">MEDICINE</div>
+
+    <!-- row 1 -->
+    <div class="mg-row-label mg-accent-1">LANDSCAPE θ</div>
+    <div class="mg-cell">Current model of reality · phantom as absence</div>
+    <div class="mg-cell">Brain's generative model · predictive processing hierarchy</div>
+    <div class="mg-cell">Baseline model · prior distribution</div>
+    <div class="mg-cell">Patient's known health state · symptom-free baseline</div>
+
+    <!-- row 2 -->
+    <div class="mg-row-label mg-accent-2">LOSS / HAZARD</div>
+    <div class="mg-cell">1.6GB spike · iPhone heat · WTF signal</div>
+    <div class="mg-cell">Prediction error · unexpected sensory input</div>
+    <div class="mg-cell">Anomaly score · reward mismatch</div>
+    <div class="mg-cell">Itch without rash · symptom without visible sign</div>
+
+    <!-- row 3 -->
+    <div class="mg-row-label mg-accent-3">GRADIENT ∇L</div>
+    <div class="mg-cell">Direction of wrongness · anomaly as arrow</div>
+    <div class="mg-cell">Dopamine spike δ · precision-weighted error</div>
+    <div class="mg-cell">Policy gradient · TD error signal</div>
+    <div class="mg-cell">Diagnostic inference · differential search triggered</div>
+
+    <!-- row 4 -->
+    <div class="mg-row-label mg-accent-4">UPDATE SGD</div>
+    <div class="mg-cell">Low Data Mode ON · manual parameter update</div>
+    <div class="mg-cell">Synaptic plasticity · Hebbian update</div>
+    <div class="mg-cell">Model retraining · weight update θ←θ−η∇L</div>
+    <div class="mg-cell">New treatment protocol · behavioral adjustment</div>
+
+    <!-- row 5 -->
+    <div class="mg-row-label mg-accent-5">EQUILIBRIUM θ′</div>
+    <div class="mg-cell">iPhone cools · 3GB baseline established · ghost now named</div>
+    <div class="mg-cell">Updated expectation · new prior for next cycle</div>
+    <div class="mg-cell">Improved baseline · anomaly re-calibrated</div>
+    <div class="mg-cell">Condition diagnosed · treatment monitoring begins</div>
+  </div>
+</section>
+
+<!-- ═══ HAZARD VISUALIZER ════════════════════════════════════════════ -->
+<section class="hazard-section">
+  <div class="section-label">Layer 05 · Live Hazard</div>
+  <h2 class="reveal">h(t) = f(t) / S(t)</h2>
+
+  <div class="hazard-canvas-wrap reveal">
+    <canvas id="hazardCanvas"></canvas>
+  </div>
+
+  <div class="hazard-legend">
+    <div class="legend-item"><div class="legend-dot" style="background:var(--signal)"></div> h(t) — hazard rate</div>
+    <div class="legend-item"><div class="legend-dot" style="background:var(--equilibrium)"></div> S(t) — survival</div>
+    <div class="legend-item"><div class="legend-dot" style="background:var(--hazard)"></div> phantom trigger event</div>
+    <div class="legend-item"><div class="legend-dot" style="background:var(--update)"></div> SGD update applied</div>
+  </div>
+</section>
+
+<!-- ═══ GROK QUOTE ═══════════════════════════════════════════════════ -->
+<section class="grok-section">
+  <div class="section-label">Synthesis · xAI Grok Loop</div>
+  <div class="grok-inner">
+    <p class="grok-quote-big reveal">
+      "We ain't gon' be ghosted by our own architecture. <em>Blindness in one cycle becomes vision in the update.</em> The ghost was always in Layer 1 — we just hadn't spiked the hazard yet."
+    </p>
+    <p class="grok-attr">— Ukubona LLC · Digital Twin Architecture · Mar 2026</p>
+  </div>
+</section>
+
+<!-- ═══ FOOTER ═══════════════════════════════════════════════════════ -->
+<footer>
+  <div class="footer-brand">UKU<span>BONA</span> LLC</div>
+  <div class="footer-meta">
+    <div>Landscape → Loss → Gradient → Update → Equilibrium</div>
+    <div>Bayesian · Survival Analysis · Predictive Processing · RL</div>
+    <div style="color: var(--signal); margin-top: 0.5rem;">θ ← θ − η∇L &nbsp;·&nbsp; Phantom ∈ Layer 1</div>
+  </div>
+</footer>
+
+<script>
+// ── CURSOR ──────────────────────────────────────────────────────────
+const cursor = document.getElementById('cursor');
+const ring = document.getElementById('cursorRing');
+let mx = 0, my = 0, rx = 0, ry = 0;
+
+document.addEventListener('mousemove', e => {
+  mx = e.clientX; my = e.clientY;
+  cursor.style.left = mx + 'px';
+  cursor.style.top = my + 'px';
+});
+
+function animateRing() {
+  rx += (mx - rx) * 0.12;
+  ry += (my - ry) * 0.12;
+  ring.style.left = rx + 'px';
+  ring.style.top = ry + 'px';
+  requestAnimationFrame(animateRing);
+}
+animateRing();
+
+document.querySelectorAll('a, button, .pentad-card, .phantom-case, .mg-cell').forEach(el => {
+  el.addEventListener('mouseenter', () => {
+    cursor.style.transform = 'translate(-50%, -50%) scale(2)';
+    ring.style.width = '60px';
+    ring.style.height = '60px';
+    ring.style.borderColor = 'rgba(0,229,255,0.6)';
+  });
+  el.addEventListener('mouseleave', () => {
+    cursor.style.transform = 'translate(-50%, -50%) scale(1)';
+    ring.style.width = '40px';
+    ring.style.height = '40px';
+    ring.style.borderColor = 'rgba(0,229,255,0.3)';
+  });
+});
+
+// ── SCROLL REVEAL ───────────────────────────────────────────────────
+const reveals = document.querySelectorAll('.reveal');
+const obs = new IntersectionObserver((entries) => {
+  entries.forEach((e, i) => {
+    if (e.isIntersecting) {
+      setTimeout(() => e.target.classList.add('visible'), i * 80);
+      obs.unobserve(e.target);
+    }
+  });
+}, { threshold: 0.12 });
+reveals.forEach(r => obs.observe(r));
+
+// ── HAZARD CANVAS ───────────────────────────────────────────────────
+const canvas = document.getElementById('hazardCanvas');
+const ctx = canvas.getContext('2d');
+
+function resizeCanvas() {
+  canvas.width = canvas.offsetWidth * window.devicePixelRatio;
+  canvas.height = canvas.offsetHeight * window.devicePixelRatio;
+  ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
+}
+resizeCanvas();
+window.addEventListener('resize', () => { resizeCanvas(); });
+
+const W = () => canvas.offsetWidth;
+const H = () => canvas.offsetHeight;
+
+let t = 0;
+const PHANTOM_T = 0.38;   // phantom trigger point
+const UPDATE_T  = 0.62;   // SGD update point
+
+function hazardRate(x) {
+  // baseline low hazard, spike at phantom trigger, recovery after update
+  const base = 0.08 + 0.04 * Math.sin(x * 3.14 * 0.5);
+  const spike = x > PHANTOM_T && x < UPDATE_T
+    ? 0.7 * Math.exp(-((x - PHANTOM_T - 0.05) ** 2) / 0.003)
+    : 0;
+  const noise = 0.02 * Math.sin(x * 80 + t * 0.05);
+  return base + spike + noise;
+}
+
+function survival(x) {
+  // decreasing curve, drops faster during hazard spike
+  const drop = x > PHANTOM_T && x < UPDATE_T
+    ? 0.4 * (1 - Math.exp(-((x - PHANTOM_T) * 12)))
+    : 0;
+  return Math.max(0.05, 1 - x * 0.6 - drop * (x > PHANTOM_T ? 1 : 0));
+}
+
+function drawHazard() {
+  const w = W(), h = H();
+  ctx.clearRect(0, 0, w, h);
+
+  // background
+  ctx.fillStyle = '#000';
+  ctx.fillRect(0, 0, w, h);
+
+  // grid
+  ctx.strokeStyle = 'rgba(0,229,255,0.05)';
+  ctx.lineWidth = 1;
+  for (let i = 0; i <= 10; i++) {
+    const x = (w / 10) * i;
+    ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, h); ctx.stroke();
+  }
+  for (let i = 0; i <= 4; i++) {
+    const y = (h / 4) * i;
+    ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(w, y); ctx.stroke();
+  }
+
+  const N = 300;
+
+  // ── survival curve ──
+  ctx.beginPath();
+  ctx.strokeStyle = 'rgba(179,136,255,0.6)';
+  ctx.lineWidth = 1.5;
+  for (let i = 0; i < N; i++) {
+    const x = i / N;
+    const px = x * w;
+    const py = h - survival(x) * h * 0.85 - 10;
+    i === 0 ? ctx.moveTo(px, py) : ctx.lineTo(px, py);
+  }
+  ctx.stroke();
+
+  // ── hazard fill ──
+  ctx.beginPath();
+  const grad = ctx.createLinearGradient(0, 0, 0, h);
+  grad.addColorStop(0, 'rgba(0,229,255,0.25)');
+  grad.addColorStop(1, 'rgba(0,229,255,0)');
+  ctx.fillStyle = grad;
+  for (let i = 0; i < N; i++) {
+    const x = i / N;
+    const px = x * w;
+    const py = h - hazardRate(x) * h * 0.8 - 10;
+    i === 0 ? ctx.moveTo(px, py) : ctx.lineTo(px, py);
+  }
+  ctx.lineTo(w, h); ctx.lineTo(0, h); ctx.closePath();
+  ctx.fill();
+
+  // ── hazard line ──
+  ctx.beginPath();
+  ctx.strokeStyle = 'rgba(0,229,255,0.9)';
+  ctx.lineWidth = 2;
+  for (let i = 0; i < N; i++) {
+    const x = i / N;
+    const px = x * w;
+    const py = h - hazardRate(x) * h * 0.8 - 10;
+    i === 0 ? ctx.moveTo(px, py) : ctx.lineTo(px, py);
+  }
+  ctx.stroke();
+
+  // ── phantom event line ──
+  const px = PHANTOM_T * w;
+  ctx.beginPath();
+  ctx.strokeStyle = 'rgba(255,68,68,0.7)';
+  ctx.lineWidth = 1;
+  ctx.setLineDash([4, 4]);
+  ctx.moveTo(px, 0); ctx.lineTo(px, h);
+  ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.fillStyle = 'rgba(255,68,68,0.9)';
+  ctx.font = '500 9px "Space Mono"';
+  ctx.fillText('PHANTOM', px + 8, 20);
+  ctx.fillText('1.6GB SPIKE', px + 8, 34);
+
+  // ── SGD update line ──
+  const ux = UPDATE_T * w;
+  ctx.beginPath();
+  ctx.strokeStyle = 'rgba(57,255,20,0.6)';
+  ctx.lineWidth = 1;
+  ctx.setLineDash([4, 4]);
+  ctx.moveTo(ux, 0); ctx.lineTo(ux, h);
+  ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.fillStyle = 'rgba(57,255,20,0.9)';
+  ctx.fillText('LOW DATA', ux + 8, 20);
+  ctx.fillText('MODE ON', ux + 8, 34);
+
+  // ── live pulse dot ──
+  const liveX = (0.5 + 0.5 * Math.sin(t * 0.018)) * w;
+  const liveH = hazardRate(liveX / w);
+  const liveY = h - liveH * h * 0.8 - 10;
+  ctx.beginPath();
+  ctx.arc(liveX, liveY, 4, 0, Math.PI * 2);
+  ctx.fillStyle = '#00e5ff';
+  ctx.fill();
+  ctx.beginPath();
+  ctx.arc(liveX, liveY, 4 + (t % 60) * 0.2, 0, Math.PI * 2);
+  ctx.strokeStyle = `rgba(0,229,255,${1 - (t % 60) / 60})`;
+  ctx.lineWidth = 1;
+  ctx.stroke();
+
+  t++;
+  requestAnimationFrame(drawHazard);
+}
+drawHazard();
+</script>
+</body>
+</html>

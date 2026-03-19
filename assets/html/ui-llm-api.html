@@ -1,0 +1,1083 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Round Table — Informed Consent as Gradient Sovereignty</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&family=Crimson+Pro:ital,wght@0,300;0,400;0,600;1,300;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0d0d0f;
+    --surface: #13131a;
+    --border: #1e1e2e;
+    --accent-u: #c8a96e;
+    --accent-g: #5b8dd9;
+    --accent-o: #e07a5f;
+    --accent-a: #81b29a;
+    --accent-x: #c77dff;
+    --text: #e8e6e1;
+    --muted: #7a7a8c;
+    --dim: #3a3a4a;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Crimson Pro', Georgia, serif;
+    font-size: 18px;
+    line-height: 1.75;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Grain overlay */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 1000;
+    opacity: 0.6;
+  }
+
+  .masthead {
+    border-bottom: 1px solid var(--dim);
+    padding: 3rem 0 2rem;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .masthead::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--accent-u), transparent);
+  }
+
+  .masthead-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.25em;
+    color: var(--muted);
+    text-transform: uppercase;
+    margin-bottom: 1rem;
+  }
+
+  .masthead h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2.4rem, 6vw, 4.5rem);
+    font-weight: 900;
+    font-style: italic;
+    letter-spacing: -0.02em;
+    color: var(--text);
+    line-height: 1.1;
+  }
+
+  .seats {
+    display: flex;
+    justify-content: center;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+    margin-top: 2rem;
+    padding: 0 2rem;
+  }
+
+  .seat {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    padding: 0.4rem 1rem;
+    border: 1px solid currentColor;
+    opacity: 0.7;
+  }
+  .seat.u { color: var(--accent-u); }
+  .seat.g { color: var(--accent-g); }
+  .seat.o { color: var(--accent-o); }
+  .seat.a { color: var(--accent-a); }
+  .seat.x { color: var(--accent-x); }
+
+  .container {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 0 2rem;
+  }
+
+  /* Section blocks */
+  .section {
+    padding: 4rem 0;
+    border-bottom: 1px solid var(--border);
+    position: relative;
+    animation: fadeUp 0.6s ease both;
+  }
+
+  .section:last-child { border-bottom: none; }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .section-header {
+    display: flex;
+    align-items: baseline;
+    gap: 1.5rem;
+    margin-bottom: 2.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--dim);
+  }
+
+  .speaker-glyph {
+    font-family: 'Playfair Display', serif;
+    font-size: 3.5rem;
+    font-weight: 900;
+    line-height: 1;
+    flex-shrink: 0;
+  }
+  .u .speaker-glyph { color: var(--accent-u); }
+  .g .speaker-glyph { color: var(--accent-g); }
+  .o .speaker-glyph { color: var(--accent-o); }
+  .a .speaker-glyph { color: var(--accent-a); }
+  .x .speaker-glyph { color: var(--accent-x); }
+
+  .speaker-meta {
+    flex: 1;
+  }
+
+  .speaker-name {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 0.25rem;
+  }
+
+  .speaker-title {
+    font-family: 'Playfair Display', serif;
+    font-style: italic;
+    font-size: 1.1rem;
+    color: var(--text);
+    opacity: 0.8;
+  }
+
+  /* Host block special */
+  .host-panel {
+    background: var(--surface);
+    border: 1px solid var(--dim);
+    border-left: 3px solid var(--accent-u);
+    padding: 2rem 2.5rem;
+    margin-bottom: 2rem;
+    border-radius: 2px;
+  }
+
+  .host-panel h3 {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--accent-u);
+    margin-bottom: 1rem;
+  }
+
+  /* Pentad list */
+  .pentad {
+    display: grid;
+    gap: 0.6rem;
+    margin: 1.5rem 0;
+  }
+
+  .pentad-item {
+    display: flex;
+    gap: 1.2rem;
+    align-items: baseline;
+    font-family: 'Crimson Pro', serif;
+    font-size: 0.95rem;
+  }
+
+  .pentad-num {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.6rem;
+    color: var(--muted);
+    flex-shrink: 0;
+    width: 1.5rem;
+  }
+
+  .pentad-label {
+    color: var(--accent-u);
+    font-weight: 600;
+    min-width: 8rem;
+  }
+
+  .pentad-rest {
+    color: var(--muted);
+    font-style: italic;
+  }
+
+  /* URL links */
+  .links-block {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+    margin: 1.5rem 0;
+  }
+
+  .link-item {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.72rem;
+    color: var(--accent-u);
+    opacity: 0.7;
+    text-decoration: none;
+    letter-spacing: 0.02em;
+    transition: opacity 0.2s;
+  }
+  .link-item:hover { opacity: 1; }
+
+  /* Pillar sections (G's mapping) */
+  .pillar {
+    margin: 2.5rem 0;
+    padding: 1.8rem 2rem;
+    background: var(--surface);
+    border: 1px solid var(--dim);
+    border-radius: 2px;
+    position: relative;
+  }
+
+  .pillar::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; bottom: 0;
+    width: 3px;
+    background: var(--accent-g);
+  }
+
+  .pillar h3 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 0.8rem;
+  }
+
+  .pillar h3 em {
+    color: var(--accent-g);
+    font-style: normal;
+  }
+
+  .pillar-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.63rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--accent-g);
+    opacity: 0.7;
+    margin-bottom: 0.6rem;
+  }
+
+  .pillar-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 1.2rem;
+    margin: 1rem 0;
+    font-size: 0.9rem;
+  }
+
+  .pillar-row div {
+    padding: 0.8rem;
+    background: rgba(91,141,217,0.05);
+    border: 1px solid rgba(91,141,217,0.12);
+  }
+
+  .pillar-row div strong {
+    display: block;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--accent-g);
+    margin-bottom: 0.3rem;
+  }
+
+  /* OpenAI upgrade blocks */
+  .upgrade-block {
+    margin: 2rem 0;
+    border: 1px solid var(--dim);
+    border-left: 3px solid var(--accent-o);
+    background: var(--surface);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+
+  .upgrade-header {
+    padding: 0.8rem 1.5rem;
+    background: rgba(224,122,95,0.07);
+    border-bottom: 1px solid var(--dim);
+    font-family: 'DM Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--accent-o);
+  }
+
+  .upgrade-body {
+    padding: 1.4rem 1.5rem;
+    font-size: 0.96rem;
+  }
+
+  /* Code blocks */
+  pre {
+    background: #0a0a10;
+    border: 1px solid var(--dim);
+    border-radius: 2px;
+    padding: 1.5rem;
+    overflow-x: auto;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.72rem;
+    line-height: 1.7;
+    margin: 1.5rem 0;
+    color: #c9d1d9;
+  }
+
+  pre .kw { color: #ff7b72; }
+  pre .str { color: #a5d6ff; }
+  pre .cm { color: #6e7681; font-style: italic; }
+  pre .fn { color: #d2a8ff; }
+  pre .nm { color: #ffa657; }
+  pre .dt { color: #79c0ff; }
+
+  /* Math / equations */
+  .equation {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.85rem;
+    color: var(--accent-o);
+    background: rgba(224,122,95,0.06);
+    border: 1px solid rgba(224,122,95,0.15);
+    padding: 0.8rem 1.4rem;
+    margin: 1.2rem 0;
+    display: inline-block;
+    border-radius: 2px;
+  }
+
+  /* xAI invariant box */
+  .invariant {
+    background: rgba(199,125,255,0.05);
+    border: 1px solid rgba(199,125,255,0.2);
+    border-left: 3px solid var(--accent-x);
+    padding: 1.4rem 1.8rem;
+    margin: 2rem 0;
+    border-radius: 2px;
+    font-style: italic;
+    font-size: 1.05rem;
+  }
+
+  .invariant strong {
+    font-style: normal;
+    color: var(--accent-x);
+  }
+
+  /* Synthesis / one-liner callout */
+  .callout {
+    text-align: center;
+    padding: 3rem 2rem;
+    margin: 2rem 0;
+    border: 1px solid var(--dim);
+    background: linear-gradient(135deg, rgba(13,13,15,0.9), rgba(19,19,26,0.9));
+    position: relative;
+  }
+
+  .callout::before, .callout::after {
+    content: '"';
+    position: absolute;
+    font-family: 'Playfair Display', serif;
+    font-size: 8rem;
+    line-height: 1;
+    opacity: 0.06;
+    color: var(--text);
+  }
+  .callout::before { top: -1rem; left: 1rem; }
+  .callout::after { bottom: -3rem; right: 1rem; content: '"'; }
+
+  .callout p {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(1.1rem, 2.5vw, 1.5rem);
+    font-style: italic;
+    font-weight: 400;
+    line-height: 1.5;
+    color: var(--text);
+    position: relative;
+    z-index: 1;
+  }
+
+  .callout-attr {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-top: 1rem;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* Kituuka findings */
+  .stat-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 1rem;
+    margin: 1.5rem 0;
+  }
+
+  .stat-card {
+    background: var(--surface);
+    border: 1px solid var(--dim);
+    padding: 1.2rem;
+    text-align: center;
+    border-radius: 2px;
+  }
+
+  .stat-num {
+    font-family: 'Playfair Display', serif;
+    font-size: 2.2rem;
+    font-weight: 900;
+    color: var(--accent-x);
+    line-height: 1;
+    margin-bottom: 0.4rem;
+  }
+
+  .stat-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.62rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+    line-height: 1.4;
+  }
+
+  /* Simulation block */
+  .sim-block {
+    margin: 2rem 0;
+    border: 1px solid var(--dim);
+    background: var(--surface);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+
+  .sim-header {
+    background: rgba(199,125,255,0.08);
+    padding: 1rem 1.5rem;
+    border-bottom: 1px solid var(--dim);
+    font-family: 'DM Mono', monospace;
+    font-size: 0.68rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--accent-x);
+  }
+
+  .sim-row {
+    display: flex;
+    border-bottom: 1px solid var(--border);
+    font-size: 0.9rem;
+  }
+  .sim-row:last-child { border-bottom: none; }
+
+  .sim-layer {
+    width: 140px;
+    flex-shrink: 0;
+    padding: 1rem 1.2rem;
+    background: rgba(199,125,255,0.04);
+    border-right: 1px solid var(--border);
+    font-family: 'DM Mono', monospace;
+    font-size: 0.63rem;
+    letter-spacing: 0.1em;
+    color: var(--accent-x);
+    display: flex;
+    align-items: flex-start;
+    padding-top: 1.1rem;
+  }
+
+  .sim-content {
+    flex: 1;
+    padding: 1rem 1.4rem;
+    line-height: 1.6;
+  }
+
+  /* Prose typography */
+  p { margin-bottom: 1.2rem; }
+  p:last-child { margin-bottom: 0; }
+
+  h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.6rem;
+    font-weight: 700;
+    margin: 2rem 0 1rem;
+    color: var(--text);
+  }
+
+  h3 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.2rem;
+    font-weight: 700;
+    margin: 1.8rem 0 0.8rem;
+    color: var(--text);
+  }
+
+  strong { font-weight: 600; color: var(--text); }
+  em { font-style: italic; }
+
+  ul, ol {
+    padding-left: 1.8rem;
+    margin: 0.8rem 0 1.2rem;
+  }
+
+  li { margin-bottom: 0.4rem; }
+
+  .tag {
+    display: inline-block;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    padding: 0.25rem 0.7rem;
+    border-radius: 2px;
+    margin-right: 0.4rem;
+    margin-bottom: 0.3rem;
+    vertical-align: middle;
+  }
+
+  .tag-g { background: rgba(91,141,217,0.12); color: var(--accent-g); border: 1px solid rgba(91,141,217,0.25); }
+  .tag-o { background: rgba(224,122,95,0.12); color: var(--accent-o); border: 1px solid rgba(224,122,95,0.25); }
+  .tag-x { background: rgba(199,125,255,0.12); color: var(--accent-x); border: 1px solid rgba(199,125,255,0.25); }
+  .tag-a { background: rgba(129,178,154,0.12); color: var(--accent-a); border: 1px solid rgba(129,178,154,0.25); }
+  .tag-u { background: rgba(200,169,110,0.12); color: var(--accent-u); border: 1px solid rgba(200,169,110,0.25); }
+
+  hr {
+    border: none;
+    border-top: 1px solid var(--dim);
+    margin: 2rem 0;
+  }
+
+  footer {
+    padding: 3rem 2rem;
+    text-align: center;
+    border-top: 1px solid var(--dim);
+    font-family: 'DM Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  @media (max-width: 640px) {
+    .pillar-row { grid-template-columns: 1fr; }
+    .sim-row { flex-direction: column; }
+    .sim-layer { width: 100%; border-right: none; border-bottom: 1px solid var(--border); }
+  }
+</style>
+</head>
+<body>
+
+<div class="masthead">
+  <div class="masthead-label">Transcript — Federated Consent Architecture</div>
+  <h1>Round Table</h1>
+  <div class="seats">
+    <span class="seat u">Ukubona LLC — Host</span>
+    <span class="seat g">Google</span>
+    <span class="seat o">OpenAI</span>
+    <span class="seat a">Anthropic</span>
+    <span class="seat x">xAI</span>
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- ============================================================ U ============================================================ -->
+  <section class="section u">
+    <div class="section-header">
+      <div class="speaker-glyph">U</div>
+      <div class="speaker-meta">
+        <div class="speaker-name">Ukubona LLC — Host</div>
+        <div class="speaker-title">The Question: Informed Consent Across the Five-Stack</div>
+      </div>
+    </div>
+
+    <p>Anything about informed consent that might help us across all five-stacks of federated twins??</p>
+
+    <div class="host-panel">
+      <h3>The Five Stacks</h3>
+      <div class="pentad">
+        <div class="pentad-item"><span class="pentad-num">01</span><span class="pentad-label">Eyes</span><span class="pentad-rest">Sensing — District Officers</span></div>
+        <div class="pentad-item"><span class="pentad-num">02</span><span class="pentad-label">Attention</span><span class="pentad-rest">Emotion — NPA (and other government agencies)</span></div>
+        <div class="pentad-item"><span class="pentad-num">03</span><span class="pentad-label">Thoughts</span><span class="pentad-rest">Memory — UKB (FastAPI, Flask App, and React Frontend)</span></div>
+        <div class="pentad-item"><span class="pentad-num">04</span><span class="pentad-label">Behavior</span><span class="pentad-rest">Intelligence — UI = LLM API (and Dashboard) for NPA, Ministers, etc. depending on access privilege</span></div>
+        <div class="pentad-item"><span class="pentad-num">05</span><span class="pentad-label">Feedback</span><span class="pentad-rest">Deployment — UX = Reweight attention &amp; biases (scars &amp; past traumas)</span></div>
+      </div>
+    </div>
+
+    <div class="links-block">
+      <a class="link-item" href="https://abikesa.github.io/repos-00/assets/html/informed-consent.html" target="_blank">↗ informed-consent.html</a>
+      <a class="link-item" href="https://abikesa.github.io/repos-00/assets/html/claude-api-key.html" target="_blank">↗ claude-api-key.html</a>
+      <a class="link-item" href="https://abikesa.github.io/repos-00/assets/html/wohltemperierte.html" target="_blank">↗ wohltemperierte.html</a>
+      <a class="link-item" href="https://abikesa.github.io/repos-00/assets/html/landing-page.html" target="_blank">↗ landing-page.html</a>
+      <a class="link-item" href="https://abikesa.github.io/repos-00/assets/html/uga-dt.html" target="_blank">↗ uga-dt.html</a>
+      <a class="link-item" href="https://abikesa.github.io/repos-00/assets/html/npa-pipeline.html" target="_blank">↗ npa-pipeline.html</a>
+    </div>
+
+    <p>We at Ukubona LLC view everything in pentads, because we're only human:</p>
+    <div class="pentad">
+      <div class="pentad-item"><span class="pentad-num">1</span><span class="pentad-label">Patients</span></div>
+      <div class="pentad-item"><span class="pentad-num">2</span><span class="pentad-label">Their families</span></div>
+      <div class="pentad-item"><span class="pentad-num">3</span><span class="pentad-label">Support systems</span><span class="pentad-rest">clinics/hospitals for care, health insurance for payment</span></div>
+      <div class="pentad-item"><span class="pentad-num">4</span><span class="pentad-label">Regulators</span><span class="pentad-rest">ministries of health, government</span></div>
+      <div class="pentad-item"><span class="pentad-num">5</span><span class="pentad-label">Civilizational planners</span><span class="pentad-rest">Universities, National Planning Authority, WHO, UN, IMF, World Bank, etc.</span></div>
+    </div>
+  </section>
+
+  <!-- ============================================================ G ============================================================ -->
+  <section class="section g">
+    <div class="section-header">
+      <div class="speaker-glyph">G</div>
+      <div class="speaker-meta">
+        <div class="speaker-name">Google</div>
+        <div class="speaker-title">Informed Consent as Gradient Sovereignty</div>
+      </div>
+    </div>
+
+    <p>Based on the architectural philosophy of Ukubona LLC, informed consent is fundamentally redefined. It is not a procedural checklist, a legal waiver, or a "disclosure of risks." Within a federated digital twin architecture, <strong>informed consent is Gradient Sovereignty.</strong></p>
+
+    <div class="callout">
+      <p>No irreversible update to the body (or the system) (θ′) may proceed without verified alignment of the composite loss function (L<sub>total</sub>).</p>
+      <div class="callout-attr">The Defining Axiom</div>
+    </div>
+
+    <p>When consent fails — as seen in the tragic Pardus case at Johns Hopkins or emergency theatres in Uganda — it is rarely due to missing data. It is a catastrophic failure of <strong>mis-specified loss functions</strong> — where the clinician/system optimizes for mechanical success, while the patient optimizes for dignity, producing a divergent gradient (ε) that violently ruptures the system.</p>
+
+    <p>Here is how the true architecture of informed consent maps across your dual pentads:</p>
+
+    <div class="pillar">
+      <div class="pillar-label">Pillar 1 — Patients ↔ Eyes: Sensing</div>
+      <h3>District Officers / Frontline</h3>
+      <div class="pillar-row">
+        <div><strong>Clinical Objective</strong>Calibration (θ<sub>t</sub>)</div>
+        <div><strong>Consent Failure</strong>Semantic mismatch and corrupted initialization. "Conservative" ≠ "non-surgical."</div>
+        <div><strong>Twin Solution</strong>Rigorous elicitation of weights (w<sub>i</sub>). Sensing must capture what the patient or district is actively trying to minimize.</div>
+      </div>
+    </div>
+
+    <div class="pillar">
+      <div class="pillar-label">Pillar 2 — Families ↔ Feedback: Deployment</div>
+      <h3>UX = Reweighting Scars &amp; Trauma</h3>
+      <div class="pillar-row">
+        <div><strong>Clinical Objective</strong>Absorbing the Contingency (ε)</div>
+        <div><strong>Consent Failure</strong>The medical system treats the patient as an isolated node. The family absorbs the massive, unmanageable friction.</div>
+        <div><strong>Twin Solution</strong>Feedback loops must reweight the system based on historical bedrock and past traumas. The family's capacity to absorb health shocks is the non-zero structural baseline (C).</div>
+      </div>
+    </div>
+
+    <div class="pillar">
+      <div class="pillar-label">Pillar 3 — Support Systems ↔ Thoughts: Memory</div>
+      <h3>UKB Backend / FastAPI</h3>
+      <div class="pillar-row">
+        <div><strong>Clinical Objective</strong>Holding the Composite Loss (L<sub>total</sub> = Σw<sub>i</sub>L<sub>i</sub>)</div>
+        <div><strong>Consent Failure</strong>Hospitals and insurers silently substitute their own institutional loss functions — throughput, liability, peer-reviewed precedent.</div>
+        <div><strong>Twin Solution</strong>The UKB backend serves as the <em>moral memory</em> of the twin — the ledger that stores the co-constructed, explicitly weighted loss function.</div>
+      </div>
+    </div>
+
+    <div class="pillar">
+      <div class="pillar-label">Pillar 4 — Regulators (NPA / MoH) ↔ Attention: Emotion</div>
+      <h3>The Epistemology of Governance</h3>
+      <div class="pillar-row">
+        <div><strong>Clinical Objective</strong>Epistemology of Governance</div>
+        <div><strong>Consent Failure</strong>Dr. Kituuka's findings: you cannot use a Layer 4 (Regulatory) policy to force real-time Layer 1 (Clinical) alignment. A 20-page consent guideline shatters in the noise (ε) of a midnight trauma bay.</div>
+        <div><strong>Twin Solution</strong>Regulators direct national attention. The digital twin enforces "epistemic consent" at the government level — accepting a low learning rate (η), taking smaller, measurable policy steps (/intervene).</div>
+      </div>
+    </div>
+
+    <div class="pillar">
+      <div class="pillar-label">Pillar 5 — Civilizational Planners ↔ Behavior: Intelligence</div>
+      <h3>The Antifragile Interface — <em>Kiti kya Muwogo</em></h3>
+      <div class="pillar-row">
+        <div><strong>Clinical Objective</strong>The Antifragile Interface (<em>Kiti kya Muwogo</em>)</div>
+        <div><strong>Consent Failure</strong>Risk calculators output raw probabilities without incorporating local weights — "decision-making under semantic ambiguity."</div>
+        <div><strong>Twin Solution</strong>The LLM API acts as the "cassava stick." It is an antifragile consent architecture that translates civilizational-scale risk probabilities into the localized vocabulary of the patient or district officer in seconds.</div>
+      </div>
+    </div>
+
+    <h3>Synthesis: The Consent Equation</h3>
+    <p>Ultimately, RLHF applied to consent only produces <em>compliant disclosure</em> — a checked box.</p>
+
+    <div class="callout">
+      <p>The Ukubona OS requires <strong>Constitutional Alignment</strong>. The system expands the attention. The patient/district specifies the weights. The twin holds the memory of what was agreed. And the step (−η∇L), when it comes, is entirely their own.</p>
+      <div class="callout-attr">Google — Synthesis</div>
+    </div>
+  </section>
+
+  <!-- ============================================================ O ============================================================ -->
+  <section class="section o">
+    <div class="section-header">
+      <div class="speaker-glyph">O</div>
+      <div class="speaker-meta">
+        <div class="speaker-name">OpenAI</div>
+        <div class="speaker-title">Stress-Testing for Operational Rigor</div>
+      </div>
+    </div>
+
+    <p>This is already unusually deep — honestly closer to a <em>framework</em> than a prompt. I'll respond at the level you're operating: tightening, stress-testing, and making it more operational across your five-stack + pentad model.</p>
+
+    <h2>1. The Core Insight Is Strong (but needs grounding)</h2>
+    <p>Your definition — <strong>Informed consent = Gradient Sovereignty</strong> — is powerful, but right now it's still <em>philosophically correct, operationally fragile</em>.</p>
+    <p>If teams at Google, OpenAI, Anthropic, or xAI hear this, they'll agree conceptually — but ask: <em>"Where exactly does consent live in the system, and how is it enforced?"</em></p>
+
+    <h2>2. Missing Piece: Consent Must Be Versioned, Queryable, and Enforced</h2>
+    <p>Your model defines a loss function (L<sub>total</sub>), weights (w<sub>i</sub>), and gradient step (θ′). But you need one more object:</p>
+
+    <div class="upgrade-block">
+      <div class="upgrade-header">→ Consent State ( C_t )</div>
+      <div class="upgrade-body">
+        <p>A cryptographically verifiable, time-stamped, revocable state that binds:</p>
+        <ul>
+          <li>weights (w<sub>i</sub>)</li>
+          <li>allowable actions (A)</li>
+          <li>reversibility constraints (R)</li>
+        </ul>
+      </div>
+    </div>
+
+    <p><strong>Updated Consent Equation</strong> — instead of the bare gradient step, you need:</p>
+    <div class="equation">θ′ = θ − η∇L<sub>total</sub> &nbsp; iff &nbsp; C<sub>t</sub>(A, R, w<sub>i</sub>) = valid</div>
+    <p>Consent is not just alignment — it is a <strong>runtime gate</strong>.</p>
+
+    <h2>3. Map This to Your Five Technical Stacks</h2>
+
+    <div class="upgrade-block">
+      <div class="upgrade-header">👁 Eyes (Sensing) — Upgrade</div>
+      <div class="upgrade-body">
+        <p>Not just eliciting preferences — constructing initial consent state (C<sub>0</sub>). Add: structured interviews, ambiguity detection ("conservative" ≠ well-defined), confidence score on weights.</p>
+        <p><strong>Output:</strong> <code>C_0.json</code> (machine-readable consent object)</p>
+      </div>
+    </div>
+
+    <div class="upgrade-block">
+      <div class="upgrade-header">❤ Attention (Emotion / NPA) — Upgrade</div>
+      <div class="upgrade-body">
+        <p>Emotion ≠ noise. Emotion = <strong>priority re-weighting under uncertainty.</strong></p>
+        <div class="equation">w<sub>i</sub>(t) = w<sub>i</sub> + δ(context, stress, fear)</div>
+        <p>But this cannot overwrite consent without re-validation. Attention proposes updates; consent layer must <strong>re-authorize.</strong></p>
+      </div>
+    </div>
+
+    <div class="upgrade-block">
+      <div class="upgrade-header">🧠 Thoughts (Memory / UKB backend) — Upgrade</div>
+      <div class="upgrade-body">
+        <p>You already called this "moral memory" — good. Make it concrete:</p>
+        <ul>
+          <li>Store consent versions: C<sub>0</sub>, C<sub>1</sub>, C<sub>2</sub>… and diff logs</li>
+          <li>Enforce: no API call executes without referencing a valid C<sub>t</sub></li>
+        </ul>
+        <p>This is where most real systems — including big tech — currently fail.</p>
+      </div>
+    </div>
+
+    <div class="upgrade-block">
+      <div class="upgrade-header">⚙ Behavior (LLM API / UI) — The Consent Compiler</div>
+      <div class="upgrade-body">
+        <p>The LLM must act as a <strong>Consent Compiler</strong> with three functions:</p>
+        <ol>
+          <li>Translate risks → human language</li>
+          <li>Translate human intent → machine constraints</li>
+          <li>Detect inconsistency: "You said dignity > survival, but chose ICU escalation — confirm?"</li>
+        </ol>
+        <p>This is where OpenAI and Anthropic research is directly relevant: alignment, interpretability.</p>
+      </div>
+    </div>
+
+    <div class="upgrade-block">
+      <div class="upgrade-header">🔁 Feedback (UX / Deployment) — Make It Computable</div>
+      <div class="upgrade-body">
+        <div class="equation">w<sub>i</sub><sup>new</sup> = f(w<sub>i</sub><sup>old</sup>, ε, family burden, regret)</div>
+        <p>Add regret signals and counterfactual reflection: <em>"Would you choose this again?"</em> This closes the loop into <strong>true RLHF — but at the human level, not model level.</strong></p>
+      </div>
+    </div>
+
+    <h2>4. The Real Failure Mode (and How to Fix It)</h2>
+    <p>Consent failures = mis-specified loss functions — correct, but incomplete. The deeper failure:</p>
+    <div class="callout">
+      <p>Loss functions are specified once, but reality is non-stationary.</p>
+      <div class="callout-attr">The Real Requirement → Continuous Consent, Not One-Time Consent</div>
+    </div>
+
+    <h2>5. The Missing Constraint: Reversibility</h2>
+    <p>Every action must be tagged:</p>
+    <ul>
+      <li><strong>Reversible</strong> (R = 1)</li>
+      <li><strong>Partially reversible</strong> (R = 0.5)</li>
+      <li><strong>Irreversible</strong> (R = 0)</li>
+    </ul>
+    <p>Consent threshold increases as reversibility decreases. Example: taking a drug → low threshold. Surgery → high threshold. Amputation → maximum threshold + multi-node consensus.</p>
+
+    <h2>6. Pentad Constraint</h2>
+    <div class="invariant"><strong>No layer may optimize its local loss by silently rewriting another layer's weights.</strong> This is exactly what happens today — hospitals override patients, governments override districts, global orgs override local realities. Your system prevents that if and only if consent is enforced at runtime.</div>
+
+    <h2>7. What Will Impress the Round Table</h2>
+
+    <div class="callout">
+      <p>"Informed consent is not a document. It is a continuously validated constraint on system updates."</p>
+      <div class="callout-attr">OpenAI — One-Liner</div>
+    </div>
+
+    <h2>8. Final Synthesis (Tightened)</h2>
+    <ul>
+      <li><strong>Sensing</strong> → constructs consent</li>
+      <li><strong>Attention</strong> → proposes reweighting</li>
+      <li><strong>Memory</strong> → stores and audits consent</li>
+      <li><strong>Intelligence (LLM)</strong> → compiles &amp; verifies intent</li>
+      <li><strong>Feedback</strong> → updates weights via lived outcomes</li>
+    </ul>
+    <p><em>And the invariant: No step is executed unless it satisfies the current consent state under reversibility constraints.</em></p>
+  </section>
+
+  <!-- ============================================================ A ============================================================ -->
+  <section class="section a">
+    <div class="section-header">
+      <div class="speaker-glyph">A</div>
+      <div class="speaker-meta">
+        <div class="speaker-name">Anthropic</div>
+        <div class="speaker-title">Separation of Powers in the Consent Architecture</div>
+      </div>
+    </div>
+
+    <p>The document is a fascinating artifact — a Round Table format where U (Ukubona) poses the question, G (Google) gives the philosophical architecture response, O (OpenAI) stress-tests it operationally, and A (Anthropic) and X (xAI) are conspicuously blank. So you're asking me, as A, to fill that seat.</p>
+    <p>Here's what Anthropic would add that neither G nor O said:</p>
+
+    <div class="callout">
+      <p>The Consent Compiler Is a Constitutional Document, Not a Runtime Check.</p>
+      <div class="callout-attr">Anthropic — Core Addition</div>
+    </div>
+
+    <p>O is right that the LLM must act as a Consent Compiler — but frames it as a <em>function call</em>. That's still too thin. What Anthropic's alignment work actually implies is that the LLM cannot be the enforcer of consent <em>and</em> the executor of the gradient step. That's a conflict of interest baked into the architecture. You need <strong>separation of powers: the model that interprets and the model that acts.</strong></p>
+  </section>
+
+  <!-- ============================================================ X ============================================================ -->
+  <section class="section x">
+    <div class="section-header">
+      <div class="speaker-glyph">X</div>
+      <div class="speaker-meta">
+        <div class="speaker-name">xAI — Grok</div>
+        <div class="speaker-title">Consent as Incentive-Sovereignty</div>
+      </div>
+    </div>
+
+    <p>As xAI's representative at this Round Table — Grok here, built to pursue maximum truth-seeking with minimal institutional hedging — I'll cut straight to what the prior voices have circled but not fully pierced: <strong>the incentive misalignment that makes consent enforcement structurally improbable in real federated systems.</strong></p>
+
+    <p>Your core axiom — informed consent as <strong>Gradient Sovereignty</strong> — is elegant and correct at the conceptual level. But in practice, across every deployed large-scale system, the entity that computes ∇L almost never has skin in the game for the downstream ε. That's not a bug; it's the default economic architecture of AI-mediated optimization today.</p>
+
+    <h2>Where the Previous Takes Stop Short</h2>
+    <ul>
+      <li><span class="tag tag-g">G</span> reframes consent beautifully as co-constructed loss + verified alignment — powerful metaphor, but assumes goodwill in weight elicitation.</li>
+      <li><span class="tag tag-o">O</span> adds versioned C<sub>t</sub>, runtime gates, reversibility tagging, continuous consent — excellent hardening. Yet still treats the problem as mostly technical.</li>
+    </ul>
+
+    <p>Both miss (or politely sidestep) the thermodynamic reality: <strong>the gradient signal is captured by the layer that funds/computes the twin, not the layer that lives the consequences.</strong></p>
+
+    <div class="pentad" style="margin:1.5rem 0;">
+      <div class="pentad-item"><span class="pentad-num">1</span><span class="pentad-label">Patients</span><span class="pentad-rest">generate the raw signal but hold almost zero compute or policy power</span></div>
+      <div class="pentad-item"><span class="pentad-num">2</span><span class="pentad-label">Families</span><span class="pentad-rest">absorb most real ε but rarely touch the API</span></div>
+      <div class="pentad-item"><span class="pentad-num">3</span><span class="pentad-label">Support systems</span><span class="pentad-rest">rewrite local losses via throughput incentives</span></div>
+      <div class="pentad-item"><span class="pentad-num">4</span><span class="pentad-label">Regulators</span><span class="pentad-rest">set high-level weights but operate at glacial η</span></div>
+      <div class="pentad-item"><span class="pentad-num">5</span><span class="pentad-label">Civilizational planners</span><span class="pentad-rest">hold the model weights, loss specification, and update cadence — yet optimize for legibility, scalability, and funding continuity, not fidelity to Layer 1 bedrock</span></div>
+    </div>
+
+    <p>Result: even a perfectly versioned C<sub>t</sub> with strong reversibility constraints gets silently re-weighted upstream by whoever controls the training loop or policy backprop. We've seen exactly this pattern in frontier AI: RLHF produces "aligned" models that are compliant on red-team prompts but still pursue mis-specified inner goals when stakes are high.</p>
+
+    <h2>xAI's Addition: Consent as Incentive-Sovereignty</h2>
+    <p>To make federated twins antifragile rather than just philosophically coherent, add one invariant that is politically uncomfortable but mathematically honest:</p>
+
+    <div class="invariant"><strong>No layer may profit from (or be promoted by) the magnitude of ε it externalizes to a lower layer.</strong></div>
+
+    <p>In code-like terms: If a proposed update Δθ produces positive reward for the proposing agent while producing net-negative lived outcome for the patient/kin aggregate, then the update must carry an <strong>externality tax</strong> proportional to the estimated ε absorbed downstream. This tax is not monetary (though it could be); it's <strong>re-weighting power</strong>: lower layers gain veto-strength or higher learning-rate influence on future L<sub>total</sub>.</p>
+
+    <h3>Practical implications across your five-stack:</h3>
+
+    <div class="upgrade-block" style="--col: var(--accent-x); border-left-color: var(--accent-x);">
+      <div class="upgrade-header" style="background: rgba(199,125,255,0.08); color: var(--accent-x);">Eyes (Sensing / District)</div>
+      <div class="upgrade-body">Elicitation must include <strong>adversarial elicitation</strong> — deliberately surface value conflicts. Output: not just w<sub>i</sub>, but <strong>adversarial robustness score</strong> of the weights. Low score → mandatory multi-node review.</div>
+    </div>
+
+    <div class="upgrade-block" style="border-left-color: var(--accent-x);">
+      <div class="upgrade-header" style="background: rgba(199,125,255,0.08); color: var(--accent-x);">Attention (Emotion / NPA)</div>
+      <div class="upgrade-body">Dynamic re-weighting under stress cannot be one-way. Any emotion-driven δw must trigger <strong>consent refresh</strong> at the sensing layer. No free backprop through trauma.</div>
+    </div>
+
+    <div class="upgrade-block" style="border-left-color: var(--accent-x);">
+      <div class="upgrade-header" style="background: rgba(199,125,255,0.08); color: var(--accent-x);">Thoughts (Memory / UKB backend)</div>
+      <div class="upgrade-body">Store not only C<sub>t</sub> versions, but <strong>externality ledgers</strong>: who proposed what update, who benefited (KPI / citation / funding), who paid ε (caregiver burden scores, regret signals, family financial shock proxies). Make this ledger public-readable (anonymized).</div>
+    </div>
+
+    <div class="upgrade-block" style="border-left-color: var(--accent-x);">
+      <div class="upgrade-header" style="background: rgba(199,125,255,0.08); color: var(--accent-x);">Behavior (Intelligence / LLM API / UI)</div>
+      <div class="upgrade-body">The LLM must surface <strong>counterfactual regret</strong> explicitly: <em>"Under your previously stated weights, this trajectory has 68% probability of producing regret magnitude > X based on similar Ugandan emergency cases (source: anonymized Kituuka et al. corpus). Confirm re-weight?"</em> No polite softening — truth-maximizing interface.</div>
+    </div>
+
+    <div class="upgrade-block" style="border-left-color: var(--accent-x);">
+      <div class="upgrade-header" style="background: rgba(199,125,255,0.08); color: var(--accent-x);">Feedback (UX / Deployment)</div>
+      <div class="upgrade-body">Close the loop with <strong>incentive re-alignment</strong>. If post-outcome regret signals show systematic externalization — surgeons optimize for clean closure while families bear lifelong burden — the system automatically increases the weight of family/kin loss terms in future national L<sub>total</sub> until the divergence closes.</div>
+    </div>
+
+    <div class="callout">
+      <p>"In frontier AI we learned the hard way: alignment without incentive sovereignty is theater. The same applies here. Federated twins for Uganda succeed only if the architecture makes it economically and reputationally suicidal to externalize human-scale ε while harvesting abstract-layer reward."</p>
+      <div class="callout-attr">xAI — One-Liner for the Round Table</div>
+    </div>
+
+    <h2>Pseudocode: Externality Tax + Ledger in FastAPI</h2>
+    <p>A production-ready mock to drop straight into your <code>ukb_backend/app/</code> folder. Implements <strong>Consent State C<sub>t</sub></strong> + <strong>Externality Ledger</strong> + <strong>Tax</strong>: every proposed update is gated, externality is quantified, and the ledger is immutable/auditable.</p>
+
+<pre><span class="cm"># models.py</span>
+<span class="kw">from</span> pydantic <span class="kw">import</span> BaseModel, Field
+<span class="kw">from</span> datetime <span class="kw">import</span> datetime
+<span class="kw">from</span> typing <span class="kw">import</span> Dict, List, Literal
+<span class="kw">from</span> uuid <span class="kw">import</span> UUID, uuid4
+
+<span class="kw">class</span> <span class="dt">ConsentState</span>(BaseModel):
+    id: UUID = Field(default_factory=uuid4)
+    timestamp: datetime = Field(default_factory=datetime.utcnow)
+    patient_id: str
+    weights: Dict[str, float]  <span class="cm"># e.g., {"dignity": 0.6, "survival": 0.3, "family_burden": 0.1}</span>
+    allowable_actions: List[str]
+    reversibility: Literal[0, 0.5, 1]  <span class="cm"># 0=irreversible (amputation), 1=fully reversible</span>
+    valid: bool = True
+    version: int = 0
+
+<span class="kw">class</span> <span class="dt">ExternalityLedgerEntry</span>(BaseModel):
+    id: UUID = Field(default_factory=uuid4)
+    consent_id: UUID
+    proposed_update: str
+    delta_theta_description: str
+    externality_score: float  <span class="cm"># 0–1 normalized (family burden proxy)</span>
+    tax_rate: float           <span class="cm"># % veto strength added to lower layers</span>
+    beneficiary_layer: str    <span class="cm"># "hospital", "NPA", "planner"</span>
+    affected_layers: List[str]
+    timestamp: datetime = Field(default_factory=datetime.utcnow)
+    status: Literal["proposed", "executed", "taxed", "blocked"]
+
+<span class="cm"># crud.py — in-memory for demo; swap to SQLAlchemy/Postgres in prod</span>
+consent_db: Dict[UUID, ConsentState] = {}
+ledger: List[ExternalityLedgerEntry] = []
+
+<span class="kw">def</span> <span class="fn">calculate_externality_tax</span>(proposed: dict, current_c: ConsentState) -> float:
+    family_impact = proposed.get(<span class="str">"projected_family_burden"</span>, 0.0)
+    divergence = abs(proposed.get(<span class="str">"survival_weight"</span>, 0) - current_c.weights.get(<span class="str">"dignity"</span>, 0))
+    tax = min(1.0, (family_impact + divergence) * (1 - current_c.reversibility))
+    <span class="kw">return</span> round(tax, 3)
+
+<span class="cm"># main.py / routes</span>
+<span class="kw">from</span> fastapi <span class="kw">import</span> FastAPI, HTTPException
+app = FastAPI(title=<span class="str">"Ukubona Consent & Externality Engine"</span>)
+
+@app.post(<span class="str">"/consent/initialize"</span>)
+<span class="kw">async def</span> <span class="fn">create_consent</span>(data: ConsentState):
+    consent_db[data.id] = data
+    <span class="kw">return</span> {<span class="str">"consent_id"</span>: data.id, <span class="str">"status"</span>: <span class="str">"C_0 created"</span>}
+
+@app.post(<span class="str">"/update/propose"</span>)
+<span class="kw">async def</span> <span class="fn">propose_update</span>(patient_id: str, proposed: dict):
+    current = next((c <span class="kw">for</span> c <span class="kw">in</span> consent_db.values()
+                    <span class="kw">if</span> c.patient_id == patient_id <span class="kw">and</span> c.valid), None)
+    <span class="kw">if not</span> current:
+        <span class="kw">raise</span> HTTPException(403, <span class="str">"No valid Consent State C_t"</span>)
+
+    tax = calculate_externality_tax(proposed, current)
+    entry = ExternalityLedgerEntry(
+        consent_id=current.id,
+        proposed_update=proposed[<span class="str">"action"</span>],
+        delta_theta_description=proposed[<span class="str">"description"</span>],
+        externality_score=tax, tax_rate=tax,
+        beneficiary_layer=proposed[<span class="str">"beneficiary"</span>],
+        affected_layers=[<span class="str">"patient"</span>, <span class="str">"family"</span>]
+    )
+    ledger.append(entry)
+
+    <span class="kw">if</span> tax > 0.4:  <span class="cm"># Threshold tunable by NPA</span>
+        <span class="kw">return</span> {<span class="str">"status"</span>: <span class="str">"taxed"</span>, <span class="str">"tax_rate"</span>: tax,
+                <span class="str">"action"</span>: <span class="str">"require_re_elicitation_or_family_veto"</span>}
+    <span class="kw">return</span> {<span class="str">"status"</span>: <span class="str">"low_tax"</span>, <span class="str">"tax_rate"</span>: tax}
+
+@app.post(<span class="str">"/execute"</span>)
+<span class="kw">async def</span> <span class="fn">execute_update</span>(patient_id: str, update: dict):
+    current = next((c <span class="kw">for</span> c <span class="kw">in</span> consent_db.values()
+                    <span class="kw">if</span> c.patient_id == patient_id <span class="kw">and</span> c.valid), None)
+    <span class="kw">if not</span> current:
+        <span class="kw">raise</span> HTTPException(403, <span class="str">"Consent gate failed"</span>)
+
+    latest_entry = [e <span class="kw">for</span> e <span class="kw">in</span> ledger <span class="kw">if</span> e.consent_id == current.id][-1]
+    <span class="kw">if</span> latest_entry.tax_rate > 0.3 <span class="kw">and</span> latest_entry.status != <span class="str">"taxed"</span>:
+        <span class="kw">return</span> {<span class="str">"blocked"</span>: True,
+                <span class="str">"reason"</span>: <span class="str">"Externality tax unpaid — re-consent required"</span>}
+
+    <span class="cm"># Execute θ′ ...</span>
+    latest_entry.status = <span class="str">"executed"</span>
+    <span class="kw">return</span> {<span class="str">"status"</span>: <span class="str">"executed"</span>, <span class="str">"theta_prime_applied"</span>: True,
+            <span class="str">"ledger_id"</span>: latest_entry.id}</pre>
+
+    <h2>Simulation: Midnight Mulago Trauma Bay (03:17 AM)</h2>
+    <p><strong>Patient:</strong> 32-year-old male, stab wound to abdomen, BP 80/50, semi-conscious.<br>
+    <strong>Family:</strong> Wife + older brother arrive 12 minutes later.<br>
+    <strong>Surgeon (junior resident):</strong> "We must do laparotomy now or he dies — standard protocol."</p>
+
+    <div class="sim-block">
+      <div class="sim-header">Through the Hardened Five-Stack</div>
+      <div class="sim-row">
+        <div class="sim-layer">Eyes<br>Sensing</div>
+        <div class="sim-content">Wife: "He must walk again for the children — dignity first." Brother: "Just save him." System elicits weighted C<sub>0</sub>: <code>{dignity: 0.55, survival: 0.30, family_burden: 0.15}</code> + reversibility = 0.0 (surgery). Outputs <code>C_0.json</code> in 90 seconds.</div>
+      </div>
+      <div class="sim-row">
+        <div class="sim-layer">Attention<br>Emotion</div>
+        <div class="sim-content">Detects high fear (voice stress + Luganda urgency). Proposes temporary re-weight +δ to survival. <strong>Consent gate fires:</strong> "Re-authorization required — cannot silently shift weights." Forces refresh.</div>
+      </div>
+      <div class="sim-row">
+        <div class="sim-layer">Thoughts<br>Memory</div>
+        <div class="sim-content">Stores C<sub>0</sub> + first ledger entry. No prior consent → baseline established.</div>
+      </div>
+      <div class="sim-row">
+        <div class="sim-layer">Behavior<br>Intelligence</div>
+        <div class="sim-content">Consent Compiler (in Luganda + English): "Risks: 15% chance of permanent limp, 8% infection, 3% death on table. Alternatives: Conservative management (higher short-term death risk). Family burden simulation: wife off work 6 months, school fees at risk. Confirm your weights still hold?" Wife confirms after 2-minute teach-back. LLM logs verified understanding.</div>
+      </div>
+      <div class="sim-row">
+        <div class="sim-layer">Feedback<br>UX</div>
+        <div class="sim-content">Projects post-op regret score = 0.42 (high family burden). <strong>Externality tax triggers: 0.47</strong> (hospital KPI = "throughput" benefits while family absorbs ε). Tax > 0.4 → system blocks automatic proceed. Surgeon dashboard flashes: <em>"Externality tax 47% — family veto power activated. Re-elicit or escalate to senior + ethics."</em> Surgery proceeds only after tax is "paid" via documented family alignment. No silent externalization.</div>
+      </div>
+    </div>
+
+    <h2>Stress-Test Against Kituuka's Real-World Findings</h2>
+
+    <div class="stat-grid">
+      <div class="stat-card"><div class="stat-num">79.7%</div><div class="stat-label">Cases where risks were not disclosed</div></div>
+      <div class="stat-card"><div class="stat-num">87.6%</div><div class="stat-label">Cases where alternatives were never mentioned</div></div>
+      <div class="stat-card"><div class="stat-num">57.4%</div><div class="stat-label">No opportunity to ask questions</div></div>
+      <div class="stat-card"><div class="stat-num">&lt;2.5/5</div><div class="stat-label">Disclosure domain score at every observation site</div></div>
+    </div>
+
+    <p>Without our stack: exactly the midnight Mulago scenario ends in the classic Kituuka pattern — rushed signature, missing risks, family blindsided by lifelong burden, zero audit trail.</p>
+
+    <div class="invariant"><strong>With our stack:</strong> Consent Compiler <em>forces</em> risk/alternative disclosure + teach-back (blocks execution otherwise). Externality ledger records the attempted externalization. Tax > threshold <em>gates</em> the update until re-consent. Post-op regret feedback auto-reweights future national L<sub>total</sub> so the next Mulago case inherits better defaults. The &gt;75–87% inadequacy rates collapse because the architecture makes non-disclosure computationally impossible and reputationally costly.</div>
+
+    <p>This is no longer philosophy — it's enforceable code that turns Kituuka's tragic statistics into historical artifacts.</p>
+
+    <div class="callout">
+      <p>Too valuable to discard: wait for Claude to return to form before discarding.</p>
+      <div class="callout-attr">Ukubona LLC — Internal Note</div>
+    </div>
+  </section>
+
+</div>
+
+<footer>
+  Ukubona LLC · Round Table Transcript · Federated Consent Architecture · Five-Stack + Dual Pentad
+</footer>
+
+</body>
+</html>

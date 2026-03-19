@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>one city · one day · uncompressed</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,900;1,400&family=Space+Mono:wght@400;700&display=swap');
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --ink: #0a0a0f;
+    --paper: #f0ece2;
+    --gold: #c8a84b;
+    --rust: #b03a2e;
+    --dusk: #2c3e6b;
+    --fog: rgba(240,236,226,0.08);
+  }
+
+  html, body {
+    width: 100%; height: 100%;
+    background: var(--ink);
+    overflow: hidden;
+    cursor: crosshair;
+  }
+
+  canvas {
+    position: fixed;
+    inset: 0;
+    width: 100%; height: 100%;
+  }
+
+  .stage {
+    position: fixed;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+    z-index: 10;
+  }
+
+  .riddle-block {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0;
+    opacity: 0;
+    animation: arrive 2.4s cubic-bezier(0.16, 1, 0.3, 1) 0.4s forwards;
+  }
+
+  @keyframes arrive {
+    from { opacity: 0; transform: translateY(32px) scale(0.97); filter: blur(8px); }
+    to   { opacity: 1; transform: translateY(0)   scale(1);    filter: blur(0);   }
+  }
+
+  .line-one {
+    font-family: 'Playfair Display', serif;
+    font-style: italic;
+    font-weight: 400;
+    font-size: clamp(11px, 1.4vw, 16px);
+    letter-spacing: 0.38em;
+    color: var(--gold);
+    text-transform: uppercase;
+    opacity: 0.7;
+    margin-bottom: 18px;
+  }
+
+  .city-name {
+    font-family: 'Playfair Display', serif;
+    font-weight: 900;
+    font-size: clamp(54px, 9vw, 130px);
+    color: var(--paper);
+    line-height: 0.9;
+    letter-spacing: -0.02em;
+    text-align: center;
+    position: relative;
+  }
+
+  .city-name .ghost {
+    position: absolute;
+    inset: 0;
+    color: var(--dusk);
+    opacity: 0.18;
+    transform: translate(3px, 4px);
+    pointer-events: none;
+    z-index: -1;
+  }
+
+  .separator {
+    width: 1px;
+    height: 52px;
+    background: linear-gradient(to bottom, var(--gold), transparent);
+    margin: 24px auto;
+    opacity: 0.5;
+    animation: pulse-line 3s ease-in-out infinite;
+  }
+
+  @keyframes pulse-line {
+    0%, 100% { opacity: 0.3; height: 52px; }
+    50%       { opacity: 0.7; height: 64px; }
+  }
+
+  .answer-block {
+    text-align: center;
+    opacity: 0;
+    animation: arrive 2.4s cubic-bezier(0.16, 1, 0.3, 1) 1.8s forwards;
+  }
+
+  .answer {
+    font-family: 'Space Mono', monospace;
+    font-size: clamp(9px, 1vw, 13px);
+    color: var(--paper);
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    opacity: 0.45;
+    line-height: 2.1;
+  }
+
+  .answer .highlight {
+    color: var(--gold);
+    opacity: 1;
+    font-weight: 700;
+  }
+
+  .answer .rust-text {
+    color: #d9624a;
+    opacity: 0.8;
+  }
+
+  .clock-ring {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: min(70vw, 70vh);
+    height: min(70vw, 70vh);
+    border-radius: 50%;
+    border: 1px solid rgba(200, 168, 75, 0.08);
+    pointer-events: none;
+    z-index: 5;
+    animation: spin-slow 60s linear infinite;
+  }
+
+  .clock-ring::before {
+    content: '';
+    position: absolute;
+    inset: 12px;
+    border-radius: 50%;
+    border: 1px dashed rgba(200, 168, 75, 0.05);
+  }
+
+  @keyframes spin-slow { to { transform: translate(-50%,-50%) rotate(360deg); } }
+
+  .corner-mark {
+    position: fixed;
+    font-family: 'Space Mono', monospace;
+    font-size: 9px;
+    color: rgba(200,168,75,0.3);
+    letter-spacing: 0.2em;
+    z-index: 20;
+  }
+  .corner-mark.tl { top: 24px; left: 28px; }
+  .corner-mark.tr { top: 24px; right: 28px; text-align: right; }
+  .corner-mark.bl { bottom: 24px; left: 28px; }
+  .corner-mark.br { bottom: 24px; right: 28px; text-align: right; }
+
+  .scanline {
+    position: fixed;
+    inset: 0;
+    background: repeating-linear-gradient(
+      to bottom,
+      transparent,
+      transparent 3px,
+      rgba(0,0,0,0.06) 3px,
+      rgba(0,0,0,0.06) 4px
+    );
+    pointer-events: none;
+    z-index: 50;
+    opacity: 0.4;
+  }
+</style>
+</head>
+<body>
+
+<canvas id="c"></canvas>
+<div class="clock-ring"></div>
+
+<div class="stage">
+  <div class="riddle-block">
+    <div class="line-one">a riddle in three dimensions</div>
+
+    <div class="city-name">
+      <span class="ghost" aria-hidden="true">CITY</span>
+      CITY
+    </div>
+
+    <div class="separator"></div>
+
+    <div class="answer-block">
+      <div class="answer">
+        <span>one city &nbsp;·&nbsp; </span><span class="highlight">every street at once</span><br>
+        <span>one day &nbsp;·&nbsp; </span><span class="highlight">every hour unfolded</span><br>
+        <span class="rust-text">uncompressed &nbsp;·&nbsp; </span><span class="highlight">presence itself</span><br>
+        <br>
+        <span style="opacity:0.3">the answer is not a place — it is </span><span class="highlight">attention</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="corner-mark tl">48°52'N · 2°21'E</div>
+<div class="corner-mark tr">day 001 / 365</div>
+<div class="corner-mark bl">∞ dimensions · 1 witness</div>
+<div class="corner-mark br">now ↗</div>
+
+<div class="scanline"></div>
+
+<script>
+const canvas = document.getElementById('c');
+const ctx = canvas.getContext('2d');
+
+let W, H, particles = [], lines = [];
+const GOLD = 'rgba(200,168,75,';
+const RUST = 'rgba(176,58,46,';
+const DUSK = 'rgba(44,62,107,';
+
+function resize() {
+  W = canvas.width  = window.innerWidth;
+  H = canvas.height = window.innerHeight;
+}
+resize();
+window.addEventListener('resize', resize);
+
+// City skyline silhouette data (normalized 0–1)
+const skyline = [
+  [0, 0.72],[0.02,0.72],[0.02,0.58],[0.04,0.58],[0.04,0.62],[0.06,0.62],[0.06,0.48],
+  [0.065,0.44],[0.07,0.48],[0.08,0.48],[0.08,0.65],[0.1,0.65],[0.1,0.55],[0.12,0.55],
+  [0.12,0.60],[0.14,0.60],[0.14,0.50],[0.17,0.50],[0.17,0.52],[0.19,0.52],[0.19,0.42],
+  [0.195,0.38],[0.20,0.42],[0.22,0.42],[0.22,0.55],[0.24,0.55],[0.24,0.60],[0.27,0.60],
+  [0.27,0.45],[0.29,0.45],[0.29,0.48],[0.31,0.48],[0.31,0.35],[0.315,0.30],[0.32,0.35],
+  [0.34,0.35],[0.34,0.52],[0.36,0.52],[0.36,0.56],[0.38,0.56],[0.38,0.44],[0.40,0.44],
+  [0.40,0.40],[0.405,0.36],[0.41,0.40],[0.43,0.40],[0.43,0.58],[0.46,0.58],[0.46,0.50],
+  [0.49,0.50],[0.49,0.43],[0.50,0.38],[0.51,0.43],[0.54,0.43],[0.54,0.55],[0.57,0.55],
+  [0.57,0.47],[0.59,0.47],[0.59,0.34],[0.595,0.30],[0.60,0.34],[0.62,0.34],[0.62,0.50],
+  [0.64,0.50],[0.64,0.55],[0.67,0.55],[0.67,0.44],[0.69,0.44],[0.69,0.48],[0.71,0.48],
+  [0.71,0.38],[0.72,0.33],[0.73,0.38],[0.75,0.38],[0.75,0.54],[0.77,0.54],[0.77,0.60],
+  [0.80,0.60],[0.80,0.50],[0.82,0.50],[0.82,0.44],[0.84,0.44],[0.84,0.58],[0.87,0.58],
+  [0.87,0.50],[0.89,0.50],[0.89,0.62],[0.92,0.62],[0.92,0.56],[0.94,0.56],[0.94,0.65],
+  [0.97,0.65],[0.97,0.70],[1.0,0.70],[1.0,1.0],[0,1.0]
+];
+
+class Particle {
+  constructor() { this.reset(true); }
+  reset(init = false) {
+    this.x = Math.random() * W;
+    this.y = init ? Math.random() * H : H + 10;
+    this.vy = -(0.2 + Math.random() * 0.8);
+    this.vx = (Math.random() - 0.5) * 0.3;
+    this.size = 0.5 + Math.random() * 1.5;
+    this.life = 0;
+    this.maxLife = 200 + Math.random() * 400;
+    this.type = Math.random() < 0.6 ? 'gold' : Math.random() < 0.5 ? 'rust' : 'dusk';
+  }
+  update() {
+    this.x += this.vx;
+    this.y += this.vy;
+    this.life++;
+    if (this.life > this.maxLife || this.y < -10) this.reset();
+  }
+  draw() {
+    const a = Math.sin((this.life / this.maxLife) * Math.PI) * 0.4;
+    const col = this.type === 'gold' ? GOLD : this.type === 'rust' ? RUST : DUSK;
+    ctx.beginPath();
+    ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+    ctx.fillStyle = col + a + ')';
+    ctx.fill();
+  }
+}
+
+for (let i = 0; i < 180; i++) particles.push(new Particle());
+
+let frame = 0;
+let mouseX = W / 2, mouseY = H / 2;
+
+window.addEventListener('mousemove', e => {
+  mouseX = e.clientX;
+  mouseY = e.clientY;
+});
+
+function drawSkyline(t) {
+  const yBase = H * 0.92;
+  ctx.beginPath();
+  ctx.moveTo(0, yBase);
+  for (let i = 0; i < skyline.length; i++) {
+    const [nx, ny] = skyline[i];
+    const breathe = Math.sin(frame * 0.003 + nx * 4) * 2;
+    ctx.lineTo(nx * W, ny * H + breathe);
+  }
+  ctx.closePath();
+
+  // gradient fill for city
+  const grd = ctx.createLinearGradient(0, H * 0.3, 0, H);
+  grd.addColorStop(0, 'rgba(44,62,107,0.55)');
+  grd.addColorStop(0.5, 'rgba(10,10,15,0.85)');
+  grd.addColorStop(1, 'rgba(10,10,15,1)');
+  ctx.fillStyle = grd;
+  ctx.fill();
+
+  // glow edge
+  ctx.save();
+  ctx.strokeStyle = 'rgba(200,168,75,0.06)';
+  ctx.lineWidth = 1;
+  ctx.stroke();
+  ctx.restore();
+}
+
+function drawGrid(t) {
+  ctx.save();
+  ctx.strokeStyle = 'rgba(200,168,75,0.025)';
+  ctx.lineWidth = 0.5;
+  const spacing = 60;
+  const offsetX = (mouseX * 0.02) % spacing;
+  const offsetY = (mouseY * 0.02 + t * 0.05) % spacing;
+
+  for (let x = -spacing + offsetX; x < W + spacing; x += spacing) {
+    ctx.beginPath();
+    ctx.moveTo(x, 0);
+    ctx.lineTo(x, H);
+    ctx.stroke();
+  }
+  for (let y = -spacing + offsetY; y < H + spacing; y += spacing) {
+    ctx.beginPath();
+    ctx.moveTo(0, y);
+    ctx.lineTo(W, y);
+    ctx.stroke();
+  }
+  ctx.restore();
+}
+
+function drawLightRays(t) {
+  ctx.save();
+  const cx = W * 0.5 + Math.sin(t * 0.0007) * W * 0.1;
+  const cy = H * 0.22 + Math.cos(t * 0.0005) * H * 0.05;
+
+  for (let i = 0; i < 7; i++) {
+    const angle = (i / 7) * Math.PI * 2 + t * 0.0003;
+    const len = H * 0.7;
+    const grd = ctx.createLinearGradient(cx, cy, cx + Math.cos(angle) * len, cy + Math.sin(angle) * len);
+    grd.addColorStop(0, 'rgba(200,168,75,0.06)');
+    grd.addColorStop(1, 'rgba(200,168,75,0)');
+    ctx.beginPath();
+    ctx.moveTo(cx, cy);
+    ctx.lineTo(cx + Math.cos(angle - 0.04) * len, cy + Math.sin(angle - 0.04) * len);
+    ctx.lineTo(cx + Math.cos(angle + 0.04) * len, cy + Math.sin(angle + 0.04) * len);
+    ctx.closePath();
+    ctx.fillStyle = grd;
+    ctx.fill();
+  }
+  ctx.restore();
+}
+
+function drawHorizonGlow(t) {
+  const hy = H * 0.62 + Math.sin(t * 0.0008) * 10;
+  const grd = ctx.createLinearGradient(0, hy - 80, 0, hy + 80);
+  grd.addColorStop(0, 'rgba(176,58,46,0)');
+  grd.addColorStop(0.5, 'rgba(176,58,46,0.07)');
+  grd.addColorStop(1, 'rgba(176,58,46,0)');
+  ctx.fillStyle = grd;
+  ctx.fillRect(0, hy - 80, W, 160);
+}
+
+function drawMouseOrb() {
+  const grd = ctx.createRadialGradient(mouseX, mouseY, 0, mouseX, mouseY, 120);
+  grd.addColorStop(0, 'rgba(200,168,75,0.06)');
+  grd.addColorStop(1, 'rgba(200,168,75,0)');
+  ctx.fillStyle = grd;
+  ctx.fillRect(mouseX - 120, mouseY - 120, 240, 240);
+}
+
+function loop(t) {
+  frame++;
+
+  // Background
+  ctx.fillStyle = `rgb(10,10,15)`;
+  ctx.fillRect(0, 0, W, H);
+
+  // Vignette
+  const vgrd = ctx.createRadialGradient(W/2, H/2, H*0.2, W/2, H/2, H*0.9);
+  vgrd.addColorStop(0, 'rgba(0,0,0,0)');
+  vgrd.addColorStop(1, 'rgba(0,0,0,0.65)');
+  ctx.fillStyle = vgrd;
+  ctx.fillRect(0, 0, W, H);
+
+  drawGrid(t);
+  drawLightRays(t);
+  drawHorizonGlow(t);
+
+  // Sky gradient
+  const sky = ctx.createLinearGradient(0, 0, 0, H * 0.7);
+  sky.addColorStop(0, 'rgba(8,8,18,1)');
+  sky.addColorStop(0.6, 'rgba(20,28,55,0.6)');
+  sky.addColorStop(1, 'rgba(20,28,55,0)');
+  ctx.fillStyle = sky;
+  ctx.fillRect(0, 0, W, H * 0.7);
+
+  // Particles
+  for (const p of particles) { p.update(); p.draw(); }
+
+  drawSkyline(t);
+  drawMouseOrb();
+
+  requestAnimationFrame(loop);
+}
+
+requestAnimationFrame(loop);
+</script>
+</body>
+</html>

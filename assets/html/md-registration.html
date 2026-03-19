@@ -1,0 +1,1343 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Amaani — Transforming Invisible Diversity into Measurable, Actionable Care</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --laterite:    #B5472A;
+    --laterite-dk: #7A2E16;
+    --laterite-lt: #D9856A;
+    --soil:        #2B1A0E;
+    --forest:      #1B3A2D;
+    --forest-lt:   #2E5E45;
+    --savanna:     #E8D9C0;
+    --cream:       #F7F2EA;
+    --white:       #FDFAF6;
+    --ink:         #1A1208;
+    --mist:        #C8BCA8;
+    --gold:        #C49A3C;
+    --gold-lt:     #E8C86A;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--white);
+    color: var(--ink);
+    font-family: 'Libre Baskerville', Georgia, serif;
+    font-size: 17px;
+    line-height: 1.7;
+    overflow-x: hidden;
+  }
+
+  /* ── NOISE TEXTURE ── */
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none; z-index: 9999; opacity: 0.4;
+  }
+
+  /* ── NAVIGATION ── */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 1.2rem 3rem;
+    background: rgba(253, 250, 246, 0.92);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--mist);
+  }
+
+  .nav-logo {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.5rem;
+    font-weight: 900;
+    color: var(--laterite);
+    letter-spacing: -0.02em;
+    text-decoration: none;
+  }
+
+  .nav-logo span {
+    font-style: italic;
+    color: var(--forest);
+  }
+
+  nav ul {
+    list-style: none;
+    display: flex; gap: 2.5rem;
+  }
+
+  nav a {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.72rem;
+    font-weight: 400;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--soil);
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+
+  nav a:hover { color: var(--laterite); }
+
+  /* ── HERO ── */
+  .hero {
+    min-height: 100vh;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    padding-top: 5rem;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .hero-left {
+    background: var(--forest);
+    padding: 6rem 4rem 6rem 5rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+  }
+
+  /* laterite diagonal slash */
+  .hero-left::after {
+    content: '';
+    position: absolute;
+    top: 0; right: -4rem;
+    width: 8rem; height: 100%;
+    background: var(--white);
+    transform: skewX(-4deg);
+    z-index: 2;
+  }
+
+  .hero-eyebrow {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--laterite-lt);
+    margin-bottom: 1.5rem;
+  }
+
+  .hero-title {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2.8rem, 4.5vw, 4.2rem);
+    font-weight: 900;
+    line-height: 1.05;
+    color: var(--cream);
+    margin-bottom: 1.5rem;
+    letter-spacing: -0.02em;
+  }
+
+  .hero-title em {
+    font-style: italic;
+    color: var(--gold-lt);
+  }
+
+  .hero-sub {
+    font-size: 1.05rem;
+    color: var(--savanna);
+    line-height: 1.7;
+    max-width: 34ch;
+    margin-bottom: 2.5rem;
+  }
+
+  .hero-tag {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.85rem;
+    color: var(--laterite-lt);
+    font-style: italic;
+    border-left: 3px solid var(--laterite);
+    padding-left: 1rem;
+    line-height: 1.5;
+  }
+
+  .hero-right {
+    background: var(--cream);
+    padding: 6rem 5rem 6rem 6rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    position: relative;
+  }
+
+  .hero-right-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.68rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--mist);
+    margin-bottom: 2rem;
+  }
+
+  /* PENTAD VISUAL */
+  .pentad {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+
+  .pentad-row {
+    display: flex;
+    align-items: stretch;
+    border-bottom: 1px solid var(--mist);
+    opacity: 0;
+    transform: translateX(30px);
+    animation: slideIn 0.5s forwards;
+  }
+
+  .pentad-row:nth-child(1) { animation-delay: 0.1s; }
+  .pentad-row:nth-child(2) { animation-delay: 0.2s; }
+  .pentad-row:nth-child(3) { animation-delay: 0.3s; }
+  .pentad-row:nth-child(4) { animation-delay: 0.4s; }
+  .pentad-row:nth-child(5) { animation-delay: 0.5s; }
+
+  @keyframes slideIn {
+    to { opacity: 1; transform: translateX(0); }
+  }
+
+  .pentad-num {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.65rem;
+    color: var(--mist);
+    width: 2.5rem;
+    padding: 1rem 0;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+  }
+
+  .pentad-bar {
+    width: 4px;
+    flex-shrink: 0;
+    margin-right: 1rem;
+  }
+
+  .pentad-content {
+    padding: 0.9rem 0;
+    flex: 1;
+  }
+
+  .pentad-layer {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--mist);
+    margin-bottom: 0.15rem;
+  }
+
+  .pentad-who {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: var(--soil);
+  }
+
+  .pentad-detail {
+    font-size: 0.82rem;
+    color: var(--forest-lt);
+    font-style: italic;
+  }
+
+  /* SECTION SHARED */
+  section { position: relative; }
+
+  .section-inner {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 7rem 4rem;
+  }
+
+  .section-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.68rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--laterite);
+    margin-bottom: 1rem;
+  }
+
+  .section-title {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2rem, 3.5vw, 3rem);
+    font-weight: 900;
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+    margin-bottom: 2rem;
+    color: var(--soil);
+  }
+
+  /* ── THE LOOP ── */
+  .loop-section {
+    background: var(--soil);
+    color: var(--cream);
+  }
+
+  .loop-section .section-title { color: var(--cream); }
+  .loop-section .section-label { color: var(--laterite-lt); }
+
+  .loop-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 5rem;
+    align-items: center;
+  }
+
+  .loop-text p {
+    color: var(--savanna);
+    margin-bottom: 1.5rem;
+    font-size: 1rem;
+  }
+
+  .loop-diagram {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+
+  .loop-step {
+    display: flex;
+    align-items: flex-start;
+    gap: 1.5rem;
+    padding: 1.5rem 0;
+    border-bottom: 1px solid rgba(200,188,168,0.15);
+    position: relative;
+  }
+
+  .loop-step:last-child { border-bottom: none; }
+
+  .loop-icon {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.1em;
+    color: var(--laterite-lt);
+    background: rgba(181,71,42,0.15);
+    border: 1px solid var(--laterite);
+    padding: 0.4rem 0.6rem;
+    flex-shrink: 0;
+    margin-top: 0.2rem;
+  }
+
+  .loop-step-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--gold-lt);
+    margin-bottom: 0.3rem;
+  }
+
+  .loop-step-desc {
+    font-size: 0.88rem;
+    color: var(--savanna);
+    line-height: 1.6;
+  }
+
+  .loop-arrow {
+    text-align: center;
+    color: var(--laterite);
+    font-size: 1.2rem;
+    padding: 0.3rem 0;
+    letter-spacing: 0.3em;
+  }
+
+  /* ── STRUCTURE ── */
+  .structure-section {
+    background: var(--white);
+  }
+
+  .three-col {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 0;
+    border: 1px solid var(--mist);
+    margin-top: 3rem;
+  }
+
+  .struct-card {
+    padding: 2.5rem 2rem;
+    border-right: 1px solid var(--mist);
+    position: relative;
+    overflow: hidden;
+    transition: background 0.3s;
+  }
+
+  .struct-card:last-child { border-right: none; }
+
+  .struct-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 4px;
+  }
+
+  .struct-card.engine::before { background: var(--laterite); }
+  .struct-card.field::before  { background: var(--forest); }
+  .struct-card.axis::before   { background: var(--gold); }
+
+  .struct-card:hover { background: var(--cream); }
+
+  .struct-tag {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    margin-bottom: 0.8rem;
+  }
+
+  .struct-card.engine .struct-tag { color: var(--laterite); }
+  .struct-card.field  .struct-tag { color: var(--forest); }
+  .struct-card.axis   .struct-tag { color: var(--gold); }
+
+  .struct-name {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.5rem;
+    font-weight: 900;
+    color: var(--soil);
+    margin-bottom: 0.3rem;
+  }
+
+  .struct-sub {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.72rem;
+    color: var(--mist);
+    margin-bottom: 1.2rem;
+    letter-spacing: 0.06em;
+  }
+
+  .struct-desc {
+    font-size: 0.9rem;
+    line-height: 1.65;
+    color: var(--forest-lt);
+    margin-bottom: 1.5rem;
+  }
+
+  .struct-bullets {
+    list-style: none;
+    font-size: 0.82rem;
+    color: var(--soil);
+    line-height: 1.8;
+  }
+
+  .struct-bullets li::before {
+    content: '→ ';
+    color: var(--laterite);
+    font-family: 'DM Mono', monospace;
+  }
+
+  /* ── REGISTER SECTION ── */
+  .register-section {
+    background: var(--laterite);
+    color: var(--white);
+  }
+
+  .register-section .section-title { color: var(--white); }
+  .register-section .section-label {
+    color: rgba(255,255,255,0.6);
+    border-color: rgba(255,255,255,0.3);
+  }
+
+  .register-intro {
+    color: rgba(253,250,246,0.85);
+    font-size: 1.05rem;
+    max-width: 60ch;
+    margin-bottom: 3.5rem;
+  }
+
+  .steps-container {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    max-width: 780px;
+  }
+
+  .step {
+    display: grid;
+    grid-template-columns: 5rem 1fr;
+    gap: 0;
+    border-bottom: 1px solid rgba(255,255,255,0.2);
+    padding: 2rem 0;
+    position: relative;
+  }
+
+  .step:last-child { border-bottom: none; }
+
+  .step-num {
+    font-family: 'Playfair Display', serif;
+    font-size: 3rem;
+    font-weight: 900;
+    color: rgba(255,255,255,0.18);
+    line-height: 1;
+    padding-top: 0.1rem;
+  }
+
+  .step-body { padding-left: 1rem; }
+
+  .step-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--white);
+    margin-bottom: 0.4rem;
+  }
+
+  .step-desc {
+    font-size: 0.92rem;
+    color: rgba(253,250,246,0.8);
+    line-height: 1.65;
+    margin-bottom: 0.8rem;
+  }
+
+  .step-action {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.72rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--white);
+    background: rgba(255,255,255,0.15);
+    border: 1px solid rgba(255,255,255,0.4);
+    padding: 0.5rem 1rem;
+    text-decoration: none;
+    transition: background 0.2s, border-color 0.2s;
+    cursor: pointer;
+  }
+
+  .step-action:hover {
+    background: rgba(255,255,255,0.25);
+    border-color: rgba(255,255,255,0.7);
+  }
+
+  .step-note {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.72rem;
+    color: rgba(255,255,255,0.5);
+    font-style: italic;
+    margin-top: 0.5rem;
+  }
+
+  .step-code {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.82rem;
+    background: rgba(0,0,0,0.2);
+    border-left: 3px solid rgba(255,255,255,0.4);
+    padding: 0.8rem 1rem;
+    color: rgba(253,250,246,0.9);
+    margin-top: 0.7rem;
+    line-height: 1.6;
+  }
+
+  /* ── GRANTS ── */
+  .grants-section {
+    background: var(--cream);
+  }
+
+  .grants-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 1.5rem;
+    margin-top: 3rem;
+  }
+
+  .grant-card {
+    background: var(--white);
+    border: 1px solid var(--mist);
+    padding: 2rem;
+    position: relative;
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+
+  .grant-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 40px rgba(43,26,14,0.1);
+  }
+
+  .grant-priority {
+    position: absolute;
+    top: 1.2rem; right: 1.2rem;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    padding: 0.25rem 0.6rem;
+    border: 1px solid;
+  }
+
+  .priority-high {
+    color: var(--laterite);
+    border-color: var(--laterite);
+    background: rgba(181,71,42,0.06);
+  }
+
+  .priority-med {
+    color: var(--forest);
+    border-color: var(--forest);
+    background: rgba(27,58,45,0.06);
+  }
+
+  .grant-org {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--mist);
+    margin-bottom: 0.5rem;
+  }
+
+  .grant-name {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: var(--soil);
+    margin-bottom: 0.8rem;
+    line-height: 1.3;
+  }
+
+  .grant-desc {
+    font-size: 0.85rem;
+    color: var(--forest-lt);
+    line-height: 1.6;
+    margin-bottom: 1.2rem;
+  }
+
+  .grant-amount {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.75rem;
+    color: var(--gold);
+    letter-spacing: 0.06em;
+  }
+
+  .grant-align {
+    font-size: 0.78rem;
+    color: var(--forest);
+    font-style: italic;
+    margin-top: 0.6rem;
+    border-top: 1px solid var(--mist);
+    padding-top: 0.8rem;
+  }
+
+  /* ── PHILOSOPHY ── */
+  .philosophy-section {
+    background: var(--forest);
+    color: var(--cream);
+  }
+
+  .philosophy-section .section-title { color: var(--cream); }
+  .philosophy-section .section-label { color: var(--laterite-lt); }
+
+  .philosophy-grid {
+    display: grid;
+    grid-template-columns: 1.2fr 1fr;
+    gap: 5rem;
+    align-items: start;
+  }
+
+  .philosophy-main p {
+    color: var(--savanna);
+    margin-bottom: 1.4rem;
+    font-size: 1rem;
+    line-height: 1.75;
+  }
+
+  .pull-quote {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.4rem;
+    font-style: italic;
+    line-height: 1.4;
+    color: var(--gold-lt);
+    border-left: 3px solid var(--laterite);
+    padding-left: 1.5rem;
+    margin: 2.5rem 0;
+  }
+
+  .cassava-box {
+    background: rgba(181,71,42,0.12);
+    border: 1px solid rgba(181,71,42,0.3);
+    padding: 2rem;
+  }
+
+  .cassava-title {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--laterite-lt);
+    margin-bottom: 1rem;
+  }
+
+  .cassava-chain {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.82rem;
+    color: var(--savanna);
+  }
+
+  .cassava-chain span {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+  }
+
+  .chain-dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--laterite);
+    flex-shrink: 0;
+  }
+
+  /* ── PARTNERS ── */
+  .partners-section { background: var(--white); }
+
+  .partners-row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1px;
+    background: var(--mist);
+    margin-top: 3rem;
+    border: 1px solid var(--mist);
+  }
+
+  .partner-tile {
+    background: var(--white);
+    padding: 2.5rem 2rem;
+    transition: background 0.2s;
+  }
+
+  .partner-tile:hover { background: var(--cream); }
+
+  .partner-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.62rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--laterite);
+    margin-bottom: 0.5rem;
+  }
+
+  .partner-name {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: var(--soil);
+    margin-bottom: 0.5rem;
+  }
+
+  .partner-desc {
+    font-size: 0.82rem;
+    color: var(--forest-lt);
+    line-height: 1.6;
+  }
+
+  /* ── CONTACT ── */
+  .contact-section {
+    background: var(--ink);
+    color: var(--white);
+    text-align: center;
+  }
+
+  .contact-section .section-label { color: var(--laterite-lt); }
+  .contact-section .section-title { color: var(--white); }
+
+  .contact-tagline {
+    font-size: 1.05rem;
+    color: rgba(253,250,246,0.7);
+    max-width: 50ch;
+    margin: 0 auto 3rem;
+    font-style: italic;
+  }
+
+  .contact-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+    max-width: 700px;
+    margin: 0 auto;
+  }
+
+  .contact-card {
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.12);
+    padding: 2rem;
+    text-align: left;
+    transition: background 0.2s;
+  }
+
+  .contact-card:hover { background: rgba(255,255,255,0.1); }
+
+  .contact-card-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.62rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--laterite-lt);
+    margin-bottom: 0.8rem;
+  }
+
+  .contact-card-name {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: var(--white);
+    margin-bottom: 0.4rem;
+  }
+
+  .contact-card-detail {
+    font-size: 0.85rem;
+    color: rgba(253,250,246,0.6);
+    line-height: 1.6;
+  }
+
+  /* ── FOOTER ── */
+  footer {
+    background: var(--soil);
+    padding: 2.5rem 3rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-top: 1px solid rgba(200,188,168,0.1);
+  }
+
+  .footer-logo {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.1rem;
+    font-weight: 900;
+    color: var(--laterite-lt);
+  }
+
+  .footer-eq {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.68rem;
+    color: rgba(200,188,168,0.4);
+    letter-spacing: 0.06em;
+  }
+
+  .footer-copy {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.65rem;
+    color: rgba(200,188,168,0.3);
+    letter-spacing: 0.08em;
+  }
+
+  /* ── STICKY PROGRESS BAR ── */
+  #progress-bar {
+    position: fixed;
+    top: 0; left: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--laterite), var(--gold));
+    z-index: 200;
+    width: 0%;
+    transition: width 0.1s;
+  }
+
+  /* ── REVEAL ANIMATIONS ── */
+  .reveal {
+    opacity: 0;
+    transform: translateY(24px);
+    transition: opacity 0.7s ease, transform 0.7s ease;
+  }
+
+  .reveal.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* ── MOBILE ── */
+  @media (max-width: 900px) {
+    nav ul { display: none; }
+    .hero { grid-template-columns: 1fr; }
+    .hero-left::after { display: none; }
+    .loop-grid, .philosophy-grid, .three-col { grid-template-columns: 1fr; }
+    .grants-grid { grid-template-columns: 1fr; }
+    .partners-row { grid-template-columns: 1fr; }
+    .contact-grid { grid-template-columns: 1fr; }
+    .section-inner { padding: 4rem 2rem; }
+    footer { flex-direction: column; gap: 1rem; text-align: center; }
+  }
+</style>
+</head>
+<body>
+
+<div id="progress-bar"></div>
+
+<!-- SUITE NAV -->
+<div style="background:rgba(8,10,9,0.98);border-bottom:1px solid rgba(181,71,42,0.2);padding:0.45rem 3rem;display:flex;align-items:center;gap:2rem;font-family:'DM Mono',monospace;font-size:0.58rem;letter-spacing:0.12em;text-transform:uppercase;position:sticky;top:0;z-index:200;">
+  <div style="color:#B5472A;font-weight:500;">Amaani <span style="color:#E8C86A;">× Ukubona</span></div>
+  <div style="display:flex;gap:1.5rem;margin-left:auto;">
+    <a href="mh-data.html" style="color:rgba(200,188,168,0.4);text-decoration:none;">Uganda MH Data</a>
+    <a href="autism-ug.html" style="color:rgba(200,188,168,0.4);text-decoration:none;">Uganda District Map</a>
+    <a href="bigger-picture.html" style="color:rgba(200,188,168,0.4);text-decoration:none;">Africa Gap Map</a>
+    <a href="md-registration.html" style="color:#E8C86A;text-decoration:none;border-bottom:1px solid #C49A3C;padding-bottom:0.2rem;">Amaani Home</a>
+  </div>
+</div>
+
+<!-- NAV -->
+<nav>
+  <a href="#" class="nav-logo">Amaani<span>·</span></a>
+  <ul>
+    <li><a href="#loop">The Loop</a></li>
+    <li><a href="#structure">Structure</a></li>
+    <li><a href="#register">Register</a></li>
+    <li><a href="#grants">Grants</a></li>
+    <li><a href="#philosophy">Philosophy</a></li>
+    <li><a href="#contact">Contact</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-left">
+    <div class="hero-eyebrow">Amaani · Strength through Witnessing</div>
+    <h1 class="hero-title">
+      Transforming<br>
+      <em>invisible diversity</em><br>
+      into measurable,<br>
+      actionable care.
+    </h1>
+    <p class="hero-sub">
+      A hybrid mental health system focused on autism and neurodiversity across Africa — where the Engine builds intelligence and the Field turns it into care.
+    </p>
+    <div class="hero-tag">
+      Amaani LLC (Maryland) · Amaani Foundation (Uganda)<br>
+      Powered by Ukubona OS (Virginia)
+    </div>
+  </div>
+
+  <div class="hero-right">
+    <div class="hero-right-label">The Five Layers · Pentadic Architecture</div>
+    <div class="pentad">
+
+      <div class="pentad-row">
+        <div class="pentad-num">L1</div>
+        <div class="pentad-bar" style="background:var(--laterite)"></div>
+        <div class="pentad-content">
+          <div class="pentad-layer">Personal</div>
+          <div class="pentad-who">The Child</div>
+          <div class="pentad-detail">Autism diagnosis · 3:1 boy-to-girl ratio · longitudinal risk</div>
+        </div>
+      </div>
+
+      <div class="pentad-row">
+        <div class="pentad-num">L2</div>
+        <div class="pentad-bar" style="background:var(--laterite-dk)"></div>
+        <div class="pentad-content">
+          <div class="pentad-layer">Household</div>
+          <div class="pentad-who">The Kin-Network</div>
+          <div class="pentad-detail">Family burden · caregiver support · financial shock</div>
+        </div>
+      </div>
+
+      <div class="pentad-row">
+        <div class="pentad-num">L3</div>
+        <div class="pentad-bar" style="background:var(--forest-lt)"></div>
+        <div class="pentad-content">
+          <div class="pentad-layer">Enterprise</div>
+          <div class="pentad-who">Clinic · School · Therapist</div>
+          <div class="pentad-detail">Workflow · education · health insurance · MUST app</div>
+        </div>
+      </div>
+
+      <div class="pentad-row">
+        <div class="pentad-num">L4</div>
+        <div class="pentad-bar" style="background:var(--forest)"></div>
+        <div class="pentad-content">
+          <div class="pentad-layer">Government</div>
+          <div class="pentad-who">Ministry · Regulator</div>
+          <div class="pentad-detail">Ministry of Health · Education · African Union</div>
+        </div>
+      </div>
+
+      <div class="pentad-row">
+        <div class="pentad-num">L5</div>
+        <div class="pentad-bar" style="background:var(--gold)"></div>
+        <div class="pentad-content">
+          <div class="pentad-layer">Civilizational</div>
+          <div class="pentad-who">NPA · Universities</div>
+          <div class="pentad-detail">National Planning Authority · MUST · 50-year cartography</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- THE LOOP -->
+<section class="loop-section" id="loop">
+  <div class="section-inner">
+    <div class="loop-grid">
+      <div class="loop-text reveal">
+        <div class="section-label">The Innovation</div>
+        <h2 class="section-title">The Loop is the<br><em>real product.</em></h2>
+        <p>Most mental health systems are built once and left to decay. Amaani is different because it is a <em>closed feedback loop</em> — not a static dashboard or a one-time deployment.</p>
+        <p>The Field (Uganda) continuously feeds unfiltered reality back into the Engine (Maryland), which refines its models and returns better tools to the ground. The system gets stronger with every cycle.</p>
+        <p>This is what makes it <em>fundable, scalable, and rare</em> in the Africa mental health space.</p>
+      </div>
+
+      <div class="loop-diagram reveal">
+        <div class="loop-step">
+          <div class="loop-icon">01<br>OBS</div>
+          <div>
+            <div class="loop-step-title">Observe · Kubona</div>
+            <div class="loop-step-desc">Amaani Foundation (Uganda) captures unfiltered reality — autism cases in schools, kin-network stress, the invisible 3:1 ratio.</div>
+          </div>
+        </div>
+        <div class="loop-arrow">↓</div>
+        <div class="loop-step">
+          <div class="loop-icon">02<br>MDL</div>
+          <div>
+            <div class="loop-step-title">Model · Amaani</div>
+            <div class="loop-step-desc">Ukubona OS (via Amaani LLC) processes real-world data into digital twins, survival curves, and predictive tools.</div>
+          </div>
+        </div>
+        <div class="loop-arrow">↓</div>
+        <div class="loop-step">
+          <div class="loop-icon">03<br>DPL</div>
+          <div>
+            <div class="loop-step-title">Deploy · Back to Field</div>
+            <div class="loop-step-desc">Better tools return to Uganda — MUST app roll-outs, school programs, clinician dashboards, family support systems.</div>
+          </div>
+        </div>
+        <div class="loop-arrow">↓</div>
+        <div class="loop-step">
+          <div class="loop-icon">04<br>∇</div>
+          <div>
+            <div class="loop-step-title">Refine · Gradient</div>
+            <div class="loop-step-desc">Data improves the model. The model improves the care. θ → L(θ) → ∇L → −η∇L → θ′. The system converges.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- STRUCTURE -->
+<section class="structure-section" id="structure">
+  <div class="section-inner">
+    <div class="reveal">
+      <div class="section-label">Legal Architecture</div>
+      <h2 class="section-title">One system.<br>Three legal faces.</h2>
+    </div>
+    <div class="three-col reveal">
+
+      <div class="struct-card engine">
+        <div class="struct-tag">Engine · Maryland LLC</div>
+        <div class="struct-name">Amaani LLC</div>
+        <div class="struct-sub">Maryland · Sole Member: Samantha Nowamaani</div>
+        <div class="struct-desc">The legal and intellectual hub. Owns the brand, holds IP relationships, and contracts with institutions and governments.</div>
+        <ul class="struct-bullets">
+          <li>Owns the Amaani brand and IP</li>
+          <li>Partners with Ukubona OS (pro bono)</li>
+          <li>Contracts with NPA, ministries, universities</li>
+          <li>Licenses tools to the Foundation</li>
+          <li>Generates sustainability revenue</li>
+        </ul>
+      </div>
+
+      <div class="struct-card field">
+        <div class="struct-tag">Field · Uganda NGO</div>
+        <div class="struct-name">Amaani Foundation</div>
+        <div class="struct-sub">Uganda · Nested under Amaani LLC</div>
+        <div class="struct-desc">The boots-on-the-ground arm. Runs community programs, applies for grants, and generates the real-world data that feeds the Engine.</div>
+        <ul class="struct-bullets">
+          <li>School & clinic roll-outs</li>
+          <li>Family kin-network support</li>
+          <li>MUST student partnerships</li>
+          <li>Applies: Canada Fund, GFC, LEGO</li>
+          <li>Feeds real-world data to the Loop</li>
+        </ul>
+      </div>
+
+      <div class="struct-card axis">
+        <div class="struct-tag">Axis · Virginia LLC</div>
+        <div class="struct-name">Ukubona LLC</div>
+        <div class="struct-sub">Virginia · Pro bono technical partner</div>
+        <div class="struct-desc">The invisible OS. Provides the pentadic digital twin architecture that both Amaani entities run on — at zero cost, as mission-aligned friends.</div>
+        <ul class="struct-bullets">
+          <li>Pentadic OS (L1–L5 architecture)</li>
+          <li>Digital twin infrastructure</li>
+          <li>FastAPI · Python · SGD backend</li>
+          <li>20+ years clinical + epidemiology priors</li>
+          <li>100% pro bono to Amaani</li>
+        </ul>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- REGISTER -->
+<section class="register-section" id="register">
+  <div class="section-inner">
+    <div class="reveal">
+      <div class="section-label">Step by Step · Do This First</div>
+      <h2 class="section-title">Register Amaani LLC<br>in Maryland.</h2>
+      <p class="register-intro">This is the legal anchor for everything else. It takes less than an hour and costs $100. Here is exactly what to do.</p>
+    </div>
+
+    <div class="steps-container">
+
+      <div class="step reveal">
+        <div class="step-num">01</div>
+        <div class="step-body">
+          <div class="step-title">Check Name Availability</div>
+          <div class="step-desc">Before filing, confirm that "Amaani LLC" is not already taken in Maryland. Use the official entity search tool.</div>
+          <a class="step-action" href="https://businessexpress.maryland.gov/pages/businessentity.aspx" target="_blank">→ Maryland Entity Search</a>
+          <div class="step-note">Priority: Amaani LLC → Amaani Systems LLC → Amaani Health LLC</div>
+        </div>
+      </div>
+
+      <div class="step reveal">
+        <div class="step-num">02</div>
+        <div class="step-body">
+          <div class="step-title">Appoint a Resident Agent</div>
+          <div class="step-desc">Maryland requires a resident agent — a person or registered company with a Maryland street address who can receive legal documents. This can be yourself (if you have a MD address), a friend, or a registered agent service (~$50/year).</div>
+          <div class="step-note">Options: Northwest Registered Agent, ZenBusiness, Incfile — all offer MD registered agent service.</div>
+        </div>
+      </div>
+
+      <div class="step reveal">
+        <div class="step-num">03</div>
+        <div class="step-body">
+          <div class="step-title">File Articles of Organization</div>
+          <div class="step-desc">File online via Maryland Business Express. You'll need: entity name, principal office address, resident agent info, management structure (member-managed), and purpose. Use this exact purpose language:</div>
+          <div class="step-code">
+            "To engage in any lawful business for which a limited liability company may be organized in the State of Maryland, including but not limited to: designing and operating data-driven systems for health, education, and social impact; developing and licensing intellectual property; providing consulting and advisory services to public, private, and non-profit organizations; conducting research and implementation of community-based programs, including partnerships with domestic and international organizations; supporting and managing affiliated social impact initiatives, including non-profit entities, in furtherance of mental health, neurodevelopmental, and community well-being. Amaani LLC may conduct business both within and outside the United States."
+          </div>
+          <a class="step-action" href="https://businessexpress.maryland.gov" target="_blank" style="margin-top:1rem">→ File on Maryland Business Express</a>
+          <div class="step-note">Filing fee: $100. Processing: same-day (online).</div>
+        </div>
+      </div>
+
+      <div class="step reveal">
+        <div class="step-num">04</div>
+        <div class="step-body">
+          <div class="step-title">Get Your EIN from the IRS</div>
+          <div class="step-desc">An Employer Identification Number (EIN) is your company's federal tax ID. You need it to open a bank account, hire, and apply for grants. It's free and takes 10 minutes.</div>
+          <a class="step-action" href="https://www.irs.gov/businesses/small-businesses-self-employed/apply-for-an-employer-identification-number-ein-online" target="_blank">→ Apply for EIN (IRS — Free)</a>
+          <div class="step-note">Select: LLC → Sole Member → "Banking Purposes" or "Started a new business."</div>
+        </div>
+      </div>
+
+      <div class="step reveal">
+        <div class="step-num">05</div>
+        <div class="step-body">
+          <div class="step-title">Open a Business Bank Account</div>
+          <div class="step-desc">Do not mix personal and business funds — especially once grant money flows. You'll need your Articles of Organization + EIN. Mercury Bank (online, free) or a local Maryland credit union both work well for early-stage LLCs.</div>
+          <div class="step-note">Mercury Bank is especially good for small LLCs: no minimums, free wires, international transfers supported.</div>
+        </div>
+      </div>
+
+      <div class="step reveal">
+        <div class="step-num">06</div>
+        <div class="step-body">
+          <div class="step-title">File Annual Report (Every Year)</div>
+          <div class="step-desc">Maryland LLCs must file a Personal Property Return each year (due April 15). The first one isn't due until the year after you register. Set a calendar reminder now.</div>
+          <a class="step-action" href="https://sdat.dat.maryland.gov/UCC-Charter/Pages/default.aspx" target="_blank">→ SDAT Annual Filings Portal</a>
+          <div class="step-note">Annual fee: $300. Don't miss this — failure to file results in forfeiture of LLC status.</div>
+        </div>
+      </div>
+
+      <div class="step reveal">
+        <div class="step-num">07</div>
+        <div class="step-body">
+          <div class="step-title">Register the Uganda NGO (Next Phase)</div>
+          <div class="step-desc">Once Amaani LLC is live and has an EIN, you can register Amaani Foundation in Uganda under the NGO Bureau. The Maryland LLC serves as the parent/incorporating body. You will need: certified copy of LLC articles, personal ID, local Uganda address, and a Ugandan board (at least 3 members).</div>
+          <a class="step-action" href="https://www.ngobureau.go.ug" target="_blank">→ Uganda NGO Bureau</a>
+          <div class="step-note">Registration fee: ~UGX 100,000. Process takes 4–6 weeks after submission.</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- GRANTS -->
+<section class="grants-section" id="grants">
+  <div class="section-inner">
+    <div class="reveal">
+      <div class="section-label">Funding Landscape</div>
+      <h2 class="section-title">Three grant paths.<br>One aligned mission.</h2>
+    </div>
+    <div class="grants-grid">
+
+      <div class="grant-card reveal">
+        <div class="grant-priority priority-high">High Priority</div>
+        <div class="grant-org">Government of Canada</div>
+        <div class="grant-name">Canada Fund for Local Initiatives (CFLI)</div>
+        <div class="grant-desc">Small, targeted grants for local development projects in priority countries. Uganda is eligible. Mental health, neurodiversity, and community-based programs are a strong fit.</div>
+        <div class="grant-amount">CAD 20,000 – 100,000 · Annual cycle</div>
+        <div class="grant-align">✦ Lead with: Amaani Foundation (Uganda NGO) + MUST partnership + concrete year-1 deliverables (5 schools, 200 families, district data)</div>
+      </div>
+
+      <div class="grant-card reveal">
+        <div class="grant-priority priority-high">High Priority</div>
+        <div class="grant-org">Global Fund for Children</div>
+        <div class="grant-name">GFC Africa Community Grants</div>
+        <div class="grant-desc">Washington D.C.-based funder backing grassroots orgs in Uganda. Runs Thriving Through Play with LEGO Foundation in East Africa. Mental health/psychosocial support for children is a direct match.</div>
+        <div class="grant-amount">$25,000 – $75,000 · By invitation / referral</div>
+        <div class="grant-align">✦ Lead with: Community-based, locally-led, kin-network support, play-informed autism early intervention</div>
+      </div>
+
+      <div class="grant-card reveal">
+        <div class="grant-priority priority-med">Strategic Fit</div>
+        <div class="grant-org">LEGO Foundation</div>
+        <div class="grant-name">Play for All / Neurodiversity Grants</div>
+        <div class="grant-desc">Major funder of play-based learning and neurodivergent children globally. Active in Uganda via PlayMatters (IRC) and BRAC. Aligns with strength-based, play-informed mental health models.</div>
+        <div class="grant-amount">$100k – $2M+ · Strategic partnerships</div>
+        <div class="grant-align">✦ Lead with: MUST app as play-based tool · school roll-outs · visible data on Uganda autism gap · partner via GFC referral</div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- PHILOSOPHY -->
+<section class="philosophy-section" id="philosophy">
+  <div class="section-inner">
+    <div class="philosophy-grid">
+      <div class="philosophy-main reveal">
+        <div class="section-label">The Epistemic Root</div>
+        <h2 class="section-title"><em>Kiti kya Muwogo.</em></h2>
+        <p>In the red lateritic soils of the Victoria Basin, farmers discovered through centuries of practice that a cassava stem discarded at the edge of a field will take root without cultivation. It asks for nothing. It requires no supervision. It simply finds the gradient and grows.</p>
+        <div class="pull-quote">"Strength is not a resource to be accumulated. It is the outcome of a system that has learned to witness itself."</div>
+        <p>The name Amaani — strength — is not aspirational. It is architectural. Samantha Nowamaani: of the one who holds strength. Ukubona: to see, to witness, to order. Kubona: the act of witnessing that transforms observation into care.</p>
+        <p>The for-profit and non-profit arms are not two businesses. They are two lungs. One breathes intelligence. The other breathes life. Both are required.</p>
+      </div>
+
+      <div class="reveal">
+        <div class="cassava-box">
+          <div class="cassava-title">The Convergence Chain</div>
+          <div class="cassava-chain">
+            <span><div class="chain-dot"></div>Nowamaani (The Source)</span>
+            <span style="padding-left:1.4rem; color: rgba(200,188,168,0.4)">↓</span>
+            <span><div class="chain-dot"></div>Ukubona (The Witnessing)</span>
+            <span style="padding-left:1.4rem; color: rgba(200,188,168,0.4)">↓</span>
+            <span><div class="chain-dot"></div>Amaani (The Strength)</span>
+            <span style="padding-left:1.4rem; color: rgba(200,188,168,0.4)">↓</span>
+            <span><div class="chain-dot" style="background:var(--gold)"></div>Kubona (The Care)</span>
+          </div>
+        </div>
+
+        <div style="margin-top:2rem; padding: 2rem; background: rgba(255,255,255,0.04); border: 1px solid rgba(200,188,168,0.15);">
+          <div class="cassava-title">The Mathematical Substrate</div>
+          <div style="font-family:'DM Mono',monospace; font-size:0.78rem; color:var(--savanna); line-height:2;">
+            θ → L(θ) → ∇L → −η∇L → θ′<br>
+            <span style="color:rgba(200,188,168,0.4)">·</span><br>
+            L₁ = child · morbidity, diagnosis<br>
+            L₂ = family · caregiver burden<br>
+            L₃ = system · clinic, school<br>
+            L₄ = regulator · ministry, policy<br>
+            L₅ = NPA · 50-year cartography<br>
+            <span style="color:rgba(200,188,168,0.4)">·</span><br>
+            <span style="color:var(--laterite-lt)">The twin does not report. It converges.</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PARTNERS -->
+<section class="partners-section" id="partners">
+  <div class="section-inner">
+    <div class="reveal">
+      <div class="section-label">Ecosystem</div>
+      <h2 class="section-title">The collaborators<br>at the round table.</h2>
+    </div>
+    <div class="partners-row reveal">
+      <div class="partner-tile">
+        <div class="partner-label">Technical OS · Virginia</div>
+        <div class="partner-name">Ukubona LLC</div>
+        <div class="partner-desc">Provides the pentadic digital twin architecture pro bono. 20+ years of transplant medicine, epidemiology, and mathematical optimization. The invisible hand.</div>
+      </div>
+      <div class="partner-tile">
+        <div class="partner-label">Academic · Uganda</div>
+        <div class="partner-name">MUST</div>
+        <div class="partner-desc">Mbarara University of Science & Technology. Partner for app development, tech student deployment, and school-level roll-outs of the autism tracking tool.</div>
+      </div>
+      <div class="partner-tile">
+        <div class="partner-label">Policy · Uganda</div>
+        <div class="partner-name">National Planning Authority</div>
+        <div class="partner-desc">Uganda's NPA has named mental health as the #1 national planning priority. Amaani's district-level data feeds directly into their planning frameworks.</div>
+      </div>
+      <div class="partner-tile">
+        <div class="partner-label">Regulator · Uganda</div>
+        <div class="partner-name">Ministry of Health</div>
+        <div class="partner-desc">Primary government partner for health data integration, clinical guideline alignment, and national autism prevalence documentation.</div>
+      </div>
+      <div class="partner-tile">
+        <div class="partner-label">Community Hub · Uganda</div>
+        <div class="partner-name">Invisible Diversity</div>
+        <div class="partner-desc">myinvisiblediversity.ai — a complementary initiative in the autism/neurodiversity space, providing referral and community network links in the region.</div>
+      </div>
+      <div class="partner-tile">
+        <div class="partner-label">Field Network · Africa</div>
+        <div class="partner-name">Kin-Networks</div>
+        <div class="partner-desc">Families, local therapists, and community health workers form the primary sensor layer — capturing the unfiltered truth that no model can generate alone.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CONTACT -->
+<section class="contact-section" id="contact">
+  <div class="section-inner">
+    <div class="section-label">Get in Touch</div>
+    <h2 class="section-title">Two doors.<br>One system.</h2>
+    <p class="contact-tagline">Whether you are a funder, a family, a ministry, or a researcher — there is a place for you in the loop.</p>
+    <div class="contact-grid reveal">
+      <div class="contact-card">
+        <div class="contact-card-label">Engine · For Institutions</div>
+        <div class="contact-card-name">Amaani LLC</div>
+        <div class="contact-card-detail">Technology partnerships, government contracts, university collaborations, data licensing. Maryland, USA.</div>
+      </div>
+      <div class="contact-card">
+        <div class="contact-card-label">Field · For Community</div>
+        <div class="contact-card-name">Amaani Foundation</div>
+        <div class="contact-card-detail">School programs, family support, clinic partnerships, grant-funded initiatives. Kampala, Uganda.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-logo">Amaani</div>
+  <div class="footer-eq">θ → L(θ) → ∇L → −η∇L → θ′</div>
+  <div class="footer-copy">© 2025 Amaani LLC · Maryland · All rights reserved</div>
+</footer>
+
+<script>
+  // Progress bar
+  window.addEventListener('scroll', () => {
+    const scrolled = window.scrollY;
+    const max = document.body.scrollHeight - window.innerHeight;
+    document.getElementById('progress-bar').style.width = (scrolled / max * 100) + '%';
+  });
+
+  // Reveal on scroll
+  const reveals = document.querySelectorAll('.reveal');
+  const obs = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        e.target.classList.add('visible');
+        obs.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.12 });
+  reveals.forEach(r => obs.observe(r));
+</script>
+</body>
+</html>

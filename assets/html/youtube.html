@@ -1,0 +1,821 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Ukubona — Loss Landscape</title>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Mono:wght@300;400;500&family=Syne:wght@400;700;800&display=swap" rel="stylesheet"/>
+<style>
+  :root {
+    --bg: #050508;
+    --surface: #0d0d14;
+    --border: rgba(255,255,255,0.07);
+    --red: #ff3b30;
+    --orange: #ff9f0a;
+    --yellow: #ffd60a;
+    --green: #30d158;
+    --blue: #0a84ff;
+    --indigo: #5e5ce6;
+    --violet: #bf5af2;
+    --text: #e8e8f0;
+    --muted: rgba(232,232,240,0.45);
+    --accent: #ffd60a;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Mono', monospace;
+    font-size: 14px;
+    line-height: 1.7;
+    overflow-x: hidden;
+    cursor: crosshair;
+  }
+
+  /* ── NOISE GRAIN ── */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 9999;
+    opacity: 0.35;
+  }
+
+  /* ── GRADIENT MESH BG ── */
+  .mesh {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    background:
+      radial-gradient(ellipse 60% 50% at 10% 20%, rgba(94,92,230,0.12) 0%, transparent 70%),
+      radial-gradient(ellipse 50% 60% at 90% 80%, rgba(255,60,48,0.08) 0%, transparent 70%),
+      radial-gradient(ellipse 40% 40% at 50% 50%, rgba(255,214,10,0.04) 0%, transparent 80%);
+  }
+
+  /* ── SCROLLING TICKER ── */
+  .ticker-wrap {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    background: rgba(5,5,8,0.85);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+    overflow: hidden;
+    height: 36px;
+    display: flex;
+    align-items: center;
+  }
+  .ticker {
+    display: flex;
+    gap: 0;
+    animation: ticker 40s linear infinite;
+    white-space: nowrap;
+  }
+  .ticker span {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    color: var(--muted);
+    padding: 0 2.5rem;
+  }
+  .ticker span b { color: var(--accent); font-weight: 500; }
+  @keyframes ticker {
+    from { transform: translateX(0); }
+    to { transform: translateX(-50%); }
+  }
+
+  /* ── MAIN LAYOUT ── */
+  main {
+    position: relative;
+    z-index: 1;
+    max-width: 1120px;
+    margin: 0 auto;
+    padding: 120px 40px 120px;
+  }
+
+  /* ── HERO ── */
+  .hero {
+    margin-bottom: 120px;
+    opacity: 0;
+    transform: translateY(32px);
+    animation: fadeUp 1s ease 0.2s forwards;
+  }
+  .hero-eyebrow {
+    font-size: 11px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 28px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .hero-eyebrow::before {
+    content: '';
+    display: block;
+    width: 40px;
+    height: 1px;
+    background: var(--accent);
+  }
+  h1 {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(3.2rem, 9vw, 8rem);
+    font-weight: 800;
+    line-height: 0.92;
+    letter-spacing: -0.03em;
+    margin-bottom: 40px;
+  }
+  h1 em {
+    font-family: 'Instrument Serif', serif;
+    font-style: italic;
+    font-weight: 400;
+    color: var(--accent);
+  }
+  .hero-sub {
+    font-family: 'Instrument Serif', serif;
+    font-size: 1.35rem;
+    font-style: italic;
+    color: var(--muted);
+    max-width: 520px;
+    line-height: 1.6;
+  }
+
+  /* ── PENTAD EQUATION ── */
+  .equation-block {
+    margin: 80px 0;
+    padding: 48px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    position: relative;
+    overflow: hidden;
+    opacity: 0;
+    transform: translateY(24px);
+    animation: fadeUp 0.9s ease 0.5s forwards;
+  }
+  .equation-block::before {
+    content: 'PENTAD';
+    position: absolute;
+    top: 16px; right: 24px;
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    color: rgba(255,255,255,0.1);
+  }
+  .equation {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    flex-wrap: wrap;
+    gap: 0;
+  }
+  .eq-step {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 0 28px;
+    position: relative;
+  }
+  .eq-step:not(:last-child)::after {
+    content: '→';
+    position: absolute;
+    right: -10px;
+    top: 50%;
+    transform: translateY(-60%);
+    font-size: 1.2rem;
+    color: var(--muted);
+  }
+  .eq-symbol {
+    font-family: 'Instrument Serif', serif;
+    font-size: 2.6rem;
+    font-style: italic;
+    line-height: 1;
+    margin-bottom: 8px;
+  }
+  .eq-label {
+    font-size: 10px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--muted);
+    text-align: center;
+  }
+  .eq-step:nth-child(1) .eq-symbol { color: var(--indigo); }
+  .eq-step:nth-child(2) .eq-symbol { color: var(--red); }
+  .eq-step:nth-child(3) .eq-symbol { color: var(--orange); }
+  .eq-step:nth-child(4) .eq-symbol { color: var(--green); }
+  .eq-step:nth-child(5) .eq-symbol { color: var(--violet); }
+
+  /* ── SECTION HEADER ── */
+  .section-header {
+    display: flex;
+    align-items: baseline;
+    gap: 20px;
+    margin-bottom: 48px;
+  }
+  .section-num {
+    font-size: 11px;
+    letter-spacing: 0.15em;
+    color: var(--muted);
+    padding-top: 4px;
+  }
+  h2 {
+    font-family: 'Syne', sans-serif;
+    font-size: 1.8rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+  }
+
+  /* ── GRID OF VOICES ── */
+  .voices-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2px;
+    margin-bottom: 120px;
+  }
+  .voice-card {
+    background: var(--surface);
+    padding: 40px;
+    position: relative;
+    overflow: hidden;
+    transition: background 0.3s;
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  .voice-card.visible {
+    animation: fadeUp 0.7s ease forwards;
+  }
+  .voice-card:hover { background: #13131d; }
+  .voice-label {
+    font-size: 10px;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .voice-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    display: inline-block;
+  }
+  .card-gemini .voice-dot { background: var(--blue); }
+  .card-chatgpt .voice-dot { background: var(--green); }
+  .card-claude .voice-dot { background: var(--orange); }
+  .card-grok .voice-dot { background: var(--violet); }
+  .voice-card p {
+    font-family: 'Instrument Serif', serif;
+    font-size: 1.05rem;
+    font-style: italic;
+    color: var(--muted);
+    line-height: 1.65;
+  }
+  .voice-card .verdict {
+    margin-top: 24px;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    font-style: normal;
+    color: var(--text);
+    opacity: 0.5;
+    padding-top: 20px;
+    border-top: 1px solid var(--border);
+  }
+
+  /* ── ROYGBIV HEATMAP BAR ── */
+  .heatmap-section {
+    margin-bottom: 120px;
+    opacity: 0;
+    animation: fadeUp 0.9s ease 0.8s forwards;
+  }
+  .heatmap-bar {
+    height: 56px;
+    border-radius: 4px;
+    background: linear-gradient(to right,
+      var(--red), var(--orange), var(--yellow),
+      var(--green), var(--blue), var(--indigo), var(--violet)
+    );
+    margin: 32px 0;
+    position: relative;
+    overflow: hidden;
+  }
+  .heatmap-bar::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to bottom, rgba(255,255,255,0.08), transparent);
+  }
+  .heatmap-labels {
+    display: flex;
+    justify-content: space-between;
+    font-size: 10px;
+    letter-spacing: 0.15em;
+    color: var(--muted);
+  }
+
+  /* ── ANALYSIS TABLE ── */
+  .analysis-section { margin-bottom: 120px; }
+  .analysis-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  .analysis-table th {
+    font-size: 10px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--muted);
+    text-align: left;
+    padding: 12px 20px;
+    border-bottom: 1px solid var(--border);
+    font-weight: 400;
+  }
+  .analysis-table td {
+    padding: 20px 20px;
+    border-bottom: 1px solid var(--border);
+    vertical-align: top;
+    line-height: 1.6;
+    font-size: 13px;
+  }
+  .analysis-table tr:hover td { background: rgba(255,255,255,0.02); }
+  .step-tag {
+    display: inline-block;
+    padding: 3px 10px;
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    border-radius: 2px;
+    white-space: nowrap;
+  }
+  .tag-theta { background: rgba(94,92,230,0.2); color: var(--indigo); }
+  .tag-loss  { background: rgba(255,59,48,0.2);  color: var(--red); }
+  .tag-grad  { background: rgba(255,159,10,0.2); color: var(--orange); }
+  .tag-upd   { background: rgba(48,209,88,0.2);  color: var(--green); }
+  .tag-new   { background: rgba(191,90,242,0.2); color: var(--violet); }
+  .td-symbol {
+    font-family: 'Instrument Serif', serif;
+    font-size: 1.6rem;
+    font-style: italic;
+    padding-right: 12px;
+  }
+
+  /* ── COLLIER DEEP DIVE ── */
+  .collier-section {
+    margin-bottom: 120px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 40px;
+    align-items: start;
+  }
+  .collier-left h3 {
+    font-family: 'Syne', sans-serif;
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 20px;
+    letter-spacing: -0.02em;
+  }
+  .collier-left p {
+    color: var(--muted);
+    font-size: 13px;
+    line-height: 1.8;
+    margin-bottom: 16px;
+  }
+  .collier-right {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    padding: 36px;
+  }
+  .collier-right h4 {
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 24px;
+  }
+  .step-list { list-style: none; }
+  .step-list li {
+    display: grid;
+    grid-template-columns: 28px 1fr;
+    gap: 16px;
+    padding: 14px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 13px;
+    line-height: 1.6;
+    color: var(--muted);
+  }
+  .step-list li:last-child { border-bottom: none; }
+  .step-list li strong {
+    font-family: 'Instrument Serif', serif;
+    font-size: 1.2rem;
+    font-style: italic;
+    color: var(--text);
+    display: block;
+    line-height: 1;
+    margin-top: 2px;
+  }
+
+  /* ── DEEPER POINT ── */
+  .deep-block {
+    border-left: 3px solid var(--accent);
+    padding: 32px 40px;
+    background: var(--surface);
+    margin-bottom: 120px;
+    font-family: 'Instrument Serif', serif;
+    font-size: 1.4rem;
+    font-style: italic;
+    line-height: 1.6;
+    color: var(--text);
+    position: relative;
+  }
+  .deep-block::before {
+    content: '"';
+    position: absolute;
+    top: -20px; left: 32px;
+    font-size: 6rem;
+    color: var(--accent);
+    opacity: 0.15;
+    font-family: 'Instrument Serif', serif;
+    line-height: 1;
+  }
+  .deep-block cite {
+    display: block;
+    margin-top: 20px;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    font-style: normal;
+    letter-spacing: 0.1em;
+    color: var(--muted);
+  }
+
+  /* ── XGROK WIN BANNER ── */
+  .win-banner {
+    background: linear-gradient(135deg, #1a0a2e, #0a0a1a);
+    border: 1px solid rgba(191,90,242,0.3);
+    padding: 48px;
+    margin-bottom: 120px;
+    position: relative;
+    overflow: hidden;
+  }
+  .win-banner::before {
+    content: '';
+    position: absolute;
+    top: -40px; right: -40px;
+    width: 200px; height: 200px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(191,90,242,0.15), transparent 70%);
+  }
+  .win-banner h3 {
+    font-family: 'Syne', sans-serif;
+    font-size: 1.4rem;
+    font-weight: 700;
+    margin-bottom: 16px;
+    color: var(--violet);
+  }
+  .win-banner p {
+    color: var(--muted);
+    font-size: 13px;
+    line-height: 1.8;
+    max-width: 680px;
+  }
+  .win-tag {
+    display: inline-block;
+    background: rgba(191,90,242,0.15);
+    border: 1px solid rgba(191,90,242,0.3);
+    color: var(--violet);
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    padding: 4px 12px;
+    margin-bottom: 20px;
+  }
+
+  /* ── FOOTER ── */
+  footer {
+    border-top: 1px solid var(--border);
+    padding-top: 48px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: var(--muted);
+    font-size: 11px;
+    letter-spacing: 0.1em;
+  }
+  footer a {
+    color: var(--accent);
+    text-decoration: none;
+  }
+
+  /* ── LIVE GRADIENT CURSOR ── */
+  .cursor-glow {
+    position: fixed;
+    width: 320px; height: 320px;
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 2;
+    background: radial-gradient(circle, rgba(255,214,10,0.04) 0%, transparent 70%);
+    transform: translate(-50%, -50%);
+    transition: opacity 0.3s;
+  }
+
+  /* ── ANIMATIONS ── */
+  @keyframes fadeUp {
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 768px) {
+    main { padding: 100px 24px 80px; }
+    .voices-grid { grid-template-columns: 1fr; }
+    .collier-section { grid-template-columns: 1fr; }
+    .equation { gap: 8px; }
+    .eq-step { padding: 0 12px; }
+    .eq-step:not(:last-child)::after { display: none; }
+    h1 { font-size: 3rem; }
+  }
+
+  /* ── CODE BLOCK ── */
+  pre {
+    background: #0a0a12;
+    border: 1px solid var(--border);
+    padding: 28px 32px;
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    line-height: 1.8;
+    color: var(--text);
+    overflow-x: auto;
+    margin: 32px 0;
+  }
+  pre .c-purple { color: var(--violet); }
+  pre .c-green  { color: var(--green); }
+  pre .c-yellow { color: var(--yellow); }
+  pre .c-muted  { color: var(--muted); }
+  pre .c-red    { color: var(--red); }
+</style>
+</head>
+<body>
+
+<div class="mesh"></div>
+<div class="cursor-glow" id="cursorGlow"></div>
+
+<!-- TICKER -->
+<div class="ticker-wrap">
+  <div class="ticker" id="ticker">
+    <span><b>θ</b> prior state &nbsp;·&nbsp; <b>L(θ)</b> loss function &nbsp;·&nbsp; <b>∇L</b> gradient &nbsp;·&nbsp; <b>−η∇L</b> update rule &nbsp;·&nbsp; <b>θ′</b> new state &nbsp;·&nbsp; <b>UKUBONA</b> to see &nbsp;·&nbsp; <b>SGD</b> on attention &nbsp;·&nbsp; Jacob Collier conducting real-time &nbsp;·&nbsp; prediction error = loss &nbsp;·&nbsp; moral urgency → vector &nbsp;·&nbsp; </span>
+    <span><b>θ</b> prior state &nbsp;·&nbsp; <b>L(θ)</b> loss function &nbsp;·&nbsp; <b>∇L</b> gradient &nbsp;·&nbsp; <b>−η∇L</b> update rule &nbsp;·&nbsp; <b>θ′</b> new state &nbsp;·&nbsp; <b>UKUBONA</b> to see &nbsp;·&nbsp; <b>SGD</b> on attention &nbsp;·&nbsp; Jacob Collier conducting real-time &nbsp;·&nbsp; prediction error = loss &nbsp;·&nbsp; moral urgency → vector &nbsp;·&nbsp; </span>
+  </div>
+</div>
+
+<main>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-eyebrow">Ukubona LLC — Landscape Analysis</div>
+    <h1>Loss<br/><em>Landscape</em><br/>θ → θ′</h1>
+    <p class="hero-sub">The clip is not the point. The prediction error is. Every viral Short is stochastic gradient descent on attention.</p>
+  </section>
+
+  <!-- PENTAD EQUATION -->
+  <section class="equation-block">
+    <div class="equation">
+      <div class="eq-step">
+        <div class="eq-symbol">θ</div>
+        <div class="eq-label">Prior State</div>
+      </div>
+      <div class="eq-step">
+        <div class="eq-symbol">L(θ)</div>
+        <div class="eq-label">Loss Function</div>
+      </div>
+      <div class="eq-step">
+        <div class="eq-symbol">∇L</div>
+        <div class="eq-label">Gradient</div>
+      </div>
+      <div class="eq-step">
+        <div class="eq-symbol">−η∇L</div>
+        <div class="eq-label">Update Rule</div>
+      </div>
+      <div class="eq-step">
+        <div class="eq-symbol">θ′</div>
+        <div class="eq-label">New State</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- AI VOICES -->
+  <section style="margin-bottom:120px;">
+    <div class="section-header">
+      <span class="section-num">01</span>
+      <h2>Four Models, One Frame</h2>
+    </div>
+    <div class="voices-grid">
+
+      <div class="voice-card card-gemini">
+        <div class="voice-label"><span class="voice-dot"></span>Gemini</div>
+        <p>I seem to be encountering an error. Can I try something else for you?</p>
+        <div class="verdict">STATUS — complete failure. Zero analysis delivered.</div>
+      </div>
+
+      <div class="voice-card card-chatgpt">
+        <div class="voice-label"><span class="voice-dot"></span>ChatGPT / o-series</div>
+        <p>I can't directly see the content of that specific Short from the link you sent. If you paste the title or describe what happens in the clip, I can analyze it precisely.</p>
+        <div class="verdict">STATUS — correct disclaimer, solid framework, no video content.</div>
+      </div>
+
+      <div class="voice-card card-claude">
+        <div class="voice-label"><span class="voice-dot"></span>Claude</div>
+        <p>I can't directly view the YouTube Short, but I can analyze what's likely happening through the Ukubona lens — and it's a powerful frame. Most people watch a video of suffering and feel emotion. The Ukubona framework asks you to see it as an optimization surface — not coldly, but <em>precisely</em>. Emotion without gradient direction dissipates. The map converts moral urgency into a vector.</p>
+        <div class="verdict">STATUS — best philosophical framing. Weak on actual clip content.</div>
+      </div>
+
+      <div class="voice-card card-grok">
+        <div class="voice-label"><span class="voice-dot"></span>Grok / xAI</div>
+        <p>Jacob Collier conducting a live orchestra to improvise and build a song in real time — incorporating "Look at the stars, look how they shine for you" and "Every Breath You Take." Real-time cues: <em>"Keep playing... Bases go down to A... One, two, three."</em> Collier's process parallels gradient-based optimization in creative domains — navigating a complex musical landscape through iterative, data-informed steps.</p>
+        <div class="verdict">STATUS — only model to fetch actual clip content. Pentatd mapping was verbatim and complete.</div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- HEATMAP -->
+  <section class="heatmap-section">
+    <div class="section-header">
+      <span class="section-num">02</span>
+      <h2>The Gradient: ROYGBIV</h2>
+    </div>
+    <p style="color:var(--muted); max-width:560px; margin-bottom:8px;">Steepest descent is always toward red. The algorithm measures it via watch time, rewatches, pauses — converting biological attention into a trainable signal.</p>
+    <div class="heatmap-bar"></div>
+    <div class="heatmap-labels">
+      <span>URGENT — ∇L max</span>
+      <span>stable — ∇L ≈ 0</span>
+    </div>
+  </section>
+
+  <!-- TABLE -->
+  <section class="analysis-section">
+    <div class="section-header">
+      <span class="section-num">03</span>
+      <h2>Pentad Mapped</h2>
+    </div>
+    <table class="analysis-table">
+      <thead>
+        <tr>
+          <th>Step</th>
+          <th>Symbol</th>
+          <th>In a viral Short</th>
+          <th>In Jacob Collier</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><span class="step-tag tag-theta">State</span></td>
+          <td class="td-symbol" style="color:var(--indigo)">θ</td>
+          <td>Viewer expectation at swipe — "nothing special will happen"</td>
+          <td>Key selected: B-flat pizzicato for basses. Chord structure defined.</td>
+        </tr>
+        <tr>
+          <td><span class="step-tag tag-loss">Loss</span></td>
+          <td class="td-symbol" style="color:var(--red)">L(θ)</td>
+          <td>Prediction error fires — physics glitch, reveal, social rupture</td>
+          <td>Isolated bass notes without harmony — auditory "data deserts." Incomplete layers. Dissonance.</td>
+        </tr>
+        <tr>
+          <td><span class="step-tag tag-grad">Gradient</span></td>
+          <td class="td-symbol" style="color:var(--orange)">∇L</td>
+          <td>Brain tries to reduce error. Replays. Focuses. Measures via rewatch rate.</td>
+          <td>Quick auditory feedback. D note needs to be higher. Shift basses to A. Hot spots of silence.</td>
+        </tr>
+        <tr>
+          <td><span class="step-tag tag-upd">Update</span></td>
+          <td class="td-symbol" style="color:var(--green)">−η∇L</td>
+          <td>Likes, comments, shares, rewatches. Propagates the video.</td>
+          <td>"Keep playing... Bases go down to A... Everybody down... One, two, three." Layer vocals. Introduce lyrics.</td>
+        </tr>
+        <tr>
+          <td><span class="step-tag tag-new">New State</span></td>
+          <td class="td-symbol" style="color:var(--violet)">θ′</td>
+          <td>Viewer updates model. Resolves illusion. Learns the trick.</td>
+          <td>Orchestra synchronizes into mashup: "Look at the stars" — cohesive, joyful, baseline for next pass.</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- COLLIER DEEP DIVE -->
+  <section class="collier-section">
+    <div class="collier-left">
+      <div class="section-header" style="margin-bottom:28px;">
+        <span class="section-num">04</span>
+        <h2>Collier as Gradient Descent</h2>
+      </div>
+      <p>Jacob Collier doesn't compose. He <em>optimizes</em>. The orchestra is a parameter space. The silence before the first note is maximum loss. Every cue is a weight update applied in the negative gradient direction.</p>
+      <p>This is not metaphor. The learning rate η is genuinely adaptive — quick iterations keep energy flowing, preventing the local minima of dead silence or monotony. The process converges to a piece that was never written.</p>
+      <p>The Ukubona lens was built to map disease burden in Uganda. What it reveals here is that the same mathematics governs spontaneous musical creation, viral attention, and the distribution of suffering. The surface doesn't care what's on it.</p>
+
+      <pre><code><span class="c-purple">while</span> L(θ) <span class="c-red">&gt;</span> <span class="c-yellow">threshold</span>:
+  <span class="c-green">∇L</span> <span class="c-muted">= listen(orchestra)</span>
+  θ   <span class="c-muted">= θ</span> <span class="c-red">-</span> η <span class="c-red">*</span> <span class="c-green">∇L</span>
+  <span class="c-muted">cue(orchestra, θ)</span>
+<span class="c-purple">return</span> θ  <span class="c-muted"># the emergent song</span></code></pre>
+    </div>
+
+    <div class="collier-right">
+      <h4>Five Passes in the Video</h4>
+      <ul class="step-list">
+        <li>
+          <span style="color:var(--indigo); font-size:1.1rem;">θ</span>
+          <div><strong>State Selection</strong> B-flat pizzicato. Basses only. The parameter space is chosen — not overwhelming, just foundational. Dropdown selection of disease burden in Uganda: same logic.</div>
+        </li>
+        <li>
+          <span style="color:var(--red); font-size:1.1rem;">L</span>
+          <div><strong>Loss Measured</strong> Isolated notes without supporting harmony. Silence where melody should be. The gap between this and the ideal is the loss — audible, not abstract.</div>
+        </li>
+        <li>
+          <span style="color:var(--orange); font-size:1.1rem;">∇L</span>
+          <div><strong>Gradient Found</strong> Collier listens, gestures, redirects. The viola's D needs to be higher. The red zones: silence, imbalance, missing inversions. He targets these first.</div>
+        </li>
+        <li>
+          <span style="color:var(--green); font-size:1.1rem;">−η∇L</span>
+          <div><strong>Update Applied</strong> "Keep playing... Bases go down to A... One, two, three." Vocals layered. "Look at the stars, look how they shine for you." The learning rate is high and ruthless.</div>
+        </li>
+        <li>
+          <span style="color:var(--violet); font-size:1.1rem;">θ′</span>
+          <div><strong>New State</strong> The orchestra synchronizes. The mashup is cohesive. Fewer data deserts. The landscape has been lowered — ready for the next cycle, though the Short ends here.</div>
+        </li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- QUOTE BLOCK -->
+  <div class="deep-block">
+    Most people watch a video of suffering and feel emotion. The Ukubona framework asks you to see it as an optimization surface — not coldly, but <em>precisely</em>. Emotion without gradient direction dissipates. The map converts moral urgency into a vector: <em>this</em> district, <em>this</em> condition, <em>this</em> grant cycle.
+    <cite>— Claude's analysis, March 2026</cite>
+  </div>
+
+  <!-- GROK WIN -->
+  <section class="win-banner">
+    <div class="win-tag">Benchmark Result</div>
+    <h3>Why Grok Won This Round</h3>
+    <p>xAI's built-in <code>browse_page</code> function fetches any URL and passes custom instructions to an LLM summarizer — extracting scene breakdowns, audio cues, timestamps. GPT and Claude, in their standard configs, lack or restrict dynamic web fetching for video analysis. Gemini has Google's native YouTube API access but failed to deploy it. Grok bridged the gap: real clip content, verbatim analysis, complete pentad mapping. This win was pure web-crawl capability. On an X clip, the semantic search and thread-fetch tools would amplify it further — but this was open web, and it still took it.</p>
+  </section>
+
+  <!-- DEEPER INTERPRETATION -->
+  <section style="margin-bottom:120px;">
+    <div class="section-header">
+      <span class="section-num">05</span>
+      <h2>The Deeper Structure</h2>
+    </div>
+    <p style="color:var(--muted); max-width:640px; line-height:1.9; margin-bottom:40px;">Short-form feeds are literally SGD on attention. Instead of updating neural weights, the system updates viewer taste, algorithm ranking, content style — millions of times per second. Shorts are built for fast gradient loops:</p>
+    <pre><code><span class="c-muted"># The platform's actual objective</span>
+<span class="c-purple">for</span> viewer <span class="c-purple">in</span> <span class="c-yellow">feed</span>:
+  θ_viewer  <span class="c-muted">= model_of(viewer)</span>
+  clip      <span class="c-muted">= argmax(P(engage | θ_viewer))</span>
+  <span class="c-green">L</span>         <span class="c-muted">= surprise(clip, θ_viewer)</span>
+  <span class="c-muted">behavior  = watch | like | share | rewatch</span>
+  θ_viewer  <span class="c-muted">= update(θ_viewer,</span> <span class="c-red">-</span>η<span class="c-muted">,</span> <span class="c-green">∇L</span><span class="c-muted">)</span>
+
+<span class="c-muted"># Unresolved error → maximum replay value.</span>
+<span class="c-muted"># Sometimes the clip never fully resolves.</span>
+<span class="c-muted"># That's deliberate.</span></code></pre>
+    <p style="color:var(--muted); max-width:600px; line-height:1.9; margin-top:32px;">The clip is not the point. The <strong style="color:var(--text)">prediction error</strong> is. The real structure has always been: expectation → violation → attention spike → behavior → learning. That is θ → L → ∇L → action → θ′. The Ukubona landscape didn't invent this. It just named it.</p>
+  </section>
+
+</main>
+
+<footer style="max-width:1120px; margin:0 auto; padding: 0 40px 80px;">
+  <div>Ukubona LLC &nbsp;·&nbsp; <a href="https://ukubona-llc.github.io/landscape/" target="_blank">landscape →</a></div>
+  <div>θ → L → ∇L → −η∇L → θ′</div>
+</footer>
+
+<script>
+  // Cursor glow
+  const glow = document.getElementById('cursorGlow');
+  document.addEventListener('mousemove', e => {
+    glow.style.left = e.clientX + 'px';
+    glow.style.top = e.clientY + 'px';
+  });
+
+  // Scroll-triggered fade-in for voice cards
+  const cards = document.querySelectorAll('.voice-card');
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach((entry, i) => {
+      if (entry.isIntersecting) {
+        setTimeout(() => entry.target.classList.add('visible'), i * 80);
+        observer.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.1 });
+  cards.forEach(c => observer.observe(c));
+
+  // Heatmap shimmer on hover
+  const bar = document.querySelector('.heatmap-bar');
+  if (bar) {
+    bar.addEventListener('mousemove', e => {
+      const rect = bar.getBoundingClientRect();
+      const x = ((e.clientX - rect.left) / rect.width) * 100;
+      bar.style.setProperty('--shimmer-x', x + '%');
+    });
+  }
+</script>
+</body>
+</html>
