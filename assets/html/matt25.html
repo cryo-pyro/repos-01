@@ -1,0 +1,692 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Matthew 25 — The Invisible Patient</title>
+<link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --void: #0a0a08;
+    --parchment: #f0ead8;
+    --blood: #8b1a1a;
+    --gold: #c9a84c;
+    --ash: #6b6b5e;
+    --light: #e8dfc8;
+    --absent: #1a1a14;
+    --present: #c9a84c;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--void);
+    color: var(--parchment);
+    font-family: 'Crimson Pro', Georgia, serif;
+    font-size: 20px;
+    line-height: 1.75;
+    overflow-x: hidden;
+  }
+
+  /* ─── GRAIN OVERLAY ─── */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 9999;
+    opacity: 0.4;
+  }
+
+  /* ─── OPENING ─── */
+  .opening {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 8vw 10vw;
+    position: relative;
+    border-bottom: 1px solid #2a2a20;
+  }
+
+  .opening::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--gold), transparent);
+  }
+
+  .verse-ref {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.3em;
+    color: var(--gold);
+    text-transform: uppercase;
+    margin-bottom: 3rem;
+    opacity: 0;
+    animation: fadeUp 1.2s ease forwards 0.3s;
+  }
+
+  .headline {
+    font-size: clamp(2.8rem, 6vw, 5.5rem);
+    font-weight: 300;
+    line-height: 1.1;
+    max-width: 16ch;
+    opacity: 0;
+    animation: fadeUp 1.4s ease forwards 0.6s;
+  }
+
+  .headline em {
+    font-style: italic;
+    color: var(--gold);
+    display: block;
+  }
+
+  .subhead {
+    margin-top: 3rem;
+    font-size: 1.1rem;
+    color: var(--ash);
+    max-width: 44ch;
+    font-weight: 300;
+    opacity: 0;
+    animation: fadeUp 1.4s ease forwards 1s;
+  }
+
+  .scroll-cue {
+    position: absolute;
+    bottom: 2.5rem;
+    left: 10vw;
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.25em;
+    color: var(--ash);
+    opacity: 0;
+    animation: fadeUp 1s ease forwards 1.8s;
+  }
+
+  /* ─── DISTRICT GRID ─── */
+  .grid-section {
+    padding: 8vw 10vw;
+    border-bottom: 1px solid #1e1e16;
+    position: relative;
+  }
+
+  .section-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.35em;
+    color: var(--gold);
+    text-transform: uppercase;
+    margin-bottom: 2.5rem;
+  }
+
+  .grid-title {
+    font-size: clamp(1.6rem, 3vw, 2.4rem);
+    font-weight: 300;
+    margin-bottom: 1rem;
+  }
+
+  .grid-subtitle {
+    color: var(--ash);
+    font-size: 1rem;
+    max-width: 52ch;
+    margin-bottom: 4rem;
+  }
+
+  .district-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(14px, 1fr));
+    gap: 3px;
+    max-width: 900px;
+  }
+
+  .district-dot {
+    width: 14px;
+    height: 14px;
+    border-radius: 2px;
+    background: var(--absent);
+    border: 1px solid #2a2a20;
+    transition: all 0.3s ease;
+    cursor: default;
+    position: relative;
+  }
+
+  .district-dot.seen {
+    background: var(--gold);
+    border-color: var(--gold);
+    box-shadow: 0 0 6px rgba(201,168,76,0.4);
+    animation: pulse 3s ease-in-out infinite;
+  }
+
+  .district-dot:hover {
+    transform: scale(1.4);
+    z-index: 10;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.65; }
+  }
+
+  .grid-legend {
+    display: flex;
+    gap: 3rem;
+    margin-top: 2rem;
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    color: var(--ash);
+  }
+
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+  }
+
+  .legend-dot {
+    width: 12px; height: 12px;
+    border-radius: 2px;
+  }
+
+  .stat-block {
+    margin-top: 4rem;
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 2px;
+    max-width: 700px;
+  }
+
+  .stat {
+    padding: 2rem 1.5rem;
+    background: var(--absent);
+    border: 1px solid #1e1e18;
+  }
+
+  .stat-number {
+    font-family: 'Space Mono', monospace;
+    font-size: clamp(2rem, 4vw, 3.2rem);
+    font-weight: 700;
+    color: var(--blood);
+    display: block;
+    line-height: 1;
+    margin-bottom: 0.5rem;
+  }
+
+  .stat-number.gold { color: var(--gold); }
+
+  .stat-label {
+    font-size: 0.85rem;
+    color: var(--ash);
+    font-weight: 300;
+  }
+
+  /* ─── SCRIPTURE PANELS ─── */
+  .scripture-section {
+    padding: 8vw 10vw;
+    position: relative;
+  }
+
+  .verse-pair {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2px;
+    margin-bottom: 2px;
+  }
+
+  .verse-panel {
+    padding: 3rem 2.5rem;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .verse-panel.text {
+    background: var(--absent);
+    border: 1px solid #1e1e18;
+  }
+
+  .verse-panel.application {
+    background: #0f0f0a;
+    border: 1px solid #2a2a20;
+  }
+
+  .verse-panel::before {
+    content: attr(data-verse);
+    font-family: 'Space Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.3em;
+    color: var(--gold);
+    display: block;
+    margin-bottom: 1.5rem;
+    opacity: 0.7;
+  }
+
+  .verse-text {
+    font-size: 1.15rem;
+    line-height: 1.7;
+    font-style: italic;
+    color: var(--light);
+    font-weight: 300;
+  }
+
+  .application-text {
+    font-size: 1rem;
+    line-height: 1.8;
+    color: var(--ash);
+    font-weight: 300;
+  }
+
+  .application-text strong {
+    color: var(--parchment);
+    font-weight: 400;
+  }
+
+  .application-text .epsilon {
+    font-family: 'Space Mono', monospace;
+    color: var(--gold);
+    font-size: 0.9em;
+  }
+
+  /* ─── THE QUESTION ─── */
+  .question-section {
+    padding: 10vw 10vw;
+    border-top: 1px solid #1e1e18;
+    border-bottom: 1px solid #1e1e18;
+    position: relative;
+    text-align: center;
+  }
+
+  .question-section::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--blood), transparent);
+  }
+
+  .question-text {
+    font-size: clamp(1.8rem, 4vw, 3.4rem);
+    font-weight: 300;
+    font-style: italic;
+    line-height: 1.3;
+    max-width: 20ch;
+    margin: 0 auto 3rem;
+    color: var(--light);
+  }
+
+  .question-text em {
+    color: var(--blood);
+    font-style: normal;
+  }
+
+  .answer {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.9rem;
+    letter-spacing: 0.05em;
+    color: var(--ash);
+    max-width: 56ch;
+    margin: 0 auto;
+    line-height: 1.9;
+  }
+
+  .answer .ε { color: var(--gold); }
+
+  /* ─── KUBALA / KULABA ─── */
+  .flip-section {
+    padding: 8vw 10vw;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2px;
+  }
+
+  .flip-panel {
+    padding: 4rem 3rem;
+    position: relative;
+  }
+
+  .flip-panel.kubala {
+    background: #0d0d09;
+    border: 1px solid #1e1e18;
+  }
+
+  .flip-panel.kulaba {
+    background: var(--absent);
+    border: 1px solid var(--gold);
+    border-width: 1px;
+  }
+
+  .flip-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.4em;
+    text-transform: uppercase;
+    margin-bottom: 1rem;
+  }
+
+  .kubala .flip-label { color: var(--ash); }
+  .kulaba .flip-label { color: var(--gold); }
+
+  .flip-word {
+    font-size: clamp(2.5rem, 5vw, 4rem);
+    font-weight: 300;
+    margin-bottom: 0.5rem;
+    line-height: 1;
+  }
+
+  .kubala .flip-word { color: #3a3a30; }
+  .kulaba .flip-word { color: var(--parchment); }
+
+  .flip-meaning {
+    font-size: 1.1rem;
+    font-style: italic;
+    margin-bottom: 1.5rem;
+  }
+
+  .kubala .flip-meaning { color: var(--ash); }
+  .kulaba .flip-meaning { color: var(--gold); }
+
+  .flip-body {
+    font-size: 0.95rem;
+    line-height: 1.8;
+    color: var(--ash);
+  }
+
+  .kulaba .flip-body { color: var(--light); }
+
+  .arrow-bridge {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 1rem;
+    font-family: 'Space Mono', monospace;
+    font-size: 1.5rem;
+    color: var(--gold);
+    align-self: center;
+    writing-mode: horizontal-tb;
+  }
+
+  /* ─── CLOSING ─── */
+  .closing {
+    padding: 10vw 10vw;
+    text-align: center;
+  }
+
+  .closing-verse {
+    font-size: clamp(1.2rem, 2.5vw, 1.8rem);
+    font-style: italic;
+    font-weight: 300;
+    line-height: 1.6;
+    color: var(--light);
+    max-width: 36ch;
+    margin: 0 auto 3rem;
+    position: relative;
+  }
+
+  .closing-verse::before {
+    content: '\201C';
+    font-size: 6rem;
+    color: var(--blood);
+    opacity: 0.3;
+    position: absolute;
+    top: -2rem;
+    left: -3rem;
+    line-height: 1;
+    font-style: normal;
+  }
+
+  .closing-ref {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.35em;
+    color: var(--gold);
+    text-transform: uppercase;
+    margin-bottom: 4rem;
+  }
+
+  .project-link {
+    display: inline-block;
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    color: var(--void);
+    background: var(--gold);
+    padding: 1rem 2.5rem;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+  }
+
+  .project-link:hover {
+    background: var(--parchment);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 30px rgba(201,168,76,0.2);
+  }
+
+  /* ─── ANIMATIONS ─── */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(24px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .reveal {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.9s ease, transform 0.9s ease;
+  }
+
+  .reveal.visible {
+    opacity: 1;
+    transform: none;
+  }
+
+  /* ─── RESPONSIVE ─── */
+  @media (max-width: 700px) {
+    .verse-pair,
+    .flip-section { grid-template-columns: 1fr; }
+    .stat-block { grid-template-columns: 1fr 1fr; }
+    .flip-section { gap: 2px; }
+    .closing-verse::before { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<!-- OPENING -->
+<section class="opening">
+  <div class="verse-ref">Matthew 25:37–40 · Uganda Renal Atlas</div>
+  <h1 class="headline">
+    I was sick,<br>
+    and ye<br>
+    <em>visited me not.</em>
+  </h1>
+  <p class="subhead">
+    When the blank district is the patient. When the missing creatinine record is the face of Christ. When ε is not noise — but testimony.
+  </p>
+  <span class="scroll-cue">↓ SCROLL</span>
+</section>
+
+
+<!-- DISTRICT GRID -->
+<section class="grid-section reveal">
+  <div class="section-label">The Landscape — 146 Districts</div>
+  <h2 class="grid-title">Who the map sees. Who it doesn't.</h2>
+  <p class="grid-subtitle">Each square is a district. Gold squares have published kidney data. Dark squares are silence.</p>
+
+  <div class="district-grid" id="districtGrid"></div>
+
+  <div class="grid-legend">
+    <div class="legend-item">
+      <div class="legend-dot" style="background:var(--gold)"></div>
+      <span>11 districts — seen</span>
+    </div>
+    <div class="legend-item">
+      <div class="legend-dot" style="background:var(--absent); border:1px solid #2a2a20"></div>
+      <span>135 districts — invisible</span>
+    </div>
+  </div>
+
+  <div class="stat-block">
+    <div class="stat">
+      <span class="stat-number">135</span>
+      <span class="stat-label">Districts with zero published kidney data</span>
+    </div>
+    <div class="stat">
+      <span class="stat-number">72<span style="font-size:0.5em">%</span></span>
+      <span class="stat-label">Of Uganda's population living in the void</span>
+    </div>
+    <div class="stat">
+      <span class="stat-number gold">$55k</span>
+      <span class="stat-label">Cost of medical tourism to India for dialysis</span>
+    </div>
+  </div>
+</section>
+
+
+<!-- SCRIPTURE + APPLICATION PANELS -->
+<section class="scripture-section">
+  <div class="section-label">The Parable — Applied</div>
+
+  <div class="verse-pair reveal">
+    <div class="verse-panel text" data-verse="MT 25:35">
+      <p class="verse-text">
+        "For I was hungry and you gave me food, I was thirsty and you gave me drink, I was a stranger and you welcomed me."
+      </p>
+    </div>
+    <div class="verse-panel application" data-verse="RENAL ATLAS · 2026">
+      <p class="application-text">
+        <strong>The patient in Kotido who never received a creatinine test</strong> is hungry for diagnosis. The district with no nephrologist is thirsty for capacity. The 72% of Ugandans invisible to the published literature are strangers the system has refused to welcome — not through malice, but through the architecture of neglect.
+      </p>
+    </div>
+  </div>
+
+  <div class="verse-pair reveal">
+    <div class="verse-panel text" data-verse="MT 25:36">
+      <p class="verse-text">
+        "I was naked and you clothed me, I was sick and you visited me, I was in prison and you came to me."
+      </p>
+    </div>
+    <div class="verse-panel application" data-verse="ε — THE SIGNAL">
+      <p class="application-text">
+        The blank district is the sick who were not visited. The missing record is the prisoner of end-stage renal failure who sold land to fund a trip to Kampala or Nairobi or New Delhi. The <span class="epsilon">ε</span> in the model — the error term, the residual, the thing traditional statistics discards — is the precise coordinate of this unvisited sickness.
+      </p>
+    </div>
+  </div>
+
+  <div class="verse-pair reveal">
+    <div class="verse-panel text" data-verse="MT 25:37–40">
+      <p class="verse-text">
+        "When did we see you hungry… or sick… or in prison, and visit you?" And the King will answer: "Truly I say to you, as you did it to one of the least of these my brothers, you did it to me."
+      </p>
+    </div>
+    <div class="verse-panel application" data-verse="UKUBONA · THE ARCHITECTURE">
+      <p class="application-text">
+        The question <em>"when did we see you?"</em> is the methodological crisis. You didn't see because you only measured the patients who reached the clinic. <strong>Ukubona</strong> — to see — demands a different architecture. One that asks not <em>who came</em>, but <em>who never arrived, and why</em>. The Atlas does not just report. It refuses to look away from the least of these.
+      </p>
+    </div>
+  </div>
+</section>
+
+
+<!-- THE QUESTION -->
+<section class="question-section reveal">
+  <p class="question-text">
+    "When did we <em>see</em> thee sick?"
+  </p>
+  <p class="answer">
+    You didn't.<br><br>
+    That is the answer.<br>
+    That is the <span class="ε">ε</span>.<br><br>
+    The structured absence of creatinine records in 135 districts<br>
+    is not missing data to be imputed or discarded.<br>
+    It is the highest-fidelity testimony of systemic failure —<br>
+    the exact coordinates of who was not seen.<br><br>
+    Standard models throw this away.<br>
+    This architecture weaponises it.<br>
+    For justice.
+  </p>
+</section>
+
+
+<!-- KUBALA / KULABA -->
+<section class="flip-section">
+  <div class="flip-panel kubala reveal">
+    <div class="flip-label">The old method</div>
+    <div class="flip-word">Kubala</div>
+    <div class="flip-meaning">to count</div>
+    <p class="flip-body">
+      Count the patients who reach the clinic. Measure who arrives. Build the dataset from the arrivals. The absent are invisible — their silence treated as informationless noise, or simply excluded from analysis.<br><br>
+      Classical epidemiology. Clean. Tractable. Deeply unjust.
+    </p>
+  </div>
+
+  <div class="flip-panel kulaba reveal">
+    <div class="flip-label">The new method</div>
+    <div class="flip-word">Kulaba</div>
+    <div class="flip-meaning">to see — truly</div>
+    <p class="flip-body">
+      Contour the topology of who is missing. Map the gravity wells of absence. Ask not only who came, but who never got the chance. Treat the blank as signal. Let <span style="color:var(--gold);font-family:'Space Mono',monospace">ε</span> descend.<br><br>
+      Matthew 25 epidemiology. Uncomfortable. Precise. Moral.
+    </p>
+  </div>
+</section>
+
+
+<!-- CLOSING -->
+<section class="closing reveal">
+  <blockquote class="closing-verse">
+    "Inasmuch as ye did it not to one of the least of these, ye did it not to me."
+  </blockquote>
+  <div class="closing-ref">Matthew 25:45 · The Verdict</div>
+
+  <p style="font-size:1rem; color:var(--ash); max-width:44ch; margin:0 auto 3rem; line-height:1.8;">
+    The Uganda Renal Atlas is an act of seeing. The Ukubona framework refuses the comfortable mathematics of the present. The roundtable has begun. The ε is now inside the loop. The blank districts have coordinates.
+  </p>
+
+  <a class="project-link" href="https://ukb-dt.github.io/repos-01/assets/html/ucu-renal.html" target="_blank">
+    Open the Living Atlas →
+  </a>
+</section>
+
+
+<script>
+  // ─── DISTRICT GRID ───
+  const grid = document.getElementById('districtGrid');
+  const TOTAL = 146;
+  const SEEN = 11;
+  // Spread the 11 seen districts somewhat naturally (biased toward lower indices = urban)
+  const seenIdx = new Set([0,1,2,3,4,5,6,8,11,15,22]);
+
+  for (let i = 0; i < TOTAL; i++) {
+    const dot = document.createElement('div');
+    dot.className = 'district-dot' + (seenIdx.has(i) ? ' seen' : '');
+    dot.title = seenIdx.has(i)
+      ? `District ${i+1} — published data exists`
+      : `District ${i+1} — no published kidney data`;
+    // Stagger the seen pulses
+    if (seenIdx.has(i)) {
+      dot.style.animationDelay = `${Math.random() * 2}s`;
+    }
+    grid.appendChild(dot);
+  }
+
+  // ─── SCROLL REVEAL ───
+  const revealEls = document.querySelectorAll('.reveal');
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        e.target.classList.add('visible');
+        observer.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.1 });
+
+  revealEls.forEach(el => observer.observe(el));
+</script>
+
+</body>
+</html>
