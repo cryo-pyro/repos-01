@@ -1,0 +1,909 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Uganda CKD / Renal Atlas · Ukubona LLC × UCU</title>
+<meta name="color-scheme" content="dark light">
+<link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Playfair+Display:ital,wght@0,600;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.min.css">
+<style>
+:root {
+  --bg:#080d0a; --surf:#0f1510; --surf2:#171f18;
+  --brd:rgba(80,200,120,0.10); --ink:#e2efe6; --mut:#608070; --dim:#253028;
+  --r:#e84040; --o:#d87030; --y:#d4a820; --g:#30b060; --b:#2880d8; --i:#5040c0; --v:#20b890;
+  --accent:#50d080; --accent2:#80e0ff;
+}
+[data-theme="light"] {
+  --bg:#f4faf6; --surf:#fff; --surf2:#eaf5ed;
+  --brd:rgba(30,150,70,0.12); --ink:#0a1f10; --mut:#406050; --dim:#c8e0d0;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+html,body{height:100%;overflow:hidden;}
+body{font-family:'DM Sans',sans-serif;font-size:13px;background:var(--bg);color:var(--ink);display:flex;flex-direction:column;}
+
+/* ── HEADER ── */
+.hd{display:flex;align-items:center;justify-content:space-between;padding:.6rem 1.1rem;background:var(--surf);border-bottom:1px solid var(--brd);flex-shrink:0;gap:.75rem;flex-wrap:wrap;position:sticky;top:0;z-index:1000;}
+.logo-wrap{display:flex;align-items:center;gap:.5rem;text-decoration:none;}
+.brand-name{font-family:'Playfair Display',serif;font-size:1.05rem;color:var(--ink);}
+.brand-tag{font-family:'DM Mono',monospace;font-size:.52rem;color:var(--mut);letter-spacing:.1em;text-transform:uppercase;}
+.hd-center{flex:1;text-align:center;}
+.hd-title{font-family:'Playfair Display',serif;font-size:1.15rem;color:var(--ink);}
+.hd-sub{font-family:'DM Mono',monospace;font-size:.54rem;color:var(--mut);letter-spacing:.06em;margin-top:.1rem;}
+.hd-right{display:flex;gap:.4rem;align-items:center;flex-wrap:wrap;}
+.badge{font-family:'DM Mono',monospace;font-size:.54rem;letter-spacing:.08em;text-transform:uppercase;padding:.18em .65em;border:1px solid var(--brd);border-radius:999px;color:var(--mut);}
+.badge-nih{color:var(--accent);border-color:rgba(80,208,128,.3);}
+.icon-btn{background:var(--surf2);border:1px solid var(--brd);border-radius:6px;padding:.38rem;cursor:pointer;color:var(--mut);display:flex;align-items:center;transition:border-color .15s,color .15s;}
+.icon-btn:hover{border-color:var(--accent);color:var(--accent);}
+
+/* ── SEARCH TRIGGER BUTTON ── */
+.search-trigger{display:flex;align-items:center;gap:.5rem;background:var(--surf2);border:1px solid var(--brd);border-radius:7px;padding:.32rem .75rem;cursor:pointer;color:var(--mut);font-family:'DM Mono',monospace;font-size:.6rem;letter-spacing:.06em;transition:border-color .15s,color .15s,background .15s;min-width:180px;}
+.search-trigger:hover{border-color:var(--accent);color:var(--accent);background:rgba(80,208,128,.05);}
+.search-trigger svg{opacity:.5;flex-shrink:0;}
+.search-trigger span{flex:1;}
+.search-trigger kbd{background:var(--dim);border-radius:3px;padding:.05em .35em;font-size:.55rem;opacity:.6;}
+
+/* ── COMMAND PALETTE OVERLAY ── */
+#cmd-overlay{position:fixed;inset:0;z-index:9000;background:rgba(4,8,5,.82);backdrop-filter:blur(6px);display:none;align-items:flex-start;justify-content:center;padding-top:12vh;}
+#cmd-overlay.open{display:flex;}
+.cmd-box{width:min(600px,90vw);background:var(--surf);border:1px solid rgba(80,208,128,.25);border-radius:12px;overflow:hidden;box-shadow:0 32px 80px rgba(0,0,0,.85);animation:cmdIn .14s ease;}
+@keyframes cmdIn{from{opacity:0;transform:translateY(-12px) scale(.97);}to{opacity:1;transform:none;}}
+
+.cmd-input-row{display:flex;align-items:center;gap:.6rem;padding:.75rem 1rem;border-bottom:1px solid var(--brd);}
+.cmd-input-row svg{color:var(--mut);flex-shrink:0;}
+#cmd-input{flex:1;background:none;border:none;outline:none;font-family:'DM Sans',sans-serif;font-size:.95rem;color:var(--ink);caret-color:var(--accent);}
+#cmd-input::placeholder{color:var(--mut);}
+.cmd-esc{font-family:'DM Mono',monospace;font-size:.55rem;color:var(--mut);background:var(--surf2);padding:.15em .45em;border-radius:3px;border:1px solid var(--brd);cursor:pointer;flex-shrink:0;}
+
+.cmd-section-label{font-family:'DM Mono',monospace;font-size:.52rem;letter-spacing:.12em;text-transform:uppercase;color:var(--mut);padding:.5rem 1rem .25rem;}
+.cmd-results{max-height:380px;overflow-y:auto;}
+.cmd-item{display:flex;align-items:center;gap:.7rem;padding:.55rem 1rem;cursor:pointer;transition:background .08s;border-left:2px solid transparent;}
+.cmd-item:hover,.cmd-item.focused{background:rgba(80,208,128,.07);border-left-color:var(--accent);}
+.cmd-item-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0;}
+.cmd-item-main{flex:1;}
+.cmd-item-name{font-size:.82rem;color:var(--ink);}
+.cmd-item-sub{font-family:'DM Mono',monospace;font-size:.58rem;color:var(--mut);margin-top:.05rem;}
+.cmd-item-val{font-family:'DM Mono',monospace;font-size:.75rem;font-weight:500;}
+.cmd-item-action{font-family:'DM Mono',monospace;font-size:.55rem;color:var(--mut);background:var(--surf2);padding:.1em .4em;border-radius:3px;border:1px solid var(--brd);}
+
+.cmd-divider{height:1px;background:var(--brd);margin:.25rem 0;}
+.cmd-footer{display:flex;gap:1rem;padding:.45rem 1rem;border-top:1px solid var(--brd);font-family:'DM Mono',monospace;font-size:.54rem;color:var(--mut);}
+.cmd-footer kbd{background:var(--surf2);border:1px solid var(--brd);border-radius:3px;padding:.05em .35em;margin-right:.2em;}
+
+/* ── COMPARE PANEL (slides up from bottom) ── */
+#compare-panel{position:fixed;bottom:0;left:0;right:0;z-index:500;background:var(--surf);border-top:1px solid rgba(80,208,128,.25);transform:translateY(100%);transition:transform .3s cubic-bezier(.4,0,.2,1);max-height:200px;}
+#compare-panel.open{transform:translateY(0);}
+.cmp-header{display:flex;align-items:center;justify-content:space-between;padding:.45rem 1rem;border-bottom:1px solid var(--brd);}
+.cmp-title{font-family:'DM Mono',monospace;font-size:.58rem;letter-spacing:.1em;text-transform:uppercase;color:var(--mut);}
+.cmp-close{background:none;border:none;color:var(--mut);cursor:pointer;font-size:.7rem;padding:.1rem .3rem;}
+.cmp-close:hover{color:var(--r);}
+.cmp-body{display:grid;grid-template-columns:1fr 60px 1fr;padding:.6rem 1rem;gap:.5rem;align-items:center;}
+.cmp-district{background:var(--surf2);border:1px solid var(--brd);border-radius:6px;padding:.6rem .8rem;}
+.cmp-d-name{font-family:'Playfair Display',serif;font-size:.9rem;margin-bottom:.35rem;}
+.cmp-dims{display:flex;flex-direction:column;gap:.18rem;}
+.cmp-dim-row{display:flex;align-items:center;gap:.4rem;font-family:'DM Mono',monospace;font-size:.58rem;}
+.cmp-bar-bg{height:3px;background:var(--dim);border-radius:2px;width:55px;flex-shrink:0;}
+.cmp-bar-fill{height:100%;border-radius:2px;}
+.cmp-vs{text-align:center;font-family:'DM Mono',monospace;font-size:.65rem;color:var(--mut);}
+.cmp-slot-empty{background:var(--surf2);border:1px dashed var(--brd);border-radius:6px;padding:.6rem .8rem;text-align:center;font-family:'DM Mono',monospace;font-size:.58rem;color:var(--mut);display:flex;align-items:center;justify-content:center;min-height:80px;}
+
+/* ── COMPARE MODE INDICATOR ── */
+.cmp-mode-badge{position:fixed;bottom:16px;right:16px;z-index:600;background:rgba(80,208,128,.15);border:1px solid rgba(80,208,128,.4);border-radius:999px;padding:.3em .8em;font-family:'DM Mono',monospace;font-size:.6rem;color:var(--accent);display:none;cursor:pointer;gap:.4rem;align-items:center;}
+.cmp-mode-badge.on{display:flex;}
+.cmp-mode-badge:hover{background:rgba(80,208,128,.25);}
+
+/* ── BODY LAYOUT ── */
+.body{display:flex;flex:1;overflow:hidden;min-height:0;}
+.lp{width:252px;flex-shrink:0;background:var(--surf);border-right:1px solid var(--brd);overflow-y:auto;padding:1rem;display:flex;flex-direction:column;gap:.9rem;}
+.plbl{font-family:'DM Mono',monospace;font-size:.54rem;letter-spacing:.14em;text-transform:uppercase;color:var(--mut);padding-bottom:.3rem;border-bottom:1px solid var(--brd);}
+.cond-grid{display:flex;flex-direction:column;gap:.32rem;}
+.cond-btn{width:100%;text-align:left;padding:.48rem .7rem;background:var(--surf2);border:1px solid var(--brd);border-radius:6px;color:var(--ink);cursor:pointer;font-family:'DM Sans',sans-serif;font-size:.71rem;transition:border-color .12s,background .12s;display:flex;align-items:center;gap:.5rem;}
+.cond-btn:hover{border-color:var(--accent);background:rgba(80,208,128,.06);}
+.cond-btn.on{border-color:var(--accent);background:rgba(80,208,128,.1);color:var(--accent);}
+.cond-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+.cond-sub{font-size:.58rem;color:var(--mut);display:block;margin-top:.04rem;}
+.cond-btn.on .cond-sub{color:rgba(80,208,128,.6);}
+.formula{font-family:'DM Mono',monospace;font-size:.62rem;color:var(--mut);line-height:1.9;padding:.6rem .7rem;background:var(--surf2);border-radius:5px;border:1px solid var(--brd);}
+.formula .hl{color:var(--accent);} .formula .hl2{color:var(--accent2);}
+.nih-banner{background:linear-gradient(90deg,rgba(80,208,128,.1),rgba(128,224,255,.06));border:1px solid rgba(80,208,128,.22);border-radius:5px;padding:.55rem .7rem;font-family:'DM Mono',monospace;font-size:.57rem;line-height:1.7;}
+.nih-banner strong{color:var(--accent);display:block;margin-bottom:.2rem;font-size:.58rem;letter-spacing:.08em;text-transform:uppercase;}
+.sl-row{display:flex;flex-direction:column;gap:.2rem;margin-bottom:.42rem;}
+.sl-meta{display:flex;justify-content:space-between;align-items:baseline;}
+.sl-name{font-size:.67rem;opacity:.85;}
+.sl-val{font-family:'DM Mono',monospace;font-size:.62rem;color:var(--accent);}
+input[type=range]{width:100%;height:2px;appearance:none;background:var(--dim);border-radius:2px;outline:none;cursor:pointer;}
+input[type=range]::-webkit-slider-thumb{appearance:none;width:10px;height:10px;border-radius:50%;background:var(--accent);cursor:pointer;}
+.rr::-webkit-slider-thumb{background:var(--r)!important;} .ro::-webkit-slider-thumb{background:var(--o)!important;}
+.rg::-webkit-slider-thumb{background:var(--g)!important;} .rb::-webkit-slider-thumb{background:var(--b)!important;}
+.ri::-webkit-slider-thumb{background:var(--i)!important;}
+.sc-btn{width:100%;padding:.4rem .6rem;background:var(--surf2);border:1px solid var(--brd);border-radius:5px;color:var(--ink);font-family:'DM Sans',sans-serif;font-size:.68rem;cursor:pointer;text-align:left;margin-bottom:.28rem;transition:border-color .12s,background .12s;}
+.sc-btn span{display:block;font-size:.57rem;color:var(--mut);margin-top:.05rem;}
+.sc-btn:hover{border-color:var(--accent);background:rgba(80,208,128,.04);}
+.sc-btn.on{border-color:var(--accent);color:var(--accent);}
+.sc-btn.on span{color:rgba(80,208,128,.6);}
+.mc{flex:1;position:relative;min-width:0;}
+#map{width:100%;height:100%;}
+.leaflet-tile-pane{filter:brightness(.78) saturate(.75) hue-rotate(-5deg);}
+[data-theme="light"] .leaflet-tile-pane{filter:none;}
+.upd{position:absolute;top:10px;left:50%;transform:translateX(-50%);z-index:900;background:var(--surf);border:1px solid rgba(80,208,128,.4);border-radius:999px;padding:.22em .8em;font-family:'DM Mono',monospace;font-size:.56rem;color:var(--accent);opacity:0;transition:opacity .25s;pointer-events:none;white-space:nowrap;}
+.upd.on{opacity:1;}
+
+/* ── MAP QUICK SEARCH (inline bar below header, above map) ── */
+.map-toolbar{position:absolute;top:10px;left:50%;transform:translateX(-50%);z-index:800;display:flex;gap:.5rem;align-items:center;}
+.map-search-bar{display:flex;align-items:center;gap:.5rem;background:rgba(8,13,10,.92);border:1px solid rgba(80,208,128,.3);border-radius:8px;padding:.35rem .7rem;backdrop-filter:blur(8px);min-width:260px;cursor:text;}
+[data-theme="light"] .map-search-bar{background:rgba(255,255,255,.92);}
+#map-search-input{background:none;border:none;outline:none;color:var(--ink);font-family:'DM Sans',sans-serif;font-size:.78rem;flex:1;caret-color:var(--accent);}
+#map-search-input::placeholder{color:var(--mut);}
+.map-search-bar svg{color:var(--mut);flex-shrink:0;}
+.map-search-kbd{font-family:'DM Mono',monospace;font-size:.5rem;color:var(--mut);background:var(--surf2);border:1px solid var(--brd);border-radius:3px;padding:.08em .35em;flex-shrink:0;}
+
+/* ── INLINE DROPDOWN RESULTS ── */
+#map-search-results{position:absolute;top:calc(100% + 6px);left:0;right:0;background:var(--surf);border:1px solid rgba(80,208,128,.22);border-radius:8px;overflow:hidden;box-shadow:0 16px 40px rgba(0,0,0,.7);display:none;max-height:260px;overflow-y:auto;}
+#map-search-results.open{display:block;}
+.sr-item{display:flex;align-items:center;gap:.6rem;padding:.45rem .75rem;cursor:pointer;border-left:2px solid transparent;transition:background .08s;}
+.sr-item:hover,.sr-item.focused{background:rgba(80,208,128,.08);border-left-color:var(--accent);}
+.sr-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+.sr-name{font-size:.78rem;flex:1;}
+.sr-region{font-family:'DM Mono',monospace;font-size:.56rem;color:var(--mut);}
+.sr-val{font-family:'DM Mono',monospace;font-size:.65rem;font-weight:500;}
+.sr-actions{display:flex;gap:.3rem;}
+.sr-act-btn{font-family:'DM Mono',monospace;font-size:.52rem;padding:.12em .4em;border-radius:3px;border:1px solid var(--brd);background:var(--surf2);color:var(--mut);cursor:pointer;transition:border-color .1s,color .1s;}
+.sr-act-btn:hover{border-color:var(--accent);color:var(--accent);}
+.sr-empty{padding:.7rem 1rem;font-family:'DM Mono',monospace;font-size:.62rem;color:var(--mut);text-align:center;}
+
+.cmp-toolbar-btn{background:rgba(8,13,10,.92);border:1px solid var(--brd);border-radius:8px;padding:.35rem .7rem;backdrop-filter:blur(8px);color:var(--mut);font-family:'DM Mono',monospace;font-size:.6rem;cursor:pointer;display:flex;align-items:center;gap:.35rem;transition:border-color .15s,color .15s;}
+[data-theme="light"] .cmp-toolbar-btn{background:rgba(255,255,255,.92);}
+.cmp-toolbar-btn:hover,.cmp-toolbar-btn.on{border-color:var(--accent);color:var(--accent);}
+
+.leg{position:absolute;bottom:16px;left:16px;z-index:800;background:rgba(8,13,10,.92);border:1px solid var(--brd);border-radius:7px;padding:.55rem .7rem;backdrop-filter:blur(4px);}
+[data-theme="light"] .leg{background:rgba(255,255,255,.92);}
+.leg-title{font-family:'DM Mono',monospace;font-size:.52rem;letter-spacing:.1em;text-transform:uppercase;color:var(--mut);margin-bottom:.3rem;}
+.leg-scale{display:flex;gap:2px;margin-bottom:.22rem;}
+.leg-sw{height:8px;border-radius:1px;flex:1;}
+.leg-labs{display:flex;justify-content:space-between;font-family:'DM Mono',monospace;font-size:.5rem;color:var(--mut);}
+.leg-rows{margin-top:.35rem;display:flex;flex-direction:column;gap:.13rem;}
+.leg-row{display:flex;align-items:center;gap:.4rem;font-family:'DM Mono',monospace;font-size:.52rem;color:var(--mut);}
+.leg-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;}
+
+/* ── RIGHT PANEL ── */
+.rp{width:232px;flex-shrink:0;background:var(--surf);border-left:1px solid var(--brd);overflow-y:auto;padding:1rem;display:flex;flex-direction:column;gap:.9rem;}
+.sc2{background:var(--surf2);border:1px solid var(--brd);border-radius:6px;padding:.6rem .8rem;}
+.sc2-lbl{font-family:'DM Mono',monospace;font-size:.54rem;letter-spacing:.08em;text-transform:uppercase;color:var(--mut);margin-bottom:.2rem;}
+.sc2-val{font-family:'Playfair Display',serif;font-size:1.5rem;line-height:1;margin-bottom:.1rem;}
+.sc2-delta{font-family:'DM Mono',monospace;font-size:.57rem;color:var(--mut);}
+.sc2-delta.bad{color:var(--r);} .sc2-delta.good{color:var(--v);}
+.d-list{display:flex;flex-direction:column;gap:.28rem;}
+.d-item{display:flex;align-items:center;gap:.5rem;padding:.3rem .5rem;border-radius:4px;cursor:pointer;transition:background .1s;}
+.d-item:hover{background:var(--surf2);}
+.d-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;}
+.d-name{font-size:.7rem;flex:1;}
+.d-val{font-family:'DM Mono',monospace;font-size:.63rem;color:var(--mut);}
+.d-cmp-btn{font-family:'DM Mono',monospace;font-size:.5rem;color:var(--mut);background:var(--surf2);border:1px solid var(--brd);border-radius:3px;padding:.08em .35em;cursor:pointer;flex-shrink:0;opacity:0;transition:opacity .1s,border-color .1s,color .1s;}
+.d-item:hover .d-cmp-btn{opacity:1;}
+.d-cmp-btn:hover{border-color:var(--accent);color:var(--accent);}
+.prow{display:flex;align-items:center;gap:.5rem;padding:.3rem .5rem;background:var(--surf2);border-radius:4px;border-left:2px solid var(--brd);margin-bottom:.22rem;}
+.prow.ac{border-left-color:var(--accent);}
+.psym{font-family:'DM Mono',monospace;font-size:.6rem;color:var(--mut);min-width:40px;}
+.prow.ac .psym{color:var(--accent);}
+.pdesc{font-size:.64rem;color:var(--mut);}
+.prow.ac .pdesc{color:var(--ink);}
+.tlog{font-family:'DM Mono',monospace;font-size:.58rem;color:var(--mut);line-height:1.6;max-height:120px;overflow-y:auto;}
+.te{padding:.1rem 0;border-bottom:1px solid var(--brd);}
+.te:last-child{border-bottom:none;}
+.tt2{color:var(--dim);margin-right:.3rem;}
+.ta{color:var(--accent);}
+.ds-note{font-family:'DM Mono',monospace;font-size:.57rem;color:var(--mut);line-height:1.8;}
+.ds-note .lv{color:var(--v);} .ds-note .yr{color:var(--accent);}
+.sel-block{padding:.65rem .8rem;background:var(--surf2);border-radius:6px;border-left:3px solid var(--accent);}
+.sel-d-name{font-family:'Playfair Display',serif;font-size:1rem;margin-bottom:.3rem;}
+.sel-score{font-family:'DM Mono',monospace;font-size:1.15rem;font-weight:500;margin-bottom:.4rem;}
+.dim-breakdown{display:flex;flex-direction:column;gap:.28rem;}
+.db-row{display:flex;align-items:center;gap:.5rem;padding:.28rem .4rem;background:var(--surf);border-radius:4px;}
+.db-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;}
+.db-name{font-size:.62rem;color:var(--mut);flex:1;}
+.db-bar-bg{height:3px;background:var(--dim);border-radius:2px;flex:1;max-width:55px;}
+.db-bar-fill{height:100%;border-radius:2px;transition:width .4s;}
+.db-val{font-family:'DM Mono',monospace;font-size:.62rem;color:var(--ink);}
+.sel-cmp-btn{width:100%;margin-top:.5rem;padding:.35rem .5rem;background:none;border:1px solid var(--brd);border-radius:5px;color:var(--mut);font-family:'DM Mono',monospace;font-size:.6rem;cursor:pointer;transition:border-color .12s,color .12s;}
+.sel-cmp-btn:hover{border-color:var(--accent);color:var(--accent);}
+.leaflet-popup-content-wrapper{background:var(--surf)!important;color:var(--ink)!important;border:1px solid var(--brd)!important;border-radius:9px!important;box-shadow:0 8px 32px rgba(0,0,0,.7)!important;}
+.leaflet-popup-content{margin:.8rem!important;font-family:'DM Sans',sans-serif!important;}
+.leaflet-popup-tip{background:var(--surf)!important;}
+.lp-name{font-family:'Playfair Display',serif;font-size:.95rem;margin-bottom:.3rem;}
+.lp-val{font-family:'DM Mono',monospace;font-size:1.2rem;font-weight:500;margin-bottom:.3rem;}
+.lp-rows{display:flex;flex-direction:column;gap:.12rem;}
+.lp-row{display:flex;justify-content:space-between;font-size:.65rem;color:var(--mut);padding:.1rem 0;border-bottom:1px solid var(--brd);}
+.lp-row:last-child{border-bottom:none;}
+.lp-rv{color:var(--ink);font-family:'DM Mono',monospace;}
+.timeline{display:flex;flex-direction:column;gap:0;}
+.tl-item{display:flex;gap:.6rem;padding:.4rem 0;border-left:1.5px solid var(--brd);padding-left:.7rem;position:relative;margin-left:.3rem;}
+.tl-item:before{content:'';position:absolute;left:-4.5px;top:.65rem;width:6px;height:6px;border-radius:50%;background:var(--dim);}
+.tl-item.hi:before{background:var(--accent);}
+.tl-yr{font-family:'DM Mono',monospace;font-size:.6rem;color:var(--mut);min-width:32px;}
+.tl-txt{font-size:.66rem;color:var(--ink);line-height:1.4;}
+.tl-item.hi .tl-yr{color:var(--accent);}
+
+/* ── HIGHLIGHTED DISTRICT RING ── */
+.leaflet-marker-highlight path,.leaflet-highlighted{filter:drop-shadow(0 0 6px var(--accent));}
+
+@media(max-width:900px){.lp,.rp{display:none;}}
+</style>
+</head>
+<body>
+
+<header class="hd">
+  <div style="display:flex;align-items:center;gap:.5rem;">
+    <a href="https://ukubona-llc.github.io/" class="logo-wrap">
+      <svg width="34" height="34" viewBox="0 0 34 34"><circle cx="17" cy="17" r="15" fill="none" stroke="var(--accent)" stroke-width="1.2" opacity=".4"/><ellipse cx="17" cy="17" rx="7" ry="15" fill="none" stroke="var(--accent)" stroke-width="1" opacity=".6"/><ellipse cx="17" cy="17" rx="15" ry="7" fill="none" stroke="var(--accent)" stroke-width="1" opacity=".6"/><circle cx="17" cy="17" r="2.5" fill="var(--accent)" opacity=".9"/></svg>
+      <div><div class="brand-name">Ukubona</div><div class="brand-tag">LLC × UCU</div></div>
+    </a>
+  </div>
+  <div class="hd-center">
+    <div class="hd-title">Uganda Renal Atlas — CKD · ESRD · Transplant</div>
+    <div class="hd-sub">Risk Factors · CKD Stages 1–5 · ESRD · Transplant Access · Tourism Gap — 135 Districts</div>
+  </div>
+  <div class="hd-right">
+    <button class="search-trigger" onclick="openCmd()">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+      <span>Find a district…</span>
+      <kbd>⌘K</kbd>
+    </button>
+    <span class="badge badge-nih">NIH K08-AG065520</span>
+    <span class="badge">NIDDK Target</span>
+    <button class="icon-btn" id="theme-btn" title="Toggle theme">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+    </button>
+    <a href="https://ukubona-llc.github.io/landscape/" class="icon-btn" style="text-decoration:none;font-family:'DM Mono',monospace;font-size:.55rem;color:var(--accent);border-color:rgba(80,208,128,.25);padding:.38rem .6rem;">← Atlas</a>
+  </div>
+</header>
+
+<div class="body">
+  <aside class="lp">
+    <div>
+      <div class="plbl">Renal condition / layer</div>
+      <div class="cond-grid" id="cond-grid">
+        <button class="cond-btn on" onclick="setCond(this,'rf')" data-cond="rf">
+          <div class="cond-dot" style="background:#d4a820"></div>
+          <div><span>Risk factor burden</span><span class="cond-sub">HTN · DM · HIV · NSAID · Low BW</span></div>
+        </button>
+        <button class="cond-btn" onclick="setCond(this,'ckd')" data-cond="ckd">
+          <div class="cond-dot" style="background:#50d080"></div>
+          <div><span>CKD prevalence</span><span class="cond-sub">Stages 1–5 · East 3.2× SW</span></div>
+        </button>
+        <button class="cond-btn" onclick="setCond(this,'esrd')" data-cond="esrd">
+          <div class="cond-dot" style="background:#e84040"></div>
+          <div><span>ESRD incidence</span><span class="cond-sub">per 100k/yr · 4 dialysis centres</span></div>
+        </button>
+        <button class="cond-btn" onclick="setCond(this,'tx')" data-cond="tx">
+          <div class="cond-dot" style="background:#2880d8"></div>
+          <div><span>Transplant access</span><span class="cond-sub">Deprivation index · Mulago pilot</span></div>
+        </button>
+        <button class="cond-btn" onclick="setCond(this,'tour')" data-cond="tour">
+          <div class="cond-dot" style="background:#d87030"></div>
+          <div><span>Transplant tourism pressure</span><span class="cond-sub">India · Turkey · Kenya outflow</span></div>
+        </button>
+        <button class="cond-btn" onclick="setCond(this,'composite')" data-cond="composite">
+          <div class="cond-dot" style="background:#80e0ff"></div>
+          <div><span>Composite L(θ)</span><span class="cond-sub">Full renal pipeline loss</span></div>
+        </button>
+      </div>
+    </div>
+    <div>
+      <div class="nih-banner">
+        <strong>🔬 NIH K08-AG065520 Edge</strong>
+        Dr. Muzaale (Johns Hopkins) — nephrectomy risk epidemiology. Unique position to invert: from ESRD back-calculate CKD burden in data-sparse settings. This is the NIDDK grant hook.
+      </div>
+    </div>
+    <div>
+      <div class="plbl">Loss function</div>
+      <div class="formula">θₜ → <span class="hl">L(θ)</span> → ∇L → −η∇L → θ′<br><br>L = Σ wᵢ · <span class="hl2">renalᵢ</span>(θ)<br><br><span style="color:var(--r)">East CKD: 12.5% vs SW 3.9%</span><br><span style="color:var(--b)">0 local transplants pre-2023</span></div>
+    </div>
+    <div>
+      <div class="plbl">Composite weights</div>
+      <div class="sl-row"><div class="sl-meta"><span class="sl-name">Risk factors</span><span class="sl-val" id="v-rf">25%</span></div><input type="range" class="ro" id="s-rf" min="5" max="50" value="25"></div>
+      <div class="sl-row"><div class="sl-meta"><span class="sl-name">CKD prevalence</span><span class="sl-val" id="v-ckd">35%</span></div><input type="range" class="rg" id="s-ckd" min="5" max="60" value="35"></div>
+      <div class="sl-row"><div class="sl-meta"><span class="sl-name">ESRD incidence</span><span class="sl-val" id="v-esrd">25%</span></div><input type="range" class="rr" id="s-esrd" min="5" max="50" value="25"></div>
+      <div class="sl-row"><div class="sl-meta"><span class="sl-name">Transplant access</span><span class="sl-val" id="v-tx">10%</span></div><input type="range" class="rb" id="s-tx" min="5" max="40" value="10"></div>
+      <div class="sl-row"><div class="sl-meta"><span class="sl-name">Tourism pressure</span><span class="sl-val" id="v-tour">5%</span></div><input type="range" class="ri" id="s-tour" min="2" max="25" value="5"></div>
+    </div>
+    <div>
+      <div class="plbl">η — intervention speed</div>
+      <div class="sl-row"><div class="sl-meta"><span class="sl-name">Learning rate</span><span class="sl-val" id="v-eta">0.10</span></div><input type="range" class="rb" id="s-eta" min="1" max="30" value="10"></div>
+    </div>
+    <div>
+      <div class="plbl">Scenarios</div>
+      <button class="sc-btn on" onclick="setSc(this,'base')">Status quo<span>SEARCH-CKD priors · East gradient active</span></button>
+      <button class="sc-btn" onclick="setSc(this,'ckd')">CKD detection priority<span>w₂=55% — NIH NIDDK R21 framing</span></button>
+      <button class="sc-btn" onclick="setSc(this,'esrd')">ESRD emergency<span>w₃=50% — dialysis scarcity lens</span></button>
+      <button class="sc-btn" onclick="setSc(this,'tx')">Transplant equity<span>w₄=40% — Mulago pilot reinstatement</span></button>
+      <button class="sc-btn" onclick="setSc(this,'bayesian')">→ Bayesian swap<span>Rehearse real MoH/UBOS renal data</span></button>
+    </div>
+    <div>
+      <div class="plbl">Transplant pipeline (1962–2026)</div>
+      <div class="timeline">
+        <div class="tl-item"><span class="tl-yr">1962</span><span class="tl-txt">Independence — zero renal infrastructure</span></div>
+        <div class="tl-item"><span class="tl-yr">1990s</span><span class="tl-txt">First dialysis chairs at Mulago (2 chairs)</span></div>
+        <div class="tl-item"><span class="tl-yr">2012</span><span class="tl-txt">2 nephrologists, 2 dialysis chairs nationally</span></div>
+        <div class="tl-item"><span class="tl-yr">2022</span><span class="tl-txt">94 dialysis chairs, 14 nephrologists</span></div>
+        <div class="tl-item hi"><span class="tl-yr">2023</span><span class="tl-txt">First local kidney transplant at Mulago</span></div>
+        <div class="tl-item hi"><span class="tl-yr">2024</span><span class="tl-txt">15+ transplants performed — then suspension</span></div>
+        <div class="tl-item hi"><span class="tl-yr">2026</span><span class="tl-txt">Reinstatement + scale pathway needed</span></div>
+      </div>
+    </div>
+  </aside>
+
+  <div class="mc">
+    <div id="map"></div>
+    <div class="upd" id="upd">Recomputing gradient…</div>
+
+    <!-- MAP TOOLBAR: inline search + compare toggle -->
+    <div class="map-toolbar">
+      <div style="position:relative;">
+        <div class="map-search-bar" onclick="document.getElementById('map-search-input').focus()">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+          <input id="map-search-input" placeholder="Search district…" autocomplete="off" spellcheck="false">
+          <span class="map-search-kbd">/ or ⌘K</span>
+        </div>
+        <div id="map-search-results"></div>
+      </div>
+      <button class="cmp-toolbar-btn" id="cmp-toggle-btn" onclick="toggleCmpMode()" title="Compare two districts">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="18" rx="1"/><rect x="14" y="3" width="7" height="18" rx="1"/></svg>
+        Compare
+      </button>
+    </div>
+
+    <div class="leg">
+      <div class="leg-title" id="leg-title">CKD Composite L(θ)</div>
+      <div class="leg-scale">
+        <div class="leg-sw" style="background:#e84040"></div><div class="leg-sw" style="background:#d87030"></div>
+        <div class="leg-sw" style="background:#d4a820"></div><div class="leg-sw" style="background:#30b060"></div>
+        <div class="leg-sw" style="background:#2880d8"></div><div class="leg-sw" style="background:#5040c0"></div>
+        <div class="leg-sw" style="background:#20b890"></div>
+      </div>
+      <div class="leg-labs"><span>High loss / gap</span><span>Optimized</span></div>
+      <div class="leg-rows" id="leg-rows"></div>
+    </div>
+  </div>
+
+  <aside class="rp">
+    <div>
+      <div class="sc2"><div class="sc2-lbl">National renal L(θ)</div><div class="sc2-val" id="st-loss">—</div><div class="sc2-delta bad" id="st-delta">computing…</div></div>
+    </div>
+    <div>
+      <div class="sc2"><div class="sc2-lbl">Critical districts ≥0.70</div><div class="sc2-val" id="st-crit" style="color:var(--r)">—</div><div class="sc2-delta bad">need urgent nephrology input</div></div>
+    </div>
+    <div>
+      <div class="sc2"><div class="sc2-lbl">East vs SW CKD ratio</div><div class="sc2-val" style="color:var(--r)">3.2×</div><div class="sc2-delta bad">12.5% E. Uganda vs 3.9% SW · SEARCH-CKD</div></div>
+    </div>
+    <div>
+      <div class="sc2"><div class="sc2-lbl">Local transplants (pre-2023)</div><div class="sc2-val" style="color:var(--r)">0</div><div class="sc2-delta bad">Tourism: ~20/yr at $30k–$35k abroad</div></div>
+    </div>
+    <div id="sel-panel" style="display:none;">
+      <div class="plbl">Selected district</div>
+      <div class="sel-block">
+        <div class="sel-d-name" id="sel-name">—</div>
+        <div class="sel-score" id="sel-score">—</div>
+        <div class="dim-breakdown" id="sel-dims"></div>
+        <button class="sel-cmp-btn" id="sel-cmp-btn" onclick="pinToCmp()">+ Add to compare</button>
+      </div>
+    </div>
+    <div>
+      <div class="plbl">Highest renal loss districts</div>
+      <div class="d-list" id="top-d"></div>
+    </div>
+    <div>
+      <div class="plbl">Pentadic state</div>
+      <div class="prow"><span class="psym">θₜ</span><span class="pdesc">135 districts · SEARCH-CKD priors</span></div>
+      <div class="prow ac"><span class="psym">L(θ)</span><span class="pdesc" id="pentad-desc">Renal composite loss</span></div>
+      <div class="prow"><span class="psym">∇L</span><span class="pdesc">ROYGBIV — East gradient visible</span></div>
+      <div class="prow"><span class="psym">−η∇L</span><span class="pdesc">η=0.25 → dialysis rollout model</span></div>
+      <div class="prow"><span class="psym">θ′</span><span class="pdesc">Updated with intervention</span></div>
+    </div>
+    <div>
+      <div class="plbl">Transcript</div>
+      <div class="tlog" id="tlog"></div>
+    </div>
+    <div style="margin-top:auto;">
+      <div class="plbl">Data sources</div>
+      <div class="ds-note">
+        <span class="yr">SYNTHETIC PHASE I</span><br>
+        Muiru 2020 (SEARCH-CKD)<br>
+        Kalyesubula 2017 (Wakiso)<br>
+        Stanifer 2014 (SSA meta)<br>
+        2023 Uganda NCD STEPS<br>── swap ready ──<br>
+        <span class="lv">→ MoH DHIS2 renal API</span><br>
+        <span class="lv">→ Mulago ESRD registry</span><br>
+        <span class="lv">→ UBOS district surveys</span>
+      </div>
+    </div>
+  </aside>
+</div>
+
+<!-- COMMAND PALETTE -->
+<div id="cmd-overlay" onclick="if(event.target===this)closeCmd()">
+  <div class="cmd-box">
+    <div class="cmd-input-row">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+      <input id="cmd-input" placeholder="Search district, scenario, or layer…" autocomplete="off">
+      <span class="cmd-esc" onclick="closeCmd()">ESC</span>
+    </div>
+    <div class="cmd-results" id="cmd-results"></div>
+    <div class="cmd-footer">
+      <span><kbd>↑↓</kbd> navigate</span>
+      <span><kbd>↵</kbd> fly to</span>
+      <span><kbd>C</kbd> compare</span>
+      <span><kbd>ESC</kbd> close</span>
+    </div>
+  </div>
+</div>
+
+<!-- COMPARE PANEL -->
+<div id="compare-panel">
+  <div class="cmp-header">
+    <span class="cmp-title">District Comparison</span>
+    <div style="display:flex;gap:.5rem;align-items:center;">
+      <span style="font-family:'DM Mono',monospace;font-size:.55rem;color:var(--mut);" id="cmp-hint">Click a district on map or use search → C to pin</span>
+      <button class="cmp-close" onclick="closeCmp()">✕ Close</button>
+    </div>
+  </div>
+  <div class="cmp-body">
+    <div id="cmp-slot-a"><div class="cmp-slot-empty">Pin district A</div></div>
+    <div class="cmp-vs">vs</div>
+    <div id="cmp-slot-b"><div class="cmp-slot-empty">Pin district B</div></div>
+  </div>
+</div>
+
+<div class="cmp-mode-badge" id="cmp-badge" onclick="openCmpPanel()">
+  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="18" rx="1"/><rect x="14" y="3" width="7" height="18" rx="1"/></svg>
+  Compare mode · <span id="cmp-count">0</span>/2 pinned
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.min.js"></script>
+<script>
+/* ══════════════════════════════════════════
+   DATA & CONSTANTS
+══════════════════════════════════════════ */
+const RC=['#e84040','#d87030','#d4a820','#30b060','#2880d8','#5040c0','#20b890'];
+const RN=['Red','Orange','Yellow','Green','Blue','Indigo','Violet'];
+
+const REGION_MAP = {
+  Eastern:['Bugiri','Bugweri','Bukedea','Bukwo','Bulambuli','Busia','Butaleja','Butebo','Buyende','Iganga','Jinja','Kaberamaido','Kaliro','Kamuli','Kapelebyong','Katakwi','Kumi','Luuka','Manafwa','Mayuge','Mbale','Namayingo','Namisindwa','Namutumba','Ngora','Pallisa','Serere','Sironko','Soroti','Tororo'],
+  Northern:['Abim','Adjumani','Agago','Alebtong','Amolatar','Amudat','Amuria','Amuru','Apac','Arua','Dokolo','Gulu','Kaabong','Karenga','Kitgum','Koboko','Kole','Kotido','Kwania','Lamwo','Lira','Madi-Okollo','Maracha','Moroto','Moyo','Nabilatuk','Nakapiripirit','Napak','Nebbi','Nwoya','Obongi','Omoro','Otuke','Oyam','Pader','Pakwach','Terego','Yumbe','Zombo'],
+  Western:['Buhweju','Buliisa','Bundibugyo','Bunyangabu','Bushenyi','Hoima','Ibanda','Isingiro','Kabale','Kabarole','Kagadi','Kakumiro','Kamwenge','Kanungu','Kasese','Kazo','Kibale','Kikuube','Kiruhura','Kisoro','Kyegegwa','Kyenjojo','Mitooma','Mbarara','Ntoroko','Ntungamo','Rubanda','Rubirizi','Rukiga','Rukungiri','Rwampara','Sheema'],
+  Central:['Buikwe','Bukomansimbi','Buvuma','Gomba','Kalangala','Kalungu','Kampala','Kasanda','Kayunga','Kiboga','Kyankwanzi','Kyotera','Lwengo','Luwero','Lyantonde','Masaka','Mityana','Mpigi','Mubende','Mukono','Nakaseke','Nakasongola','Rakai','Sembabule','Wakiso'],
+};
+
+function getRegion(name){
+  for(const [r,ds] of Object.entries(REGION_MAP)){if(ds.includes(name))return r;}
+  return 'Northern';
+}
+
+const CONDITIONS={
+  rf:{label:'Risk factor burden',unit:'composite score/100',bands:[80,65,50,35,20,8],format:v=>v.toFixed(0)+'/100',norm:v=>Math.min(1,Math.max(0,(v-8)/75))},
+  ckd:{label:'CKD prevalence',unit:'% community',bands:[12,9,6,4,2,0.8],format:v=>v.toFixed(1)+'%',norm:v=>Math.min(1,Math.max(0,(v-0.8)/12))},
+  esrd:{label:'ESRD incidence',unit:'per 100k/yr',bands:[180,130,80,40,15,5],format:v=>v.toFixed(0)+'/100k',norm:v=>Math.min(1,Math.max(0,(v-5)/178))},
+  tx:{label:'Transplant deprivation',unit:'index 0–1',bands:[0.92,0.78,0.62,0.42,0.22,0.08],format:v=>(v*100).toFixed(0)+'%',norm:v=>v},
+  tour:{label:'Tourism pressure',unit:'relative index',bands:[0.85,0.70,0.52,0.35,0.18,0.06],format:v=>(v*100).toFixed(0)+'%',norm:v=>v},
+  composite:{label:'Composite renal L(θ)',unit:'weighted index',bands:[0.82,0.64,0.46,0.28,0.13,0.05],format:v=>(v*100).toFixed(1)+'%',norm:v=>v},
+};
+
+let curCond='rf';
+
+const DISTRICTS=[
+  {n:"Abim",lat:3.00,lon:33.67},{n:"Adjumani",lat:3.38,lon:31.79},{n:"Agago",lat:2.98,lon:33.38},{n:"Alebtong",lat:2.26,lon:33.35},{n:"Amolatar",lat:1.60,lon:32.80},{n:"Amudat",lat:1.95,lon:34.93},{n:"Amuria",lat:2.03,lon:33.65},{n:"Amuru",lat:2.80,lon:31.92},{n:"Apac",lat:1.98,lon:32.54},{n:"Arua",lat:3.02,lon:30.91},{n:"Budaka",lat:1.00,lon:33.94},{n:"Bududa",lat:1.00,lon:34.33},{n:"Bugiri",lat:0.57,lon:33.75},{n:"Buhweju",lat:-0.70,lon:30.42},{n:"Buikwe",lat:0.33,lon:33.00},{n:"Bukedea",lat:1.36,lon:34.00},{n:"Bukomansimbi",lat:-0.14,lon:31.60},{n:"Bukwo",lat:1.28,lon:34.73},{n:"Bulambuli",lat:1.22,lon:34.38},{n:"Buliisa",lat:2.12,lon:31.41},{n:"Bundibugyo",lat:0.71,lon:30.07},{n:"Bunyangabu",lat:-0.50,lon:30.18},{n:"Bushenyi",lat:-0.58,lon:30.18},{n:"Busia",lat:0.46,lon:34.09},{n:"Butaleja",lat:0.90,lon:33.97},{n:"Butebo",lat:1.18,lon:34.05},{n:"Buvuma",lat:0.38,lon:33.22},{n:"Buyende",lat:1.24,lon:33.12},{n:"Dokolo",lat:1.91,lon:33.17},{n:"Gomba",lat:-0.23,lon:31.68},{n:"Gulu",lat:2.77,lon:32.30},{n:"Hoima",lat:1.43,lon:31.35},{n:"Ibanda",lat:-0.14,lon:30.50},{n:"Iganga",lat:0.61,lon:33.48},{n:"Isingiro",lat:-0.84,lon:30.82},{n:"Jinja",lat:0.42,lon:33.20},{n:"Kaabong",lat:3.52,lon:34.14},{n:"Kabale",lat:-1.25,lon:29.99},{n:"Kabarole",lat:0.65,lon:30.25},{n:"Kaberamaido",lat:1.74,lon:33.16},{n:"Kagadi",lat:0.94,lon:30.82},{n:"Kakumiro",lat:0.78,lon:31.33},{n:"Kalaki",lat:1.89,lon:33.38},{n:"Kalangala",lat:-0.32,lon:32.23},{n:"Kaliro",lat:1.04,lon:33.50},{n:"Kalungu",lat:-0.10,lon:31.78},{n:"Kampala",lat:0.32,lon:32.58},{n:"Kamuli",lat:0.95,lon:33.12},{n:"Kamwenge",lat:0.19,lon:30.45},{n:"Kanungu",lat:-0.96,lon:29.79},{n:"Kapchorwa",lat:1.40,lon:34.45},{n:"Kapelebyong",lat:1.90,lon:33.98},{n:"Karenga",lat:3.73,lon:33.80},{n:"Kasanda",lat:0.60,lon:31.72},{n:"Kasese",lat:0.18,lon:30.08},{n:"Katakwi",lat:1.90,lon:34.07},{n:"Kayunga",lat:0.71,lon:32.87},{n:"Kazo",lat:-0.10,lon:30.68},{n:"Kibale",lat:0.87,lon:31.06},{n:"Kiboga",lat:0.91,lon:31.77},{n:"Kibuku",lat:1.04,lon:33.79},{n:"Kikuube",lat:1.58,lon:31.22},{n:"Kiruhura",lat:-0.20,lon:30.86},{n:"Kiryandongo",lat:1.88,lon:32.10},{n:"Kisoro",lat:-1.28,lon:29.65},{n:"Kitgum",lat:3.28,lon:32.89},{n:"Koboko",lat:3.41,lon:31.05},{n:"Kole",lat:2.37,lon:32.76},{n:"Kotido",lat:2.98,lon:34.13},{n:"Kumi",lat:1.46,lon:33.94},{n:"Kwania",lat:2.12,lon:32.60},{n:"Kween",lat:1.42,lon:34.63},{n:"Kyankwanzi",lat:1.09,lon:31.71},{n:"Kyegegwa",lat:0.48,lon:31.05},{n:"Kyenjojo",lat:0.62,lon:30.64},{n:"Kyotera",lat:-0.65,lon:31.55},{n:"Lamwo",lat:3.53,lon:32.53},{n:"Lira",lat:2.25,lon:32.90},{n:"Luuka",lat:0.73,lon:33.30},{n:"Luwero",lat:0.85,lon:32.47},{n:"Lwengo",lat:-0.40,lon:31.40},{n:"Lyantonde",lat:-0.40,lon:31.15},{n:"Madi-Okollo",lat:3.10,lon:31.20},{n:"Manafwa",lat:0.88,lon:34.28},{n:"Maracha",lat:3.29,lon:30.96},{n:"Masaka",lat:-0.34,lon:31.74},{n:"Masindi",lat:1.68,lon:31.71},{n:"Mayuge",lat:0.46,lon:33.57},{n:"Mbale",lat:1.08,lon:34.18},{n:"Mbarara",lat:-0.60,lon:30.65},{n:"Mitooma",lat:-0.63,lon:30.02},{n:"Mityana",lat:0.40,lon:32.02},{n:"Moroto",lat:2.53,lon:34.67},{n:"Moyo",lat:3.65,lon:31.73},{n:"Mpigi",lat:0.23,lon:32.32},{n:"Mubende",lat:0.57,lon:31.36},{n:"Mukono",lat:0.35,lon:32.76},{n:"Nabilatuk",lat:2.05,lon:34.53},{n:"Nakapiripirit",lat:1.90,lon:34.65},{n:"Nakaseke",lat:1.12,lon:32.43},{n:"Nakasongola",lat:1.32,lon:32.45},{n:"Namayingo",lat:0.28,lon:33.92},{n:"Namisindwa",lat:0.95,lon:34.42},{n:"Namutumba",lat:0.83,lon:33.68},{n:"Napak",lat:2.36,lon:34.24},{n:"Nebbi",lat:2.48,lon:31.10},{n:"Ngora",lat:1.48,lon:33.77},{n:"Ntoroko",lat:1.03,lon:30.47},{n:"Ntungamo",lat:-0.88,lon:30.27},{n:"Nwoya",lat:2.62,lon:31.95},{n:"Obongi",lat:3.52,lon:31.60},{n:"Omoro",lat:2.62,lon:32.52},{n:"Otuke",lat:2.52,lon:33.45},{n:"Oyam",lat:2.26,lon:32.40},{n:"Pader",lat:2.80,lon:33.20},{n:"Pakwach",lat:2.46,lon:31.49},{n:"Pallisa",lat:1.14,lon:33.71},{n:"Rakai",lat:-0.73,lon:31.40},{n:"Rubanda",lat:-1.19,lon:29.84},{n:"Rubirizi",lat:-0.28,lon:30.10},{n:"Rukiga",lat:-1.08,lon:29.95},{n:"Rukungiri",lat:-0.84,lon:29.94},{n:"Rwampara",lat:-0.68,lon:30.75},{n:"Sembabule",lat:-0.07,lon:31.46},{n:"Serere",lat:1.50,lon:33.55},{n:"Sheema",lat:-0.56,lon:30.38},{n:"Sironko",lat:1.23,lon:34.25},{n:"Soroti",lat:1.71,lon:33.61},{n:"Terego",lat:3.06,lon:30.80},{n:"Tororo",lat:0.69,lon:34.18},{n:"Wakiso",lat:0.40,lon:32.45},{n:"Yumbe",lat:3.47,lon:31.25},{n:"Zombo",lat:2.67,lon:30.90},
+];
+
+function clamp(v,a,b){return Math.max(a,Math.min(b,v));}
+
+function synthRenal(d,i){
+  const s=i*137.508+19.1;
+  const reg=getRegion(d.n);
+  const isEast=reg==='Eastern';
+  const isKar=d.lat>2.0&&d.lon>33.5;
+  const isNorth=reg==='Northern';
+  const isSW=reg==='Western'&&d.lon<30.8&&d.lat<-0.3;
+  const isUrban=['Kampala','Wakiso','Mukono','Jinja','Mbarara','Gulu'].includes(d.n);
+  const isLVRim=d.lat<0.5&&d.lat>-0.6&&d.lon>32&&d.lon<34.5;
+  let rf=32+30*Math.abs(Math.sin(s*1.1));
+  if(isEast)rf=clamp(rf+20,0,95);if(isKar)rf=clamp(rf+22,0,95);if(isNorth)rf=clamp(rf+15,0,95);
+  if(isSW)rf=clamp(rf-12,8,95);if(isUrban)rf=clamp(rf+10,0,95);rf=clamp(rf+8*Math.sin(s*7.3),8,95);
+  let ckd=4.0+4.5*Math.abs(Math.sin(s*0.9));
+  if(isEast)ckd=clamp(ckd+6.0,0,15);if(isKar)ckd=clamp(ckd+4.0,0,15);
+  if(isSW)ckd=clamp(ckd-2.8,0.8,15);if(isUrban)ckd=clamp(ckd+1.2,0,15);if(isLVRim)ckd=clamp(ckd+1.5,0,15);
+  ckd=clamp(ckd+1.5*Math.sin(s*11.3),0.8,15);
+  let esrd=18+75*Math.abs(Math.sin(s*0.8));
+  if(isEast)esrd=clamp(esrd+55,0,200);if(isKar)esrd=clamp(esrd+38,0,200);if(isNorth)esrd=clamp(esrd+22,0,200);
+  if(isSW)esrd=clamp(esrd-22,5,200);if(isUrban)esrd=clamp(esrd-25,5,200);esrd=clamp(esrd+12*Math.sin(s*5.7),5,200);
+  let tx=0.72+0.18*Math.abs(Math.sin(s*1.7));
+  if(isKar)tx=clamp(tx+0.20,0,1);if(isNorth)tx=clamp(tx+0.12,0,1);
+  if(isUrban)tx=clamp(tx-0.38,0.28,1);if(isSW)tx=clamp(tx-0.06,0,1);tx=clamp(tx+0.04*Math.sin(s*9.1),0,1);
+  let tour=0.25+0.5*Math.abs(Math.sin(s*1.3));
+  if(isUrban)tour=clamp(tour+0.25,0,1);if(isEast)tour=clamp(tour+0.15,0,1);
+  if(isKar)tour=clamp(tour-0.1,0,1);tour=clamp(tour+0.05*Math.sin(s*3.9),0,1);
+  return{rf,ckd,esrd,tx,tour,region:reg};
+}
+
+function getW(){return{rf:+document.getElementById('s-rf').value,ckd:+document.getElementById('s-ckd').value,esrd:+document.getElementById('s-esrd').value,tx:+document.getElementById('s-tx').value,tour:+document.getElementById('s-tour').value};}
+function getEta(){return +document.getElementById('s-eta').value/100;}
+function compLoss(raw,w){const T=w.rf+w.ckd+w.esrd+w.tx+w.tour,c=CONDITIONS;return(w.rf/T)*c.rf.norm(raw.rf)+(w.ckd/T)*c.ckd.norm(raw.ckd)+(w.esrd/T)*c.esrd.norm(raw.esrd)+(w.tx/T)*raw.tx+(w.tour/T)*raw.tour;}
+function applyEta(l,e){return clamp(l-e*l*0.3,0,1);}
+function l2c(l){if(l>=0.82)return RC[0];if(l>=0.64)return RC[1];if(l>=0.46)return RC[2];if(l>=0.28)return RC[3];if(l>=0.13)return RC[4];if(l>=0.05)return RC[5];return RC[6];}
+
+let dataset=[],markers=[],selD=null,tmr=null,map,darkTile,lightTile;
+let cmpMode=false,cmpA=null,cmpB=null,selMarker=null;
+
+/* ══════════════════════════════════════════
+   MAP INIT
+══════════════════════════════════════════ */
+function initMap(){
+  map=L.map('map',{center:[1.37,32.29],zoom:7});
+  darkTile=L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',{attribution:'© OSM © CARTO',subdomains:'abcd',maxZoom:19});
+  lightTile=L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',{attribution:'© OSM © CARTO',subdomains:'abcd',maxZoom:19});
+  darkTile.addTo(map);
+}
+
+function build(){
+  const cond=curCond,w=getW(),eta=getEta();
+  dataset=DISTRICTS.map((d,i)=>{
+    const raw=synthRenal(d,i);
+    const lr=cond==='composite'?compLoss(raw,w):CONDITIONS[cond].norm(cond==='tx'?raw.tx:cond==='tour'?raw.tour:raw[cond]);
+    const loss=applyEta(lr,eta);
+    const dv=cond==='composite'||cond==='tx'||cond==='tour'?loss:raw[cond];
+    return{...d,raw,loss,dv,fmt:CONDITIONS[cond].format(dv)};
+  });
+}
+
+function render(){
+  markers.forEach(m=>map.removeLayer(m));markers=[];
+  dataset.forEach(d=>{
+    const col=l2c(d.loss);
+    const r=d.n==='Kampala'?13:['Gulu','Mbarara','Soroti','Mbale','Arua','Lira','Jinja'].includes(d.n)?11:8;
+    const m=L.circleMarker([d.lat,d.lon],{radius:r,fillColor:col,color:'rgba(255,255,255,0.12)',weight:1.5,opacity:1,fillOpacity:0.88}).addTo(map);
+    d._marker=m;
+    const dRows=['rf','ckd','esrd','tx','tour'].map(k=>{
+      const rv=k==='tx'?d.raw.tx:k==='tour'?d.raw.tour:d.raw[k];
+      const lv=CONDITIONS[k].norm(rv);
+      return`<div class="lp-row"><span>${CONDITIONS[k].label}</span><span class="lp-rv" style="color:${l2c(lv)}">${CONDITIONS[k].format(rv)}</span></div>`;
+    }).join('');
+    const cmpHint=cmpMode?'<div style="margin-top:.4rem;font-family:\'DM Mono\',monospace;font-size:.58rem;color:var(--accent);">Click to pin to compare →</div>':'';
+    m.bindPopup(`<div class="lp-name">${d.n}</div><div style="font-family:\'DM Mono\',monospace;font-size:.6rem;color:var(--mut);margin-bottom:.2rem;">${d.raw.region}</div><div class="lp-val" style="color:${col}">${d.fmt}</div><div class="lp-rows">${dRows}<div class="lp-row"><span>Priority</span><span class="lp-rv">${d.loss>0.72?'🔴 Urgent':d.loss>0.45?'🟠 Moderate':'🟢 Stable'}</span></div></div>${cmpHint}`);
+    m.on('click',()=>{
+      selDist(d);
+      logA(`${d.n} · ${d.fmt} · L=${(d.loss*100).toFixed(1)}%`);
+      if(cmpMode) pinToCmp(d);
+    });
+    markers.push(m);
+    d._marker=m;
+  });
+}
+
+function highlightMarker(d){
+  if(selMarker){selMarker.setStyle({weight:1.5,color:'rgba(255,255,255,0.12)'});}
+  selMarker=d._marker;
+  if(selMarker) selMarker.setStyle({weight:3,color:'#ffffff'});
+}
+
+function flyTo(d){
+  map.flyTo([d.lat,d.lon],10,{duration:.8});
+  setTimeout(()=>{if(d._marker)d._marker.openPopup();},850);
+  selDist(d);
+  highlightMarker(d);
+  logA(`→ Flew to ${d.n}`);
+}
+
+/* ══════════════════════════════════════════
+   SELECT & STATS
+══════════════════════════════════════════ */
+function selDist(d){
+  selD=d;const col=l2c(d.loss);
+  document.getElementById('sel-panel').style.display='block';
+  document.getElementById('sel-name').textContent=d.n;
+  document.getElementById('sel-score').textContent=d.fmt;
+  document.getElementById('sel-score').style.color=col;
+  document.getElementById('sel-dims').innerHTML=['rf','ckd','esrd','tx','tour'].map(k=>{
+    const rv=k==='tx'?d.raw.tx:k==='tour'?d.raw.tour:d.raw[k];
+    const lv=CONDITIONS[k].norm(rv),c=l2c(lv),p=Math.round(lv*100);
+    return`<div class="db-row"><div class="db-dot" style="background:${c}"></div><div class="db-name">${CONDITIONS[k].label}</div><div class="db-bar-bg"><div class="db-bar-fill" style="width:${p}%;background:${c}"></div></div><div class="db-val">${CONDITIONS[k].format(rv)}</div></div>`;
+  }).join('');
+  highlightMarker(d);
+}
+
+function stats(){
+  const mean=dataset.reduce((s,d)=>s+d.loss,0)/dataset.length;
+  const crit=dataset.filter(d=>d.loss>=0.70).length;
+  const lel=document.getElementById('st-loss');
+  lel.textContent=(mean*100).toFixed(1)+'%';lel.style.color=l2c(mean);
+  document.getElementById('st-delta').textContent=`${mean>0.50?'↑':'↓'} ${Math.abs(mean-0.50).toFixed(2)} from optimized baseline`;
+  document.getElementById('st-delta').className='sc2-delta '+(mean>0.55?'bad':'good');
+  document.getElementById('st-crit').textContent=crit;
+  const top8=[...dataset].sort((a,b)=>b.loss-a.loss).slice(0,8);
+  window.__ds={};dataset.forEach(d=>window.__ds[d.n]=d);
+  document.getElementById('top-d').innerHTML=top8.map(d=>`
+    <div class="d-item" onclick="flyTo(window.__ds['${d.n}'])">
+      <div class="d-dot" style="background:${l2c(d.loss)}"></div>
+      <span class="d-name">${d.n}</span>
+      <span class="d-val">${d.fmt}</span>
+      <button class="d-cmp-btn" onclick="event.stopPropagation();pinToCmp(window.__ds['${d.n}'])">+cmp</button>
+    </div>`).join('');
+}
+
+function legend(){
+  const cond=curCond,cfg=CONDITIONS[cond];
+  document.getElementById('leg-title').textContent=cfg.label;
+  document.getElementById('leg-rows').innerHTML=RC.map((col,i)=>{
+    const lo=cfg.bands[i]||0;
+    return`<div class="leg-row"><div class="leg-dot" style="background:${col}"></div><span>${RN[i]}: ≥${lo} ${cfg.unit.split(' ')[0]}</span></div>`;
+  }).join('');
+  document.getElementById('pentad-desc').textContent='L(θ) · '+cfg.label;
+}
+
+function updDisp(){
+  const w=getW(),T=w.rf+w.ckd+w.esrd+w.tx+w.tour;
+  document.getElementById('v-rf').textContent=Math.round(w.rf/T*100)+'%';
+  document.getElementById('v-ckd').textContent=Math.round(w.ckd/T*100)+'%';
+  document.getElementById('v-esrd').textContent=Math.round(w.esrd/T*100)+'%';
+  document.getElementById('v-tx').textContent=Math.round(w.tx/T*100)+'%';
+  document.getElementById('v-tour').textContent=Math.round(w.tour/T*100)+'%';
+  document.getElementById('v-eta').textContent=getEta().toFixed(2);
+}
+
+function sched(){
+  updDisp();document.getElementById('upd').classList.add('on');clearTimeout(tmr);
+  tmr=setTimeout(()=>{build();render();stats();legend();if(selD){const u=dataset.find(d=>d.n===selD.n);if(u)selDist(u);}document.getElementById('upd').classList.remove('on');},280);
+}
+
+/* ══════════════════════════════════════════
+   COMMAND PALETTE
+══════════════════════════════════════════ */
+let cmdFocusIdx=-1,cmdItems=[];
+
+function openCmd(){
+  document.getElementById('cmd-overlay').classList.add('open');
+  document.getElementById('cmd-input').value='';
+  document.getElementById('cmd-input').focus();
+  renderCmdResults('');
+}
+function closeCmd(){
+  document.getElementById('cmd-overlay').classList.remove('open');
+  cmdFocusIdx=-1;
+}
+
+function renderCmdResults(q){
+  const el=document.getElementById('cmd-results');
+  const query=q.toLowerCase().trim();
+  const districts=query?dataset.filter(d=>d.n.toLowerCase().includes(query)):
+    [...dataset].sort((a,b)=>b.loss-a.loss).slice(0,8);
+
+  let html='';
+  if(!query) html+=`<div class="cmd-section-label">Highest burden districts</div>`;
+  else if(districts.length===0){html='<div class="sr-empty">No districts match "'+q+'"</div>';}
+
+  html+=districts.slice(0,10).map((d,i)=>{
+    const col=l2c(d.loss);
+    const region=d.raw.region||'';
+    return`<div class="cmd-item${i===cmdFocusIdx?' focused':''}" data-idx="${i}"
+      onclick="flyTo(dataset.find(x=>x.n==='${d.n}'));closeCmd();">
+      <div class="cmd-item-dot" style="background:${col}"></div>
+      <div class="cmd-item-main">
+        <div class="cmd-item-name">${highlightMatch(d.n,q)}</div>
+        <div class="cmd-item-sub">${region} · L=${(d.loss*100).toFixed(1)}%</div>
+      </div>
+      <div class="cmd-item-val" style="color:${col}">${d.fmt}</div>
+      <div style="display:flex;gap:.3rem;">
+        <span class="cmd-item-action" onclick="event.stopPropagation();flyTo(dataset.find(x=>x.n==='${d.n}'));closeCmd();" title="Fly to">↵</span>
+        <span class="cmd-item-action" onclick="event.stopPropagation();pinToCmp(dataset.find(x=>x.n==='${d.n}'));closeCmd();" title="Compare">C</span>
+      </div>
+    </div>`;
+  }).join('');
+
+  // Scenarios shortcut
+  if(!query||'scenarios'.includes(query)||'ckd detection'.includes(query)){
+    html+=`<div class="cmd-divider"></div><div class="cmd-section-label">Scenarios</div>`;
+    ['base','ckd','esrd','tx','bayesian'].forEach(k=>{
+      const labels={base:'Status quo',ckd:'CKD detection priority',esrd:'ESRD emergency',tx:'Transplant equity',bayesian:'Bayesian swap'};
+      html+=`<div class="cmd-item" onclick="setSc(document.querySelector('.sc-btn'),\'${k}\');closeCmd();">
+        <div class="cmd-item-dot" style="background:var(--accent)"></div>
+        <div class="cmd-item-main"><div class="cmd-item-name">${labels[k]}</div></div>
+        <span class="cmd-item-action">run</span>
+      </div>`;
+    });
+  }
+
+  el.innerHTML=html;
+  cmdItems=el.querySelectorAll('.cmd-item');
+}
+
+function highlightMatch(name,q){
+  if(!q) return name;
+  const idx=name.toLowerCase().indexOf(q.toLowerCase());
+  if(idx<0) return name;
+  return name.slice(0,idx)+'<mark style="background:rgba(80,208,128,.25);color:var(--accent);border-radius:2px;">'+name.slice(idx,idx+q.length)+'</mark>'+name.slice(idx+q.length);
+}
+
+document.getElementById('cmd-input').addEventListener('input',e=>{ cmdFocusIdx=-1; renderCmdResults(e.target.value); });
+document.getElementById('cmd-input').addEventListener('keydown',e=>{
+  const items=document.querySelectorAll('#cmd-results .cmd-item');
+  if(e.key==='ArrowDown'){e.preventDefault();cmdFocusIdx=Math.min(cmdFocusIdx+1,items.length-1);items.forEach((el,i)=>el.classList.toggle('focused',i===cmdFocusIdx));}
+  else if(e.key==='ArrowUp'){e.preventDefault();cmdFocusIdx=Math.max(cmdFocusIdx-1,0);items.forEach((el,i)=>el.classList.toggle('focused',i===cmdFocusIdx));}
+  else if(e.key==='Enter'){if(cmdFocusIdx>=0&&items[cmdFocusIdx])items[cmdFocusIdx].click();}
+  else if(e.key==='Escape'){closeCmd();}
+  else if(e.key==='c'||e.key==='C'){if(cmdFocusIdx>=0&&items[cmdFocusIdx]){const cmpBtn=items[cmdFocusIdx].querySelector('.cmd-item-action:last-child');if(cmpBtn)cmpBtn.click();}}
+});
+
+/* ══════════════════════════════════════════
+   INLINE MAP SEARCH
+══════════════════════════════════════════ */
+let srFocusIdx=-1;
+const mapSearchInput=document.getElementById('map-search-input');
+const mapSearchResults=document.getElementById('map-search-results');
+
+mapSearchInput.addEventListener('focus',()=>{renderSR(mapSearchInput.value);});
+mapSearchInput.addEventListener('input',e=>{srFocusIdx=-1;renderSR(e.target.value);});
+mapSearchInput.addEventListener('keydown',e=>{
+  const items=mapSearchResults.querySelectorAll('.sr-item');
+  if(e.key==='ArrowDown'){e.preventDefault();srFocusIdx=Math.min(srFocusIdx+1,items.length-1);items.forEach((el,i)=>el.classList.toggle('focused',i===srFocusIdx));}
+  else if(e.key==='ArrowUp'){e.preventDefault();srFocusIdx=Math.max(srFocusIdx-1,0);items.forEach((el,i)=>el.classList.toggle('focused',i===srFocusIdx));}
+  else if(e.key==='Enter'){if(srFocusIdx>=0&&items[srFocusIdx])items[srFocusIdx].click();else{const first=mapSearchResults.querySelector('.sr-item');if(first)first.click();}}
+  else if(e.key==='Escape'){mapSearchResults.classList.remove('open');mapSearchInput.blur();}
+});
+document.addEventListener('click',e=>{if(!e.target.closest('#map-search-input')&&!e.target.closest('#map-search-results'))mapSearchResults.classList.remove('open');});
+
+function renderSR(q){
+  const query=q.toLowerCase().trim();
+  const matches=query?dataset.filter(d=>d.n.toLowerCase().includes(query)):[...dataset].sort((a,b)=>b.loss-a.loss).slice(0,6);
+  if(matches.length===0){mapSearchResults.innerHTML='<div class="sr-empty">No districts match</div>';mapSearchResults.classList.add('open');return;}
+  mapSearchResults.innerHTML=matches.slice(0,8).map(d=>{
+    const col=l2c(d.loss);
+    return`<div class="sr-item" onclick="flyTo(dataset.find(x=>x.n==='${d.n}'));mapSearchResults.classList.remove('open');mapSearchInput.value='${d.n}';">
+      <div class="sr-dot" style="background:${col}"></div>
+      <span class="sr-name">${highlightMatch(d.n,q)}</span>
+      <span class="sr-region">${d.raw.region||''}</span>
+      <span class="sr-val" style="color:${col}">${d.fmt}</span>
+      <div class="sr-actions">
+        <button class="sr-act-btn" onclick="event.stopPropagation();flyTo(dataset.find(x=>x.n==='${d.n}'));mapSearchResults.classList.remove('open');mapSearchInput.value='';" title="Fly to">↵</button>
+        <button class="sr-act-btn" onclick="event.stopPropagation();pinToCmp(dataset.find(x=>x.n==='${d.n}'));" title="Compare">cmp</button>
+      </div>
+    </div>`;
+  }).join('');
+  mapSearchResults.classList.add('open');
+}
+
+/* ══════════════════════════════════════════
+   COMPARE MODE
+══════════════════════════════════════════ */
+function toggleCmpMode(){
+  cmpMode=!cmpMode;
+  document.getElementById('cmp-toggle-btn').classList.toggle('on',cmpMode);
+  document.getElementById('cmp-badge').classList.toggle('on',cmpMode||cmpA||cmpB);
+  if(cmpMode){
+    logA('Compare mode ON — click two districts');
+    openCmpPanel();
+  } else {
+    logA('Compare mode OFF');
+  }
+}
+
+function openCmpPanel(){
+  document.getElementById('compare-panel').classList.add('open');
+  document.getElementById('cmp-badge').classList.add('on');
+}
+
+function closeCmp(){
+  document.getElementById('compare-panel').classList.remove('open');
+  cmpA=null;cmpB=null;cmpMode=false;
+  document.getElementById('cmp-toggle-btn').classList.remove('on');
+  document.getElementById('cmp-badge').classList.remove('on');
+  renderCmpSlots();
+  updateCmpCount();
+}
+
+function pinToCmp(d){
+  if(!d)d=selD;if(!d)return;
+  if(!cmpA){cmpA=d;logA(`Compare A: ${d.n}`);}
+  else if(!cmpB&&d.n!==cmpA.n){cmpB=d;logA(`Compare B: ${d.n}`);}
+  else if(d.n!==cmpA?.n&&d.n!==cmpB?.n){cmpA=cmpB;cmpB=d;}
+  updateCmpCount();
+  openCmpPanel();
+  renderCmpSlots();
+}
+
+function updateCmpCount(){
+  const cnt=(cmpA?1:0)+(cmpB?1:0);
+  document.getElementById('cmp-count').textContent=cnt;
+  document.getElementById('cmp-badge').classList.toggle('on',cnt>0||cmpMode);
+}
+
+function renderCmpSlots(){
+  ['a','b'].forEach(slot=>{
+    const d=slot==='a'?cmpA:cmpB;
+    const el=document.getElementById(`cmp-slot-${slot}`);
+    if(!d){el.innerHTML='<div class="cmp-slot-empty">Pin district '+(slot==='a'?'A':'B')+'</div>';return;}
+    const col=l2c(d.loss);
+    el.innerHTML=`<div class="cmp-district">
+      <div class="cmp-d-name" style="color:${col}">${d.n}</div>
+      <div style="font-family:'DM Mono',monospace;font-size:.55rem;color:var(--mut);margin-bottom:.35rem;">${d.raw.region} · ${d.fmt}</div>
+      <div class="cmp-dims">${['rf','ckd','esrd','tx','tour'].map(k=>{
+        const rv=k==='tx'?d.raw.tx:k==='tour'?d.raw.tour:d.raw[k];
+        const lv=CONDITIONS[k].norm(rv),c=l2c(lv),p=Math.round(lv*100);
+        return`<div class="cmp-dim-row">
+          <div class="db-dot" style="background:${c};width:6px;height:6px;border-radius:50%;flex-shrink:0;"></div>
+          <span style="flex:1;font-size:.57rem;color:var(--mut);">${CONDITIONS[k].label.split(' ')[0]}</span>
+          <div class="cmp-bar-bg"><div class="cmp-bar-fill" style="width:${p}%;background:${c}"></div></div>
+          <span style="font-family:'DM Mono',monospace;font-size:.57rem;color:var(--ink);min-width:38px;text-align:right;">${CONDITIONS[k].format(rv)}</span>
+        </div>`;
+      }).join('')}</div>
+    </div>`;
+  });
+  // Delta analysis
+  if(cmpA&&cmpB){
+    document.getElementById('cmp-hint').textContent=`Δ L(θ) = ${Math.abs((cmpA.loss-cmpB.loss)*100).toFixed(1)}% · ${cmpA.loss>cmpB.loss?cmpA.n+' higher burden':cmpB.n+' higher burden'}`;
+  } else {
+    document.getElementById('cmp-hint').textContent='Click a district on map or use search → cmp to pin';
+  }
+}
+
+function pinToCmpFromSel(){pinToCmp(selD);}
+
+/* ══════════════════════════════════════════
+   SCENARIOS & CONTROLS
+══════════════════════════════════════════ */
+function setCond(btn,cond){
+  document.querySelectorAll('.cond-btn').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');curCond=cond;logA('Layer: '+CONDITIONS[cond].label);sched();
+}
+
+function setSc(btn,nm){
+  document.querySelectorAll('.sc-btn').forEach(b=>b.classList.remove('on'));
+  const actualBtn=document.querySelector(`.sc-btn[onclick*="'${nm}'"]`)||btn;
+  actualBtn.classList.add('on');
+  const c={base:[25,35,25,10,5,10],ckd:[15,55,15,10,5,10],esrd:[15,20,50,10,5,10],tx:[15,25,20,40,5,10],bayesian:[20,30,25,15,10,15]};
+  const v=c[nm]||c.base;
+  ['s-rf','s-ckd','s-esrd','s-tx','s-tour','s-eta'].forEach((id,i)=>document.getElementById(id).value=v[i]);
+  if(nm==='bayesian'){
+    const upd=document.getElementById('upd');
+    [[0,'→ MoH DHIS2 renal API connecting…'],[1200,'SEARCH-CKD posterior loading…'],[2400,'Mulago registry: 4 dialysis centres mapped'],[3600,'Bayesian swap complete ✓']].forEach(([d,m])=>setTimeout(()=>{upd.classList.add('on');upd.textContent=m;logA(m);},d));
+    setTimeout(()=>{upd.classList.remove('on');upd.textContent='Recomputing gradient…';sched();},3800);
+  } else {logA('Scenario: '+nm);sched();}
+}
+
+function logA(msg){
+  const n=new Date(),t=[n.getHours(),n.getMinutes(),n.getSeconds()].map(x=>String(x).padStart(2,'0')).join(':');
+  const el=document.getElementById('tlog'),e=document.createElement('div');
+  e.className='te';e.innerHTML=`<span class="tt2">${t}</span><span class="ta">${msg}</span>`;
+  el.prepend(e);if(el.children.length>25)el.removeChild(el.lastChild);
+}
+
+/* ══════════════════════════════════════════
+   KEYBOARD SHORTCUTS
+══════════════════════════════════════════ */
+document.addEventListener('keydown',e=>{
+  const cmdOpen=document.getElementById('cmd-overlay').classList.contains('open');
+  const inputFocused=document.activeElement===mapSearchInput||document.activeElement===document.getElementById('cmd-input');
+  if((e.metaKey||e.ctrlKey)&&e.key==='k'){e.preventDefault();cmdOpen?closeCmd():openCmd();}
+  else if(e.key==='/'&&!inputFocused&&!cmdOpen){e.preventDefault();mapSearchInput.focus();renderSR('');}
+  else if(e.key==='Escape'&&!cmdOpen){mapSearchResults.classList.remove('open');}
+  else if(e.key==='c'&&!inputFocused&&!cmdOpen){toggleCmpMode();}
+});
+
+document.getElementById('theme-btn').addEventListener('click',()=>{
+  const next=document.documentElement.getAttribute('data-theme')==='dark'?'light':'dark';
+  document.documentElement.setAttribute('data-theme',next);
+  if(map){if(next==='dark'){map.removeLayer(lightTile);darkTile.addTo(map);}else{map.removeLayer(darkTile);lightTile.addTo(map);}}
+});
+
+['s-rf','s-ckd','s-esrd','s-tx','s-tour','s-eta'].forEach(id=>document.getElementById(id).addEventListener('input',sched));
+document.getElementById('sel-cmp-btn').addEventListener('click',pinToCmpFromSel);
+
+/* ══════════════════════════════════════════
+   INIT
+══════════════════════════════════════════ */
+logA('Renal atlas v3 — 135 districts loaded');
+logA('SEARCH-CKD: East 12.5% vs SW 3.9%');
+logA('⌘K / / to search · C to compare');
+
+initMap();updDisp();build();render();stats();legend();
+</script>
+</body>
+</html>
