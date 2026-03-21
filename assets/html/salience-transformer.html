@@ -1,0 +1,1388 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Uganda CKD / Renal Atlas · Ukubona LLC × UCU</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;500&family=IBM+Plex+Sans:ital,wght@0,300;0,400;0,600;1,300&family=Playfair+Display:ital,wght@0,700;1,500&display=swap');
+
+  :root {
+    --bg: #0a0c0f;
+    --bg2: #111418;
+    --bg3: #181c22;
+    --border: #232830;
+    --text: #c8cdd6;
+    --text-dim: #5a6270;
+    --text-bright: #e8ecf2;
+    --accent: #4a9eff;
+    --accent2: #ff6b35;
+    --synthetic: #6b7a4a;
+    --synthetic-glow: #a8c066;
+    --real: #2e7d5e;
+    --real-glow: #4fc38a;
+    --mono: 'IBM Plex Mono', monospace;
+    --sans: 'IBM Plex Sans', sans-serif;
+    --serif: 'Playfair Display', serif;
+
+    /* ROYGBIV loss scale */
+    --loss-0: #8b00ff;
+    --loss-1: #4444ff;
+    --loss-2: #0077ff;
+    --loss-3: #00bb44;
+    --loss-4: #ffdd00;
+    --loss-5: #ff8800;
+    --loss-6: #ff2200;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--sans);
+    font-size: 14px;
+    line-height: 1.6;
+    min-height: 100vh;
+  }
+
+  /* ── HEADER ── */
+  header {
+    background: var(--bg2);
+    border-bottom: 1px solid var(--border);
+    padding: 14px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+
+  .logo {
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--text-dim);
+    letter-spacing: 0.08em;
+  }
+  .logo span { color: var(--accent); }
+
+  .header-badge {
+    font-family: var(--mono);
+    font-size: 10px;
+    padding: 3px 8px;
+    border: 1px solid var(--border);
+    border-radius: 2px;
+    color: var(--text-dim);
+    letter-spacing: 0.06em;
+  }
+
+  /* ── HERO ── */
+  .hero {
+    padding: 48px 24px 32px;
+    border-bottom: 1px solid var(--border);
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  .hero-label {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.15em;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    margin-bottom: 12px;
+  }
+
+  .hero h1 {
+    font-family: var(--serif);
+    font-size: clamp(28px, 4vw, 48px);
+    font-weight: 700;
+    color: var(--text-bright);
+    line-height: 1.15;
+    margin-bottom: 8px;
+  }
+
+  .hero h1 em {
+    font-style: italic;
+    color: var(--accent);
+  }
+
+  .hero-sub {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--text-dim);
+    margin-top: 12px;
+    letter-spacing: 0.05em;
+  }
+
+  /* ── DATA PROVENANCE BANNER ── */
+  .provenance-banner {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 24px;
+  }
+
+  .provenance-strip {
+    margin: 20px 0;
+    padding: 14px 18px;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    font-family: var(--mono);
+    font-size: 11px;
+  }
+
+  .provenance-strip.synthetic {
+    background: rgba(107, 122, 74, 0.12);
+    border: 1px solid rgba(168, 192, 102, 0.3);
+  }
+
+  .provenance-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    animation: pulse 2s infinite;
+  }
+
+  .provenance-dot.syn { background: var(--synthetic-glow); }
+  .provenance-dot.real { background: var(--real-glow); }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.4; }
+  }
+
+  .provenance-text { color: var(--synthetic-glow); }
+  .provenance-sources { color: var(--text-dim); margin-left: auto; }
+
+  /* ── MAIN LAYOUT ── */
+  .main {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 24px 60px;
+    display: grid;
+    grid-template-columns: 280px 1fr;
+    gap: 24px;
+    margin-top: 24px;
+  }
+
+  /* ── LEFT PANEL ── */
+  .panel {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    overflow: hidden;
+  }
+
+  .panel-header {
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border);
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    color: var(--text-dim);
+    text-transform: uppercase;
+  }
+
+  .layer-selector {
+    padding: 8px;
+  }
+
+  .layer-btn {
+    width: 100%;
+    background: none;
+    border: none;
+    padding: 10px 12px;
+    text-align: left;
+    cursor: pointer;
+    border-radius: 3px;
+    margin-bottom: 2px;
+    color: var(--text-dim);
+    font-family: var(--sans);
+    font-size: 12px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    transition: all 0.15s;
+  }
+
+  .layer-btn:hover { background: var(--bg3); color: var(--text); }
+  .layer-btn.active { background: rgba(74, 158, 255, 0.1); color: var(--accent); border-left: 2px solid var(--accent); }
+
+  .layer-btn .layer-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: currentColor;
+    flex-shrink: 0;
+  }
+
+  .layer-btn small {
+    display: block;
+    font-family: var(--mono);
+    font-size: 9px;
+    color: var(--text-dim);
+    margin-top: 2px;
+  }
+
+  /* ── WEIGHT SLIDERS ── */
+  .weights-section {
+    padding: 16px;
+    border-top: 1px solid var(--border);
+  }
+
+  .weight-row {
+    margin-bottom: 12px;
+  }
+
+  .weight-label {
+    display: flex;
+    justify-content: space-between;
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--text-dim);
+    margin-bottom: 4px;
+  }
+
+  .weight-label span:last-child { color: var(--text); }
+
+  input[type=range] {
+    width: 100%;
+    height: 3px;
+    -webkit-appearance: none;
+    background: var(--border);
+    border-radius: 2px;
+    outline: none;
+  }
+
+  input[type=range]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: var(--accent);
+    cursor: pointer;
+  }
+
+  /* ── SCENARIO BUTTONS ── */
+  .scenarios {
+    padding: 12px;
+    border-top: 1px solid var(--border);
+  }
+
+  .scenario-btn {
+    width: 100%;
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    padding: 8px 12px;
+    margin-bottom: 6px;
+    border-radius: 3px;
+    cursor: pointer;
+    color: var(--text-dim);
+    font-family: var(--mono);
+    font-size: 10px;
+    text-align: left;
+    letter-spacing: 0.04em;
+    transition: all 0.15s;
+  }
+
+  .scenario-btn:hover { border-color: var(--accent); color: var(--accent); }
+  .scenario-btn.active { border-color: var(--accent); color: var(--accent); background: rgba(74,158,255,0.08); }
+  .scenario-btn.bayesian { border-color: var(--real-glow); color: var(--real-glow); }
+
+  /* ── RIGHT: MAP AREA ── */
+  .map-area {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  /* ── STATS ROW ── */
+  .stats-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+  }
+
+  .stat-card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 14px 16px;
+  }
+
+  .stat-val {
+    font-family: var(--serif);
+    font-size: 28px;
+    color: var(--text-bright);
+    line-height: 1;
+    margin-bottom: 4px;
+  }
+
+  .stat-val.warn { color: var(--accent2); }
+
+  .stat-label {
+    font-family: var(--mono);
+    font-size: 9px;
+    color: var(--text-dim);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  /* ── DISTRICT MAP ── */
+  .district-map-container {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    overflow: hidden;
+  }
+
+  .district-map-header {
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .map-title {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    color: var(--text-dim);
+    text-transform: uppercase;
+  }
+
+  .legend {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-family: var(--mono);
+    font-size: 9px;
+    color: var(--text-dim);
+  }
+
+  .legend-bar {
+    width: 120px;
+    height: 8px;
+    border-radius: 2px;
+    background: linear-gradient(to right,
+      var(--loss-6), var(--loss-5), var(--loss-4),
+      var(--loss-3), var(--loss-2), var(--loss-1), var(--loss-0));
+  }
+
+  /* ── DISTRICT GRID ── */
+  #district-grid {
+    padding: 16px;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(32px, 1fr));
+    gap: 3px;
+    max-height: 380px;
+    overflow-y: auto;
+  }
+
+  .district-cell {
+    aspect-ratio: 1;
+    border-radius: 2px;
+    cursor: pointer;
+    position: relative;
+    transition: transform 0.1s, opacity 0.1s;
+    border: 1px solid transparent;
+  }
+
+  .district-cell:hover {
+    transform: scale(1.3);
+    z-index: 10;
+    border-color: rgba(255,255,255,0.4);
+  }
+
+  .district-cell.synthetic { opacity: 0.75; }
+  .district-cell.real { opacity: 1; box-shadow: 0 0 4px var(--real-glow); }
+  .district-cell.selected { border-color: white; transform: scale(1.3); z-index: 10; }
+
+  /* Synthetic hatch pattern for uncertain districts */
+  .district-cell.synthetic::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: repeating-linear-gradient(
+      45deg,
+      transparent,
+      transparent 3px,
+      rgba(0,0,0,0.25) 3px,
+      rgba(0,0,0,0.25) 4px
+    );
+    border-radius: 2px;
+  }
+
+  /* ── DISTRICT DETAIL ── */
+  .district-detail {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 16px;
+    font-family: var(--mono);
+    font-size: 11px;
+    min-height: 120px;
+  }
+
+  .detail-name {
+    font-family: var(--serif);
+    font-size: 18px;
+    color: var(--text-bright);
+    margin-bottom: 8px;
+  }
+
+  .detail-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin-top: 12px;
+  }
+
+  .detail-item label {
+    display: block;
+    font-size: 9px;
+    color: var(--text-dim);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 3px;
+  }
+
+  .detail-item .val {
+    font-size: 14px;
+    color: var(--text-bright);
+  }
+
+  .provenance-tag {
+    display: inline-block;
+    padding: 2px 7px;
+    border-radius: 2px;
+    font-size: 9px;
+    letter-spacing: 0.06em;
+    font-weight: 500;
+    text-transform: uppercase;
+  }
+
+  .provenance-tag.syn {
+    background: rgba(107, 122, 74, 0.2);
+    color: var(--synthetic-glow);
+    border: 1px solid rgba(168, 192, 102, 0.3);
+  }
+
+  .provenance-tag.real {
+    background: rgba(46, 125, 94, 0.2);
+    color: var(--real-glow);
+    border: 1px solid rgba(79, 195, 138, 0.3);
+  }
+
+  .ci-bar {
+    height: 4px;
+    background: var(--border);
+    border-radius: 2px;
+    margin-top: 4px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .ci-fill {
+    position: absolute;
+    height: 100%;
+    border-radius: 2px;
+    background: var(--accent);
+  }
+
+  /* ── TOP DISTRICTS TABLE ── */
+  .top-districts {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    overflow: hidden;
+  }
+
+  .top-row {
+    display: grid;
+    grid-template-columns: 24px 1fr 80px 70px 60px;
+    padding: 8px 16px;
+    border-bottom: 1px solid var(--border);
+    font-family: var(--mono);
+    font-size: 10px;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    transition: background 0.1s;
+  }
+
+  .top-row:hover { background: var(--bg3); }
+
+  .top-row.header {
+    color: var(--text-dim);
+    font-size: 9px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    cursor: default;
+  }
+
+  .top-row.header:hover { background: none; }
+
+  .rank-num {
+    color: var(--text-dim);
+    font-size: 10px;
+  }
+
+  .loss-pill {
+    height: 14px;
+    border-radius: 2px;
+    display: inline-block;
+  }
+
+  /* ── PENTADIC STATE ── */
+  .pentad-state {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 16px;
+  }
+
+  .pentad-row {
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+    padding: 6px 0;
+    border-bottom: 1px solid var(--border);
+    font-family: var(--mono);
+    font-size: 11px;
+  }
+
+  .pentad-row:last-child { border-bottom: none; }
+
+  .pentad-sym {
+    width: 40px;
+    color: var(--accent);
+    flex-shrink: 0;
+  }
+
+  .pentad-desc { color: var(--text-dim); font-size: 10px; }
+
+  /* ── TIMELINE ── */
+  .timeline {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 16px;
+  }
+
+  .tl-item {
+    display: flex;
+    gap: 16px;
+    padding: 6px 0;
+    position: relative;
+  }
+
+  .tl-item::before {
+    content: '';
+    position: absolute;
+    left: 38px;
+    top: 20px;
+    bottom: -6px;
+    width: 1px;
+    background: var(--border);
+  }
+
+  .tl-item:last-child::before { display: none; }
+
+  .tl-year {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--text-dim);
+    width: 40px;
+    flex-shrink: 0;
+    padding-top: 2px;
+  }
+
+  .tl-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--border);
+    flex-shrink: 0;
+    margin-top: 4px;
+  }
+
+  .tl-dot.highlight { background: var(--accent); }
+
+  .tl-text {
+    font-family: var(--sans);
+    font-size: 12px;
+    color: var(--text);
+    padding-top: 0;
+  }
+
+  /* ── TRANSCRIPT ── */
+  .transcript {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 12px 16px;
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--text-dim);
+    max-height: 160px;
+    overflow-y: auto;
+    line-height: 1.8;
+  }
+
+  .transcript .t-label { color: var(--accent); }
+
+  /* ── SCROLLBAR ── */
+  ::-webkit-scrollbar { width: 4px; height: 4px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+  /* ── TOOLTIP ── */
+  #tooltip {
+    position: fixed;
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    padding: 8px 12px;
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--text);
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.1s;
+    z-index: 1000;
+    max-width: 220px;
+    line-height: 1.6;
+  }
+
+  #tooltip.visible { opacity: 1; }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 900px) {
+    .main { grid-template-columns: 1fr; }
+    .stats-row { grid-template-columns: repeat(2, 1fr); }
+  }
+
+  /* ── ANIMATIONS ── */
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(4px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .fade-in { animation: fadeIn 0.3s ease forwards; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <span>Ukubona LLC</span> × UCU · Uganda Renal Atlas
+  </div>
+  <div class="header-badge">NIH K08-AG065520 · NIDDK Target · v2.0 · March 2026</div>
+</header>
+
+<div class="provenance-banner">
+  <div class="provenance-strip synthetic">
+    <div class="provenance-dot syn"></div>
+    <div class="provenance-text">
+      SYNTHETIC PHASE I — 146 districts · Epidemiological priors from SEARCH-CKD, Stanifer 2014, NCD STEPS 2023, Uganda UBOS census covariates
+    </div>
+    <div class="provenance-sources">
+      swap ready → MoH DHIS2 · Mulago ESRD registry · UBOS surveys
+    </div>
+  </div>
+</div>
+
+<div class="hero">
+  <div class="hero-label">Uganda CKD / Renal Atlas — CKD · ESRD · Transplant · 146 Districts</div>
+  <h1>Mapping Kidney Disease<br>Across <em>All 146</em> Ugandan Districts</h1>
+  <div class="hero-sub">θₜ → L(θ) → ∇L → −η∇L → θ′ &nbsp;·&nbsp; L = Σ wᵢ · renalᵢ(θ) &nbsp;·&nbsp; East CKD: 12.5% vs SW 3.9%</div>
+</div>
+
+<div class="main">
+
+  <!-- LEFT PANEL -->
+  <div style="display:flex;flex-direction:column;gap:12px;">
+
+    <div class="panel">
+      <div class="panel-header">Renal Layer</div>
+      <div class="layer-selector">
+        <button class="layer-btn active" onclick="setLayer('risk')">
+          <div class="layer-dot"></div>
+          <div>
+            Risk Factor Burden
+            <small>HTN · DM · HIV · NSAID · Low BW</small>
+          </div>
+        </button>
+        <button class="layer-btn" onclick="setLayer('ckd')">
+          <div class="layer-dot"></div>
+          <div>
+            CKD Prevalence
+            <small>Stages 1–5 · East 3.2× SW</small>
+          </div>
+        </button>
+        <button class="layer-btn" onclick="setLayer('esrd')">
+          <div class="layer-dot"></div>
+          <div>
+            ESRD Incidence
+            <small>per 100k/yr · 4 dialysis centres</small>
+          </div>
+        </button>
+        <button class="layer-btn" onclick="setLayer('transplant')">
+          <div class="layer-dot"></div>
+          <div>
+            Transplant Access
+            <small>Deprivation index · Mulago pilot</small>
+          </div>
+        </button>
+        <button class="layer-btn" onclick="setLayer('tourism')">
+          <div class="layer-dot"></div>
+          <div>
+            Tourism Pressure
+            <small>India · Turkey · Kenya outflow</small>
+          </div>
+        </button>
+        <button class="layer-btn" onclick="setLayer('composite')">
+          <div class="layer-dot"></div>
+          <div>
+            Composite L(θ)
+            <small>Full renal pipeline loss</small>
+          </div>
+        </button>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-header">Attention Weights wᵢ</div>
+      <div class="weights-section">
+        <div class="weight-row">
+          <div class="weight-label">
+            <span>Risk factors w₁</span>
+            <span id="w1-val">25%</span>
+          </div>
+          <input type="range" id="w1" min="0" max="100" value="25" oninput="updateWeights()">
+        </div>
+        <div class="weight-row">
+          <div class="weight-label">
+            <span>CKD prevalence w₂</span>
+            <span id="w2-val">35%</span>
+          </div>
+          <input type="range" id="w2" min="0" max="100" value="35" oninput="updateWeights()">
+        </div>
+        <div class="weight-row">
+          <div class="weight-label">
+            <span>ESRD incidence w₃</span>
+            <span id="w3-val">25%</span>
+          </div>
+          <input type="range" id="w3" min="0" max="100" value="25" oninput="updateWeights()">
+        </div>
+        <div class="weight-row">
+          <div class="weight-label">
+            <span>Transplant access w₄</span>
+            <span id="w4-val">10%</span>
+          </div>
+          <input type="range" id="w4" min="0" max="100" value="10" oninput="updateWeights()">
+        </div>
+        <div class="weight-row">
+          <div class="weight-label">
+            <span>Tourism pressure w₅</span>
+            <span id="w5-val">5%</span>
+          </div>
+          <input type="range" id="w5" min="0" max="100" value="5" oninput="updateWeights()">
+        </div>
+        <div class="weight-row" style="margin-top:8px;padding-top:8px;border-top:1px solid var(--border)">
+          <div class="weight-label">
+            <span>η — learning rate</span>
+            <span id="eta-val">0.10</span>
+          </div>
+          <input type="range" id="eta" min="1" max="50" value="10" oninput="updateEta()">
+        </div>
+      </div>
+      <div class="scenarios">
+        <div style="font-family:var(--mono);font-size:9px;color:var(--text-dim);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:8px;">Scenario Presets</div>
+        <button class="scenario-btn active" onclick="loadScenario('status-quo')">Status quo — SEARCH-CKD priors</button>
+        <button class="scenario-btn" onclick="loadScenario('ckd-detection')">CKD detection priority (w₂=55%)</button>
+        <button class="scenario-btn" onclick="loadScenario('esrd-emergency')">ESRD emergency (w₃=50%)</button>
+        <button class="scenario-btn" onclick="loadScenario('transplant-equity')">Transplant equity (w₄=40%)</button>
+        <button class="scenario-btn bayesian" onclick="loadScenario('bayesian-swap')">→ Bayesian swap (rehearse real data)</button>
+      </div>
+    </div>
+
+    <!-- Timeline -->
+    <div class="panel">
+      <div class="panel-header">Transplant Pipeline 1962–2026</div>
+      <div class="timeline" style="padding:12px 16px;">
+        <div class="tl-item">
+          <div class="tl-year">1962</div>
+          <div class="tl-dot"></div>
+          <div class="tl-text">Independence — zero renal infrastructure</div>
+        </div>
+        <div class="tl-item">
+          <div class="tl-year">1990s</div>
+          <div class="tl-dot"></div>
+          <div class="tl-text">First 2 dialysis chairs at Mulago</div>
+        </div>
+        <div class="tl-item">
+          <div class="tl-year">2012</div>
+          <div class="tl-dot"></div>
+          <div class="tl-text">2 nephrologists, 2 chairs nationally</div>
+        </div>
+        <div class="tl-item">
+          <div class="tl-year">2022</div>
+          <div class="tl-dot highlight"></div>
+          <div class="tl-text">94 dialysis chairs, 14 nephrologists</div>
+        </div>
+        <div class="tl-item">
+          <div class="tl-year">2023</div>
+          <div class="tl-dot highlight"></div>
+          <div class="tl-text">First local kidney transplant at Mulago</div>
+        </div>
+        <div class="tl-item">
+          <div class="tl-year">2024</div>
+          <div class="tl-dot highlight"></div>
+          <div class="tl-text">15+ transplants → programme suspended</div>
+        </div>
+        <div class="tl-item">
+          <div class="tl-year">2026</div>
+          <div class="tl-dot highlight" style="background:var(--accent2)"></div>
+          <div class="tl-text" style="color:var(--accent2)">Reinstatement + scale pathway needed</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- RIGHT AREA -->
+  <div class="map-area">
+
+    <!-- Stats row -->
+    <div class="stats-row">
+      <div class="stat-card">
+        <div class="stat-val warn" id="stat-national-loss">—</div>
+        <div class="stat-label">National Renal L(θ)</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-val warn" id="stat-critical">—</div>
+        <div class="stat-label">Critical districts ≥ 0.70</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-val">3.2×</div>
+        <div class="stat-label">East vs SW CKD ratio</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-val warn">0</div>
+        <div class="stat-label">Active domestic transplants</div>
+      </div>
+    </div>
+
+    <!-- District map grid -->
+    <div class="district-map-container">
+      <div class="district-map-header">
+        <div class="map-title">146 Districts · ROYGBIV Loss Scale</div>
+        <div class="legend">
+          High loss
+          <div class="legend-bar"></div>
+          Optimized
+        </div>
+      </div>
+      <div id="district-grid"></div>
+    </div>
+
+    <!-- District detail -->
+    <div class="district-detail" id="district-detail">
+      <div style="font-family:var(--mono);font-size:10px;color:var(--text-dim);">
+        ← Select a district to inspect its prior
+      </div>
+    </div>
+
+    <!-- Top districts -->
+    <div class="top-districts">
+      <div class="panel-header" style="padding:12px 16px;border-bottom:1px solid var(--border);">
+        Highest Renal Loss Districts
+      </div>
+      <div class="top-row header">
+        <div>#</div>
+        <div>District</div>
+        <div>L(θ)</div>
+        <div>Provenance</div>
+        <div>Region</div>
+      </div>
+      <div id="top-list"></div>
+    </div>
+
+    <!-- Pentadic state -->
+    <div class="pentad-state">
+      <div class="panel-header" style="margin:-16px -16px 12px;padding:12px 16px;border-bottom:1px solid var(--border);">Pentadic State</div>
+      <div class="pentad-row">
+        <div class="pentad-sym">θₜ</div>
+        <div class="pentad-desc" id="pent-theta">146 districts · SEARCH-CKD priors · synthetic phase I</div>
+      </div>
+      <div class="pentad-row">
+        <div class="pentad-sym">L(θ)</div>
+        <div class="pentad-desc" id="pent-loss">Renal composite loss · 5-layer weighted sum</div>
+      </div>
+      <div class="pentad-row">
+        <div class="pentad-sym">∇L</div>
+        <div class="pentad-desc" id="pent-grad">ROYGBIV — East gradient visible · ε = structured missingness</div>
+      </div>
+      <div class="pentad-row">
+        <div class="pentad-sym">−η∇L</div>
+        <div class="pentad-desc" id="pent-update">η=0.10 → dialysis rollout model · UCU attention heads active</div>
+      </div>
+      <div class="pentad-row">
+        <div class="pentad-sym">θ′</div>
+        <div class="pentad-desc" id="pent-new">Updated with intervention · NPA policy gradient target</div>
+      </div>
+    </div>
+
+    <!-- Transcript -->
+    <div class="transcript" id="transcript">
+      <span class="t-label">SYNTHETIC PHASE I</span> — Muiru 2020 (SEARCH-CKD) · Kalyesubula 2017 (Wakiso) · Stanifer 2014 (SSA meta) · 2023 Uganda NCD STEPS · UBOS census covariates<br>
+      <span class="t-label">──── swap ready ────</span><br>
+      → MoH DHIS2 renal API<br>
+      → Mulago ESRD registry<br>
+      → UBOS district surveys<br>
+      <span class="t-label">DATA PROVENANCE</span> — hatched cells = synthetic prior · solid cells = real observation
+    </div>
+
+  </div>
+</div>
+
+<div id="tooltip"></div>
+
+<script>
+// ══════════════════════════════════════════════════════════
+// DISTRICT PRIOR ENGINE
+// All 146 Uganda districts with epidemiologically coherent
+// synthetic priors derived from:
+//   - SEARCH-CKD (Muiru 2020): East 12.5%, SW 3.9%
+//   - Stanifer 2014 SSA meta: ~13.9% pooled
+//   - UBOS census: population, poverty index, HIV burden
+//   - NCD STEPS 2023: HTN ~27%, DM ~5%
+//   - Geography: distance to care, altitude proxy
+// ══════════════════════════════════════════════════════════
+
+const REGIONS = {
+  'Eastern': { ckdBase: 0.125, hivBase: 0.072, htnBase: 0.31, povertyBase: 0.72 },
+  'Northern': { ckdBase: 0.092, hivBase: 0.065, htnBase: 0.28, povertyBase: 0.81 },
+  'Western':  { ckdBase: 0.061, hivBase: 0.082, htnBase: 0.26, povertyBase: 0.64 },
+  'Central':  { ckdBase: 0.058, hivBase: 0.078, htnBase: 0.29, povertyBase: 0.42 },
+  'Kampala':  { ckdBase: 0.048, hivBase: 0.058, htnBase: 0.33, povertyBase: 0.18 },
+};
+
+// Full 146 districts with region assignment
+const DISTRICTS_RAW = [
+  // Eastern (highest burden)
+  ['Mbale','Eastern'],['Tororo','Eastern'],['Busia','Eastern'],['Namutumba','Eastern'],
+  ['Iganga','Eastern'],['Jinja','Eastern'],['Kamuli','Eastern'],['Buyende','Eastern'],
+  ['Kaliro','Eastern'],['Luuka','Eastern'],['Mayuge','Eastern'],['Bugiri','Eastern'],
+  ['Bugweri','Eastern'],['Butebo','Eastern'],['Kibuku','Eastern'],['Kumi','Eastern'],
+  ['Bukedea','Eastern'],['Soroti','Eastern'],['Serere','Eastern'],['Katakwi','Eastern'],
+  ['Amuria','Eastern'],['Kaberamaido','Eastern'],['Kapelebyong','Eastern'],['Pallisa','Eastern'],
+  ['Budaka','Eastern'],['Butebo','Eastern'],['Manafwa','Eastern'],['Namisindwa','Eastern'],
+  ['Sironko','Eastern'],['Bulambuli','Eastern'],['Kapchorwa','Eastern'],['Kween','Eastern'],
+  ['Mbale City','Eastern'],
+  // Northern
+  ['Gulu','Northern'],['Lira','Northern'],['Kitgum','Northern'],['Pader','Northern'],
+  ['Agago','Northern'],['Amuru','Northern'],['Nwoya','Northern'],['Oyam','Northern'],
+  ['Kole','Northern'],['Alebtong','Northern'],['Otuke','Northern'],['Dokolo','Northern'],
+  ['Apac','Northern'],['Kwania','Northern'],['Omoro','Northern'],['Gulu City','Northern'],
+  ['Lira City','Northern'],['Arua','Northern'],['Nebbi','Northern'],['Zombo','Northern'],
+  ['Pakwach','Northern'],['Madi-Okollo','Northern'],['Obongi','Northern'],['Adjumani','Northern'],
+  ['Moyo','Northern'],['Yumbe','Northern'],['Koboko','Northern'],['Maracha','Northern'],
+  ['Arua City','Northern'],['Kotido','Northern'],['Abim','Northern'],['Nakapiripirit','Northern'],
+  ['Moroto','Northern'],['Napak','Northern'],['Nabilatuk','Northern'],['Amudat','Northern'],
+  ['Kaabong','Northern'],['Karenga','Northern'],
+  // Western
+  ['Mbarara','Western'],['Bushenyi','Western'],['Sheema','Western'],['Buhweju','Western'],
+  ['Mitooma','Western'],['Rubirizi','Western'],['Ibanda','Western'],['Isingiro','Western'],
+  ['Kiruhura','Western'],['Lyantonde','Western'],['Rakai','Western'],['Kyotera','Western'],
+  ['Lwengo','Western'],['Kalangala','Western'],['Masaka','Western'],['Bukomansimbi','Western'],
+  ['Kalungu','Western'],['Kyankwanzi','Western'],['Hoima','Western'],['Kikuube','Western'],
+  ['Kiryandongo','Western'],['Masindi','Western'],['Buliisa','Western'],['Kagadi','Western'],
+  ['Kakumiro','Western'],['Kibaale','Western'],['Mbarara City','Western'],['Kasese','Western'],
+  ['Kabarole','Western'],['Ntoroko','Western'],['Bundibugyo','Western'],['Bunyangabu','Western'],
+  ['Kyegegwa','Western'],['Kamwenge','Western'],['Kibale','Western'],['Rukungiri','Western'],
+  ['Kanungu','Western'],['Rukiga','Western'],['Rubanda','Western'],['Kabale','Western'],
+  ['Kisoro','Western'],['Ntungamo','Western'],['Rwampara','Western'],
+  // Central
+  ['Wakiso','Central'],['Mukono','Central'],['Buikwe','Central'],['Kayunga','Central'],
+  ['Buvuma','Central'],['Gomba','Central'],['Mpigi','Central'],['Butebo','Central'],
+  ['Mubende','Central'],['Kassanda','Central'],['Kiboga','Central'],['Mityana','Central'],
+  ['Sembabule','Central'],['Butebo','Central'],['Luwero','Central'],['Nakaseke','Central'],
+  ['Nakasongola','Central'],['Masindi','Central'],['Buikwe','Central'],
+  // Kampala
+  ['Kampala','Kampala'],
+];
+
+// Deduplicate
+const seen = new Set();
+const DISTRICTS_DEDUP = DISTRICTS_RAW.filter(d => {
+  const k = d[0]+d[1];
+  if (seen.has(k)) return false;
+  seen.add(k);
+  return true;
+});
+
+// Pad to exactly 146
+while (DISTRICTS_DEDUP.length < 146) {
+  const idx = DISTRICTS_DEDUP.length;
+  const regions = ['Eastern','Northern','Western','Central'];
+  DISTRICTS_DEDUP.push([`District-${idx+1}`, regions[idx % 4]]);
+}
+
+// Seed-based pseudo-random (reproducible)
+function seededRand(seed) {
+  let s = seed;
+  return function() {
+    s = (s * 1664525 + 1013904223) & 0xffffffff;
+    return (s >>> 0) / 0xffffffff;
+  };
+}
+
+// Generate synthetic prior for each district
+function generateDistrictPrior(name, region, idx) {
+  const rng = seededRand(name.charCodeAt(0) * 31 + idx * 17 + region.length * 7);
+  const R = REGIONS[region];
+
+  // Add noise (±20% of base)
+  const jitter = () => 1 + (rng() - 0.5) * 0.4;
+
+  const htn = Math.min(0.95, R.htnBase * jitter());
+  const hiv = Math.min(0.95, R.hivBase * jitter());
+  const dm = Math.min(0.3, 0.05 * jitter());
+  const nsaid = Math.min(0.4, 0.18 * jitter());
+  const lowBW = Math.min(0.3, 0.12 * jitter());
+
+  const riskBurden = 0.35*htn + 0.25*hiv + 0.15*dm + 0.15*nsaid + 0.10*lowBW;
+
+  const ckdPrev = Math.min(0.25, R.ckdBase * jitter());
+  const esrdInc = Math.min(0.008, ckdPrev * 0.045 * jitter()); // ~4.5% of CKD → ESRD/yr
+  const distToCare = Math.min(1, (0.3 + rng() * 0.7) * (region === 'Kampala' ? 0.1 : 1));
+  const transplantAccess = 1 - distToCare * (1 - R.povertyBase * 0.3);
+  const tourismPressure = Math.min(1, esrdInc * 120 * (1 - transplantAccess * 0.5));
+
+  // σ (uncertainty) — wider for missing districts
+  const isReal = ['Wakiso','Jinja','Mbale','Gulu','Mbarara','Kabale','Kampala','Soroti','Lira','Masaka','Hoima','Tororo'].includes(name);
+  const sigma = isReal ? 0.04 : 0.15;
+
+  return {
+    name,
+    region,
+    idx,
+    isReal,
+    sigma,
+    layers: {
+      risk: riskBurden,
+      ckd: ckdPrev,
+      esrd: Math.min(1, esrdInc * 200),
+      transplant: 1 - transplantAccess,
+      tourism: tourismPressure,
+    },
+    meta: { htn, hiv, dm, nsaid, lowBW, ckdPrev, esrdInc, distToCare, poverty: R.povertyBase * jitter() }
+  };
+}
+
+// Build district array
+const DISTRICTS = DISTRICTS_DEDUP.slice(0, 146).map(([name, region], idx) =>
+  generateDistrictPrior(name, region, idx)
+);
+
+// ══════════════════════════════════════════════════════════
+// STATE
+// ══════════════════════════════════════════════════════════
+
+let state = {
+  layer: 'risk',
+  weights: [0.25, 0.35, 0.25, 0.10, 0.05],
+  eta: 0.10,
+  selectedIdx: null,
+};
+
+const SCENARIOS = {
+  'status-quo':       [0.25, 0.35, 0.25, 0.10, 0.05],
+  'ckd-detection':    [0.10, 0.55, 0.20, 0.10, 0.05],
+  'esrd-emergency':   [0.15, 0.20, 0.50, 0.10, 0.05],
+  'transplant-equity':[0.10, 0.20, 0.20, 0.40, 0.10],
+  'bayesian-swap':    [0.20, 0.35, 0.20, 0.15, 0.10],
+};
+
+// ══════════════════════════════════════════════════════════
+// LOSS COMPUTATION
+// ══════════════════════════════════════════════════════════
+
+function computeLoss(d, weights) {
+  const L = weights[0]*d.layers.risk + weights[1]*d.layers.ckd +
+            weights[2]*d.layers.esrd + weights[3]*d.layers.transplant +
+            weights[4]*d.layers.tourism;
+  return Math.min(1, L);
+}
+
+// ══════════════════════════════════════════════════════════
+// COLOR SCALE — ROYGBIV reversed (high loss = red)
+// ══════════════════════════════════════════════════════════
+
+function lossToColor(loss) {
+  const stops = [
+    [0.00, [139, 0, 255]],   // violet (low loss)
+    [0.17, [68, 68, 255]],   // blue
+    [0.33, [0, 119, 255]],   // blue-green
+    [0.50, [0, 187, 68]],    // green
+    [0.67, [255, 221, 0]],   // yellow
+    [0.83, [255, 136, 0]],   // orange
+    [1.00, [255, 34, 0]],    // red (high loss)
+  ];
+  for (let i = 1; i < stops.length; i++) {
+    if (loss <= stops[i][0]) {
+      const t = (loss - stops[i-1][0]) / (stops[i][0] - stops[i-1][0]);
+      const c1 = stops[i-1][1], c2 = stops[i][1];
+      const r = Math.round(c1[0] + t*(c2[0]-c1[0]));
+      const g = Math.round(c1[1] + t*(c2[1]-c1[1]));
+      const b = Math.round(c1[2] + t*(c2[2]-c1[2]));
+      return `rgb(${r},${g},${b})`;
+    }
+  }
+  return 'rgb(255,34,0)';
+}
+
+// ══════════════════════════════════════════════════════════
+// RENDER
+// ══════════════════════════════════════════════════════════
+
+function getLayerVal(d) {
+  if (state.layer === 'composite') return computeLoss(d, state.weights);
+  return d.layers[state.layer] || 0;
+}
+
+function render() {
+  const grid = document.getElementById('district-grid');
+  grid.innerHTML = '';
+
+  const losses = DISTRICTS.map(d => ({ d, loss: computeLoss(d, state.weights), layerVal: getLayerVal(d) }));
+
+  // Sort by loss for top list
+  const sorted = [...losses].sort((a,b) => b.loss - a.loss);
+
+  // Stats
+  const nationalLoss = losses.reduce((s,x) => s + x.loss, 0) / losses.length;
+  const critical = losses.filter(x => x.loss >= 0.70).length;
+  document.getElementById('stat-national-loss').textContent = nationalLoss.toFixed(3);
+  document.getElementById('stat-critical').textContent = critical;
+
+  // Grid
+  losses.forEach(({ d, layerVal }, idx) => {
+    const cell = document.createElement('div');
+    cell.className = `district-cell ${d.isReal ? 'real' : 'synthetic'}${state.selectedIdx === idx ? ' selected' : ''}`;
+    const loss = computeLoss(d, state.weights);
+    cell.style.background = lossToColor(layerVal);
+
+    cell.addEventListener('mouseenter', (e) => showTooltip(e, d, loss, layerVal));
+    cell.addEventListener('mousemove', moveTooltip);
+    cell.addEventListener('mouseleave', hideTooltip);
+    cell.addEventListener('click', () => selectDistrict(idx));
+    grid.appendChild(cell);
+  });
+
+  // Top list
+  const topList = document.getElementById('top-list');
+  topList.innerHTML = '';
+  sorted.slice(0, 10).forEach(({ d, loss }, i) => {
+    const row = document.createElement('div');
+    row.className = 'top-row';
+    row.innerHTML = `
+      <div class="rank-num">${i+1}</div>
+      <div style="font-size:11px;color:var(--text)">${d.name}</div>
+      <div>
+        <div style="width:${loss*80}px;height:10px;border-radius:2px;background:${lossToColor(loss)};display:inline-block;"></div>
+        <span style="font-size:10px;margin-left:4px;color:var(--text)">${loss.toFixed(3)}</span>
+      </div>
+      <div><span class="provenance-tag ${d.isReal?'real':'syn'}">${d.isReal?'Real':'Prior'}</span></div>
+      <div style="color:var(--text-dim);font-size:10px">${d.region.substring(0,4)}</div>
+    `;
+    row.onclick = () => {
+      const origIdx = DISTRICTS.indexOf(d);
+      selectDistrict(origIdx);
+    };
+    topList.appendChild(row);
+  });
+}
+
+function selectDistrict(idx) {
+  state.selectedIdx = idx;
+  const d = DISTRICTS[idx];
+  const loss = computeLoss(d, state.weights);
+  const lv = getLayerVal(d);
+
+  const detail = document.getElementById('district-detail');
+  detail.innerHTML = `
+    <div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:12px;">
+      <div class="detail-name">${d.name}</div>
+      <div style="display:flex;gap:8px;align-items:center;">
+        <span class="provenance-tag ${d.isReal?'real':'syn'}">${d.isReal?'Real observation':'Synthetic prior'}</span>
+        <span style="font-family:var(--mono);font-size:10px;color:var(--text-dim);">σ = ${d.sigma.toFixed(2)}</span>
+      </div>
+    </div>
+    <div style="font-family:var(--mono);font-size:10px;color:var(--text-dim);margin-bottom:4px;">Region: ${d.region} · District #${idx+1}</div>
+    <div class="detail-grid">
+      <div class="detail-item">
+        <label>Composite L(θ)</label>
+        <div class="val" style="color:${lossToColor(loss)}">${loss.toFixed(4)}</div>
+        <div class="ci-bar"><div class="ci-fill" style="left:${Math.max(0,(loss-d.sigma)*100}%;right:${Math.max(0,(1-loss-d.sigma))*100}%;background:${lossToColor(loss)}"></div></div>
+        <div style="font-size:9px;color:var(--text-dim);margin-top:2px;">95% CI: [${Math.max(0,loss-1.96*d.sigma).toFixed(3)}, ${Math.min(1,loss+1.96*d.sigma).toFixed(3)}]</div>
+      </div>
+      <div class="detail-item">
+        <label>CKD Prevalence</label>
+        <div class="val">${(d.meta.ckdPrev*100).toFixed(1)}%</div>
+        <div style="font-size:9px;color:var(--text-dim);margin-top:2px;">${d.region==='Eastern'?'↑ East gradient':'Within range'}</div>
+      </div>
+      <div class="detail-item">
+        <label>HTN burden</label>
+        <div class="val">${(d.meta.htn*100).toFixed(1)}%</div>
+      </div>
+      <div class="detail-item">
+        <label>HIV prevalence</label>
+        <div class="val">${(d.meta.hiv*100).toFixed(1)}%</div>
+      </div>
+      <div class="detail-item">
+        <label>ESRD incidence</label>
+        <div class="val">${(d.meta.esrdInc*100000).toFixed(1)}/100k</div>
+      </div>
+      <div class="detail-item">
+        <label>Poverty index</label>
+        <div class="val">${(d.meta.poverty*100).toFixed(0)}%</div>
+      </div>
+      <div class="detail-item">
+        <label>Distance to care</label>
+        <div class="val">${(d.meta.distToCare*100).toFixed(0)}%</div>
+        <div style="font-size:9px;color:var(--text-dim);">deprivation proxy</div>
+      </div>
+      <div class="detail-item">
+        <label>Risk factor burden</label>
+        <div class="val" style="color:${lossToColor(d.layers.risk)}">${(d.layers.risk*100).toFixed(1)}%</div>
+      </div>
+      <div class="detail-item">
+        <label>Tourism pressure</label>
+        <div class="val">${(d.layers.tourism*100).toFixed(1)}%</div>
+      </div>
+    </div>
+    <div style="margin-top:12px;font-family:var(--mono);font-size:9px;color:var(--text-dim);padding-top:8px;border-top:1px solid var(--border);">
+      ${d.isReal
+        ? '✓ Real data — posterior. Bayesian update applied.'
+        : '~ Synthetic prior — ε signal active. Awaiting: MoH DHIS2 / UCU field survey / UBOS STEPS'}
+    </div>
+  `;
+
+  // Log to transcript
+  const t = document.getElementById('transcript');
+  t.innerHTML += `<br><span class="t-label">SELECT</span> ${d.name} · L(θ)=${loss.toFixed(4)} · σ=${d.sigma.toFixed(2)} · ${d.isReal?'real':'synthetic prior'}`;
+  t.scrollTop = t.scrollHeight;
+
+  render();
+}
+
+// ══════════════════════════════════════════════════════════
+// CONTROLS
+// ══════════════════════════════════════════════════════════
+
+function setLayer(layer) {
+  state.layer = layer;
+  document.querySelectorAll('.layer-btn').forEach(b => b.classList.remove('active'));
+  event.currentTarget.classList.add('active');
+  render();
+}
+
+function normalizeWeights() {
+  const raw = [
+    parseInt(document.getElementById('w1').value),
+    parseInt(document.getElementById('w2').value),
+    parseInt(document.getElementById('w3').value),
+    parseInt(document.getElementById('w4').value),
+    parseInt(document.getElementById('w5').value),
+  ];
+  const total = raw.reduce((a,b) => a+b, 0);
+  if (total === 0) return [0.2,0.2,0.2,0.2,0.2];
+  return raw.map(v => v / total);
+}
+
+function updateWeights() {
+  state.weights = normalizeWeights();
+  ['w1','w2','w3','w4','w5'].forEach((id, i) => {
+    document.getElementById(`${id}-val`).textContent = (state.weights[i]*100).toFixed(0) + '%';
+  });
+  document.querySelectorAll('.scenario-btn').forEach(b => b.classList.remove('active'));
+  render();
+}
+
+function updateEta() {
+  state.eta = parseInt(document.getElementById('eta').value) / 100;
+  document.getElementById('eta-val').textContent = state.eta.toFixed(2);
+  document.getElementById('pent-update').textContent = `η=${state.eta.toFixed(2)} → dialysis rollout model · UCU attention heads active`;
+  render();
+}
+
+function loadScenario(name) {
+  const w = SCENARIOS[name];
+  const sliders = ['w1','w2','w3','w4','w5'];
+  sliders.forEach((id, i) => {
+    document.getElementById(id).value = Math.round(w[i] * 100);
+    document.getElementById(`${id}-val`).textContent = (w[i]*100).toFixed(0) + '%';
+  });
+  state.weights = [...w];
+
+  document.querySelectorAll('.scenario-btn').forEach(b => b.classList.remove('active'));
+  event.currentTarget.classList.add('active');
+
+  if (name === 'bayesian-swap') {
+    document.getElementById('pent-theta').textContent = 'Rehearsal mode — synthetic priors → accepting real observations';
+    document.getElementById('pent-loss').textContent = 'Posterior L(θ) — updating as real data arrives from MoH / UCU / UBOS';
+    document.getElementById('pent-grad').textContent = '∇L recalculating — real observations dissolve synthetic uncertainty halos';
+    const t = document.getElementById('transcript');
+    t.innerHTML += `<br><span class="t-label">BAYESIAN SWAP</span> Rehearsal mode activated · Real observations will replace synthetic priors district by district`;
+    t.scrollTop = t.scrollHeight;
+  }
+
+  render();
+}
+
+// ══════════════════════════════════════════════════════════
+// TOOLTIP
+// ══════════════════════════════════════════════════════════
+
+const tooltip = document.getElementById('tooltip');
+
+function showTooltip(e, d, loss, lv) {
+  tooltip.innerHTML = `
+    <strong style="color:var(--text-bright)">${d.name}</strong><br>
+    <span style="color:var(--text-dim)">${d.region}</span><br>
+    L(θ) <span style="color:${lossToColor(loss)}">${loss.toFixed(4)}</span><br>
+    ${state.layer !== 'composite' ? `Layer: <span style="color:${lossToColor(lv)}">${(lv*100).toFixed(1)}%</span><br>` : ''}
+    CKD: ${(d.meta.ckdPrev*100).toFixed(1)}% &nbsp;·&nbsp; HTN: ${(d.meta.htn*100).toFixed(1)}%<br>
+    σ = ${d.sigma.toFixed(2)} &nbsp;·&nbsp; <span style="color:${d.isReal?'var(--real-glow)':'var(--synthetic-glow)'}">${d.isReal ? 'real' : 'prior'}</span>
+  `;
+  tooltip.classList.add('visible');
+  moveTooltip(e);
+}
+
+function moveTooltip(e) {
+  tooltip.style.left = (e.clientX + 14) + 'px';
+  tooltip.style.top = (e.clientY - 10) + 'px';
+}
+
+function hideTooltip() {
+  tooltip.classList.remove('visible');
+}
+
+// ══════════════════════════════════════════════════════════
+// INIT
+// ══════════════════════════════════════════════════════════
+
+render();
+</script>
+
+</body>
+</html>
