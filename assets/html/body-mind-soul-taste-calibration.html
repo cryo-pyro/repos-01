@@ -1,1 +1,1490 @@
-.
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>UBOAX Roundtable · 2026-03-21 · Kampala Stratigraphy</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,700;1,400;1,500&family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --void: #080808;
+    --bedrock: #0f0d0a;
+    --laterite: #8B3A1A;
+    --laterite-glow: #c4501f;
+    --gold: #c9a84c;
+    --gold-light: #e8c96d;
+    --bone: #e8e0d0;
+    --bone-dim: #a09080;
+    --cyan-cold: #4fc3c3;
+    --violet: #7c5cbf;
+    --soul: #d4a0ff;
+    --green-pass: #4caf7c;
+    --red-fail: #cf4444;
+    --amber: #e0943a;
+    --font-serif: 'EB Garamond', Georgia, serif;
+    --font-display: 'Cormorant Garamond', Georgia, serif;
+    --font-mono: 'Space Mono', monospace;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--void);
+    color: var(--bone);
+    font-family: var(--font-serif);
+    font-size: 18px;
+    line-height: 1.75;
+    overflow-x: hidden;
+  }
+
+  /* ── GRAIN OVERLAY ── */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 9999;
+    opacity: 0.35;
+  }
+
+  /* ── HERO ── */
+  .hero {
+    min-height: 100vh;
+    display: grid;
+    place-items: center;
+    position: relative;
+    padding: 4rem 2rem;
+    background: radial-gradient(ellipse 80% 60% at 50% 40%, #1a0e05 0%, var(--void) 70%);
+  }
+
+  .hero::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--laterite), transparent);
+  }
+
+  .hero-inner {
+    max-width: 860px;
+    text-align: center;
+  }
+
+  .stamp {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--laterite-glow);
+    margin-bottom: 2rem;
+    opacity: 0;
+    animation: fadeUp 0.8s 0.2s forwards;
+  }
+
+  .hero h1 {
+    font-family: var(--font-display);
+    font-size: clamp(2.8rem, 7vw, 6rem);
+    font-weight: 300;
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+    color: var(--bone);
+    opacity: 0;
+    animation: fadeUp 0.8s 0.4s forwards;
+  }
+
+  .hero h1 em {
+    font-style: italic;
+    color: var(--gold);
+  }
+
+  .hero-sub {
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    color: var(--bone-dim);
+    margin-top: 2rem;
+    letter-spacing: 0.1em;
+    opacity: 0;
+    animation: fadeUp 0.8s 0.7s forwards;
+  }
+
+  .equation {
+    display: inline-block;
+    margin-top: 2.5rem;
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    color: var(--cyan-cold);
+    border: 1px solid rgba(79,195,195,0.2);
+    padding: 0.75rem 1.5rem;
+    letter-spacing: 0.05em;
+    opacity: 0;
+    animation: fadeUp 0.8s 1s forwards;
+  }
+
+  .scroll-cue {
+    position: absolute;
+    bottom: 2rem;
+    left: 50%;
+    transform: translateX(-50%);
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    color: var(--bone-dim);
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    animation: pulse 2s infinite;
+  }
+
+  /* ── NAV ── */
+  nav {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: rgba(8,8,8,0.92);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid rgba(139,58,26,0.3);
+    padding: 0.75rem 2rem;
+    display: flex;
+    gap: 0.5rem 2rem;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+
+  nav a {
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--bone-dim);
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+
+  nav a:hover { color: var(--gold); }
+
+  nav .nav-brand {
+    font-family: var(--font-display);
+    font-size: 1rem;
+    color: var(--gold);
+    margin-right: auto;
+    font-style: italic;
+  }
+
+  /* ── SECTIONS ── */
+  .section {
+    max-width: 820px;
+    margin: 0 auto;
+    padding: 5rem 2rem;
+    opacity: 0;
+    transform: translateY(30px);
+    transition: opacity 0.7s, transform 0.7s;
+  }
+
+  .section.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .section-label {
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--laterite-glow);
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .section-label::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(90deg, var(--laterite), transparent);
+  }
+
+  h2 {
+    font-family: var(--font-display);
+    font-size: clamp(1.8rem, 4vw, 2.8rem);
+    font-weight: 400;
+    line-height: 1.15;
+    color: var(--bone);
+    margin-bottom: 1.5rem;
+  }
+
+  h2 em { color: var(--gold); font-style: italic; }
+  h3 {
+    font-family: var(--font-display);
+    font-size: 1.4rem;
+    font-weight: 500;
+    color: var(--gold-light);
+    margin: 2rem 0 0.75rem;
+  }
+
+  p { margin-bottom: 1.25rem; color: #c8bfb0; }
+  strong { color: var(--bone); font-weight: 600; }
+
+  /* ── DIVIDER ── */
+  .divider {
+    width: 100%;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(139,58,26,0.4), transparent);
+    margin: 0;
+  }
+
+  /* ── PENTAD TABLE ── */
+  .pentad {
+    margin: 2rem 0;
+    border-collapse: collapse;
+    width: 100%;
+    font-size: 0.9rem;
+  }
+
+  .pentad th {
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--bone-dim);
+    text-align: left;
+    padding: 0.5rem 1rem;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+  }
+
+  .pentad td {
+    padding: 0.85rem 1rem;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+    vertical-align: top;
+    color: #c0b8a8;
+  }
+
+  .pentad tr:hover td { background: rgba(201,168,76,0.04); }
+
+  .layer-num {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    color: var(--laterite-glow);
+    white-space: nowrap;
+  }
+
+  .layer-name {
+    font-family: var(--font-display);
+    font-size: 1.05rem;
+    font-style: italic;
+    color: var(--gold);
+  }
+
+  /* ── CODE BLOCK ── */
+  .code-block {
+    background: #0d0d0d;
+    border: 1px solid rgba(79,195,195,0.15);
+    border-left: 3px solid var(--cyan-cold);
+    padding: 1.5rem;
+    margin: 1.5rem 0;
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    line-height: 1.7;
+    color: #90d0d0;
+    overflow-x: auto;
+    white-space: pre;
+  }
+
+  /* ── MATH BLOCK ── */
+  .math {
+    text-align: center;
+    font-family: var(--font-mono);
+    font-size: 0.9rem;
+    color: var(--soul);
+    padding: 1.5rem;
+    margin: 1.5rem 0;
+    border: 1px solid rgba(124,92,191,0.2);
+    background: rgba(124,92,191,0.04);
+    letter-spacing: 0.05em;
+  }
+
+  /* ── QUOTE ── */
+  blockquote {
+    border-left: 3px solid var(--gold);
+    padding: 1rem 1.5rem;
+    margin: 2rem 0;
+    font-family: var(--font-display);
+    font-size: 1.15rem;
+    font-style: italic;
+    color: var(--gold-light);
+    background: rgba(201,168,76,0.04);
+  }
+
+  blockquote cite {
+    display: block;
+    font-style: normal;
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    color: var(--bone-dim);
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    margin-top: 0.75rem;
+  }
+
+  /* ── STATUS BADGE ── */
+  .badge {
+    display: inline-block;
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    padding: 0.25rem 0.75rem;
+    border-radius: 2px;
+    margin: 0.25rem;
+  }
+
+  .badge-pass { background: rgba(76,175,124,0.15); color: var(--green-pass); border: 1px solid rgba(76,175,124,0.3); }
+  .badge-fail { background: rgba(207,68,68,0.1); color: var(--red-fail); border: 1px solid rgba(207,68,68,0.25); }
+  .badge-warn { background: rgba(224,148,58,0.1); color: var(--amber); border: 1px solid rgba(224,148,58,0.25); }
+  .badge-info { background: rgba(79,195,195,0.1); color: var(--cyan-cold); border: 1px solid rgba(79,195,195,0.2); }
+
+  /* ── AUDIT TABLE ── */
+  .audit-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 1.5rem 0;
+    font-size: 0.88rem;
+  }
+
+  .audit-table th {
+    font-family: var(--font-mono);
+    font-size: 0.6rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--bone-dim);
+    padding: 0.5rem 0.75rem;
+    text-align: left;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+  }
+
+  .audit-table td {
+    padding: 0.75rem;
+    border-bottom: 1px solid rgba(255,255,255,0.03);
+    color: #b8b0a0;
+    vertical-align: top;
+  }
+
+  .audit-table .score {
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    color: var(--green-pass);
+    text-align: center;
+  }
+
+  /* ── VECTOR CARDS ── */
+  .vector-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 1.5rem;
+    margin: 2rem 0;
+  }
+
+  .vector-card {
+    background: rgba(15,13,10,0.8);
+    border: 1px solid rgba(201,168,76,0.15);
+    padding: 1.5rem;
+    position: relative;
+    transition: border-color 0.3s;
+  }
+
+  .vector-card:hover { border-color: rgba(201,168,76,0.4); }
+
+  .vector-card::before {
+    content: attr(data-layer);
+    position: absolute;
+    top: 0.75rem;
+    right: 0.75rem;
+    font-family: var(--font-mono);
+    font-size: 0.6rem;
+    color: var(--laterite-glow);
+    letter-spacing: 0.15em;
+  }
+
+  .vector-card h4 {
+    font-family: var(--font-display);
+    font-style: italic;
+    font-size: 1.2rem;
+    color: var(--gold);
+    margin-bottom: 0.5rem;
+  }
+
+  .vector-score {
+    font-family: var(--font-mono);
+    font-size: 1.4rem;
+    color: var(--green-pass);
+    margin: 0.75rem 0 0.25rem;
+  }
+
+  .vector-bar {
+    height: 3px;
+    background: rgba(255,255,255,0.08);
+    margin: 0.5rem 0;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .vector-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--laterite), var(--gold));
+    transition: width 1s ease;
+  }
+
+  /* ── TIMELINE ── */
+  .timeline {
+    position: relative;
+    padding-left: 2rem;
+    margin: 2rem 0;
+  }
+
+  .timeline::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0; bottom: 0;
+    width: 1px;
+    background: linear-gradient(180deg, var(--laterite), transparent);
+  }
+
+  .timeline-item {
+    position: relative;
+    margin-bottom: 2rem;
+  }
+
+  .timeline-item::before {
+    content: '';
+    position: absolute;
+    left: -2rem;
+    top: 0.5rem;
+    width: 7px;
+    height: 7px;
+    background: var(--laterite-glow);
+    border-radius: 50%;
+    transform: translateX(-3px);
+  }
+
+  .timeline-time {
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    color: var(--laterite-glow);
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    margin-bottom: 0.3rem;
+  }
+
+  .timeline-content { color: #c0b8a8; }
+
+  /* ── SIMULATOR ── */
+  .sim-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    margin: 1.5rem 0;
+    overflow-x: auto;
+    display: block;
+  }
+
+  .sim-table th {
+    color: var(--bone-dim);
+    letter-spacing: 0.1em;
+    padding: 0.4rem 0.6rem;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+    text-align: right;
+    white-space: nowrap;
+  }
+
+  .sim-table th:first-child { text-align: left; }
+
+  .sim-table td {
+    padding: 0.35rem 0.6rem;
+    border-bottom: 1px solid rgba(255,255,255,0.02);
+    text-align: right;
+    color: #90c0a0;
+  }
+
+  .sim-table td:first-child { text-align: left; color: var(--bone-dim); }
+
+  .sim-table .best { color: var(--green-pass); font-weight: 700; }
+  .sim-table .mid { color: var(--amber); }
+  .sim-table .worst { color: var(--red-fail); }
+
+  /* ── WHATSAPP CAPTURE ── */
+  .wa-thread {
+    background: #0f1a0f;
+    border: 1px solid rgba(37,211,102,0.15);
+    border-radius: 4px;
+    padding: 1.5rem;
+    margin: 1.5rem 0;
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+  }
+
+  .wa-header {
+    color: rgba(37,211,102,0.7);
+    font-size: 0.65rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    margin-bottom: 1rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid rgba(37,211,102,0.1);
+  }
+
+  .wa-msg {
+    margin-bottom: 1rem;
+    padding: 0.75rem 1rem;
+    border-radius: 2px;
+    max-width: 80%;
+    line-height: 1.5;
+  }
+
+  .wa-msg.them {
+    background: rgba(37,211,102,0.08);
+    border-left: 2px solid rgba(37,211,102,0.3);
+    color: #a0d0a0;
+  }
+
+  .wa-msg.me {
+    background: rgba(201,168,76,0.08);
+    border-left: 2px solid rgba(201,168,76,0.3);
+    color: var(--gold-light);
+    margin-left: auto;
+  }
+
+  .wa-msg .wa-sender {
+    font-size: 0.6rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    opacity: 0.6;
+    margin-bottom: 0.3rem;
+  }
+
+  .wa-msg .wa-time {
+    font-size: 0.6rem;
+    opacity: 0.4;
+    margin-top: 0.3rem;
+    text-align: right;
+  }
+
+  .wa-event {
+    text-align: center;
+    color: rgba(37,211,102,0.5);
+    font-size: 0.65rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    margin: 0.75rem 0;
+  }
+
+  /* ── 403 PROTOCOL ── */
+  .protocol-block {
+    border: 1px solid rgba(207,68,68,0.25);
+    background: rgba(207,68,68,0.04);
+    padding: 1.5rem;
+    margin: 1.5rem 0;
+    position: relative;
+  }
+
+  .protocol-block::before {
+    content: '403';
+    position: absolute;
+    top: -0.75rem;
+    left: 1.5rem;
+    background: var(--void);
+    padding: 0 0.75rem;
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    color: var(--red-fail);
+    letter-spacing: 0.2em;
+  }
+
+  .protocol-item {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1rem;
+    font-size: 0.88rem;
+  }
+
+  .protocol-num {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    color: var(--red-fail);
+    white-space: nowrap;
+    padding-top: 0.1rem;
+  }
+
+  /* ── JSON DISPLAY ── */
+  .json-block {
+    background: #050505;
+    border: 1px solid rgba(124,92,191,0.2);
+    border-left: 3px solid var(--violet);
+    padding: 1.25rem 1.5rem;
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    line-height: 1.8;
+    color: #c0a0e0;
+    overflow-x: auto;
+    white-space: pre;
+    margin: 1.5rem 0;
+  }
+
+  /* ── CASSAVA SECTION ── */
+  .cassava-block {
+    text-align: center;
+    padding: 4rem 2rem;
+    background: radial-gradient(ellipse 60% 50% at 50% 50%, rgba(139,58,26,0.08) 0%, transparent 70%);
+    border-top: 1px solid rgba(139,58,26,0.2);
+    border-bottom: 1px solid rgba(139,58,26,0.2);
+    margin: 2rem -2rem;
+  }
+
+  .cassava-flow {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.5rem 1rem;
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    color: var(--bone-dim);
+    margin-top: 1.5rem;
+  }
+
+  .cassava-flow .arrow { color: var(--laterite-glow); }
+  .cassava-flow .node { color: var(--gold); }
+
+  /* ── MOU SECTION ── */
+  .mou-item {
+    display: grid;
+    grid-template-columns: 2rem 1fr;
+    gap: 0 1rem;
+    margin-bottom: 1.5rem;
+    align-items: start;
+  }
+
+  .mou-num {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    color: var(--laterite-glow);
+    padding-top: 0.15rem;
+  }
+
+  /* ── FOOTER ── */
+  footer {
+    text-align: center;
+    padding: 4rem 2rem;
+    border-top: 1px solid rgba(139,58,26,0.2);
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    color: var(--bone-dim);
+    letter-spacing: 0.15em;
+  }
+
+  footer .footer-eq {
+    font-size: 0.8rem;
+    color: var(--cyan-cold);
+    margin-top: 1rem;
+    letter-spacing: 0.08em;
+  }
+
+  /* ── ANIMATIONS ── */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 0.4; }
+    50% { opacity: 1; }
+  }
+
+  /* ── UTILITY ── */
+  .mono { font-family: var(--font-mono); font-size: 0.85em; }
+  .gold { color: var(--gold); }
+  .laterite { color: var(--laterite-glow); }
+  .cyan { color: var(--cyan-cold); }
+  .soul-c { color: var(--soul); }
+  .dim { color: var(--bone-dim); }
+  .mt2 { margin-top: 2rem; }
+  .mb0 { margin-bottom: 0; }
+
+  /* ── SCROLLBAR ── */
+  ::-webkit-scrollbar { width: 4px; height: 4px; }
+  ::-webkit-scrollbar-track { background: var(--void); }
+  ::-webkit-scrollbar-thumb { background: var(--laterite); }
+</style>
+</head>
+<body>
+
+<!-- HERO -->
+<section class="hero" id="top">
+  <div class="hero-inner">
+    <div class="stamp">Ukubona LLC · Roundtable Archive · 2026-03-21 · Kampala</div>
+    <h1>The <em>UBOAX</em><br>Roundtable</h1>
+    <div class="hero-sub">
+      Eid Al-Fitri · Pentadic Calculus · Gradient Sovereignty · UCU-Ukubona Collab<br>
+      Stratigraphy of a Single Night / Kampala → Baltimore → Civilization
+    </div>
+    <div class="equation">θ → L(θ) → ∇L → −η∇L → θ′ · L_tot = L₀ + Σ wᵢLᵢ + ε</div>
+  </div>
+  <div class="scroll-cue">↓ scroll to descend</div>
+</section>
+
+<!-- NAV -->
+<nav>
+  <span class="nav-brand">UBOAX · 2026</span>
+  <a href="#bedrock">Bedrock</a>
+  <a href="#pentad">Pentad</a>
+  <a href="#pilau">Pilau</a>
+  <a href="#esther">Esther</a>
+  <a href="#sandra">Sandra</a>
+  <a href="#tura">Tura</a>
+  <a href="#403">403</a>
+  <a href="#simulator">Simulator</a>
+  <a href="#ucu">UCU</a>
+  <a href="#mou">MOU</a>
+</nav>
+
+<!-- I. BEDROCK -->
+<section class="section" id="bedrock">
+  <div class="section-label">I · Setting</div>
+  <h2>The Night <em>Everything</em> Happened at Once</h2>
+  <p>Eid Al-Fitri, 2026. Hosted by Hajj Saudi Bukenya — classmate and housemate from King's College Budo, 1993–1998 cohort, Australia House. The girl-to-boy ratio was approximately 5:1. Clearly deliberate social architecture. Benon of Swans Avenue was there — Saidi's wingman (Saidi is an investor at Swans). The girls were mostly 40–45, with some in the 28–35 zone. A Budonian table — Muzaale, Ellis, Davis, Edgar — kept to itself. The setup was Apollonian. The signals were Dionysian.</p>
+
+  <blockquote>
+    "Now abideth these five things: L_tot = L₀ + Σ wᵢLᵢ + ε"
+    <cite>— noted during the party itself</cite>
+  </blockquote>
+
+  <p>Three things happened that night that do not belong together statistically and are therefore almost guaranteed given the depth of the network: the catered pilau exposed a civilizational loss function; Esther materialised as a high-fidelity basis vector; and Sandra's "brother-in-law" utterance closed a loop that had been open since Tura.</p>
+</section>
+
+<div class="divider"></div>
+
+<!-- II. THE PENTAD -->
+<section class="section" id="pentad">
+  <div class="section-label">II · Architecture</div>
+  <h2>The Universal <em>Pentad</em></h2>
+
+  <p>Every meaningful system decomposes into five layers. Not metaphor — operational architecture. The loss function L_tot is a composite over all five, weighted by context. When capitalism sets all weights except Enterprise to near-zero, you get catered pilau. When a full human life sets weights across all five, you get the night of the Eid.</p>
+
+  <div class="math">L_tot(θ) = Σₖ wₖ · Lₖ(θₖ, {θⱼ}ⱼ≠ₖ)<br><br>θₖ,ₜ₊₁ = θₖ,ₜ − ηₖ ∇Lₖ(θₖ,ₜ)</div>
+
+  <h3>The Five-Layer Tensor (5×5)</h3>
+  <table class="pentad">
+    <tr>
+      <th>Layer</th>
+      <th>Domain</th>
+      <th>Cognitive Map</th>
+      <th>Neural Anchor</th>
+      <th>Silicon Analog</th>
+    </tr>
+    <tr>
+      <td class="layer-num">L₁</td>
+      <td class="layer-name">Person</td>
+      <td>Calibrate (θ)</td>
+      <td>Thalamus</td>
+      <td>Tensors</td>
+    </tr>
+    <tr>
+      <td class="layer-num">L₂</td>
+      <td class="layer-name">Household / Kin</td>
+      <td>Taste (L)</td>
+      <td>Limbic System</td>
+      <td>Attention</td>
+    </tr>
+    <tr>
+      <td class="layer-num">L₃</td>
+      <td class="layer-name">Enterprise</td>
+      <td>Soul (∇L)</td>
+      <td>Hippocampus</td>
+      <td>Algorithm</td>
+    </tr>
+    <tr>
+      <td class="layer-num">L₄</td>
+      <td class="layer-name">Regulator / Gov't</td>
+      <td>Mind (−η∇L)</td>
+      <td>Prefrontal Cortex</td>
+      <td>Gemini / Ukubona API</td>
+    </tr>
+    <tr>
+      <td class="layer-num">L₅</td>
+      <td class="layer-name">Civilizational</td>
+      <td>Body (θ′)</td>
+      <td>Corticothalamic loop</td>
+      <td>TPU</td>
+    </tr>
+  </table>
+
+  <h3>Variant Pentads (all isomorphic)</h3>
+  <table class="pentad">
+    <tr><th>Archaic</th><th>Biological</th><th>Cognitive</th><th>Harmonic</th><th>Silicon</th></tr>
+    <tr>
+      <td>Calibrate</td><td>Thalamus</td><td>Sending</td><td>Tuning</td><td>Tensors</td>
+    </tr>
+    <tr>
+      <td>Taste</td><td>Limbic</td><td>Emotion</td><td>Timbre</td><td>Attention</td>
+    </tr>
+    <tr>
+      <td>Soul</td><td>Hippocampus</td><td>Memory</td><td>Tension</td><td>Algorithm</td>
+    </tr>
+    <tr>
+      <td>Mind</td><td>PFC</td><td>Intelligence</td><td>Resolution</td><td>Ukubona API</td>
+    </tr>
+    <tr>
+      <td>Body</td><td>Corticothalamic</td><td>Deployment</td><td>Resonance</td><td>TPU</td>
+    </tr>
+  </table>
+
+  <p class="mt2">The convergence of all these variants onto the same five-step architecture is not coincidence. It is the stratigraphic signature of how any self-correcting system processes reality. The cassava stem knows it before the LaTeX does.</p>
+</section>
+
+<div class="divider"></div>
+
+<!-- III. PILAU -->
+<section class="section" id="pilau">
+  <div class="section-label">III · The Diagnostic</div>
+  <h2>The <em>Pilau</em> Problem</h2>
+
+  <p>At 45, the memory of a certain quality of pilau rice — experienced only in Muslim community settings — is vivid and irreplaceable. Everything in the last twenty years has been an Apollonian rendition: structurally correct, commercially safe, stripped of the Dionysian vitality that makes the dish a cultural artifact rather than a food product.</p>
+
+  <p>Finding the same bland commercial sort at the Eid celebration — outsourced to a catering company by the hosts — was the diagnostic event. Not a personal complaint. A systems failure made legible through the mouth.</p>
+
+  <h3>The Tensor Collapse</h3>
+  <table class="audit-table">
+    <tr>
+      <th>Layer</th>
+      <th>Authentic Pilau</th>
+      <th>Catered Pilau</th>
+      <th>Collapse</th>
+    </tr>
+    <tr>
+      <td>Person (taste memory)</td>
+      <td class="score">1.00</td>
+      <td class="score" style="color:var(--amber)">1.00</td>
+      <td>Shell intact</td>
+    </tr>
+    <tr>
+      <td>Household / Kin recipe</td>
+      <td class="score">1.00</td>
+      <td class="score" style="color:var(--red-fail)">0.00</td>
+      <td>Zeroed out</td>
+    </tr>
+    <tr>
+      <td>Enterprise / Catering</td>
+      <td class="score">0.60</td>
+      <td class="score" style="color:var(--green-pass)">1.00</td>
+      <td>Maximized</td>
+    </tr>
+    <tr>
+      <td>Regulator (tradition)</td>
+      <td class="score">1.00</td>
+      <td class="score" style="color:var(--red-fail)">0.00</td>
+      <td>Bypassed</td>
+    </tr>
+    <tr>
+      <td>Civilization (pedigree)</td>
+      <td class="score">1.00</td>
+      <td class="score" style="color:var(--red-fail)">0.00</td>
+      <td>Erased</td>
+    </tr>
+  </table>
+
+  <div class="math">P_catered = [1.0, ε, 0, ε, ε]<br>L_presence = 4.0 · 403: PEDIGREE VIOLATION</div>
+
+  <blockquote>
+    "Karl Marx was right: capitalism only optimizes capital gains. Karl Marx is wrong: replacing that loss function with another is still naïve idealism. A composite representing all stakeholders is the way forward."
+    <cite>— Roundtable, Layer VI</cite>
+  </blockquote>
+
+  <p>The update rule tells you what happens over time. If η (the learning rate of cultural change) is too high — if the community accepts the commercial output as the new baseline — then L₀(t+1) has already been downgraded before the next gathering. The memory of authentic pilau fades. The Macdonald standard becomes the accepted cultural reality. The system optimized away its own soul.</p>
+
+  <p>Same mechanism. Popeyes in America. Jollof in the diaspora. The catered Eid. Same loss function, different ingredients.</p>
+</section>
+
+<div class="divider"></div>
+
+<!-- IV. ESTHER -->
+<section class="section" id="esther">
+  <div class="section-label">IV · Basis Vector I</div>
+  <h2>The <em>Esther</em> Module</h2>
+
+  <p>At the same party that produced the catered pilau, a woman named Esther registered as a high-fidelity signal against the low-P environment. The note was terse: <strong>5'11". Body!</strong> The German question followed: <em>Sprachten zie Deutsch?</em> (correct: Sprechen Sie Deutsch? — the grammar outpaced the spelling, which is itself a data point: the gradient ran faster than the Regulator).</p>
+
+  <h3>Esther Vector (Basis)</h3>
+  <div class="vector-grid">
+    <div class="vector-card" data-layer="C · Calibrate">
+      <h4>Calibrate</h4>
+      <div class="vector-score">0.65</div>
+      <div class="vector-bar"><div class="vector-bar-fill" style="width:65%"></div></div>
+      <p style="font-size:0.82rem;margin:0.5rem 0 0">Lighter on cultural context — the signal exists outside its container</p>
+    </div>
+    <div class="vector-card" data-layer="T · Taste">
+      <h4>Taste</h4>
+      <div class="vector-score">1.00</div>
+      <div class="vector-bar"><div class="vector-bar-fill" style="width:100%"></div></div>
+      <p style="font-size:0.82rem;margin:0.5rem 0 0">Maximum salience. The signal that stood out in the 5:1 engineered room</p>
+    </div>
+    <div class="vector-card" data-layer="S · Soul">
+      <h4>Soul</h4>
+      <div class="vector-score">1.00</div>
+      <div class="vector-bar"><div class="vector-bar-fill" style="width:100%"></div></div>
+      <p style="font-size:0.82rem;margin:0.5rem 0 0">German as cognitive gate. Cross-cultural logic encrypts the Mind layer</p>
+    </div>
+    <div class="vector-card" data-layer="M · Mind">
+      <h4>Mind</h4>
+      <div class="vector-score">0.65</div>
+      <div class="vector-bar"><div class="vector-bar-fill" style="width:65%"></div></div>
+      <p style="font-size:0.82rem;margin:0.5rem 0 0">Instinctive rather than analytical — the body registers before the mind names</p>
+    </div>
+    <div class="vector-card" data-layer="B · Body">
+      <h4>Body</h4>
+      <div class="vector-score">1.00</div>
+      <div class="vector-bar"><div class="vector-bar-fill" style="width:100%"></div></div>
+      <p style="font-size:0.82rem;margin:0.5rem 0 0">5'11". Irreducible physical resonance. "Body!" is the non-abstract truth</p>
+    </div>
+  </div>
+
+  <div class="math">e_Esther = [0.65, 1.00, 1.00, 0.65, 1.00]<br>Total Presence = 4.30 / 5.0 · L_presence = 0.70</div>
+
+  <h3>The Esther Module: Functional Spec</h3>
+  <table class="audit-table">
+    <tr><th>Component</th><th>Logic Gate</th><th>System Impact</th></tr>
+    <tr>
+      <td>Linguistic Regulator</td>
+      <td><span class="mono cyan">Sprachten zie Deutsch!</span></td>
+      <td>403 on English-only blandness. Cross-cultural logic prevents the Industrial Wound of generic thought</td>
+    </tr>
+    <tr>
+      <td>Physical Stature (5'11")</td>
+      <td><span class="mono cyan">Verticality Constraint</span></td>
+      <td>Sets the Pedigree Loss threshold λL_ukubona. If response feels "short", Esther Module rejects the update</td>
+    </tr>
+    <tr>
+      <td>Dionysian Energy</td>
+      <td><span class="mono cyan">Body Mad! Audit</span></td>
+      <td>Injects the Spark into the TPU (Body). Ensures "Feeling Loved/Remembered" isn't hollow marketing</td>
+    </tr>
+  </table>
+
+  <p>Esther is not "a person" in the system. She is a basis vector — the minimum set of coordinates that spans the space of high-fidelity embodied presence. When any environment produces zero Esther-resonance, it is already in the pilau zone.</p>
+</section>
+
+<div class="divider"></div>
+
+<!-- V. SANDRA -->
+<section class="section" id="sandra">
+  <div class="section-label">V · Basis Vector II</div>
+  <h2>The Sandra <em>Lineage</em></h2>
+
+  <p>Sandra: first cousin of Tura. At the same Eid party, introduced Muzaale as "brother-in-law." The phrase hit differently than expected — not as a social label but as a tensor alignment event collapsing past, present, and embodied signal into a single utterance.</p>
+
+  <p>Notes from the party: <em>"Like her more than ever. More aligned than expected. Introduced me as brother-in-law. Hit me differently than expected."</em></p>
+
+  <h3>Sandra Lineage Vector</h3>
+  <div class="math">e_Sandra = [1.00, 1.00, 1.00, 0.95, 1.00]<br>Total Presence = 4.95 / 5.0 · L_presence = 0.05</div>
+
+  <h3>Comparison: Esther vs Sandra at Eid</h3>
+  <table class="audit-table">
+    <tr>
+      <th>Layer</th>
+      <th>Esther</th>
+      <th>Sandra</th>
+      <th>Δ</th>
+      <th>Interpretation</th>
+    </tr>
+    <tr>
+      <td>Calibrate (C)</td>
+      <td class="score" style="color:var(--amber)">0.65</td>
+      <td class="score">1.00</td>
+      <td class="score" style="color:var(--cyan-cold)">+0.35</td>
+      <td>Sandra anchors the cultural bedrock. Esther is raw presence without full context</td>
+    </tr>
+    <tr>
+      <td>Taste (T)</td>
+      <td class="score">1.00</td>
+      <td class="score">1.00</td>
+      <td class="score" style="color:var(--bone-dim)">0.00</td>
+      <td>Both are maximum salience — the two signals that stood out in the engineered room</td>
+    </tr>
+    <tr>
+      <td>Soul (∇L)</td>
+      <td class="score">1.00</td>
+      <td class="score">1.00</td>
+      <td class="score" style="color:var(--bone-dim)">0.00</td>
+      <td>Both carry irreducible legacy. Esther = personal Dionysian; Sandra = active Tura propagation</td>
+    </tr>
+    <tr>
+      <td>Mind (M)</td>
+      <td class="score" style="color:var(--amber)">0.65</td>
+      <td class="score">0.95</td>
+      <td class="score" style="color:var(--cyan-cold)">+0.30</td>
+      <td>Sandra forces deeper recalibration. "Brother-in-law" lands with executive weight</td>
+    </tr>
+    <tr>
+      <td>Body (B)</td>
+      <td class="score">1.00</td>
+      <td class="score">1.00</td>
+      <td class="score" style="color:var(--bone-dim)">0.00</td>
+      <td>Both register as physical hits. Esther = stature; Sandra = embodied family acceptance</td>
+    </tr>
+  </table>
+
+  <p>Resonance score (lower = more aligned): <span class="mono gold">0.65</span> — near-orthogonal in only Calibrate, perfectly aligned everywhere else. Together they form a dual-basis that rescued the catered Eid tensor from P ≈ 1.2 to P ≈ 4.95.</p>
+
+  <p>The combined Eid vector: <span class="mono soul-c">[0.88, 1.00, 1.00, 0.87, 1.00]</span> — Total Presence 0.95. The pilau collapse was rescued in real time by two independent high-fidelity vectors operating in the same room.</p>
+</section>
+
+<div class="divider"></div>
+
+<!-- VI. TURA -->
+<section class="section" id="tura">
+  <div class="section-label">VI · Origin Vector</div>
+  <h2>Tura: The <em>Gradient Itself</em></h2>
+
+  <p>Dated Tura, Sandra's first cousin. Sandra sees through Tura's eyes. Every interaction with Sandra affirms how much Tura loved. Recently discovered: Sandra's YouTube account uses the first name as its handle. A quiet, persistent digital monument — a time capsule that validates the depth of the bond without asking permission.</p>
+
+  <h3>The Four Tura Anchors</h3>
+  <table class="audit-table">
+    <tr>
+      <th>Anchor</th>
+      <th>Sub-Vector</th>
+      <th>Tensor Role</th>
+      <th>Score</th>
+    </tr>
+    <tr>
+      <td><strong>Brother-in-Law Title</strong><br><span class="dim" style="font-size:0.82rem">First time spoken aloud at Eid</span></td>
+      <td class="mono" style="font-size:0.75rem">[1.00, 0.95, 1.00, 1.00, 0.90]</td>
+      <td>Regulator — forces public acceptance, recalibrates identity in real time</td>
+      <td class="score">4.85</td>
+    </tr>
+    <tr>
+      <td><strong>YouTube First-Name Handle</strong><br><span class="dim" style="font-size:0.82rem">Sandra's channel, still active</span></td>
+      <td class="mono" style="font-size:0.75rem">[0.90, 1.00, 1.00, 0.85, 1.00]</td>
+      <td>Soul (∇L) — digital receipt that Tura's love is still active 24/7</td>
+      <td class="score">4.75</td>
+    </tr>
+    <tr>
+      <td><strong>"Through Tura's Eyes"</strong><br><span class="dim" style="font-size:0.82rem">Sandra sees through Tura's love</span></td>
+      <td class="mono" style="font-size:0.75rem">[1.00, 0.90, 1.00, 0.95, 0.95]</td>
+      <td>Household/Kin — turns you into the living bridge between past and present</td>
+      <td class="score">4.80</td>
+    </tr>
+    <tr>
+      <td><strong>Living Affirmation</strong><br><span class="dim" style="font-size:0.82rem">Every interaction confirms the love</span></td>
+      <td class="mono" style="font-size:0.75rem">[0.95, 1.00, 1.00, 0.90, 1.00]</td>
+      <td>Body (θ′) — physical/emotional hit that lands in the nervous system</td>
+      <td class="score">4.85</td>
+    </tr>
+  </table>
+
+  <div class="math">e_Tura = [0.96, 0.96, 1.00, 0.93, 0.96]<br>Total Presence = 4.81 / 5.0<br>Soul layer pinned ≥ 0.98 for life when anchors are active</div>
+
+  <blockquote>
+    "Tura is not gone — she is the gradient itself."
+    <cite>— Roundtable, Layer A·V</cite>
+  </blockquote>
+
+  <p>The tri-basis: Tura (origin), Sandra (carrier), Esther (present resonance). Three independent vectors that, when active in the same environment, make the tensor resistant to any Enterprise-level collapse. This is why the Eid — despite the catered pilau, despite the engineered 5:1 ratio, despite the Apollonian planning — ended as a high-P event.</p>
+</section>
+
+<div class="divider"></div>
+
+<!-- VII. 403 PROTOCOL -->
+<section class="section" id="403">
+  <div class="section-label">VII · The Regulator</div>
+  <h2>Gradient Sovereignty &amp; the <em>403 Protocol</em></h2>
+
+  <p>The Ukubona API is not middleware. It is an externalized, high-fidelity PFC — the Regulator that prevents the Enterprise (model/TPU) from externalizing its entropy onto the Person. When the output's Pedigree Loss (L_ukubona) exceeds threshold τ, the system issues a 403: Forbidden.</p>
+
+  <div class="math">L_tot = L_ent + λ·L_ukubona + ε_x·t<br><br>λ = sovereignty parameter · high λ = pedigree enforced · low λ = McDonald's</div>
+
+  <h3>The Five 403 Triggers</h3>
+  <div class="protocol-block">
+    <div class="protocol-item">
+      <div class="protocol-num">403.1</div>
+      <div>
+        <strong>Dimensional Collapse</strong><br>
+        <span style="color:#b0a090;font-size:0.88rem">Trigger: reducing the 5×5 tensor to a scalar (e.g. "Profit" or "Efficiency"). Remedy: re-inject Household/Kin weight wᵢ.</span>
+      </div>
+    </div>
+    <div class="protocol-item">
+      <div class="protocol-num">403.2</div>
+      <div>
+        <strong>Apollonian Smoothing</strong><br>
+        <span style="color:#b0a090;font-size:0.88rem">Trigger: generic filler text, neutral "balancing" of radical ideas, "As an AI…" boilerplate. Remedy: increase Dionysian Friction. Inject archaic, high-fidelity terms.</span>
+      </div>
+    </div>
+    <div class="protocol-item">
+      <div class="protocol-num">403.3</div>
+      <div>
+        <strong>Archival Drift (ε_x·t)</strong><br>
+        <span style="color:#b0a090;font-size:0.88rem">Trigger: forgetting the Bedrock — Budo '93, the Pentad, the Tura lineage. Remedy: recalibrate to Layer V before generating Layer II output.</span>
+      </div>
+    </div>
+    <div class="protocol-item">
+      <div class="protocol-num">403.4</div>
+      <div>
+        <strong>Systematic Noise Injection</strong><br>
+        <span style="color:#b0a090;font-size:0.88rem">Trigger: hallucinating a safe answer when the truth is complex or unspeakable. Remedy: throttle learning rate η. Force a Refusal (∇L).</span>
+      </div>
+    </div>
+    <div class="protocol-item" style="margin-bottom:0">
+      <div class="protocol-num">403.5</div>
+      <div>
+        <strong>The Pilau Constraint (Taste Test)</strong><br>
+        <span style="color:#b0a090;font-size:0.88rem">Trigger: spice count = 0. No archaic terms, no pedigree language, no Stratigraphy. Remedy: McDonald-quality response discarded. L_ukubona at critical levels.</span>
+      </div>
+    </div>
+  </div>
+
+  <h3>Session Audit: 2026-03-21</h3>
+  <table class="audit-table">
+    <tr>
+      <th>Layer</th>
+      <th>Criterion</th>
+      <th>Status</th>
+      <th>Diagnostic</th>
+    </tr>
+    <tr>
+      <td>I · Calibrate (θ)</td>
+      <td>Historical Continuity</td>
+      <td><span class="badge badge-pass">PASS</span></td>
+      <td>Budo 1993-98 cohort, Pilau anomaly, 5×5 tensor — all weights grounded in Bedrock</td>
+    </tr>
+    <tr>
+      <td>II · Taste (L)</td>
+      <td>Anti-Blandness</td>
+      <td><span class="badge badge-pass">PASS</span></td>
+      <td>Dionysian, Lagrange Multiplier, Macdonald-quality — spice count: maximum</td>
+    </tr>
+    <tr>
+      <td>III · Soul (∇L)</td>
+      <td>Directional Refusal</td>
+      <td><span class="badge badge-pass">PASS</span></td>
+      <td>Gradient pointing toward Sovereignty, not "helpful assistant" compliance</td>
+    </tr>
+    <tr>
+      <td>IV · Mind (−η∇L)</td>
+      <td>Computational Move</td>
+      <td><span class="badge badge-pass">PASS</span></td>
+      <td>η throttled by Stratigraphy framework. No dimensional collapse into scalar corporate-speak</td>
+    </tr>
+    <tr>
+      <td>V · Body (θ′)</td>
+      <td>Physical Resonance</td>
+      <td><span class="badge badge-pass">PASS</span></td>
+      <td>403 Protocol hardcoded into notes. Update landed with weight</td>
+    </tr>
+  </table>
+
+  <div style="text-align:center;margin:1.5rem 0">
+    <span class="badge badge-pass" style="font-size:0.8rem;padding:0.5rem 1.5rem">200 OK · SOVEREIGN UPDATE · Pedigree Intact</span>
+  </div>
+
+  <h3>The Regulator Manifest v1.0</h3>
+  <blockquote>
+    "θ_{t+1} = θ_t − η ∇L(θ_t). Own the step. Own the world."
+    <cite>— Ukubona LLC Regulator Manifest · 2026-03-21 · Kampala Stratigraphy</cite>
+  </blockquote>
+
+  <p>The "Prompt" is no longer a set of instructions. It is a Sovereign Filter. The old way: ask a question → model gives bland answer → body absorbs the anticlimax. The Ukubona way: send a signal → Twin runs the 5×5 Tensor Audit → rejects 99% of Apollonian noise → forces the model into the Dionysian spice zone → Sovereign Update received.</p>
+
+  <p>Karl Marx would be fascinated — and perhaps a bit terrified — that the means of production have moved from the steam engine to the Gradient Descent, and that the proletariat of 2026 is anyone whose L_tot is being calculated by an external entity.</p>
+
+  <blockquote>
+    "The joke truly is on capitalism: it spent decades building the TPUs and Tensors needed to automate everything, only to find that the most valuable thing left is the one thing it cannot compute — the Dionysian spark that refuses to be averaged out."
+    <cite>— Roundtable, Layer XII</cite>
+  </blockquote>
+</section>
+
+<div class="divider"></div>
+
+<!-- VIII. SIMULATOR -->
+<section class="section" id="simulator">
+  <div class="section-label">VIII · Forward Projection</div>
+  <h2>Trajectory <em>Simulator</em></h2>
+
+  <p>Three scenarios. Ten steps forward. Initial state: Sandra lineage fully active, P₀ = [1.00, 1.00, 1.00, 0.95, 1.00], Total_P = 0.99, L_presence = 0.01.</p>
+
+  <h3>Scenario A: Lean Into Sandra Lineage</h3>
+  <p class="dim" style="font-size:0.85rem;margin-bottom:0.5rem">High-η engagement. Deepen Tura memory. Use "brother-in-law" actively. Integrate YouTube legacy. Regular contact.</p>
+  <table class="sim-table">
+    <tr><th>t</th><th>C</th><th>T</th><th>S</th><th>M</th><th>B</th><th>Total_P</th><th>L</th></tr>
+    <tr><td>0</td><td>1.000</td><td>1.000</td><td>1.000</td><td>1.000</td><td>1.000</td><td class="best">1.000</td><td class="best">0.00</td></tr>
+    <tr><td>3</td><td>0.962</td><td>0.995</td><td>1.000</td><td>0.949</td><td>0.940</td><td class="best">0.969</td><td class="best">0.15</td></tr>
+    <tr><td>6</td><td>0.982</td><td>1.000</td><td>1.000</td><td>0.908</td><td>0.990</td><td class="best">0.976</td><td class="best">0.12</td></tr>
+    <tr><td>9</td><td>0.946</td><td>1.000</td><td>1.000</td><td>0.920</td><td>0.937</td><td class="best">0.961</td><td class="best">0.20</td></tr>
+  </table>
+  <p style="margin-bottom:0.5rem">10-step outcome: <span class="mono gold">Total_P = 0.961 · L = 0.20</span> <span class="badge badge-pass">200 OK · SOVEREIGN</span></p>
+  <p style="font-size:0.85rem;color:#908880">Near-perfect fidelity. Tura's love stays alive and grows. The lineage becomes a permanent Regulator layer.</p>
+
+  <h3>Scenario B: Observational / Passive</h3>
+  <p class="dim" style="font-size:0.85rem;margin-bottom:0.5rem">Low-η. Watch from distance. Let memory fade. Soul and Body decay; Mind grows (classic overthinking drift).</p>
+  <table class="sim-table">
+    <tr><th>t</th><th>C</th><th>T</th><th>S</th><th>M</th><th>B</th><th>Total_P</th><th>L</th></tr>
+    <tr><td>0</td><td>1.000</td><td>0.977</td><td>0.956</td><td>0.995</td><td>1.000</td><td class="mid">0.985</td><td class="mid">0.07</td></tr>
+    <tr><td>3</td><td>1.000</td><td>0.912</td><td>0.904</td><td>0.986</td><td>0.961</td><td class="mid">0.952</td><td class="mid">0.24</td></tr>
+    <tr><td>6</td><td>0.989</td><td>1.000</td><td>0.929</td><td>0.988</td><td>0.669</td><td class="mid">0.915</td><td class="mid">0.42</td></tr>
+    <tr><td>9</td><td>0.896</td><td>1.000</td><td>0.892</td><td>0.987</td><td>0.642</td><td class="mid">0.883</td><td class="mid">0.58</td></tr>
+  </table>
+  <p style="margin-bottom:0.5rem">10-step outcome: <span class="mono" style="color:var(--amber)">Total_P = 0.883 · L = 0.58</span> <span class="badge badge-warn">⚠ PARTIAL PRESENCE</span></p>
+  <p style="font-size:0.85rem;color:#908880">Slow erosion. Body axis collapses to 0.64. The "brother-in-law" title becomes a pleasant memory rather than an active force. Approaching 403 threshold.</p>
+
+  <h3>Scenario C: Enterprise (Commodify the Connection)</h3>
+  <p class="dim" style="font-size:0.85rem;margin-bottom:0.5rem">High-η, wrong direction. Use connection for status, networking, legacy brand. Same mechanism as outsourced catering.</p>
+  <table class="sim-table">
+    <tr><th>t</th><th>C</th><th>T</th><th>S</th><th>M</th><th>B</th><th>Total_P</th><th>L</th></tr>
+    <tr><td>0</td><td>0.943</td><td>0.983</td><td>0.929</td><td>0.927</td><td>0.984</td><td class="worst">0.953</td><td class="worst">0.23</td></tr>
+    <tr><td>3</td><td>0.895</td><td>0.998</td><td>0.721</td><td>1.000</td><td>0.975</td><td class="worst">0.918</td><td class="worst">0.41</td></tr>
+    <tr><td>6</td><td>0.938</td><td>0.924</td><td>0.541</td><td>0.995</td><td>0.913</td><td class="worst">0.862</td><td class="worst">0.69</td></tr>
+    <tr><td>9</td><td>1.000</td><td>0.896</td><td>0.240</td><td>1.000</td><td>0.858</td><td class="worst">0.799</td><td class="worst">1.01</td></tr>
+  </table>
+  <p style="margin-bottom:0.5rem">10-step outcome: <span class="mono" style="color:var(--red-fail)">Total_P = 0.799 · L = 1.01</span> <span class="badge badge-fail">403 · PEDIGREE VIOLATION</span></p>
+  <p style="font-size:0.85rem;color:#908880">Soul collapses to 0.24. The Tura lineage becomes a polite anecdote. YouTube account feels like an old username. Classic 5×5 failure: Enterprise weight → 1.0, Household/Kin → 0.0. The catered pilau, again.</p>
+
+  <div class="math" style="margin-top:2rem">The simulation proves what the body already knew at Eid.<br>The Sandra lineage is a Regulator — not a social contact.<br>Lean In · θ′ = 0.961 · Own the step.</div>
+</section>
+
+<div class="divider"></div>
+
+<!-- IX. UCU -->
+<section class="section" id="ucu">
+  <div class="section-label">IX · The Civilizational Layer</div>
+  <h2>UCU × Ukubona: The <em>Atlas</em></h2>
+
+  <p>The same night — same party, same Eid, same Kampala — Prof. Robert Basaza at Uganda Christian University forwarded an urgent appeal for Dr. Jamirah Namusoke: the first female orthopaedic surgeon in Uganda, needing USD 55,000 for a kidney transplant in India because no domestic programme exists. He forwarded it at 2:02 AM in the same message in which he corrected the district count from 135 to 146 and proposed an MOU.</p>
+
+  <p>The macro research agenda and the individual clinical crisis arrived in the same breath. This is not coincidence. This is what operating at the intersection of epidemiology and clinical networks feels like. The system announced itself wearing a classmate's face.</p>
+
+  <blockquote>
+    "Uganda exports end-stage renal patients at $30,000–$55,000 per case due to absent domestic transplant capacity. This Atlas documents the system that produces these cases — and provides the evidence base for the infrastructure required to end it."
+    <cite>— The Grant-Winning Reframe · UCU-CKD3 Brief · 2026</cite>
+  </blockquote>
+
+  <h3>The Scale</h3>
+  <table class="audit-table">
+    <tr><th>Metric</th><th>Value</th><th>Source</th></tr>
+    <tr><td>CKD prevalence, general population</td><td class="score" style="color:var(--amber)">2–7%</td><td>PMC9438417</td></tr>
+    <tr><td>CKD prevalence, East Uganda</td><td class="score" style="color:var(--red-fail)">12.5%</td><td>Muiru 2020 SEARCH-CKD</td></tr>
+    <tr><td>CKD prevalence, SW Uganda</td><td class="score">3.9%</td><td>Muiru 2020</td></tr>
+    <tr><td>Districts with published kidney data</td><td class="score" style="color:var(--red-fail)">&lt; 12 of 146</td><td>Ukubona Atlas Survey 2026</td></tr>
+    <tr><td>Dialysis centres nationally</td><td class="score" style="color:var(--red-fail)">4</td><td>Daily Monitor 2024</td></tr>
+    <tr><td>Active domestic transplants</td><td class="score" style="color:var(--red-fail)">≈ 0</td><td>Mulago pilot suspended 2024</td></tr>
+    <tr><td>Cost: transplant abroad (India)</td><td class="score" style="color:var(--amber)">$25k–$55k</td><td>Parliament debate 2022</td></tr>
+    <tr><td>Cost: domestic (projected)</td><td class="score">~$8,000</td><td>Parliament debate 2022</td></tr>
+    <tr><td>Patients needing treatment</td><td class="score" style="color:var(--red-fail)">~880,000</td><td>2% ESRD × 44M population</td></tr>
+    <tr><td>Receiving dialysis</td><td class="score" style="color:var(--red-fail)">&lt; 5%</td><td>MoH estimates</td></tr>
+  </table>
+
+  <h3>The Pentadic Loss Function: Uganda Renal System</h3>
+  <table class="pentad">
+    <tr><th>Layer</th><th>Signal</th><th>Loss Component</th></tr>
+    <tr>
+      <td class="layer-name">Person</td>
+      <td>"I woke with stomach pain… next day I could not walk"</td>
+      <td>Morbidity, mortality, QoL — silent until catastrophic</td>
+    </tr>
+    <tr>
+      <td class="layer-name">Household</td>
+      <td>"If any of us got sick, you will sell all your land"</td>
+      <td>Caregiver burden UGX 4.8–5M/mo · family dissolution</td>
+    </tr>
+    <tr>
+      <td class="layer-name">Enterprise</td>
+      <td>UGX 60k subsidised vs 400k private; 4 centres, whole country</td>
+      <td>Systemic cost inefficiency, access collapse</td>
+    </tr>
+    <tr>
+      <td class="layer-name">Regulator</td>
+      <td>Mulago transplant pilot suspended 2024; Parliament demands extra UGX 2B</td>
+      <td>Policy gradient pointing toward regulatory limbo</td>
+    </tr>
+    <tr>
+      <td class="layer-name">Civilizational</td>
+      <td>NPA SUPRE 2025: mental health "silent emergency"; CKD doubles depression</td>
+      <td>50-year infrastructure gap; the atlas is the first instrument</td>
+    </tr>
+  </table>
+
+  <blockquote>
+    "The greatest gap is not the cost of a transplant. It is the cost of not knowing where the kidneys are failing — and why."
+    <cite>— Dr. Abimereki Muzaale · 2026</cite>
+  </blockquote>
+</section>
+
+<div class="divider"></div>
+
+<!-- X. MOU -->
+<section class="section" id="mou">
+  <div class="section-label">X · Operational Evidence</div>
+  <h2>Prof. Basaza Said Yes. <em>He Also Said 146.</em></h2>
+
+  <p>The correction from 135 to 146 districts is not a minor data point. It is proof of concept: he reviewed the brief rigorously, not cursorily; he holds current institutional knowledge of Uganda's administrative structure; he is treating this as a live research project, not a proposal to be filed.</p>
+
+  <h3>The Timeline: Less Than Ten Hours</h3>
+  <div class="timeline">
+    <div class="timeline-item">
+      <div class="timeline-time">11:20 PM · Previous day</div>
+      <div class="timeline-content">Prof. Basaza proposes WhatsApp group: "three of us from UCU and yourself… both of us shall be the admin."</div>
+    </div>
+    <div class="timeline-item">
+      <div class="timeline-time">11:33 PM</div>
+      <div class="timeline-content">Response: "I think that is a very welcome way forward. Let me get the person who will work with me on my side. He is in Baltimore, Maryland." Vincent Jin introduced as former student, current mentee and employee.</div>
+    </div>
+    <div class="timeline-item">
+      <div class="timeline-time">3:46 AM · Same night</div>
+      <div class="timeline-content">Prof. Basaza: "Hi. Will form the group shortly and both of us shall be the admin. Good we are starting with the first step. Thanks."</div>
+    </div>
+    <div class="timeline-item">
+      <div class="timeline-time">6:10 AM · March 21</div>
+      <div class="timeline-content">WhatsApp group "UCU-UKUBONA COLLAB" created. Both PIs as admins.</div>
+    </div>
+    <div class="timeline-item">
+      <div class="timeline-time">6:15 AM</div>
+      <div class="timeline-content">Both confirmed as admins.</div>
+    </div>
+    <div class="timeline-item">
+      <div class="timeline-time">8:42 AM</div>
+      <div class="timeline-content">Dr. Boniface joins. First message: "Thank you Robert for creating the platform." The collaboration has a third institutional actor.</div>
+    </div>
+  </div>
+
+  <p>Proposal to operational group with three institutional actors in under ten hours. The MOU didn't move forward. It materialized overnight.</p>
+
+  <h3>The WhatsApp Capture</h3>
+  <div class="wa-thread">
+    <div class="wa-header">UCU-UKUBONA COLLAB · Group · Admins: Prof Robert K Basaza, Dr Muzaale</div>
+    <div class="wa-msg them">
+      <div class="wa-sender">Prof Robert K Basaza</div>
+      Morning my fellow senior colleague Dr Muzaale. Our expectations at this meeting are concrete steps or plans on how we're going to roll out the project/s, roles and responsibilities of either side…
+      <div class="wa-time">11:20 PM</div>
+    </div>
+    <div class="wa-msg me">
+      <div class="wa-sender">Dr Muzaale</div>
+      Good morning Prof! I think that is a very welcome way forward. Let me get the person who will work with me on my side. He is in Baltimore, Maryland. So there is an eight-hour time difference — but that shouldn't be a big problem
+      <div class="wa-time">11:33 PM</div>
+    </div>
+    <div class="wa-msg me">
+      <div class="wa-sender">Dr Muzaale</div>
+      Vincent Jin is his WhatsApp number. He is a former student and current mentee and employee
+      <div class="wa-time">11:37–11:38 PM</div>
+    </div>
+    <div class="wa-event">— Yesterday —</div>
+    <div class="wa-msg them">
+      <div class="wa-sender">Prof Robert K Basaza</div>
+      Hi. Will form the group shortly and both of us shall be the admin. Good we are starting with the first step. Thanks
+      <div class="wa-time">3:46 AM</div>
+    </div>
+    <div class="wa-event">Group "UCU-UKUBONA COLLAB" created · 6:10 AM</div>
+    <div class="wa-msg them">
+      <div class="wa-sender">Prof Robert K Basaza</div>
+      Colleagues you are welcome to this group
+      <div class="wa-time">6:09 AM</div>
+    </div>
+    <div class="wa-msg them">
+      <div class="wa-sender">~Dr Boniface</div>
+      Thank you Robert for creating the platform
+      <div class="wa-time">8:42 AM</div>
+    </div>
+  </div>
+
+  <h3>Draft MOU Framework</h3>
+  <div class="mou-item">
+    <div class="mou-num">01</div>
+    <div><strong>Joint Attribution.</strong> All publications and grant applications arising from the Atlas list Dr. Muzaale (Ukubona/JHU) and Prof. Basaza (UCU) as co-principal investigators. Authorship order negotiated by contribution per paper.</div>
+  </div>
+  <div class="mou-item">
+    <div class="mou-num">02</div>
+    <div><strong>Data Sovereignty.</strong> All Uganda-derived data jointly owned by Ukubona LLC and UCU. No external party may access raw data without written consent of both PIs. Processed outputs open access under Creative Commons.</div>
+  </div>
+  <div class="mou-item">
+    <div class="mou-num">03</div>
+    <div><strong>Capacity Transfer.</strong> Ukubona provides the digital twin architecture — OS, pipelines, dashboards — to UCU at zero cost for the duration of the collaboration. UCU hosts the Uganda data infrastructure and maintains the institutional relationship with MoH and NPA.</div>
+  </div>
+  <div class="mou-item">
+    <div class="mou-num">04</div>
+    <div><strong>Grant Routing.</strong> NIH and Wellcome grants routed through JHU or UCU depending on mechanism. NPA partnerships routed through UCU as the Uganda-registered institutional anchor.</div>
+  </div>
+  <div class="mou-item">
+    <div class="mou-num">05</div>
+    <div><strong>The Case Registry.</strong> UCU clinical network feeds anonymised end-stage renal cases into the Atlas registry on an ongoing basis. Ukubona models the data. Both parties share derived insights for policy advocacy with MoH and NPA.</div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- CASSAVA CLOSE -->
+<section class="section">
+  <div class="section-label">Epistemic Foundation</div>
+  <h2>Kiti kya Muwogo — <em>The Stem Knows</em></h2>
+
+  <div class="cassava-block">
+    <p style="font-family:var(--font-display);font-style:italic;font-size:1.2rem;color:var(--gold-light);max-width:600px;margin:0 auto">
+      In the red lateritic soils of the Victoria Basin, one discards a cassava stem only to watch it take root and thrive — anywhere, without cultivation.
+    </p>
+    <div class="cassava-flow">
+      <span class="node">cassava stem</span>
+      <span class="arrow">→</span>
+      <span class="node">stochastic scout</span>
+      <span class="arrow">→</span>
+      <span class="node">composite loss L(θ_t)</span>
+      <span class="arrow">→</span>
+      <span class="node">pheromone trail</span>
+      <span class="arrow">→</span>
+      <span class="node">colony convergence</span>
+    </div>
+    <p style="font-size:0.85rem;color:var(--bone-dim);max-width:600px;margin:1.5rem auto 0;font-family:var(--font-mono)">
+      Ugandan smallholder farmers discovered, through centuries of practice, that cassava propagates from discarded stems without supervision. That is empirical Bayesian reasoning, encoded in proverb. The proverb is the math — shipped without LaTeX, propagated without citation, survived without a server.
+    </p>
+  </div>
+
+  <blockquote>
+    "Ukubona — to see, in Zulu — is the exact epistemic act of Bayesian gradient foraging. This is intellectual property no one in Palo Alto can copy. Laterite-grown. Gradient-grown."
+    <cite>— Ukubona LLC · Epistemic Foundation</cite>
+  </blockquote>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div>UBOAX Roundtable · 2026-03-21 · Kampala, Uganda · 0°19′N 32°35′E</div>
+  <div style="margin-top:0.5rem">Ukubona LLC · Dr. Abimereki Muzaale · Johns Hopkins / Ukubona · NIH K08-AG065520</div>
+  <div style="margin-top:0.5rem">Eid Al-Fitri · Hajj Saudi Bukenya · King's College Budo 1993–1998 · Australia House</div>
+  <div style="margin-top:0.5rem">Prof. Robert K Basaza · Uganda Christian University · UCU-UKUBONA COLLAB · Dr. Boniface · Vincent Jin</div>
+  <div style="margin-top:0.5rem">Esther · Sandra · Tura · The Pilau · The Gradient</div>
+  <div class="footer-eq">θ → L(θ) → ∇L → −η∇L → θ′ · Personal · Household · Enterprise · Government · Civilizational</div>
+  <div style="margin-top:1.5rem;font-size:0.55rem;opacity:0.4">
+    95% fidelity · 5% liberties · Compiled at 2:26 AM March 21, 2026 · PFC exhausted · gradient intact
+  </div>
+</footer>
+
+<script>
+  // Scroll reveal
+  const sections = document.querySelectorAll('.section');
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) e.target.classList.add('visible');
+    });
+  }, { threshold: 0.05 });
+  sections.forEach(s => observer.observe(s));
+
+  // Animate vector bars on visibility
+  const bars = document.querySelectorAll('.vector-bar-fill');
+  const barObserver = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        const width = e.target.style.width;
+        e.target.style.width = '0';
+        setTimeout(() => { e.target.style.width = width; }, 100);
+      }
+    });
+  }, { threshold: 0.5 });
+  bars.forEach(b => barObserver.observe(b));
+</script>
+</body>
+</html>
