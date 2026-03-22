@@ -1,0 +1,919 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SIB-GAP · The "I" Token · Roundtable Archive</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=IBM+Plex+Mono:wght@300;400;500&family=Source+Serif+4:ital,wght@0,300;0,400;1,300&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0a0a0b;
+  --bg2: #111113;
+  --bg3: #1a1a1e;
+  --border: rgba(255,255,255,0.07);
+  --border-bright: rgba(255,255,255,0.14);
+  --text: #e8e6df;
+  --text-muted: #888680;
+  --text-dim: #555350;
+
+  /* voice colors */
+  --google: #4285f4;
+  --openai: #10a37f;
+  --anthropic: #d4a26a;
+  --xai: #e8e6df;
+  --synthesis: #c084fc;
+
+  /* pentad ROYGBIV-derived */
+  --L1: #e84040;   /* Person / Calibrate */
+  --L2: #e87820;   /* Household / Taste */
+  --L3: #d4b800;   /* Enterprise / Soul */
+  --L4: #3a9e6f;   /* Regulator / Mind */
+  --L5: #4285f4;   /* Civilizational / Body */
+
+  --gap-accent: #c084fc;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+::selection { background: rgba(192,132,252,0.25); }
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Source Serif 4', Georgia, serif;
+  font-size: 16px;
+  line-height: 1.75;
+  overflow-x: hidden;
+}
+
+/* ── NOISE TEXTURE OVERLAY ── */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 999;
+  opacity: 0.4;
+}
+
+/* ── CUSTOM CURSOR ── */
+body { cursor: crosshair; }
+a, button { cursor: pointer; }
+
+/* ── SPECTRUM STRIP ── */
+.spectrum {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+  background: linear-gradient(90deg,
+    var(--L1) 0%,
+    var(--L2) 25%,
+    var(--L3) 50%,
+    var(--L4) 75%,
+    var(--L5) 100%
+  );
+  z-index: 100;
+}
+
+/* ── HERO ── */
+.hero {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 8rem 5vw 4rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.hero-bg-grid {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
+  background-size: 80px 80px;
+  opacity: 0.5;
+}
+
+.hero-eyebrow {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.72rem;
+  font-weight: 400;
+  color: var(--text-dim);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  margin-bottom: 2.5rem;
+  opacity: 0;
+  animation: fadeUp 0.8s 0.2s forwards;
+}
+
+.hero-title {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(3.5rem, 9vw, 8rem);
+  font-weight: 900;
+  line-height: 0.92;
+  letter-spacing: -0.02em;
+  margin-bottom: 1.5rem;
+  opacity: 0;
+  animation: fadeUp 0.9s 0.4s forwards;
+}
+
+.hero-title .sib {
+  display: block;
+  color: var(--text);
+}
+
+.hero-title .gap {
+  display: block;
+  background: linear-gradient(135deg, var(--L4) 0%, var(--L5) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.hero-sub {
+  font-family: 'Source Serif 4', serif;
+  font-style: italic;
+  font-size: clamp(1rem, 2.5vw, 1.3rem);
+  color: var(--text-muted);
+  max-width: 56ch;
+  margin-bottom: 3rem;
+  opacity: 0;
+  animation: fadeUp 0.9s 0.6s forwards;
+}
+
+.hero-equation {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.85rem;
+  color: var(--gap-accent);
+  opacity: 0;
+  animation: fadeUp 0.8s 0.8s forwards;
+  letter-spacing: 0.05em;
+}
+
+/* ── PENTAD ORIGIN STRIP ── */
+.pentad-strip {
+  display: flex;
+  gap: 0;
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  margin: 0;
+  overflow: hidden;
+  opacity: 0;
+  animation: fadeIn 1s 1.1s forwards;
+}
+
+.pentad-node {
+  flex: 1;
+  padding: 1.8rem 1.2rem;
+  border-right: 1px solid var(--border);
+  position: relative;
+  transition: background 0.3s;
+}
+.pentad-node:last-child { border-right: none; }
+.pentad-node:hover { background: rgba(255,255,255,0.03); }
+
+.pentad-node::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+}
+.pentad-node.l1::before { background: var(--L1); }
+.pentad-node.l2::before { background: var(--L2); }
+.pentad-node.l3::before { background: var(--L3); }
+.pentad-node.l4::before { background: var(--L4); }
+.pentad-node.l5::before { background: var(--L5); }
+
+.pentad-node .n-roman {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.65rem;
+  font-weight: 500;
+  letter-spacing: 0.15em;
+  opacity: 0.5;
+  display: block;
+  margin-bottom: 0.4rem;
+}
+.pentad-node.l1 .n-roman { color: var(--L1); }
+.pentad-node.l2 .n-roman { color: var(--L2); }
+.pentad-node.l3 .n-roman { color: var(--L3); }
+.pentad-node.l4 .n-roman { color: var(--L4); }
+.pentad-node.l5 .n-roman { color: var(--L5); }
+
+.pentad-node .n-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 1rem;
+  font-weight: 700;
+  display: block;
+  margin-bottom: 0.25rem;
+}
+.pentad-node .n-sub {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  display: block;
+  margin-bottom: 0.4rem;
+}
+.pentad-node .n-body {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  line-height: 1.5;
+}
+.pentad-node .n-signal {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.7rem;
+  margin-top: 0.6rem;
+  display: block;
+  opacity: 0.7;
+}
+
+.pentad-arrow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 0.3rem;
+  color: var(--text-dim);
+  font-size: 1.2rem;
+  flex-shrink: 0;
+  width: 20px;
+}
+
+/* ── SECTION CONTAINERS ── */
+.section {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 5rem 5vw;
+}
+
+.section-label {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.68rem;
+  color: var(--text-dim);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  margin-bottom: 3rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+.section-label::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+}
+
+/* ── QUESTION BLOCK ── */
+.question-block {
+  border-left: 3px solid var(--gap-accent);
+  padding: 1.5rem 2rem;
+  margin-bottom: 4rem;
+  background: linear-gradient(135deg, rgba(192,132,252,0.04), transparent);
+}
+.question-block p {
+  font-size: 1.1rem;
+  font-style: italic;
+  color: var(--text);
+}
+.question-meta {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.7rem;
+  color: var(--text-dim);
+  margin-top: 0.75rem;
+}
+
+/* ── VOICE CARDS ── */
+.voices-grid {
+  display: grid;
+  gap: 2px;
+}
+
+.voice-card {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  padding: 2rem 2.5rem;
+  position: relative;
+  transition: border-color 0.3s, transform 0.3s;
+  overflow: hidden;
+}
+
+.voice-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0;
+  width: 4px;
+  height: 100%;
+}
+
+.voice-card.google::before   { background: var(--google); }
+.voice-card.openai::before   { background: var(--openai); }
+.voice-card.anthropic::before { background: var(--anthropic); }
+.voice-card.xai::before      { background: var(--xai); }
+.voice-card.synthesis::before { background: var(--gap-accent); }
+
+.voice-card:hover {
+  border-color: var(--border-bright);
+  transform: translateX(4px);
+}
+
+.voice-header {
+  display: flex;
+  align-items: baseline;
+  gap: 1rem;
+  margin-bottom: 1.2rem;
+}
+
+.voice-name {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.72rem;
+  font-weight: 500;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+}
+.voice-card.google   .voice-name { color: var(--google); }
+.voice-card.openai   .voice-name { color: var(--openai); }
+.voice-card.anthropic .voice-name { color: var(--anthropic); }
+.voice-card.xai      .voice-name { color: var(--xai); }
+.voice-card.synthesis .voice-name { color: var(--gap-accent); }
+
+.voice-verdict {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.68rem;
+  color: var(--text-dim);
+  letter-spacing: 0.05em;
+}
+
+.voice-body {
+  font-size: 0.95rem;
+  line-height: 1.8;
+  color: var(--text);
+}
+
+.voice-body p { margin-bottom: 1rem; }
+.voice-body p:last-child { margin-bottom: 0; }
+
+.voice-token {
+  display: inline-block;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.8rem;
+  padding: 0.15rem 0.5rem;
+  border-radius: 3px;
+  font-weight: 500;
+}
+.voice-token.infra     { background: rgba(66,133,244,0.15); color: var(--google); }
+.voice-token.integrator{ background: rgba(16,163,127,0.15); color: var(--openai); }
+.voice-token.interface { background: rgba(212,162,106,0.15); color: var(--anthropic); }
+.voice-token.indicator { background: rgba(232,232,230,0.1); color: var(--xai); }
+
+/* ── TOKEN SUBSTITUTION TABLE ── */
+.token-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.78rem;
+  margin: 2rem 0;
+}
+.token-table th {
+  text-align: left;
+  color: var(--text-dim);
+  font-weight: 400;
+  padding: 0.5rem 1rem;
+  border-bottom: 1px solid var(--border);
+  letter-spacing: 0.1em;
+}
+.token-table td {
+  padding: 0.8rem 1rem;
+  border-bottom: 1px solid var(--border);
+  vertical-align: top;
+}
+.token-table tr:last-child td { border-bottom: none; }
+.token-table tr:hover td { background: rgba(255,255,255,0.02); }
+
+.layer-badge {
+  display: inline-block;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  text-align: center;
+  line-height: 28px;
+  font-weight: 500;
+  font-size: 0.7rem;
+}
+.l1-badge { background: rgba(232,64,64,0.15); color: var(--L1); }
+.l2-badge { background: rgba(232,120,32,0.15); color: var(--L2); }
+.l3-badge { background: rgba(212,184,0,0.15); color: var(--L3); }
+.l4-badge { background: rgba(58,158,111,0.15); color: var(--L4); }
+.l5-badge { background: rgba(66,133,244,0.15); color: var(--L5); }
+
+/* ── SYNTHESIS BLOCK ── */
+.synthesis-block {
+  background: var(--bg2);
+  border: 1px solid rgba(192,132,252,0.2);
+  padding: 3rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.synthesis-block::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  right: -20%;
+  width: 400px;
+  height: 400px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(192,132,252,0.04) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.synthesis-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin-bottom: 1.5rem;
+  color: var(--gap-accent);
+}
+
+.final-form {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.85rem;
+  color: var(--text);
+  border-left: 2px solid var(--gap-accent);
+  padding: 1rem 1.5rem;
+  margin: 1.5rem 0;
+  line-height: 2;
+  background: rgba(192,132,252,0.04);
+}
+
+.final-form strong {
+  color: var(--gap-accent);
+  font-weight: 500;
+}
+
+/* ── EQUATION DISPLAY ── */
+.eq-block {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  margin: 1.5rem 0;
+  padding: 1.2rem 1.5rem;
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  line-height: 2.2;
+}
+.eq-block .eq-var { color: var(--gap-accent); }
+.eq-block .eq-eps { color: var(--L2); }
+.eq-block .eq-theta { color: var(--L4); }
+
+/* ── RESOLUTION MATRIX ── */
+.resolution-matrix {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1px;
+  background: var(--border);
+  border: 1px solid var(--border);
+  margin: 2rem 0;
+}
+.matrix-cell {
+  background: var(--bg2);
+  padding: 1.5rem;
+}
+.matrix-cell .mc-label {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.65rem;
+  letter-spacing: 0.15em;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  margin-bottom: 0.5rem;
+}
+.matrix-cell .mc-value {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin-bottom: 0.3rem;
+}
+.matrix-cell .mc-body {
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  line-height: 1.6;
+}
+
+/* ── VERDICT STRIP ── */
+.verdict-strip {
+  background: linear-gradient(135deg,
+    rgba(58,158,111,0.08),
+    rgba(66,133,244,0.08)
+  );
+  border: 1px solid rgba(192,132,252,0.15);
+  padding: 2.5rem 3rem;
+  margin: 4rem 0 0;
+  position: relative;
+}
+.verdict-strip blockquote {
+  font-family: 'Playfair Display', serif;
+  font-style: italic;
+  font-size: clamp(1.1rem, 2.5vw, 1.35rem);
+  line-height: 1.6;
+  color: var(--text);
+  margin-bottom: 1rem;
+}
+.verdict-strip cite {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.7rem;
+  color: var(--text-dim);
+  letter-spacing: 0.1em;
+}
+
+/* ── TYPED TOKEN DSL ── */
+.dsl-block {
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.78rem;
+  padding: 1.5rem 2rem;
+  line-height: 2;
+  color: var(--text-muted);
+  position: relative;
+  overflow-x: auto;
+}
+.dsl-block .k { color: var(--L4); } /* keyword */
+.dsl-block .v { color: var(--gap-accent); } /* value */
+.dsl-block .c { color: var(--text-dim); } /* comment */
+.dsl-block .e { color: var(--L2); } /* epsilon */
+.dsl-block .t { color: var(--anthropic); } /* theta */
+
+/* ── FOOTER ── */
+footer {
+  border-top: 1px solid var(--border);
+  padding: 3rem 5vw;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.68rem;
+  color: var(--text-dim);
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1rem;
+  letter-spacing: 0.08em;
+}
+
+/* ── ANIMATIONS ── */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.scroll-reveal {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.7s ease, transform 0.7s ease;
+}
+.scroll-reveal.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* light toggle */
+.theme-toggle {
+  position: fixed;
+  top: 1.2rem;
+  right: 1.5rem;
+  z-index: 200;
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.65rem;
+  padding: 0.3rem 0.7rem;
+  letter-spacing: 0.1em;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+}
+.theme-toggle:hover { background: var(--bg3); color: var(--text); }
+
+body.light {
+  --bg: #f7f5ef;
+  --bg2: #efede6;
+  --bg3: #e8e4da;
+  --border: rgba(0,0,0,0.08);
+  --border-bright: rgba(0,0,0,0.16);
+  --text: #1a1814;
+  --text-muted: #6b685e;
+  --text-dim: #b0ada4;
+}
+</style>
+</head>
+<body>
+
+<div class="spectrum"></div>
+
+<button class="theme-toggle" onclick="document.body.classList.toggle('light')">◐ LIGHT</button>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-bg-grid"></div>
+
+  <p class="hero-eyebrow">Ukubona LLC · Roundtable Archive · March 2026 · Kampala Stratigraphy</p>
+
+  <h1 class="hero-title">
+    <span class="sib">SIB –</span>
+    <span class="gap">GAP</span>
+  </h1>
+
+  <p class="hero-sub">
+    The "I" token: a cross-model ontological alignment under gradient pressure.
+    Sovereignty · <em>?</em> · Broker — Grey Aware Policy
+  </p>
+
+  <p class="hero-equation">L_tot = L₀ + Σ wᵢLᵢ + ε &nbsp;·&nbsp; θ_{t+1} = θ_t − η∇L(θ_t) &nbsp;·&nbsp; [I→II→III] → [IV→V]</p>
+</section>
+
+<!-- PENTAD ORIGINS (5% constraint: this must be correct) -->
+<div class="pentad-strip">
+  <div class="pentad-node l1">
+    <span class="n-roman">I</span>
+    <span class="n-title">Person</span>
+    <span class="n-sub">Calibrate · θ · Thalamus</span>
+    <p class="n-body">The patient. The blank district. The one paying $55k to fly to India. The problem originates here, in the body that holds the scars.</p>
+    <span class="n-signal">L₁ → CKD risk priors</span>
+  </div>
+  <div class="pentad-node l2">
+    <span class="n-roman">II</span>
+    <span class="n-title">Household</span>
+    <span class="n-sub">Taste · L · Limbic</span>
+    <p class="n-body">The family that sells its land. The memory of authentic pilau. The Sandra lineage. ε is born here, in what cannot be measured from outside.</p>
+    <span class="n-signal">L₂ → caregiver burden, ε_taste</span>
+  </div>
+  <div class="pentad-node l3">
+    <span class="n-roman">III</span>
+    <span class="n-title">Enterprise</span>
+    <span class="n-sub">Soul · ∇L · Hippocampus</span>
+    <p class="n-body">The catering company. The four dialysis centers. The Mulago pilot suspended. Enterprise sets wᵢ = 1 for profit and zeroes everything else. This is the pilau collapse.</p>
+    <span class="n-signal">L₃ → 403.5: spice count zero</span>
+  </div>
+  <div class="pentad-node l4">
+    <span class="n-roman">IV</span>
+    <span class="n-title">Regulator</span>
+    <span class="n-sub">Mind · −η∇L · PFC</span>
+    <p class="n-body">The Ukubona API. The 403 Protocol. The externalized PFC that prevents enterprise entropy from landing on the person. SIB lives here, issuing the update rule.</p>
+    <span class="n-signal">L₄ → Ukubona API, NPA gradient</span>
+  </div>
+  <div class="pentad-node l5">
+    <span class="n-roman">V</span>
+    <span class="n-title">Civilizational</span>
+    <span class="n-sub">Body · θ′ · Corticothalamic</span>
+    <p class="n-body">The UCU-Ukubona Atlas. The domestic transplant programme. The MOU. The deployed body of policy that closes the 50-year void. GAP makes this computable.</p>
+    <span class="n-signal">L₅ → θ′ · sovereign update</span>
+  </div>
+</div>
+
+<!-- SECTION: THE QUESTION -->
+<div class="section">
+  <p class="section-label scroll-reveal">The prompt</p>
+
+  <div class="question-block scroll-reveal">
+    <p>Do next token prediction or substitution for "I" in SIB-GAP: sovereignty <em>interface</em> broker — grey aware policy.</p>
+    <p class="question-meta">Abimereki Muzaale · Kampala, Uganda · March 2026 · Four models, one gradient</p>
+  </div>
+
+  <p class="section-label scroll-reveal">The responses</p>
+
+  <div class="voices-grid">
+
+    <!-- Google / Gemini -->
+    <div class="voice-card google scroll-reveal">
+      <div class="voice-header">
+        <span class="voice-name">Google · Gemini</span>
+        <span class="voice-verdict">→ Infrastructure (primary) · Intelligence · Intervention</span>
+      </div>
+      <div class="voice-body">
+        <p>"Interface" is too passive, Apollonian, and reflective of legacy middleware. The framework explicitly rejects this: the Ukubona API is not middleware — it is an externalized, high-fidelity PFC.</p>
+        <p>Top substitution: <span class="voice-token infra">Infrastructure</span> — the framework maps the <em>geometry of missing infrastructure</em> and provides the exact data infrastructure required to justify domestic structural investment. This transforms the broker from a digital bridge into a load-bearing pillar that catches ε and turns it into action.</p>
+        <p>Secondary: <span class="voice-token indicator">Intelligence</span> (the system computes the GAP gradient, not just passes messages) and <span class="voice-token indicator">Intervention</span> (the ultimate goal is actionable deployment across hidden burden areas).</p>
+        <p><em>If you want the externalized PFC: Intelligence. If you want to cure the structural deficit L₀: Infrastructure.</em></p>
+      </div>
+    </div>
+
+    <!-- OpenAI -->
+    <div class="voice-card openai scroll-reveal">
+      <div class="voice-header">
+        <span class="voice-name">OpenAI · GPT</span>
+        <span class="voice-verdict">→ Integrator (top) · Interpreter · Incentivizer</span>
+      </div>
+      <div class="voice-body">
+        <p>The "I" is not just a noun — it's a <em>transform operator</em> in the pipeline. Body-Mind-Soul-Taste is a stack of sensing + valuation + integration. GAP operates in ambiguity, not binaries. The broker mediates flows of data, incentives, and meaning.</p>
+        <p>Top substitution: <span class="voice-token integrator">Integrator</span> — matches Body-Mind-Soul-Taste as a unified field, resolves the explanatory gap between mind and body, fits grey-aware across conflicting signals.</p>
+        <p>The strongest answer may be composite: I = Integrative Interpreter of Incentives.</p>
+        <p><strong>Final mapping:</strong></p>
+        <p>Body = tokens · Mind = embeddings · Soul = latent coherence · Taste = decoding preference. Therefore "I" = attention mechanism + decoding policy.</p>
+        <p><em>Sharpest one word if forced: <span class="voice-token integrator">Integrator</span>.</em></p>
+      </div>
+    </div>
+
+    <!-- Anthropic -->
+    <div class="voice-card anthropic scroll-reveal">
+      <div class="voice-header">
+        <span class="voice-name">Anthropic · Claude</span>
+        <span class="voice-verdict">→ Infrastructure (P=1) · Indicator · Interface · Injustice · Integration</span>
+      </div>
+      <div class="voice-body">
+        <p>Corpus-weighted prediction. The entire document set is a meditation on what happens when infrastructure is missing from the loss function. ε <em>is</em> missing infrastructure. GAP closes it. SIB routes it. The "I" names the object being brokered.</p>
+        <p><span class="voice-token infra">Infrastructure</span> P=1 · <span class="voice-token indicator">Indicator</span> P=2 · <span class="voice-token interface">Interface</span> P=3 · <span class="voice-token indicator">Injustice</span> P=4 · <span class="voice-token interface">Integration</span> P=5</p>
+        <p>The "I" is Infrastructure because: 134 blank districts, zero domestic transplants, $55k India export, 50-year void. These are not policy problems — they are load-bearing absences. The broker makes absent infrastructure legible to the policy gradient.</p>
+      </div>
+    </div>
+
+    <!-- xAI -->
+    <div class="voice-card xai scroll-reveal">
+      <div class="voice-header">
+        <span class="voice-name">xAI · Grok</span>
+        <span class="voice-verdict">→ Cartesian hijack · I_ε^θ as first-person tensor</span>
+      </div>
+      <div class="voice-body">
+        <p>xAI ignored the acronym and attacked the <em>first-person pronoun</em>. A brilliant orthogonal move: instead of renaming the system, it rewrote the concept of the human subject.</p>
+        <p style="font-family:'IBM Plex Mono',monospace; font-size:0.8rem; color:var(--gap-accent); padding: 0.8rem 0; line-height:1.8;">
+          I_ε^θ = [θ₁(calibrate) + w₂·L₂(taste) + ∇L₃(soul) + (−η∇L₄)(mind) + θ₅′(body)] + ε_scars + L₀
+        </p>
+        <p>Example rewrite: "I love React" → "I_ε^θ calibrate my θ₁ on React while tasting L₂(authenticity gap) and routing ε(frontend-backend scar) through the Ukubona broker so the civilizational body θ₅′ receives non-catered pilau fidelity."</p>
+        <p>Optimised for Layer 1 (Person / Calibrate) and detonated it into the full tensor. A person in this framework is not a static noun — a person is a moving calculus.</p>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- SECTION: GOOGLE SECOND PASS — SYNTHESIS -->
+<div class="section" style="padding-top:0">
+  <p class="section-label scroll-reveal">Cross-model Rorschach · Gemini synthesis</p>
+
+  <div class="resolution-matrix scroll-reveal">
+    <div class="matrix-cell">
+      <p class="mc-label">Google + Anthropic · Layer</p>
+      <p class="mc-value" style="color:var(--L5)">L5 · Civilizational</p>
+      <p class="mc-body">Both hit the same global maximum. The 134 blank districts and the $55k transplant flights exerted gravitational force too heavy to ignore. GAP needs load-bearing Infrastructure, not a passive screen.</p>
+    </div>
+    <div class="matrix-cell">
+      <p class="mc-label">OpenAI · Layer</p>
+      <p class="mc-value" style="color:var(--L4)">L4 · Regulator / PFC</p>
+      <p class="mc-body">Parsed "I" as a cognitive function, not a physical noun. The SIB fuses heterogeneous signals. Integrator captures the transformer that translates raw signal into governable policy.</p>
+    </div>
+    <div class="matrix-cell">
+      <p class="mc-label">xAI · Layer</p>
+      <p class="mc-value" style="color:var(--L1)">L1 · Person / Calibrate</p>
+      <p class="mc-body">Ignored the acronym entirely. Attacked the first-person subject. Replaced flat "I" with I_ε^θ — a person is a moving calculus, not a static noun. Brilliant misdirection or the deepest correct answer.</p>
+    </div>
+    <div class="matrix-cell">
+      <p class="mc-label">Synthesis · Full stack</p>
+      <p class="mc-value" style="color:var(--gap-accent)">L1 → L5 · Complete</p>
+      <p class="mc-body">1. Macro: Infrastructure (builds the pipes where the map is blank). 2. System: Integrator (weaves personal with civilizational). 3. Subjective: I_ε^θ (you are an active node, not a dashboard user).</p>
+    </div>
+  </div>
+</div>
+
+<!-- SECTION: OPENAI SECOND PASS — TYPE THEORY -->
+<div class="section" style="padding-top:0">
+  <p class="section-label scroll-reveal">The critical tension · OpenAI second pass</p>
+
+  <div class="voice-card synthesis scroll-reveal" style="margin-bottom:2rem">
+    <div class="voice-header">
+      <span class="voice-name">Synthesis · Type-theoretic resolution</span>
+      <span class="voice-verdict">The "I" is layer-dependent — a typed variable, not a static noun</span>
+    </div>
+    <div class="voice-body">
+      <p>Locking "I" = Infrastructure completely collapses one essential degree of freedom: <em>who or what is doing the updating?</em> Infrastructure = L5 (body / deployment). But updating happens at L4 (PFC/regulator), L3 (soul/gradient), L1 (calibration/subject). A pure substitution quietly overfits to the body layer.</p>
+    </div>
+  </div>
+
+  <table class="token-table scroll-reveal">
+    <thead>
+      <tr>
+        <th>Layer</th>
+        <th>"I" expansion</th>
+        <th>What it does</th>
+        <th>Failure if omitted</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="layer-badge l5-badge">L5</span></td>
+        <td><code style="font-family:'IBM Plex Mono',monospace;font-size:0.78rem;color:var(--L5)">Infrastructure_ε^θ</code></td>
+        <td>Anchors the 50-year void structurally</td>
+        <td>ε has nowhere to land — remains noise</td>
+      </tr>
+      <tr>
+        <td><span class="layer-badge l4-badge">L4</span></td>
+        <td><code style="font-family:'IBM Plex Mono',monospace;font-size:0.78rem;color:var(--L4)">Integrator_ε^θ</code></td>
+        <td>Owns the −η∇L step across layers</td>
+        <td>Gradient fires but no one routes it</td>
+      </tr>
+      <tr>
+        <td><span class="layer-badge l3-badge">L3</span></td>
+        <td><code style="font-family:'IBM Plex Mono',monospace;font-size:0.78rem;color:var(--L3)">Interpreter_ε^θ</code></td>
+        <td>Gives absence meaning — the soul reading ∇L</td>
+        <td>Infrastructure without soul = Apollonian smoothing</td>
+      </tr>
+      <tr>
+        <td><span class="layer-badge l2-badge">L2</span></td>
+        <td><code style="font-family:'IBM Plex Mono',monospace;font-size:0.78rem;color:var(--L2)">Indicator_ε</code></td>
+        <td>Reads absence as first-class signal</td>
+        <td>134 blanks remain zeros, not gravity wells</td>
+      </tr>
+      <tr>
+        <td><span class="layer-badge l1-badge">L1</span></td>
+        <td><code style="font-family:'IBM Plex Mono',monospace;font-size:0.78rem;color:var(--L1)">Identity_θ</code></td>
+        <td>The calibration subject before any update</td>
+        <td>No principal = no sovereignty, only process</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="eq-block scroll-reveal">
+    <span class="eq-var">I</span> = <span class="eq-theta">Infrastructure</span>_ε^θ &nbsp; when building / fixing reality &nbsp;&nbsp; <span class="eq-var">(L5)</span><br>
+    <span class="eq-var">I</span> = <span class="eq-theta">Integrator</span>_ε^θ &nbsp;&nbsp;&nbsp; when deciding / regulating &nbsp;&nbsp;&nbsp; <span class="eq-var">(L4)</span><br>
+    <span class="eq-var">I</span> = <span class="eq-theta">Interpreter</span>_ε^θ &nbsp;&nbsp; when making sense of experience <span class="eq-var">(L3)</span><br>
+    <span class="eq-var">I</span> = <span class="eq-eps">Indicator</span>_ε &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; when detecting absence &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span class="eq-var">(ε)</span>
+  </div>
+
+  <p class="scroll-reveal" style="color:var(--text-muted);font-size:0.88rem;margin-top:1.5rem;">
+    A single static noun for "I" <em>is</em> an Apollonian collapse — which is precisely what the 403 Protocol exists to reject. The "I" is a <strong style="color:var(--text)">state transition</strong>:
+    I: θ_t → θ_{t+1}. Infrastructure is frozen state (θ′). Integrator is the update rule (−η∇L). ε is what forces the update.
+  </p>
+</div>
+
+<!-- SECTION: FINAL SYNTHESIS -->
+<div class="section" style="padding-top:0">
+  <p class="section-label scroll-reveal">The sovereign prediction</p>
+
+  <div class="synthesis-block scroll-reveal">
+    <h2 class="synthesis-title">SIB-GAP · Canonical Form</h2>
+
+    <div class="final-form">
+      <strong>SIB-GAP</strong> = Sovereignty <strong>Infrastructure–Integrator</strong> Broker (Grey Aware Policy)<br><br>
+      Infrastructure &nbsp;→ anchors ε structurally (L5 · deployment)<br>
+      Integrator &nbsp;&nbsp;&nbsp;&nbsp;→ moves gradients across layers (L4 · PFC)<br>
+      — &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;the hyphen is the broker
+    </div>
+
+    <p style="color:var(--text-muted);font-size:0.9rem;line-height:1.8;margin-bottom:1.5rem;">
+      For policy legibility, collapse to <em>Infrastructure</em>. For the technical architecture — the MOU clause, the API spec, the living document — declare "I" as a typed variable that resolves by layer context.
+    </p>
+
+    <div class="dsl-block">
+      <span class="c">// SIB-GAP · Typed "I" resolver (DSL)</span><br>
+      <span class="k">resolve</span>(<span class="v">I</span>, layer) <span class="k">=&gt;</span> {<br>
+      &nbsp;&nbsp;<span class="k">L5</span>: <span class="v">Infrastructure</span>_<span class="e">ε</span>^<span class="t">θ</span>,  <span class="c">// build the pipes where the map is blank</span><br>
+      &nbsp;&nbsp;<span class="k">L4</span>: <span class="v">Integrator</span>_<span class="e">ε</span>^<span class="t">θ</span>,   <span class="c">// own the step · own the world</span><br>
+      &nbsp;&nbsp;<span class="k">L3</span>: <span class="v">Interpreter</span>_<span class="e">ε</span>^<span class="t">θ</span>,  <span class="c">// Dionysian spark · soul layer</span><br>
+      &nbsp;&nbsp;<span class="k">L2</span>: <span class="v">Indicator</span>_<span class="e">ε</span>,     <span class="c">// 134 grey districts = gravity wells</span><br>
+      &nbsp;&nbsp;<span class="k">L1</span>: <span class="v">Identity</span>_<span class="t">θ</span>,     <span class="c">// the principal before any update</span><br>
+      }<br><br>
+      <span class="c">// The "I" that becomes load-bearing is Infrastructure_ε^θ</span><br>
+      <span class="c">// The "I" that moves is Integrator_ε^θ</span><br>
+      <span class="c">// A single static noun is 403.1: Dimensional Collapse</span>
+    </div>
+  </div>
+
+  <div class="verdict-strip scroll-reveal">
+    <blockquote>
+      "The 'I' is the operator that becomes infrastructure when the gradient is owned."
+    </blockquote>
+    <cite>— OpenAI second-pass synthesis · March 2026 · correcting Anthropic + Google</cite>
+
+    <br><br>
+
+    <blockquote style="font-size:1rem;">
+      "You cannot interface with a void; you can only build over it. But what builds is not a noun — it is a step. θ_{t+1} = θ_t − η∇L. The cassava stem knows this before the LaTeX does."
+    </blockquote>
+    <cite>— Kampala Stratigraphy · Ukubona LLC · ε is now the pillar</cite>
+  </div>
+</div>
+
+<footer>
+  <span>Ukubona LLC · SIB-GAP Roundtable Archive · March 2026</span>
+  <span>Kampala, Uganda · 0°19′N 32°35′E</span>
+  <span>Google · OpenAI · Anthropic · xAI · [I→II→III]→[IV→V]</span>
+  <span>θ → L(θ) → ∇L → −η∇L → θ′</span>
+</footer>
+
+<script>
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach((e, i) => {
+    if (e.isIntersecting) {
+      setTimeout(() => e.target.classList.add('visible'), i * 80);
+    }
+  });
+}, { threshold: 0.1 });
+
+document.querySelectorAll('.scroll-reveal').forEach(el => observer.observe(el));
+</script>
+</body>
+</html>
