@@ -1,0 +1,1226 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ukubona Twin · The Breast Basin · SGD Across a Diagnostic Landscape</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=Source+Serif+4:ital,wght@0,300;0,400;0,600;1,300;1,400&family=IBM+Plex+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0d0d0f;
+    --bg2: #141418;
+    --bg3: #1a1a20;
+    --surface: #1e1e26;
+    --border: #2a2a35;
+    --text: #e8e6e0;
+    --text2: #a8a49c;
+    --text3: #6b6760;
+    --accent: #c8a96e;
+    --accent2: #e8c97e;
+
+    /* Five voice colors */
+    --g: #4a9eff;
+    --o: #a78bfa;
+    --a: #34d399;
+    --x: #f87171;
+    --c: #fbbf24;
+
+    /* ROYGBIV strip */
+    --r: #ff4444;
+    --oy: #ff8800;
+    --y: #ffdd00;
+    --gr: #44cc44;
+    --bl: #4488ff;
+    --in: #6644cc;
+    --v: #aa44cc;
+  }
+  [data-theme="light"] {
+    --bg: #f5f2eb;
+    --bg2: #ede9e0;
+    --bg3: #e4dfd4;
+    --surface: #ddd8cc;
+    --border: #c8c2b4;
+    --text: #1a1810;
+    --text2: #4a4640;
+    --text3: #8a8680;
+    --accent: #8b6914;
+    --accent2: #a07820;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Source Serif 4', Georgia, serif;
+    font-size: 17px;
+    line-height: 1.75;
+    cursor: none;
+  }
+
+  /* Custom cursor */
+  .cursor {
+    position: fixed;
+    width: 10px; height: 10px;
+    background: var(--accent);
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 9999;
+    transition: transform 0.15s ease, opacity 0.15s;
+    transform: translate(-50%, -50%);
+  }
+  .cursor-ring {
+    position: fixed;
+    width: 30px; height: 30px;
+    border: 1px solid var(--accent);
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 9998;
+    transition: transform 0.35s ease, opacity 0.2s;
+    transform: translate(-50%, -50%);
+    opacity: 0.5;
+  }
+
+  /* ROYGBIV strip */
+  .spectrum-strip {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--r), var(--oy), var(--y), var(--gr), var(--bl), var(--in), var(--v));
+    z-index: 1000;
+  }
+
+  /* Theme toggle */
+  .theme-toggle {
+    position: fixed;
+    top: 16px; right: 20px;
+    z-index: 1001;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--text2);
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    padding: 5px 10px;
+    cursor: pointer;
+    letter-spacing: 0.05em;
+    transition: all 0.2s;
+  }
+  .theme-toggle:hover { color: var(--accent); border-color: var(--accent); }
+
+  /* Nav */
+  nav {
+    position: fixed;
+    top: 3px; left: 0;
+    width: 200px;
+    height: calc(100vh - 3px);
+    background: var(--bg2);
+    border-right: 1px solid var(--border);
+    padding: 40px 0 20px;
+    overflow-y: auto;
+    z-index: 900;
+    transition: transform 0.3s;
+  }
+  nav .nav-title {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    color: var(--text3);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    padding: 0 20px 16px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 12px;
+  }
+  nav a {
+    display: block;
+    padding: 7px 20px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    color: var(--text3);
+    text-decoration: none;
+    letter-spacing: 0.04em;
+    transition: color 0.2s, background 0.2s;
+    border-left: 2px solid transparent;
+  }
+  nav a:hover { color: var(--accent); background: var(--bg3); border-left-color: var(--accent); }
+  nav a.active { color: var(--accent); border-left-color: var(--accent); }
+  nav .nav-section {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 9px;
+    color: var(--text3);
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    padding: 14px 20px 4px;
+    opacity: 0.5;
+  }
+
+  /* Main */
+  main {
+    margin-left: 200px;
+    min-height: 100vh;
+    padding: 60px 80px 120px;
+    max-width: 1000px;
+  }
+
+  /* Header */
+  .doc-header {
+    padding-top: 40px;
+    margin-bottom: 60px;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 40px;
+  }
+  .doc-meta {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    color: var(--text3);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-bottom: 20px;
+  }
+  .doc-title {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-size: clamp(2rem, 4vw, 3.2rem);
+    font-weight: 900;
+    line-height: 1.15;
+    color: var(--text);
+    margin-bottom: 16px;
+  }
+  .doc-title em {
+    color: var(--accent);
+    font-style: italic;
+  }
+  .doc-subtitle {
+    font-size: 1.05rem;
+    color: var(--text2);
+    font-style: italic;
+    max-width: 640px;
+  }
+
+  /* Sections */
+  section {
+    margin-bottom: 72px;
+    opacity: 0;
+    transform: translateY(24px);
+    transition: opacity 0.6s ease, transform 0.6s ease;
+  }
+  section.visible { opacity: 1; transform: translateY(0); }
+
+  .section-num {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    color: var(--text3);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+  }
+  h2 {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-size: 1.7rem;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 8px;
+    line-height: 1.3;
+  }
+  h3 {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: var(--accent);
+    margin: 28px 0 10px;
+    font-style: italic;
+  }
+  p { margin-bottom: 16px; color: var(--text); }
+  p.lead {
+    font-size: 1.1rem;
+    color: var(--text2);
+    font-style: italic;
+    margin-bottom: 24px;
+  }
+
+  /* Voice blocks */
+  .voice {
+    margin: 28px 0;
+    padding: 20px 24px;
+    border-left: 3px solid;
+    background: var(--bg2);
+    border-radius: 0 4px 4px 0;
+    position: relative;
+  }
+  .voice::before {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    font-weight: 500;
+    display: block;
+    margin-bottom: 10px;
+  }
+  .voice-g { border-color: var(--g); }
+  .voice-g::before { content: 'G · Gemini'; color: var(--g); }
+  .voice-o { border-color: var(--o); }
+  .voice-o::before { content: 'O · Claude Opus'; color: var(--o); }
+  .voice-a { border-color: var(--a); }
+  .voice-a::before { content: 'A · Claude (synthesis)'; color: var(--a); }
+  .voice-x { border-color: var(--x); }
+  .voice-x::before { content: 'X · Adversarial'; color: var(--x); }
+  .voice-c { border-color: var(--c); }
+  .voice-c::before { content: 'C · Clinical / Ukubona'; color: var(--c); }
+  .voice-h { border-color: var(--accent); }
+  .voice-h::before { content: 'H · Heisenberg'; color: var(--accent); }
+
+  /* Code / math blocks */
+  .math-block {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 13px;
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    padding: 20px 24px;
+    margin: 20px 0;
+    line-height: 1.9;
+    color: var(--accent2);
+    overflow-x: auto;
+    border-radius: 2px;
+  }
+  .math-block .comment { color: var(--text3); font-style: italic; }
+  .math-block .keyword { color: var(--g); }
+  .math-block .value { color: var(--a); }
+  .math-block .null { color: var(--x); }
+
+  /* Pentad display */
+  .pentad {
+    display: flex;
+    gap: 0;
+    margin: 28px 0;
+    overflow-x: auto;
+  }
+  .pentad-node {
+    flex: 1;
+    min-width: 120px;
+    padding: 16px 14px;
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-right: none;
+    text-align: center;
+    position: relative;
+    transition: background 0.2s;
+  }
+  .pentad-node:first-child { border-radius: 3px 0 0 3px; }
+  .pentad-node:last-child { border-right: 1px solid var(--border); border-radius: 0 3px 3px 0; }
+  .pentad-node:hover { background: var(--bg3); }
+  .pentad-node .pn-num {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 9px;
+    color: var(--text3);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+  .pentad-node .pn-symbol {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 15px;
+    color: var(--accent);
+    margin-bottom: 4px;
+    font-weight: 500;
+  }
+  .pentad-node .pn-label {
+    font-family: 'Source Serif 4', serif;
+    font-size: 12px;
+    color: var(--text2);
+    font-style: italic;
+  }
+  .pentad-node .pn-sub {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    color: var(--text3);
+    margin-top: 5px;
+  }
+  .pentad-node::after {
+    content: '→';
+    position: absolute;
+    right: -10px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text3);
+    font-size: 14px;
+    z-index: 1;
+  }
+  .pentad-node:last-child::after { display: none; }
+
+  /* N-vector display */
+  .n-vector {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    padding: 20px 24px;
+    margin: 20px 0;
+    border-radius: 2px;
+  }
+  .n-vector-title {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    color: var(--text3);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    margin-bottom: 14px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--border);
+  }
+  .n-row {
+    display: flex;
+    align-items: baseline;
+    gap: 16px;
+    padding: 5px 0;
+    border-bottom: 1px solid var(--border);
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12px;
+  }
+  .n-row:last-child { border-bottom: none; }
+  .n-key {
+    width: 40px;
+    color: var(--accent);
+    font-weight: 500;
+    flex-shrink: 0;
+  }
+  .n-label {
+    width: 200px;
+    color: var(--text2);
+    flex-shrink: 0;
+  }
+  .n-value { color: var(--text); }
+  .n-null { color: var(--x); font-style: italic; }
+  .n-resolved { color: var(--a); }
+  .n-partial { color: var(--c); }
+
+  /* Loss distribution */
+  .loss-dist {
+    margin: 20px 0;
+  }
+  .loss-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 8px;
+  }
+  .loss-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    color: var(--text2);
+    width: 220px;
+    flex-shrink: 0;
+  }
+  .loss-bar-wrap {
+    flex: 1;
+    background: var(--bg3);
+    height: 18px;
+    border-radius: 1px;
+    overflow: hidden;
+    position: relative;
+  }
+  .loss-bar {
+    height: 100%;
+    background: var(--accent);
+    opacity: 0.7;
+    transition: width 1s ease;
+    border-radius: 1px;
+  }
+  .loss-pct {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    color: var(--text3);
+    width: 40px;
+    text-align: right;
+    flex-shrink: 0;
+  }
+
+  /* Table */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 20px 0;
+    font-size: 14px;
+  }
+  th {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text3);
+    padding: 8px 12px;
+    text-align: left;
+    border-bottom: 1px solid var(--border);
+    background: var(--bg2);
+  }
+  td {
+    padding: 8px 12px;
+    border-bottom: 1px solid var(--border);
+    color: var(--text);
+    vertical-align: top;
+  }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: var(--bg2); }
+  td:first-child { font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: var(--accent); }
+
+  /* Callout / insight block */
+  .insight {
+    border: 1px solid var(--accent);
+    background: var(--bg2);
+    padding: 20px 24px;
+    margin: 28px 0;
+    border-radius: 2px;
+    position: relative;
+  }
+  .insight::before {
+    content: '◆';
+    position: absolute;
+    top: -10px; left: 20px;
+    background: var(--bg);
+    padding: 0 6px;
+    color: var(--accent);
+    font-size: 12px;
+  }
+  .insight p { color: var(--text2); font-style: italic; margin-bottom: 0; }
+  .insight p strong { color: var(--text); font-style: normal; }
+
+  /* Blockquote */
+  blockquote {
+    border-left: 2px solid var(--accent);
+    margin: 20px 0;
+    padding: 4px 20px;
+    color: var(--text2);
+    font-style: italic;
+  }
+
+  /* Update correction box */
+  .correction {
+    border: 1px solid var(--a);
+    background: var(--bg2);
+    padding: 16px 20px;
+    margin: 20px 0;
+    border-radius: 2px;
+  }
+  .correction-title {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    color: var(--a);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+
+  /* Tensor grid */
+  .tensor-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin: 20px 0;
+  }
+  .tensor-cell {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    padding: 14px 16px;
+    border-radius: 2px;
+  }
+  .tensor-cell .tc-index {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    color: var(--accent);
+    margin-bottom: 6px;
+    letter-spacing: 0.08em;
+  }
+  .tensor-cell .tc-label {
+    font-size: 13px;
+    color: var(--text2);
+    font-style: italic;
+  }
+
+  /* Gate flow */
+  .gate-flow {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    margin: 20px 0;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12px;
+  }
+  .gate-step {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 16px;
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 2px;
+  }
+  .gate-eta {
+    width: 60px;
+    color: var(--accent);
+    flex-shrink: 0;
+    font-weight: 500;
+  }
+  .gate-action { color: var(--text); flex: 1; }
+  .gate-note { color: var(--text3); font-size: 10px; font-style: italic; }
+  .gate-blocked { border-color: var(--x); }
+  .gate-blocked .gate-eta { color: var(--x); }
+
+  /* Footer */
+  footer {
+    margin-top: 80px;
+    padding-top: 32px;
+    border-top: 1px solid var(--border);
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    color: var(--text3);
+    letter-spacing: 0.05em;
+    line-height: 2;
+  }
+  footer .footer-eq {
+    font-size: 13px;
+    color: var(--accent);
+    margin-top: 16px;
+    letter-spacing: 0.02em;
+  }
+
+  /* Scroll progress */
+  .scroll-progress {
+    position: fixed;
+    top: 3px; left: 0;
+    height: 3px;
+    background: var(--accent);
+    opacity: 0.6;
+    z-index: 1002;
+    transition: width 0.1s;
+  }
+
+  hr { border: none; border-top: 1px solid var(--border); margin: 40px 0; }
+
+  @media (max-width: 900px) {
+    nav { transform: translateX(-200px); }
+    main { margin-left: 0; padding: 60px 24px 80px; }
+    .tensor-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<div class="cursor" id="cursor"></div>
+<div class="cursor-ring" id="cursorRing"></div>
+<div class="spectrum-strip"></div>
+<div class="scroll-progress" id="scrollProgress"></div>
+
+<button class="theme-toggle" onclick="toggleTheme()">☀ Light</button>
+
+<nav id="mainNav">
+  <div class="nav-title">Ukubona Twin · Breast SGD</div>
+  <div class="nav-section">Pentad I</div>
+  <a href="#s01">§ 01 · Clinical State θ₀</a>
+  <a href="#s02">§ 02 · Loss Tensor L_ijk</a>
+  <a href="#s03">§ 03 · Gradient ∇L</a>
+  <a href="#s04">§ 04 · Descent −η∇L</a>
+  <a href="#s05">§ 05 · Update θ′</a>
+  <div class="nav-section">Pentad II</div>
+  <a href="#s06">§ 06 · Sensing → Emotion</a>
+  <a href="#s07">§ 07 · Memory · N-space</a>
+  <a href="#s08">§ 08 · Intelligence · PFC</a>
+  <a href="#s09">§ 09 · Deployment</a>
+  <div class="nav-section">Architecture</div>
+  <a href="#s10">§ 10 · No Backprop?</a>
+  <a href="#s11">§ 11 · Tensor Correction</a>
+  <a href="#s12">§ 12 · The Twin Engine</a>
+</nav>
+
+<main>
+
+  <div class="doc-header">
+    <div class="doc-meta">Ukubona LLC · Game of Care · 2026-03-23 · Kampala</div>
+    <h1 class="doc-title">The <em>Breast Basin</em> &<br>the Catastrophic Learning Rate</h1>
+    <p class="doc-subtitle">SGD across a diagnostic landscape — one patient, one lump, refusing premature convergence. A clinical proof of concept for the Ukubona loss tensor architecture.</p>
+  </div>
+
+  <!-- PENTAD I: THE SGD LOOP -->
+
+  <section id="s01">
+    <div class="section-num">§ 01 · Pentad I · Node I</div>
+    <h2>Anatomy / Physiology · θ₀</h2>
+    <p class="lead">The parameter space. What is known, what is null, what the system is initialized with before any gradient is computed.</p>
+
+    <p>The referral letter presents a physical examination and an immediate surgical recommendation. In SGD terms, this is a system that has taken a large irreversible step from θ₀ without adequately populating the parameter space. The loss landscape has barely been measured. The descent has already begun.</p>
+
+    <p>The patient — a 29-year-old Ugandan-Rwandese woman, upper-middle class, Kampala 2026 — is not a population statistic. She is an individual. The twin must initialize from her parameters, not from demographic averages. This is the w_i correction: <strong>gradient sovereignty returned to the principal.</strong></p>
+
+    <div class="n-vector">
+      <div class="n-vector-title">Parameter Space · N-dimensional State Vector θ₀</div>
+      <div class="n-row"><span class="n-key">P₁</span><span class="n-label">Age</span><span class="n-value n-resolved">29 ✓</span></div>
+      <div class="n-row"><span class="n-key">P₁</span><span class="n-label">Ethnicity / SES</span><span class="n-value n-resolved">Ugandan-Rwandese, upper-middle class, Kampala ✓</span></div>
+      <div class="n-row"><span class="n-key">P₁</span><span class="n-label">Menarche / cycle regularity</span><span class="n-value n-null">NULL ← high curvature</span></div>
+      <div class="n-row"><span class="n-key">P₁</span><span class="n-label">LMP / cycle-mass relationship</span><span class="n-value n-partial">PARTIAL — cycle fluctuation confirmed, peak pain 2d pre-period ✓</span></div>
+      <div class="n-row"><span class="n-key">P₁</span><span class="n-label">Parity / breastfeeding / OCP</span><span class="n-value n-null">NULL</span></div>
+      <div class="n-row"><span class="n-key">P₂</span><span class="n-label">Mass size / location</span><span class="n-value n-resolved">4cm, left breast, periareolar ✓</span></div>
+      <div class="n-row"><span class="n-key">P₂</span><span class="n-label">Consistency</span><span class="n-value n-resolved">Hard ✓</span></div>
+      <div class="n-row"><span class="n-key">P₂</span><span class="n-label">Tenderness</span><span class="n-value n-resolved">Mild — mildly tender on palpation ✓ ← underweighted signal</span></div>
+      <div class="n-row"><span class="n-key">P₂</span><span class="n-label">Duration</span><span class="n-value n-partial">~1 year ✓</span></div>
+      <div class="n-row"><span class="n-key">P₂</span><span class="n-label">Nipple discharge / retraction</span><span class="n-value n-resolved">None confirmed ✓ — important negative</span></div>
+      <div class="n-row"><span class="n-key">P₂</span><span class="n-label">Skin tethering / ulceration</span><span class="n-value n-resolved">Absent ✓ — important negative</span></div>
+      <div class="n-row"><span class="n-key">P₃</span><span class="n-label">Axillary nodes — character</span><span class="n-value n-partial">Palpable, mobile ✓ — consistency / tenderness NULL</span></div>
+      <div class="n-row"><span class="n-key">P₃</span><span class="n-label">Supraclavicular nodes</span><span class="n-value n-null">NULL ← not documented</span></div>
+      <div class="n-row"><span class="n-key">P₄</span><span class="n-label">Family history</span><span class="n-value n-null">NULL — unknown ≠ negative</span></div>
+      <div class="n-row"><span class="n-key">P₄</span><span class="n-label">Prior breast events / trauma</span><span class="n-value n-null">NULL</span></div>
+      <div class="n-row"><span class="n-key">P₅</span><span class="n-label">Constitutional symptoms (TB screen)</span><span class="n-value n-resolved">Demoted — SES prior too suppressive ✓</span></div>
+    </div>
+
+    <div class="insight">
+      <p><strong>P₅ is the innovation.</strong> Most clinical systems treat unknown as absent. The twin treats unknown as <em>unresolved</em> — a dimension with a confidence interval, not a zero. Every null pointer in P₅ is a potential gradient component the system hasn't computed yet. Unknown is not zero. It is a gravity well.</p>
+    </div>
+  </section>
+
+  <section id="s02">
+    <div class="section-num">§ 02 · Pentad I · Node II</div>
+    <h2>Pathology · The Loss Tensor L_ijk</h2>
+    <p class="lead">The catastrophic error is collapsing L to a scalar too early. The twin must maintain L as a probability distribution across the full differential until the evidence forces collapse.</p>
+
+    <p>The referral letter lists two differentials: fibroadenoma and breast carcinoma. This is not a differential. It is a <strong>collapsed loss landscape</strong> — the system has already decided which basin it is in and is optimizing toward surgical intervention as if the global minimum were already located.</p>
+
+    <p>When L is prematurely collapsed to a scalar, two things happen simultaneously. Epistemologically, the clinician stops being humble — the world has been replaced by a map. Computationally, the loss landscape has been artificially flattened. All other basins cease to exist as attractors. These are not analogous errors. They are <strong>the same error described in two languages.</strong></p>
+
+    <div class="math-block">
+<span class="comment">// L maintained as distribution — never collapsed prematurely</span>
+L_vector (wrong):    Lᵢ = wᵢ · fᵢ(θ)           <span class="comment">// diagnoses scored independently</span>
+L_tensor (correct):  L_ijk = w_ijk · fᵢ(θ) · fⱼ(θ)  <span class="comment">// feature × diagnosis interactions</span>
+
+<span class="comment">// Current state after cycle history update</span>
+L = {
+  <span class="value">Fibrocystic disease / complex cyst:</span>    0.35  <span class="comment">← deepened by cycle signal</span>
+  <span class="value">Fibroadenoma / giant fibroadenoma:</span>    0.22
+  <span class="value">Phyllodes tumor (benign):</span>             0.18
+  <span class="value">Idiopathic granulomatous mastitis:</span>    0.10
+  <span class="value">Carcinoma (any type):</span>                 0.08  <span class="comment">← low, non-zero, BRCA unknown</span>
+  <span class="value">Lymphoma (primary breast):</span>            0.04
+  <span class="value">TB mastitis:</span>                          <span class="null">0.02  ← DEMOTED (SES prior)</span>
+  <span class="value">Other:</span>                                0.01
+}
+
+<span class="comment">// Gate condition — do NOT collapse until:</span>
+max(L) > 0.85 AND N_completeness > 0.90 AND gradient_confidence > 0.85
+<span class="comment">// Current max(L) = 0.35 → gate is CLOSED</span>
+    </div>
+
+    <h3>The Loss Distribution · Visualized</h3>
+    <div class="loss-dist" id="lossDist">
+      <div class="loss-row"><span class="loss-label">Fibrocystic disease</span><div class="loss-bar-wrap"><div class="loss-bar" style="width:35%; background: var(--a);"></div></div><span class="loss-pct">35%</span></div>
+      <div class="loss-row"><span class="loss-label">Fibroadenoma</span><div class="loss-bar-wrap"><div class="loss-bar" style="width:22%;"></div></div><span class="loss-pct">22%</span></div>
+      <div class="loss-row"><span class="loss-label">Phyllodes (benign)</span><div class="loss-bar-wrap"><div class="loss-bar" style="width:18%;"></div></div><span class="loss-pct">18%</span></div>
+      <div class="loss-row"><span class="loss-label">Granulomatous mastitis</span><div class="loss-bar-wrap"><div class="loss-bar" style="width:10%;"></div></div><span class="loss-pct">10%</span></div>
+      <div class="loss-row"><span class="loss-label">Carcinoma</span><div class="loss-bar-wrap"><div class="loss-bar" style="width:8%; background: var(--x);"></div></div><span class="loss-pct">8%</span></div>
+      <div class="loss-row"><span class="loss-label">Lymphoma</span><div class="loss-bar-wrap"><div class="loss-bar" style="width:4%;"></div></div><span class="loss-pct">4%</span></div>
+      <div class="loss-row"><span class="loss-label">TB mastitis</span><div class="loss-bar-wrap"><div class="loss-bar" style="width:2%; background: var(--text3);"></div></div><span class="loss-pct">2%</span></div>
+    </div>
+
+    <div class="voice voice-h">
+      The catastrophic error is collapsing L to a single diagnosis too early — computing L as a scalar (carcinoma: yes/no) before the full vector is known. The twin must maintain L as a probability distribution across the full differential until the evidence forces collapse. This is an epistemological stance of humility, but computationally truly a clarification of the landscape's local minima.
+    </div>
+
+    <p>Each non-zero entry in L is a <strong>local minimum that remains visible to the descent algorithm.</strong> The gradient ∇L is computed across all of them simultaneously. Each investigation — ultrasound, biopsy, cycle history — is an operator that reshapes curvature around each basin. Some basins deepen. Some flatten and disappear. The global minimum is not a diagnosis you aimed for from the beginning. It is the basin that survives all the measurements.</p>
+  </section>
+
+  <section id="s03">
+    <div class="section-num">§ 03 · Pentad I · Node III</div>
+    <h2>Pathophysiology · The Gradient ∇L_ijk</h2>
+    <p class="lead">The gradient is a tensor, not a vector. The rate of change of the diagnostic probability landscape with respect to each weight in the feature interaction matrix.</p>
+
+    <p>∇L is the <em>why</em> — the mechanistic explanation of how the current state produces the loss. This is where most clinical reasoning is weakest, because treatment can be administered without it. But without ∇L, the treatment step is blind gradient descent — moving in a direction without knowing why, which means you cannot predict where you will land.</p>
+
+    <h3>Tenderness as the Underweighted Gradient Component</h3>
+
+    <p>Tenderness in a breast mass is a gradient signal pointing <em>away</em> from malignancy, not toward it. Breast carcinoma classically presents as a painless mass. The mild tenderness here is either a genuine biological signal that the mass is inflammatory, hormonal, or benign — or it was computationally zeroed out by the clinician because the mass <em>looks</em> sinister on other dimensions.</p>
+
+    <div class="voice voice-c">
+      Tenderness is a component of ∇L that the clinician zeroed out. The gradient was computed on a truncated feature vector. The update — surgical referral — was taken without it. At 29, tenderness that tracks the menstrual cycle is not just a symptom. It is a gradient vector pointing with high confidence into the fibrocystic basin.
+    </div>
+
+    <h3>The Cycle History as Curvature Measurement</h3>
+
+    <p>High-curvature basins are those where a single cheap measurement produces a large update. The cycle relationship question is the highest-information-per-unit-η measurement available:</p>
+
+    <div class="math-block">
+<span class="comment">// Cycle history update — confirmed</span>
+Pain pattern:   peak unbearable 2 days pre-period
+Duration:       ~1 year
+Nipple:         no retraction ✓
+Skin:           no ulceration ✓
+Fluctuation:    confirmed cyclical ✓
+
+<span class="comment">// Tensor slice update — j = cycle_pattern</span>
+∂L_fibrocystic/∂w_cycle  →  LARGE positive update (basin deepens)
+∂L_carcinoma/∂w_cycle    →  small negative update (basin flattens)
+∂L_phyllodes/∂w_cycle    →  near zero (weak coupling)
+
+<span class="comment">// Net: fibrocystic moves from 0.25 to 0.35 in one measurement</span>
+<span class="comment">// Cost of measurement: one question. η ≈ 0.</span>
+    </div>
+
+    <p>This is why the cycle history was the first thing to demand. Not because fibrocystic disease is the most dramatic diagnosis, but because the curvature around that basin is extremely sensitive to one cheap, reversible, non-invasive measurement. The tensor update is large. The η is zero.</p>
+
+    <h3>Why ∇L is a Tensor, Not a Vector</h3>
+
+    <div class="tensor-grid">
+      <div class="tensor-cell">
+        <div class="tc-index">∇L_ijk · i-dimension</div>
+        <div class="tc-label">Diagnosis axis — fibrocystic, fibroadenoma, phyllodes, carcinoma...</div>
+      </div>
+      <div class="tensor-cell">
+        <div class="tc-index">∇L_ijk · j-dimension</div>
+        <div class="tc-label">Feature axis — age, tenderness, cycle, SES, geography, nodes...</div>
+      </div>
+      <div class="tensor-cell">
+        <div class="tc-index">∇L_ijk · k-dimension</div>
+        <div class="tc-label">Interaction axis — how j modulates i given all other features</div>
+      </div>
+    </div>
+
+    <div class="correction">
+      <div class="correction-title">Live Tensor Correction — TB Prior</div>
+      <p>TB scored high in the initial landscape because geography was overweighted and socioeconomic status was absent from the N-vector. This is a <strong>k-dimension correction</strong> — not a change to w_TB alone, not a change to w_geography alone, but a change to the interaction term w_TB|age=29,SES=upper-middle. That entry in the tensor was wrong. Heisenberg corrected it. The architecture held. <em>This is gradient sovereignty in action.</em></p>
+    </div>
+  </section>
+
+  <section id="s04">
+    <div class="section-num">§ 04 · Pentad I · Node IV</div>
+    <h2>Treatment · The Descent Step −η∇L</h2>
+    <p class="lead">η is the learning rate. The meaning rate. The rate at which the system commits to an update. Catastrophic η means irreversible steps taken before the gradient is known.</p>
+
+    <p>The surgeon's recommendation — extract the lump — is a descent step with η = 1.0 applied to a loss landscape where the dominant basin has probability 0.35, the gradient is partially computed, and multiple null pointers remain unresolved. This is maximum η on a system that demands minimum η.</p>
+
+    <div class="math-block">
+<span class="comment">// η safety function</span>
+η_safe = f(reversibility, gradient_confidence, N_completeness)
+
+<span class="comment">// Hard gate — irreversibility × confidence × completeness</span>
+Δθ = −η∇L × (1 − 𝕀_irreversible · η_high)
+
+<span class="comment">// If irreversible AND η high → Δθ = 0. Gate closed.</span>
+<span class="comment">// Current state: reversibility=LOW, confidence=0.35, N_completeness=0.55</span>
+<span class="comment">// → Gate is CLOSED for surgical extraction</span>
+    </div>
+
+    <h3>The Descent Step Menu · Ordered by η</h3>
+
+    <div class="gate-flow">
+      <div class="gate-step">
+        <span class="gate-eta">η ≈ 0</span>
+        <span class="gate-action">Cycle history — does mass change with period?</span>
+        <span class="gate-note">FREE. Already taken. Basin shifted +0.10.</span>
+      </div>
+      <div class="gate-step">
+        <span class="gate-eta">η = 0.05</span>
+        <span class="gate-action">Family history — reach by phone if needed</span>
+        <span class="gate-note">Near-free. Resolves BRCA prior entirely.</span>
+      </div>
+      <div class="gate-step">
+        <span class="gate-eta">η = 0.10</span>
+        <span class="gate-action">Ultrasound — solid vs cystic, margins, vascularity</span>
+        <span class="gate-note">Non-invasive. Highest resolution landscape measurement available.</span>
+      </div>
+      <div class="gate-step">
+        <span class="gate-eta">η = 0.30</span>
+        <span class="gate-action">Core needle biopsy under ultrasound guidance</span>
+        <span class="gate-note">Minor procedure. Gives histology, HR status, definitive tissue.</span>
+      </div>
+      <div class="gate-step">
+        <span class="gate-eta">η = 0.60</span>
+        <span class="gate-action">Excisional biopsy</span>
+        <span class="gate-note">Surgical, partially reversible. Only if CNB inconclusive.</span>
+      </div>
+      <div class="gate-step gate-blocked">
+        <span class="gate-eta">η = 1.0 ✗</span>
+        <span class="gate-action">Mastectomy / wide excision / surgical extraction</span>
+        <span class="gate-note">BLOCKED. Irreversible. N_completeness insufficient. Gate closed.</span>
+      </div>
+    </div>
+
+    <div class="voice voice-a">
+      The tenderness — the signal that invited a lower η — was in the data the whole time. The surgeon treated it as noise. In the Ukubona framework, that is the definition of a misspecified gradient. The appropriate learning rate is the one that pauses at tenderness and asks: what is this telling me about which basin I am in?
+    </div>
+
+    <p>You take the lowest η step that maximally reduces gradient uncertainty. You do not skip steps. The ultrasound is not a delay. It is the first real measurement of the curvature. Everything before it is navigation without a map.</p>
+  </section>
+
+  <section id="s05">
+    <div class="section-num">§ 05 · Pentad I · Node V</div>
+    <h2>Update Rule · θ′</h2>
+    <p class="lead">θ₁ = θ₀ − η∇L is not the end. It is the beginning of the next loop. The update is never final until the global minimum is confirmed.</p>
+
+    <div class="math-block">
+<span class="comment">// The full loss formulation</span>
+L_tot = L₀ + Σ w_ijk · L_ijk + ε_ijk + p·σ^q + r·λ^s
+
+<span class="comment">// Where p, q, r, s ∈ {0, 1} — regularization terms active or inactive</span>
+<span class="comment">// λ = irreversibility penalty (SIB layer)</span>
+<span class="comment">// σ = uncertainty / null pointer penalty</span>
+<span class="comment">// ε_ijk = structured missingness — NULL as gravity well, not zero</span>
+
+<span class="comment">// The update rule</span>
+Δθᵢ = f(local_state, neighbors)    <span class="comment">← Bayesian revision from new data</span>
+    × g(global_signal)              <span class="comment">← outcome / reward when it arrives</span>
+    × h(constraints)                <span class="comment">← SIB: sovereignty + irreversibility</span>
+    × (1 − 𝕀_irreversible · η_high) <span class="comment">← hard gate</span>
+    </div>
+
+    <p>The update rule must specify: what changed, what remains null, what new signals the descent step generated, and when to re-enter the loop. Every clinical encounter produces not just a diagnosis but a <strong>state vector diff</strong>.</p>
+
+    <div class="voice voice-c">
+      The Digital Twin's job is not to answer today's question. It is to make sure today's answer doesn't foreclose tomorrow's question. Symptom resolution is not confirmation. The system declares θ₁ = healthy because pain resolved, while the true gradient was never addressed. This is the PPI-for-gastritis trap applied to breast surgery: the intervention masks the loss without resolving the generator.
+    </div>
+
+    <p>For this patient: the global minimum has not been found yet. The landscape has barely been measured. April 3rd is a descent step being taken on a landscape that has only been seen from one angle, in poor light, without the most basic instruments.</p>
+  </section>
+
+  <hr>
+
+  <!-- PENTAD II: NEURO-BIOLOGICAL MAPPING -->
+
+  <section id="s06">
+    <div class="section-num">§ 06 · Pentad II · Sensing → Emotion</div>
+    <h2>Thalamus / Sensing → Limbic / Emotion</h2>
+    <p class="lead">The emotion layer is not a scalar. It is the attention weight vector. Its length — N×1 or 1×N — tells you immediately whether a critical issue has been attended to.</p>
+
+    <p>The thalamus gates what information actually matters before it reaches cortex. Compression happens before intelligence. This is the sensory organ layer — brutal lossy reduction of the environment into a state vector the system can act on.</p>
+
+    <p>The limbic system is the <strong>attention weight vector</strong>. When it collapses to a scalar — the surgeon sees "breast mass" and outputs "surgery" — it has lost its dimensionality. The vector length is the diagnostic conscience.</p>
+
+    <div class="math-block">
+<span class="comment">// Emotion vector — attention weights across N-parameters</span>
+w_attention = [w_age, w_tenderness, w_cycle, w_SES, w_nodes, w_family, ...]
+
+<span class="comment">// Correct: w_attention is N×1 — one weight per unresolved parameter</span>
+<span class="comment">// Collapsed: w_attention = [w_surgery] — scalar, all else zeroed</span>
+
+<span class="comment">// Vector length tells you what has been attended to:</span>
+len(w_attention) = N   <span class="comment">← all parameters in scope</span>
+len(w_attention) = 1   <span class="comment">← premature collapse. Catastrophic η imminent.</span>
+
+<span class="comment">// For this patient, at presentation:</span>
+w_cycle     = 0.0   <span class="null">← NOT IN VECTOR. Critical null pointer.</span>
+w_tenderness = 0.1  <span class="null">← severely underweighted</span>
+w_SES       = 0.0   <span class="null">← absent (TB prior inflated)</span>
+w_surgery   = 0.9   <span class="comment">← dominates. η catastrophic.</span>
+    </div>
+
+    <div class="insight">
+      <p>The vector length is the diagnostic conscience. A clinician whose attention weight vector has collapsed to a scalar has not just made a bad decision — they have <strong>exited the loss landscape entirely.</strong> They are no longer doing gradient descent. They are running a lookup table.</p>
+    </div>
+  </section>
+
+  <section id="s07">
+    <div class="section-num">§ 07 · Pentad II · Memory</div>
+    <h2>Hippocampus · Memory · The Replay Buffer</h2>
+    <p class="lead">The twin must hold the forward pass in memory until the credit signal arrives. Then propagate it backward through time to update the weights that generated the decision.</p>
+
+    <p>This is what the hippocampus does during sleep — replay buffer, reactivating forward passes from the day and running credit assignment on them with outcome information that arrived after the decision was made. The digital twin's learning engine is a hippocampal replay system for clinical decisions.</p>
+
+    <div class="math-block">
+<span class="comment">// Replay buffer entry format</span>
+{
+  state:          θ₀ at time of decision,
+  action:         the descent step taken (−η∇L),
+  credit_signal:  outcome received (delayed),
+  latency:        time between action and credit,
+  update:         did the action look right given the credit?
+}
+
+<span class="comment">// For the surgical referral:</span>
+{
+  state:          4cm mass, hard, tender, mobile, no imaging, no biopsy,
+  action:         surgical extraction recommended,
+  credit_signal:  PENDING — no outcome yet,
+  latency:        unknown,
+  update:         BLOCKED — credit signal not yet available
+}
+
+<span class="comment">// The twin cannot learn from this decision until outcome arrives.</span>
+<span class="comment">// It CAN simulate the expected credit across all L basins — counterfactual.</span>
+    </div>
+
+    <p>The N-space must be clarified continuously as the loop runs. Each loop iteration adds entries to the replay buffer. Each outcome that arrives is a credit signal that propagates backward through stored decisions, updating the weights that generated them. The twin is always in both forward and backward mode simultaneously — executing current decisions while processing past ones.</p>
+  </section>
+
+  <section id="s08">
+    <div class="section-num">§ 08 · Pentad II · Intelligence</div>
+    <h2>PFC · Intelligence · Constraint-Mediated Planning</h2>
+    <p class="lead">The prefrontal cortex is the policy engine. It operates under acknowledged uncertainty. Its job is not certainty — it is optimal action under an incomplete gradient.</p>
+
+    <p>The PFC constraint acknowledged in this session: the user's own processing architecture is pentadic. <em>Sensing → emotion → memory → intelligence → deployment.</em> Complexity beyond this structure produces cognitive overload — the PFC heats up and shuts down. This is not a limitation. It is a sovereignty constraint. The twin must respect the principal's processing architecture.</p>
+
+    <div class="voice voice-h">
+      I can only process in pentadic themes and variants. My PFC is constrained to this. Any more sophisticated ideas must be situated within the pentad. Otherwise my PFC will heat up and shutdown.
+    </div>
+
+    <p>This is the SIB layer applied to the intelligence node itself. Sovereignty constraints govern not just which updates are allowed to reach the body, but which representations are allowed to reach the mind. The twin that respects this constraint is more useful than the one that doesn't — not less.</p>
+
+    <h3>The Loss Function Fully Stated</h3>
+
+    <div class="math-block">
+<span class="comment">// Pentad I: The SGD loop</span>
+θ  → L  → ∇L_ijk  → −η∇L  → θ′
+
+<span class="comment">// Pentad II: The biological mapping</span>
+Sensing → Emotion(vector) → Memory → Intelligence → Deployment
+
+<span class="comment">// The loss function</span>
+L_tot = L₀ + Σ w_ijk · L_ijk + ε_ijk + p·σ^q + r·λ^s
+
+<span class="comment">// Where:</span>
+L₀         = bedrock prior (age, SES, geography, family — the anchors)
+Σ w_ijk L_ijk = weighted interaction tensor across all features × diagnoses
+ε_ijk      = structured missingness — NULL pointers as gravity wells
+p·σ^q      = uncertainty penalty (p,q ∈ {0,1})
+r·λ^s      = irreversibility regularization (r,s ∈ {0,1})
+
+<span class="comment">// The SIB constraint — hard gate on irreversible updates:</span>
+𝕀_consent · L_tot   <span class="comment">← multiply entire loss by zero if consent not verified</span>
+    </div>
+  </section>
+
+  <section id="s09">
+    <div class="section-num">§ 09 · Pentad II · Deployment</div>
+    <h2>Corticothalamic · Deployment · θ′ → Action</h2>
+    <p class="lead">Deployment is not the end state. It is the closing arrow that feeds back into sensing. The loop is the architecture.</p>
+
+    <p>The corticothalamic loop is predictive processing — the brain projects its model of the world downward, and only the errors (the differences between prediction and reality) are passed upward. The twin does the same: it projects a predicted θ′ forward, then compares against what actually arrives, and propagates only the residual back as a learning signal.</p>
+
+    <p>For this patient: deployment means the next clinical encounter is already initialized with the updated θ. The cycle history has been recorded. The fibrocystic basin has deepened. The next clinician to see her should not be starting from scratch — they should be receiving a state vector that reflects everything the previous encounters learned.</p>
+
+    <div class="insight">
+      <p><strong>The twin is not an assistant. Not an oracle. It is a guardian.</strong> Its job is to hold the full parameter space open across time, resist premature collapse, and ensure that no irreversible update reaches the body before the gradient has been adequately computed and the SIB consent gate has been cleared.</p>
+    </div>
+  </section>
+
+  <hr>
+
+  <!-- THE ARCHITECTURE SECTIONS -->
+
+  <section id="s10">
+    <div class="section-num">§ 10 · Architecture</div>
+    <h2>?No Backprop — The Cross-Scale Credit Assignment Problem</h2>
+    <p class="lead">Backprop does not disappear across scales. It fractures. The question is never backprop or no backprop. It is: how does the system assign credit to past decisions when a future outcome arrives?</p>
+
+    <table>
+      <thead>
+        <tr><th>Scale</th><th>Forward Pass</th><th>Credit Signal</th><th>Constraint Layer</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Micro</td><td>Spike propagation</td><td>Hebbian / STDP — local correlation</td><td>Synaptic architecture / anatomy</td></tr>
+        <tr><td>Meso</td><td>Thalamocortical routing</td><td>Dopamine / NE — global scalar</td><td>Limbic gating / attention / fear</td></tr>
+        <tr><td>SIB-GAP</td><td>[I→II→III] → [IV→V]</td><td>Event-driven Bayesian update</td><td>Sovereignty constraints / SIB</td></tr>
+        <tr><td>Societal</td><td>Person → civilization</td><td>Regulation / markets — delayed</td><td>Constitutional limits / law / ethics</td></tr>
+      </tbody>
+    </table>
+
+    <div class="voice voice-o">
+      Intelligence at scale = Compression + Prediction + Local Plasticity + Global Signals + Constraint Negotiation. Backprop becomes: dopamine (brain), profit/loss (markets), regulation (society), reward signals (RL). But: no exact gradients, no clean chain rule, no central authority. Only approximate, delayed, noisy credit assignment.
+    </div>
+
+    <h3>The SIB-GAP Learning Rule — Generalized</h3>
+
+    <div class="math-block">
+<span class="comment">// For agent i across any scale</span>
+Δθᵢ = f(local_state, neighbors)   <span class="comment">← Hebbian / Bayesian / local correlation</span>
+    × g(global_signal)             <span class="comment">← dopamine / profit / outcome / reward</span>
+    × h(constraints)               <span class="comment">← SIB: sovereignty + irreversibility</span>
+
+<span class="comment">// Three credit signal types — never centralized:</span>
+1. Local correlation    "what fired together?" — Hebbian / relationships / habits
+2. Global scalar        dopamine / profit / approval — broadcast, not targeted
+3. Structural constraint anatomy / architecture / laws — hard limits on update directions
+
+<span class="comment">// Sovereignty is also a learning variable — not just a constraint:</span>
+<span class="comment">// Agents decide whether to learn. Agents decide what loss to care about.</span>
+<span class="comment">// This is NOT in neural networks. This is mechanism design.</span>
+    </div>
+  </section>
+
+  <section id="s11">
+    <div class="section-num">§ 11 · Architecture</div>
+    <h2>The Tensor Correction — Why L is Not a Vector</h2>
+    <p class="lead">A vector assumes independence between loss components. The clinical reality is that loss components interact. The weight you assign to tenderness is not independent of age. These are coupled dimensions. The loss is a tensor.</p>
+
+    <div class="voice voice-h">
+      With w_i and L_i don't we talk of a loss tensor? You seem to talk of a vector.
+    </div>
+
+    <p>Correct. And the distinction matters enormously. When a clinician sees "female, breast mass, axillary nodes, East Africa" and concludes TB is high — they are reading off a marginal distribution. They collapsed the tensor to a vector by ignoring the interaction terms. They computed L_TB ≈ w_geography · w_nodes · w_mass. But the full tensor entry is:</p>
+
+    <div class="math-block">
+L_TB = w_geography · w_nodes · w_mass · w_(age|TB) · w_(SES|TB) · w_(exposure|SES,geography)
+
+<span class="comment">// Those last three interaction terms are strongly suppressive at:</span>
+<span class="comment">// age=29, SES=upper-middle, Kampala 2026</span>
+<span class="comment">// The marginal reading: HIGH. The tensor reading: VERY LOW.</span>
+<span class="comment">// The tensor is right.</span>
+
+<span class="comment">// The TB correction was not a weight correction.</span>
+<span class="comment">// It was a coupling correction — a k-dimension update.</span>
+<span class="comment">// The twin that only stores vectors had no slot for it.</span>
+    </div>
+
+    <p>If L is a tensor, then ∇L is a tensor of the same order. One measurement updates multiple tensor slices simultaneously. The cycle history updated: the fibrocystic row, the carcinoma row (suppressive), the interaction terms between tenderness and cycle pattern, and the coupling between age and hormonal etiology. One question. Broad landscape reshaping.</p>
+
+    <div class="insight">
+      <p>The gate condition before any descent step is now stronger: not just <em>are enough N-parameters resolved?</em> but <strong>are the high-coupling interaction terms resolved?</strong> A missing interaction term can produce a confidently wrong gradient even when most individual features are known. This is where clinical catastrophe lives.</p>
+    </div>
+  </section>
+
+  <section id="s12">
+    <div class="section-num">§ 12 · Architecture</div>
+    <h2>The Twin Engine · Full Architecture</h2>
+    <p class="lead">The digital twin forces one brutal question: how do you update a model of a patient when you don't have backprop, ground truth, or a single loss function? The answer is SIB-GAP.</p>
+
+    <!-- Full pentad display -->
+    <div class="pentad">
+      <div class="pentad-node">
+        <div class="pn-num">I</div>
+        <div class="pn-symbol">θ₀</div>
+        <div class="pn-label">State Engine</div>
+        <div class="pn-sub">Compressed patient representation · null pointers logged</div>
+      </div>
+      <div class="pentad-node">
+        <div class="pn-num">II</div>
+        <div class="pn-symbol">L_ijk</div>
+        <div class="pn-label">Loss Tensor</div>
+        <div class="pn-sub">Full distribution · never collapsed · ε as gravity well</div>
+      </div>
+      <div class="pentad-node">
+        <div class="pn-num">III</div>
+        <div class="pn-symbol">∇L_ijk</div>
+        <div class="pn-label">Gradient Engine</div>
+        <div class="pn-sub">Tensor gradient · curvature-first · interaction terms tracked</div>
+      </div>
+      <div class="pentad-node">
+        <div class="pn-num">IV</div>
+        <div class="pn-symbol">−η∇L</div>
+        <div class="pn-label">SIB / Policy</div>
+        <div class="pn-sub">Adaptive η · irreversibility gate · sovereignty constraint</div>
+      </div>
+      <div class="pentad-node">
+        <div class="pn-num">V</div>
+        <div class="pn-symbol">θ′</div>
+        <div class="pn-label">Update + Replay</div>
+        <div class="pn-sub">State diff · counterfactual engine · feeds back to I</div>
+      </div>
+    </div>
+
+    <div class="math-block">
+<span class="keyword">INITIALIZE</span>
+  Populate P₁–P₄ from history and examination
+  Log all P₅ null pointers explicitly — unknown ≠ zero
+  Set L as probability distribution across full differential
+  Set η = minimum (most conservative)
+
+<span class="keyword">GATE CHECK</span> (before any irreversible step)
+  N_completeness > threshold for this η level?
+  gradient_confidence sufficient for this reversibility?
+  High-coupling interaction terms resolved?
+  <span class="null">If NO to any → return to I/II/III, do not proceed</span>
+
+<span class="keyword">DESCENT</span>
+  Take lowest-η step that maximally reduces gradient uncertainty
+  Document reversibility, confidence, N_completeness at time of step
+
+<span class="keyword">UPDATE</span>
+  Recompute L_ijk distribution
+  Log state diff: what changed, what persists as null
+  Run counterfactual: expected credit across all basins
+  Set trigger for next iteration
+  <span class="value">If global minimum confirmed → close loop</span>
+  <span class="comment">If not → re-enter at I with new θ</span>
+
+<span class="keyword">CREDIT ASSIGNMENT</span> (when outcome arrives — delayed)
+  Replay buffer: retrieve (state, action) tuple
+  Compute actual vs expected credit signal
+  Propagate backward through interaction tensor
+  Update w_ijk for the features that generated the decision
+    </div>
+
+    <div class="voice voice-a">
+      Backprop in real systems is not spatial. It is temporal. The credit signal arrives later than the forward pass. Sometimes much later. The twin must hold the forward pass in memory until the credit signal arrives and then propagate it backward through time to update the weights that generated the decision. That is not metaphor. That is literally what the hippocampus does during sleep.
+    </div>
+
+    <h3>The Counterfactual Engine</h3>
+
+    <p>The twin must constantly ask: what would have happened if we had done something else? Without this, there is no credit assignment, no learning. For the breast case — simulate the surgical forward pass across all basins in L. In the fibrocystic basin (the leading one at 0.35), the credit signal is: unnecessary tissue removal, psychological cost, no causal resolution of the hormonal driver. That credit signal is negative. The SIB gate blocks the update.</p>
+
+    <p>The ultrasound and cycle history are the minimum replay buffer entries needed before the counterfactual engine can clear the surgical forward pass as net positive. They are not delays. They are the architecture working correctly.</p>
+
+    <hr>
+
+    <div class="voice voice-c">
+      <strong>For this patient, before April 3rd:</strong><br><br>
+      The cycle signal has arrived. Peak unbearable pain two days pre-period. One year duration. No nipple retraction. No ulceration. This single measurement shifted the fibrocystic basin from 0.25 to 0.35 at zero cost.<br><br>
+      What remains: ultrasound (η = 0.10), family history (η = 0.05), node consistency (η ≈ 0). These three measurements, taken before April 3rd, will either confirm that the surgical descent step is appropriate — or reveal that the system has been about to overshoot the global minimum into an irreversible intervention on a hormonal basin that resolves with time and monitoring.<br><br>
+      The surgeon is not wrong that this needs attention. He is wrong that surgery is the next step before imaging and tissue diagnosis. The gradient has not been computed. The gate is closed.
+    </div>
+
+  </section>
+
+  <footer>
+    <div>Ukubona LLC · Game of Care · 2026-03-23 · Kampala / Baltimore</div>
+    <div>Session participants: Heisenberg (Abimereki Muzaale) · Anthropic Claude</div>
+    <div>Fidelity: ~80% verbatim from session transcript · 20% editorial synthesis · No formal content altered · All equations preserved</div>
+    <div>Integrity: This document is a sovereign archive. The twin is a mirror, not a storefront.</div>
+    <div class="footer-eq">θ → L_ijk → ∇L_ijk → −η∇L → θ′ · Sensing → Emotion(vector) → Memory → Intelligence → Deployment</div>
+  </footer>
+
+</main>
+
+<script>
+  // Cursor
+  const cursor = document.getElementById('cursor');
+  const ring = document.getElementById('cursorRing');
+  let mx = 0, my = 0, rx = 0, ry = 0;
+  document.addEventListener('mousemove', e => {
+    mx = e.clientX; my = e.clientY;
+    cursor.style.left = mx + 'px';
+    cursor.style.top = my + 'px';
+  });
+  function animateRing() {
+    rx += (mx - rx) * 0.15;
+    ry += (my - ry) * 0.15;
+    ring.style.left = rx + 'px';
+    ring.style.top = ry + 'px';
+    requestAnimationFrame(animateRing);
+  }
+  animateRing();
+
+  // Theme
+  function toggleTheme() {
+    const t = document.documentElement.getAttribute('data-theme');
+    document.documentElement.setAttribute('data-theme', t === 'dark' ? 'light' : 'dark');
+    document.querySelector('.theme-toggle').textContent = t === 'dark' ? '☾ Dark' : '☀ Light';
+  }
+
+  // Scroll progress
+  window.addEventListener('scroll', () => {
+    const pct = window.scrollY / (document.body.scrollHeight - window.innerHeight) * 100;
+    document.getElementById('scrollProgress').style.width = pct + '%';
+  });
+
+  // Section reveal
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+  }, { threshold: 0.08 });
+  document.querySelectorAll('section').forEach(s => observer.observe(s));
+
+  // Nav active state
+  const sections = document.querySelectorAll('section[id]');
+  const navLinks = document.querySelectorAll('nav a');
+  const navObserver = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        navLinks.forEach(l => l.classList.remove('active'));
+        const active = document.querySelector(`nav a[href="#${e.target.id}"]`);
+        if (active) active.classList.add('active');
+      }
+    });
+  }, { threshold: 0.4 });
+  sections.forEach(s => navObserver.observe(s));
+</script>
+</body>
+</html>
