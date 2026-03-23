@@ -1,1 +1,732 @@
-.
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Tensor Hierarchy — Strata Stone</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@300;400;500&display=swap');
+
+  :root {
+    --bg:       #0a0c10;
+    --surface:  #111318;
+    --border:   #1e2128;
+    --text:     #e8e6e0;
+    --muted:    #5a5e6a;
+    --dim:      #2a2d36;
+
+    --scalar:   #c8a96e;
+    --vector:   #6ec8a0;
+    --matrix:   #6ea0c8;
+    --tensor:   #c86e8a;
+    --eigen:    #a06ec8;
+    --sgd:      #c8c86e;
+
+    --scalar-bg: rgba(200,169,110,0.07);
+    --vector-bg: rgba(110,200,160,0.07);
+    --matrix-bg: rgba(110,160,200,0.07);
+    --tensor-bg: rgba(200,110,138,0.08);
+    --eigen-bg:  rgba(160,110,200,0.07);
+    --sgd-bg:    rgba(200,200,110,0.06);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'IBM Plex Sans', sans-serif;
+    font-weight: 300;
+    line-height: 1.7;
+    min-height: 100vh;
+    padding: 0;
+  }
+
+  /* ── PAGE HEADER ── */
+  .page-header {
+    padding: 64px 60px 40px;
+    border-bottom: 1px solid var(--border);
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+  .eyebrow {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    color: var(--muted);
+    text-transform: uppercase;
+    margin-bottom: 16px;
+  }
+  .page-title {
+    font-size: clamp(32px, 5vw, 56px);
+    font-weight: 300;
+    letter-spacing: -0.02em;
+    line-height: 1.1;
+    color: var(--text);
+  }
+  .page-title em {
+    font-style: normal;
+    color: var(--tensor);
+  }
+  .page-subtitle {
+    margin-top: 20px;
+    font-size: 16px;
+    color: var(--muted);
+    max-width: 620px;
+    font-weight: 300;
+  }
+
+  /* ── MAIN LAYOUT ── */
+  .main {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 60px 60px 80px;
+    display: grid;
+    grid-template-columns: 1fr 380px;
+    gap: 60px;
+    align-items: start;
+  }
+
+  /* ── SVG PANEL ── */
+  .svg-panel {
+    position: sticky;
+    top: 40px;
+  }
+  .svg-panel svg {
+    width: 100%;
+    height: auto;
+    display: block;
+  }
+
+  /* ── NOTES PANEL ── */
+  .notes {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .note-block {
+    border: 1px solid var(--border);
+    border-radius: 2px;
+    overflow: hidden;
+    transition: border-color 0.2s;
+  }
+  .note-block:hover { border-color: var(--dim); }
+
+  .note-header {
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+    padding: 16px 20px;
+    cursor: pointer;
+    background: var(--surface);
+    user-select: none;
+  }
+  .note-header:hover { background: #141720; }
+
+  .note-num {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    color: var(--muted);
+    min-width: 16px;
+  }
+  .note-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 13px;
+    font-weight: 500;
+    flex: 1;
+  }
+  .note-name {
+    font-size: 12px;
+    color: var(--muted);
+    font-weight: 300;
+  }
+  .note-chevron {
+    font-size: 10px;
+    color: var(--muted);
+    transition: transform 0.2s;
+  }
+  .note-block.open .note-chevron { transform: rotate(90deg); }
+
+  .note-body {
+    display: none;
+    padding: 0 20px 20px;
+    background: var(--surface);
+    border-top: 1px solid var(--border);
+  }
+  .note-block.open .note-body { display: block; }
+
+  .note-body p {
+    font-size: 14px;
+    color: #9a9da8;
+    line-height: 1.75;
+    margin-top: 14px;
+  }
+  .note-body p + p { margin-top: 10px; }
+
+  .note-body .example {
+    margin-top: 14px;
+    padding: 12px 14px;
+    background: var(--bg);
+    border-left: 2px solid var(--dim);
+    border-radius: 0 2px 2px 0;
+  }
+  .note-body .example-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    color: var(--muted);
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+  .note-body .example p {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12px;
+    color: var(--text);
+    margin-top: 0;
+    line-height: 1.6;
+  }
+  .note-body .example p + p { margin-top: 4px; }
+
+  .note-body .warning {
+    margin-top: 14px;
+    padding: 10px 14px;
+    background: rgba(200, 110, 110, 0.06);
+    border-left: 2px solid rgba(200, 110, 110, 0.3);
+    border-radius: 0 2px 2px 0;
+    font-size: 13px;
+    color: #9a8080;
+  }
+
+  mark {
+    background: none;
+    font-weight: 500;
+  }
+
+  /* ── COLOUR MARKS ── */
+  .c-scalar { color: var(--scalar); }
+  .c-vector { color: var(--vector); }
+  .c-matrix { color: var(--matrix); }
+  .c-tensor { color: var(--tensor); }
+  .c-eigen  { color: var(--eigen); }
+  .c-sgd    { color: var(--sgd); }
+
+  /* ── BOTTOM GLOSSARY ── */
+  .glossary {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 0 60px 80px;
+    border-top: 1px solid var(--border);
+    padding-top: 48px;
+  }
+  .glossary-title {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    color: var(--muted);
+    text-transform: uppercase;
+    margin-bottom: 28px;
+  }
+  .glossary-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 1px;
+    background: var(--border);
+    border: 1px solid var(--border);
+  }
+  .gloss-item {
+    background: var(--surface);
+    padding: 20px 22px;
+  }
+  .gloss-term {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 13px;
+    font-weight: 500;
+    margin-bottom: 6px;
+  }
+  .gloss-def {
+    font-size: 13px;
+    color: var(--muted);
+    line-height: 1.6;
+    font-weight: 300;
+  }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 820px) {
+    .main { grid-template-columns: 1fr; padding: 40px 24px 60px; }
+    .page-header { padding: 40px 24px 32px; }
+    .svg-panel { position: static; }
+    .glossary { padding: 40px 24px 60px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- PAGE HEADER -->
+<header class="page-header">
+  <p class="eyebrow">Ukubona Digital Twin · Conceptual Architecture</p>
+  <h1 class="page-title">The <em>tensor</em> is not<br>a data structure.<br>It is a weapon.</h1>
+  <p class="page-subtitle">
+    From Einstein's field equations to Google's TPUs to your Strata Stone leakage detector —
+    the same five-level hierarchy. This document is your map.
+  </p>
+</header>
+
+<!-- MAIN: SVG + NOTES -->
+<div class="main">
+
+  <!-- SVG (left, sticky) -->
+  <div class="svg-panel">
+    <svg viewBox="0 0 560 620" xmlns="http://www.w3.org/2000/svg">
+
+      <!-- ── LEVEL 5: SGD / ACTION ── -->
+      <rect x="10" y="10" width="540" height="598" rx="12"
+            fill="rgba(200,200,110,0.04)" stroke="rgba(200,200,110,0.25)" stroke-width="0.8"/>
+      <text x="26" y="32" font-family="'IBM Plex Mono',monospace" font-size="9"
+            fill="rgba(200,200,110,0.5)" letter-spacing="0.15em">5 · ACTION</text>
+      <text x="26" y="48" font-family="'IBM Plex Sans',sans-serif" font-size="13"
+            font-weight="500" fill="rgba(200,200,110,0.8)">Optimization — SGD / policy change</text>
+
+      <!-- ── LEVEL 4: EIGEN / DIAGNOSIS ── -->
+      <rect x="30" y="66" width="500" height="510" rx="10"
+            fill="rgba(160,110,200,0.04)" stroke="rgba(160,110,200,0.25)" stroke-width="0.8"/>
+      <text x="46" y="86" font-family="'IBM Plex Mono',monospace" font-size="9"
+            fill="rgba(160,110,200,0.5)" letter-spacing="0.15em">4 · DIAGNOSIS</text>
+      <text x="46" y="102" font-family="'IBM Plex Sans',sans-serif" font-size="13"
+            font-weight="500" fill="rgba(160,110,200,0.8)">Eigen — natural modes of the system</text>
+
+      <!-- ── LEVEL 3: MATRIX / PROCESS ── -->
+      <rect x="52" y="120" width="456" height="422" rx="8"
+            fill="rgba(110,160,200,0.04)" stroke="rgba(110,160,200,0.25)" stroke-width="0.8"/>
+      <text x="68" y="140" font-family="'IBM Plex Mono',monospace" font-size="9"
+            fill="rgba(110,160,200,0.5)" letter-spacing="0.15em">3 · PROCESS</text>
+      <text x="68" y="156" font-family="'IBM Plex Sans',sans-serif" font-size="13"
+            font-weight="500" fill="rgba(110,160,200,0.8)">Matrix — transformation, rules, flow</text>
+
+      <!-- ── LEVEL 2: VECTOR / STATE ── -->
+      <rect x="74" y="174" width="412" height="330" rx="8"
+            fill="rgba(110,200,160,0.04)" stroke="rgba(110,200,160,0.25)" stroke-width="0.8"/>
+      <text x="90" y="194" font-family="'IBM Plex Mono',monospace" font-size="9"
+            fill="rgba(110,200,160,0.5)" letter-spacing="0.15em">2 · STATE</text>
+      <text x="90" y="210" font-family="'IBM Plex Sans',sans-serif" font-size="13"
+            font-weight="500" fill="rgba(110,200,160,0.8)">Vector — one snapshot of reality</text>
+
+      <!-- ── LEVEL 1: TENSOR / LANDSCAPE ── -->
+      <rect x="96" y="228" width="368" height="240" rx="8"
+            fill="rgba(200,110,138,0.06)" stroke="rgba(200,110,138,0.35)" stroke-width="0.8"/>
+      <text x="112" y="250" font-family="'IBM Plex Mono',monospace" font-size="9"
+            fill="rgba(200,110,138,0.6)" letter-spacing="0.15em">1 · LANDSCAPE</text>
+      <text x="112" y="266" font-family="'IBM Plex Sans',sans-serif" font-size="13"
+            font-weight="500" fill="rgba(200,110,138,0.9)">Tensor — the full system, all axes at once</text>
+
+      <!-- Tensor axes illustration -->
+      <!-- Cube wireframe suggestion (isometric feel) -->
+      <g opacity="0.4">
+        <!-- Base face -->
+        <polygon points="200,380 280,350 360,380 280,410"
+                 fill="rgba(200,110,138,0.08)" stroke="rgba(200,110,138,0.4)" stroke-width="0.7"/>
+        <!-- Top face -->
+        <polygon points="200,310 280,280 360,310 280,340"
+                 fill="rgba(200,110,138,0.12)" stroke="rgba(200,110,138,0.4)" stroke-width="0.7"/>
+        <!-- Left face -->
+        <polygon points="200,310 200,380 280,410 280,340"
+                 fill="rgba(200,110,138,0.06)" stroke="rgba(200,110,138,0.3)" stroke-width="0.7"/>
+        <!-- Right face -->
+        <polygon points="280,340 280,410 360,380 360,310"
+                 fill="rgba(200,110,138,0.10)" stroke="rgba(200,110,138,0.3)" stroke-width="0.7"/>
+
+        <!-- Axis labels on cube -->
+        <text x="208" y="356" font-family="'IBM Plex Mono',monospace" font-size="9"
+              fill="rgba(200,110,138,0.7)">dept</text>
+        <text x="272" y="298" font-family="'IBM Plex Mono',monospace" font-size="9"
+              fill="rgba(200,110,138,0.7)">phase</text>
+        <text x="342" y="348" font-family="'IBM Plex Mono',monospace" font-size="9"
+              fill="rgba(200,110,138,0.7)">resource</text>
+      </g>
+
+      <!-- Strata Stone annotation -->
+      <text x="280" y="435" text-anchor="middle"
+            font-family="'IBM Plex Mono',monospace" font-size="10"
+            fill="rgba(200,110,138,0.5)">T[dept, phase, resource]</text>
+      <text x="280" y="452" text-anchor="middle"
+            font-family="'IBM Plex Mono',monospace" font-size="10"
+            fill="rgba(200,110,138,0.5)">93 variables · Rank-3</text>
+
+      <!-- ── SCALAR — single point inside tensor ── -->
+      <circle cx="400" cy="310" r="22"
+              fill="rgba(200,169,110,0.12)" stroke="rgba(200,169,110,0.6)" stroke-width="0.8"/>
+      <text x="400" y="307" text-anchor="middle"
+            font-family="'IBM Plex Mono',monospace" font-size="10" font-weight="500"
+            fill="rgba(200,169,110,0.9)">scalar</text>
+      <text x="400" y="321" text-anchor="middle"
+            font-family="'IBM Plex Mono',monospace" font-size="9"
+            fill="rgba(200,169,110,0.6)">loss</text>
+
+      <!-- Arrow: scalar is output of tensor operation -->
+      <line x1="400" y1="333" x2="400" y2="408"
+            stroke="rgba(200,169,110,0.3)" stroke-width="0.8"
+            stroke-dasharray="3 3"/>
+      <text x="406" y="376" font-family="'IBM Plex Mono',monospace" font-size="9"
+            fill="rgba(200,169,110,0.4)">output</text>
+
+      <!-- ── DIMENSION LADDER (far right) ── -->
+      <line x1="488" y1="244" x2="488" y2="460"
+            stroke="rgba(255,255,255,0.06)" stroke-width="0.5"/>
+
+      <text x="498" y="248" font-family="'IBM Plex Mono',monospace" font-size="9"
+            fill="rgba(200,110,138,0.5)">N-D</text>
+      <text x="498" y="286" font-family="'IBM Plex Mono',monospace" font-size="9"
+            fill="rgba(110,200,160,0.5)">1-D</text>
+      <text x="498" y="324" font-family="'IBM Plex Mono',monospace" font-size="9"
+            fill="rgba(110,160,200,0.5)">2-D</text>
+      <text x="498" y="362" font-family="'IBM Plex Mono',monospace" font-size="9"
+            fill="rgba(160,110,200,0.5)">property</text>
+      <text x="498" y="400" font-family="'IBM Plex Mono',monospace" font-size="9"
+            fill="rgba(200,200,110,0.5)">action</text>
+      <text x="498" y="438" font-family="'IBM Plex Mono',monospace" font-size="9"
+            fill="rgba(200,169,110,0.5)">0-D</text>
+
+      <!-- tick marks -->
+      <line x1="484" y1="244" x2="488" y2="244" stroke="rgba(200,110,138,0.4)" stroke-width="0.5"/>
+      <line x1="484" y1="282" x2="488" y2="282" stroke="rgba(110,200,160,0.4)" stroke-width="0.5"/>
+      <line x1="484" y1="320" x2="488" y2="320" stroke="rgba(110,160,200,0.4)" stroke-width="0.5"/>
+      <line x1="484" y1="358" x2="488" y2="358" stroke="rgba(160,110,200,0.4)" stroke-width="0.5"/>
+      <line x1="484" y1="396" x2="488" y2="396" stroke="rgba(200,200,110,0.4)" stroke-width="0.5"/>
+      <line x1="484" y1="434" x2="488" y2="434" stroke="rgba(200,169,110,0.4)" stroke-width="0.5"/>
+
+      <!-- ── BOTTOM: THE LINEAGE ── -->
+      <text x="280" y="548" text-anchor="middle"
+            font-family="'IBM Plex Mono',monospace" font-size="10"
+            fill="rgba(255,255,255,0.15)" letter-spacing="0.1em">
+        Einstein · Hilbert · Google TPU · Strata Stone
+      </text>
+      <text x="280" y="564" text-anchor="middle"
+            font-family="'IBM Plex Mono',monospace" font-size="10"
+            fill="rgba(255,255,255,0.1)" letter-spacing="0.08em">
+        same structure · different domain · same power
+      </text>
+
+      <!-- ── PENTAD LABEL STRIP ── -->
+      <line x1="30" y1="586" x2="530" y2="586"
+            stroke="rgba(255,255,255,0.05)" stroke-width="0.5"/>
+
+      <rect x="30"  y="590" width="96" height="18" rx="2" fill="rgba(200,200,110,0.07)"/>
+      <rect x="134" y="590" width="96" height="18" rx="2" fill="rgba(160,110,200,0.07)"/>
+      <rect x="238" y="590" width="96" height="18" rx="2" fill="rgba(110,160,200,0.07)"/>
+      <rect x="342" y="590" width="96" height="18" rx="2" fill="rgba(110,200,160,0.07)"/>
+      <rect x="446" y="590" width="84" height="18" rx="2" fill="rgba(200,110,138,0.07)"/>
+
+      <text x="78"  y="603" text-anchor="middle" font-family="'IBM Plex Mono',monospace"
+            font-size="9" fill="rgba(200,200,110,0.6)">sgd</text>
+      <text x="182" y="603" text-anchor="middle" font-family="'IBM Plex Mono',monospace"
+            font-size="9" fill="rgba(160,110,200,0.6)">eigen</text>
+      <text x="286" y="603" text-anchor="middle" font-family="'IBM Plex Mono',monospace"
+            font-size="9" fill="rgba(110,160,200,0.6)">matrix</text>
+      <text x="390" y="603" text-anchor="middle" font-family="'IBM Plex Mono',monospace"
+            font-size="9" fill="rgba(110,200,160,0.6)">vector</text>
+      <text x="488" y="603" text-anchor="middle" font-family="'IBM Plex Mono',monospace"
+            font-size="9" fill="rgba(200,110,138,0.6)">tensor</text>
+
+    </svg>
+  </div>
+
+  <!-- NOTES PANEL (right, scrollable) -->
+  <div class="notes">
+
+    <p style="font-size:12px; color: var(--muted); margin-bottom: 16px; font-family: 'IBM Plex Mono', monospace; letter-spacing: 0.1em; text-transform: uppercase;">
+      Click each level to expand
+    </p>
+
+    <!-- 0: Scalar -->
+    <div class="note-block open" id="block-scalar">
+      <div class="note-header" onclick="toggle('block-scalar')">
+        <span class="note-num">0</span>
+        <span class="note-label c-scalar">scalar</span>
+        <span class="note-name">a single number</span>
+        <span class="note-chevron">▶</span>
+      </div>
+      <div class="note-body">
+        <p>
+          A scalar is just one number. Temperature. Price. Age. The number 7.
+          No direction. No structure. Just a magnitude.
+        </p>
+        <p>
+          In your system, the most important scalar is the <mark class="c-scalar">loss</mark> —
+          the total UGX leakage this week. One number that tells you
+          how wrong things are. Everything in the hierarchy exists to produce
+          this number honestly.
+        </p>
+        <div class="example">
+          <p class="example-label">Strata Stone</p>
+          <p>loss = UGX 1,650,000</p>
+          <p>that's it. one number. the whole system's verdict.</p>
+        </div>
+        <p>
+          Einstein called it a <em>rank-0 tensor</em>. It's a tensor with zero dimensions.
+          A degenerate case. The bottom of the hierarchy.
+        </p>
+      </div>
+    </div>
+
+    <!-- 1: Tensor -->
+    <div class="note-block" id="block-tensor">
+      <div class="note-header" onclick="toggle('block-tensor')">
+        <span class="note-num">1</span>
+        <span class="note-label c-tensor">tensor</span>
+        <span class="note-name">the full landscape</span>
+        <span class="note-chevron">▶</span>
+      </div>
+      <div class="note-body">
+        <p>
+          A tensor is not just a "big array." That's what confused you — and it's
+          what most explanations get wrong. An array is a storage format.
+          A tensor is a <mark class="c-tensor">relationship that holds across any coordinate system</mark>.
+        </p>
+        <p>
+          Einstein needed tensors because the laws of physics had to be true
+          from any observer's frame — whether you're standing still, moving fast,
+          or in a gravitational field. The tensor guaranteed that.
+        </p>
+        <p>
+          Google needed tensors (TPU = <em>Tensor Processing Unit</em>) because
+          a neural network's weights are relationships across millions of dimensions
+          simultaneously — and you need to update all of them at once.
+        </p>
+        <p>
+          You need a tensor because your project exists in three dimensions
+          simultaneously, and a spreadsheet can only show you one slice at a time.
+        </p>
+        <div class="example">
+          <p class="example-label">Your Rank-3 Tensor</p>
+          <p>T[department, phase, resource]</p>
+          <p>T[Finance, Shell, Leakage] = 450,000</p>
+          <p>T[Procurement, Pre_Con, Budget] = ...</p>
+          <p>93 variables. All held at once.</p>
+        </div>
+        <div class="warning">
+          The cube in the diagram is not decoration. It is literally showing you three axes intersecting. Each cell in that cube is one of Ibo's 93 variables.
+        </div>
+      </div>
+    </div>
+
+    <!-- 2: Vector -->
+    <div class="note-block" id="block-vector">
+      <div class="note-header" onclick="toggle('block-vector')">
+        <span class="note-num">2</span>
+        <span class="note-label c-vector">vector</span>
+        <span class="note-name">one snapshot of reality</span>
+        <span class="note-chevron">▶</span>
+      </div>
+      <div class="note-body">
+        <p>
+          A vector is a list of numbers — but the numbers are
+          <mark class="c-vector">coordinates in a space</mark>, not just a random list.
+          The difference matters: a shopping list is an array.
+          A vector knows where it lives.
+        </p>
+        <p>
+          In physics: position + velocity. Two numbers. That's all you need
+          to know a particle's future.
+          In your system: one project snapshot. One row of reality.
+        </p>
+        <div class="example">
+          <p class="example-label">Project state vector — this week</p>
+          <p>v = [budget_remaining, cement_on_site,</p>
+          <p>      workers_active, tasks_done, leakage]</p>
+          <p>v = [42,000,000, 80, 14, 37, 1,650,000]</p>
+        </div>
+        <p>
+          A vector is a <em>slice</em> of the tensor — one point in the landscape,
+          at one moment in time. The tensor contains all possible vectors.
+        </p>
+      </div>
+    </div>
+
+    <!-- 3: Matrix -->
+    <div class="note-block" id="block-matrix">
+      <div class="note-header" onclick="toggle('block-matrix')">
+        <span class="note-num">3</span>
+        <span class="note-label c-matrix">matrix</span>
+        <span class="note-name">transformation and process</span>
+        <span class="note-chevron">▶</span>
+      </div>
+      <div class="note-body">
+        <p>
+          A matrix takes a vector and produces another vector.
+          It encodes a <mark class="c-matrix">rule for how things change</mark>.
+          Not what things are — how they move.
+        </p>
+        <p>
+          In classical mechanics: multiply your state vector
+          (position, velocity) by a matrix to get next week's state.
+          The matrix IS the physics.
+        </p>
+        <p>
+          In your system: your procurement policy is a matrix.
+          Your construction workflow is a matrix. The financial flows
+          between departments are a matrix. They act on vectors
+          (project states) to produce the next state.
+        </p>
+        <div class="example">
+          <p class="example-label">The key equation</p>
+          <p>state_next = M × state_current</p>
+          <p></p>
+          <p>Ibo's operations manual IS the matrix M.</p>
+          <p>Encoded in 93 variables.</p>
+          <p>Now computable.</p>
+        </div>
+        <p>
+          The leakage matrix we built — weeks as rows, material
+          categories as columns, UGX leakage as values — is exactly this.
+          It shows how the project's state evolves over time.
+        </p>
+      </div>
+    </div>
+
+    <!-- 4: Eigen -->
+    <div class="note-block" id="block-eigen">
+      <div class="note-header" onclick="toggle('block-eigen')">
+        <span class="note-num">4</span>
+        <span class="note-label c-eigen">eigen</span>
+        <span class="note-name">what the system wants to do</span>
+        <span class="note-chevron">▶</span>
+      </div>
+      <div class="note-body">
+        <p>
+          "Eigen" is German for <em>inherent</em> or <em>characteristic</em>.
+          An eigenvector of a matrix is a direction that the matrix
+          doesn't rotate — it only <mark class="c-eigen">stretches or shrinks</mark> it.
+          These are the system's natural modes.
+        </p>
+        <p>
+          Most vectors get rotated by a matrix. But eigenvectors
+          survive the transformation pointing in the same direction.
+          They reveal the structure underneath the noise.
+        </p>
+        <div class="example">
+          <p class="example-label">What eigen tells you</p>
+          <p>Leakage matrix → eigen decomposition</p>
+          <p></p>
+          <p>Mode 1 eigenvalue: 56,000,000 (dominant)</p>
+          <p>Mode 2 eigenvalue:    150,000</p>
+          <p></p>
+          <p>Eigenvector 1: Cement=0.981, Labor=0.06</p>
+          <p></p>
+          <p>"This system has one dominant failure mode.</p>
+          <p> It runs through cement. Every week. Always."</p>
+        </div>
+        <p>
+          This is the difference between observation and diagnosis.
+          A spreadsheet tells you that cement numbers look bad this week.
+          Eigen tells you that cement has been the structural failure mode
+          for 12 weeks — and that it's not random, it's systemic.
+        </p>
+        <div class="warning">
+          Eigen is NOT a data structure. It is a property of a matrix — what you discover inside it. That's why it sits outside the tensor/vector/matrix stack in the diagram.
+        </div>
+      </div>
+    </div>
+
+    <!-- 5: SGD -->
+    <div class="note-block" id="block-sgd">
+      <div class="note-header" onclick="toggle('block-sgd')">
+        <span class="note-num">5</span>
+        <span class="note-label c-sgd">sgd</span>
+        <span class="note-name">optimization — closing the loop</span>
+        <span class="note-chevron">▶</span>
+      </div>
+      <div class="note-body">
+        <p>
+          Stochastic Gradient Descent. The engine that trains every
+          neural network that has ever existed.
+          It does one thing: <mark class="c-sgd">move toward lower loss</mark>.
+        </p>
+        <p>
+          You have a scalar loss (UGX leakage). You have a landscape
+          (the tensor). SGD finds the direction that reduces loss fastest
+          and takes a step in that direction. Repeat until the loss
+          is near zero.
+        </p>
+        <p>
+          In ML: the system adjusts millions of weights automatically.
+          In your system: SGD is you reading the eigen diagnosis and
+          changing the process. You adjust the procurement contract.
+          You add a gate check at cement delivery. You run it again.
+          Loss drops.
+        </p>
+        <div class="example">
+          <p class="example-label">One SGD cycle — Strata Stone</p>
+          <p>1. Compute loss: UGX 1,650,000</p>
+          <p>2. Run eigen: cement is dominant (0.981)</p>
+          <p>3. Gradient: cement gate gap = main driver</p>
+          <p>4. Action: require photo + signature at delivery</p>
+          <p>5. Next week: recompute loss</p>
+          <p>6. Loss drops → system is learning</p>
+        </div>
+        <p>
+          This is why the Pentad matters. Without the full loop —
+          landscape → state → process → diagnosis → action —
+          you have dashboards. With the loop, you have
+          a system that gets better over time. Automatically.
+        </p>
+      </div>
+    </div>
+
+    <!-- The connection note -->
+    <div style="margin-top: 24px; padding: 20px; background: var(--surface);
+                border: 1px solid var(--border); border-left: 2px solid var(--tensor);">
+      <p style="font-family: 'IBM Plex Mono', monospace; font-size: 10px;
+                color: var(--muted); letter-spacing: 0.15em; text-transform: uppercase;
+                margin-bottom: 10px;">The lineage</p>
+      <p style="font-size: 13px; color: #7a7d88; line-height: 1.75;">
+        Einstein used tensors because gravity had to be true from every observer's frame.
+        Google uses tensors because neural networks have to update every weight simultaneously.
+        <span class="c-tensor">You use a tensor because your project exists in three dimensions at once —
+        and a spreadsheet can only show you one.</span>
+        Same structure. Different domain. Same power.
+      </p>
+    </div>
+
+  </div>
+</div>
+
+<!-- GLOSSARY -->
+<div class="glossary">
+  <p class="glossary-title">Quick reference</p>
+  <div class="glossary-grid">
+    <div class="gloss-item">
+      <p class="gloss-term c-scalar">scalar</p>
+      <p class="gloss-def">One number. Temperature, price, loss. Rank-0 tensor. The verdict of the whole system.</p>
+    </div>
+    <div class="gloss-item">
+      <p class="gloss-term c-vector">vector</p>
+      <p class="gloss-def">A list of numbers that knows its coordinates. One snapshot of reality. A point in the landscape.</p>
+    </div>
+    <div class="gloss-item">
+      <p class="gloss-term c-matrix">matrix</p>
+      <p class="gloss-def">A grid of numbers that transforms vectors. Encodes rules, processes, flows. Your operations manual as math.</p>
+    </div>
+    <div class="gloss-item">
+      <p class="gloss-term c-tensor">tensor</p>
+      <p class="gloss-def">Relationships that hold across any coordinate system. Not just an array — a structure that survives transformation. Google's TPU runs on this.</p>
+    </div>
+    <div class="gloss-item">
+      <p class="gloss-term c-eigen">eigen</p>
+      <p class="gloss-def">The natural modes of a matrix. Directions that survive transformation. Separates systemic failure from random noise.</p>
+    </div>
+    <div class="gloss-item">
+      <p class="gloss-term c-sgd">sgd</p>
+      <p class="gloss-def">Stochastic Gradient Descent. The engine that moves toward lower loss. Trains every neural network. Closes the loop.</p>
+    </div>
+  </div>
+</div>
+
+<script>
+function toggle(id) {
+  const block = document.getElementById(id);
+  block.classList.toggle('open');
+}
+</script>
+
+</body>
+</html>
