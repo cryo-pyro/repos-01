@@ -1,0 +1,632 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Strata Stone · Geo Digital Twin</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Playfair+Display:ital,wght@0,600;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.min.css">
+<style>
+:root {
+  --bg:#080c0a; --surf:#0f1410; --surf2:#161d17;
+  --brd:rgba(200,160,80,0.12); --ink:#efe8d8; --mut:#706040; --dim:#252018;
+  --r:#e84040; --o:#d87030; --y:#d4a820; --g:#30b060; --b:#2880d8; --i:#9050c0; --v:#20b890;
+  --accent:#d4a820; --accent2:#80e0ff;
+}
+[data-theme="light"] {
+  --bg:#faf8f2; --surf:#fff; --surf2:#f5f0e4;
+  --brd:rgba(150,110,20,0.14); --ink:#1a1408; --mut:#605030; --dim:#d8d0b8;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+html,body{height:100%;overflow:hidden;}
+body{font-family:'DM Sans',sans-serif;font-size:13px;background:var(--bg);color:var(--ink);display:flex;flex-direction:column;}
+
+.hd{display:flex;align-items:center;justify-content:space-between;padding:.6rem 1.1rem;background:var(--surf);border-bottom:1px solid var(--brd);flex-shrink:0;gap:.75rem;flex-wrap:wrap;}
+.hd-title{font-family:'Playfair Display',serif;font-size:1.1rem;color:var(--ink);}
+.hd-sub{font-family:'DM Mono',monospace;font-size:.52rem;color:var(--mut);letter-spacing:.06em;margin-top:.1rem;}
+.hd-right{display:flex;gap:.4rem;align-items:center;}
+.badge{font-family:'DM Mono',monospace;font-size:.52rem;letter-spacing:.08em;text-transform:uppercase;padding:.18em .65em;border:1px solid var(--brd);border-radius:999px;color:var(--mut);}
+.badge-gold{color:var(--accent);border-color:rgba(212,168,32,.3);}
+.icon-btn{background:var(--surf2);border:1px solid var(--brd);border-radius:6px;padding:.38rem .6rem;cursor:pointer;color:var(--mut);font-family:'DM Mono',monospace;font-size:.55rem;transition:border-color .15s,color .15s;text-decoration:none;display:flex;align-items:center;gap:4px;}
+.icon-btn:hover{border-color:var(--accent);color:var(--accent);}
+
+.body{display:flex;flex:1;overflow:hidden;min-height:0;}
+
+/* LEFT PANEL */
+.lp{width:240px;flex-shrink:0;background:var(--surf);border-right:1px solid var(--brd);overflow-y:auto;padding:.9rem;display:flex;flex-direction:column;gap:.8rem;}
+.plbl{font-family:'DM Mono',monospace;font-size:.52rem;letter-spacing:.14em;text-transform:uppercase;color:var(--mut);padding-bottom:.3rem;border-bottom:1px solid var(--brd);margin-bottom:.1rem;}
+
+.layer-grid{display:flex;flex-direction:column;gap:.28rem;}
+.layer-btn{width:100%;text-align:left;padding:.42rem .65rem;background:var(--surf2);border:1px solid var(--brd);border-radius:6px;color:var(--ink);cursor:pointer;font-family:'DM Sans',sans-serif;font-size:.68rem;transition:border-color .12s,background .12s;display:flex;align-items:center;gap:.48rem;}
+.layer-btn:hover{border-color:var(--accent);background:rgba(212,168,32,.06);}
+.layer-btn.on{border-color:var(--accent);background:rgba(212,168,32,.10);color:var(--accent);}
+.layer-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+.layer-sub{font-size:.57rem;color:var(--mut);display:block;margin-top:.03rem;}
+.layer-btn.on .layer-sub{color:rgba(212,168,32,.6);}
+
+.formula{font-family:'DM Mono',monospace;font-size:.59rem;color:var(--mut);line-height:1.9;padding:.55rem .65rem;background:var(--surf2);border-radius:5px;border:1px solid var(--brd);}
+.formula .hl{color:var(--accent);}
+.formula .hl2{color:var(--accent2);}
+
+.sl-row{display:flex;flex-direction:column;gap:.18rem;margin-bottom:.38rem;}
+.sl-meta{display:flex;justify-content:space-between;align-items:baseline;}
+.sl-name{font-size:.64rem;opacity:.85;}
+.sl-val{font-family:'DM Mono',monospace;font-size:.60rem;color:var(--accent);}
+input[type=range]{width:100%;height:2px;appearance:none;background:var(--dim);border-radius:2px;outline:none;cursor:pointer;}
+input[type=range]::-webkit-slider-thumb{appearance:none;width:10px;height:10px;border-radius:50%;background:var(--accent);cursor:pointer;}
+.rr::-webkit-slider-thumb{background:#e84040!important;}
+.ro::-webkit-slider-thumb{background:#d87030!important;}
+.rg::-webkit-slider-thumb{background:#30b060!important;}
+.rb::-webkit-slider-thumb{background:#2880d8!important;}
+.ri::-webkit-slider-thumb{background:#9050c0!important;}
+
+.sc-btn{width:100%;padding:.38rem .58rem;background:var(--surf2);border:1px solid var(--brd);border-radius:5px;color:var(--ink);font-family:'DM Sans',sans-serif;font-size:.67rem;cursor:pointer;text-align:left;margin-bottom:.25rem;transition:border-color .12s;}
+.sc-btn span{display:block;font-size:.56rem;color:var(--mut);margin-top:.04rem;}
+.sc-btn:hover{border-color:var(--accent);}
+.sc-btn.on{border-color:var(--accent);color:var(--accent);}
+.sc-btn.on span{color:rgba(212,168,32,.6);}
+
+/* MAP */
+.mc{flex:1;position:relative;min-width:0;}
+#map{width:100%;height:100%;}
+.leaflet-tile-pane{filter:brightness(.72) saturate(.65) sepia(.15);}
+[data-theme="light"] .leaflet-tile-pane{filter:sepia(.08) saturate(.9);}
+
+.upd{position:absolute;top:10px;left:50%;transform:translateX(-50%);z-index:900;background:var(--surf);border:1px solid rgba(212,168,32,.45);border-radius:999px;padding:.2em .8em;font-family:'DM Mono',monospace;font-size:.56rem;color:var(--accent);opacity:0;transition:opacity .25s;pointer-events:none;white-space:nowrap;}
+.upd.on{opacity:1;}
+
+.leg{position:absolute;bottom:16px;left:16px;z-index:800;background:rgba(8,12,10,.92);border:1px solid var(--brd);border-radius:7px;padding:.52rem .68rem;backdrop-filter:blur(4px);}
+[data-theme="light"] .leg{background:rgba(255,255,255,.92);}
+.leg-title{font-family:'DM Mono',monospace;font-size:.51rem;letter-spacing:.1em;text-transform:uppercase;color:var(--mut);margin-bottom:.28rem;}
+.leg-scale{display:flex;gap:2px;margin-bottom:.2rem;}
+.leg-sw{height:8px;border-radius:1px;flex:1;}
+.leg-labs{display:flex;justify-content:space-between;font-family:'DM Mono',monospace;font-size:.49rem;color:var(--mut);}
+.leg-rows{margin-top:.3rem;display:flex;flex-direction:column;gap:.11rem;}
+.leg-row{display:flex;align-items:center;gap:.38rem;font-family:'DM Mono',monospace;font-size:.50rem;color:var(--mut);}
+.leg-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;}
+
+/* RIGHT PANEL */
+.rp{width:222px;flex-shrink:0;background:var(--surf);border-left:1px solid var(--brd);overflow-y:auto;padding:.9rem;display:flex;flex-direction:column;gap:.8rem;}
+.sc2{background:var(--surf2);border:1px solid var(--brd);border-radius:6px;padding:.55rem .75rem;}
+.sc2-lbl{font-family:'DM Mono',monospace;font-size:.52rem;letter-spacing:.08em;text-transform:uppercase;color:var(--mut);margin-bottom:.18rem;}
+.sc2-val{font-family:'Playfair Display',serif;font-size:1.45rem;line-height:1;margin-bottom:.08rem;}
+.sc2-delta{font-family:'DM Mono',monospace;font-size:.55rem;color:var(--mut);}
+.sc2-delta.bad{color:var(--r);}
+.sc2-delta.good{color:var(--v);}
+.d-list{display:flex;flex-direction:column;gap:.25rem;}
+.d-item{display:flex;align-items:center;gap:.45rem;padding:.28rem .45rem;border-radius:4px;cursor:pointer;transition:background .1s;}
+.d-item:hover{background:var(--surf2);}
+.d-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;}
+.d-name{font-size:.68rem;flex:1;}
+.d-val{font-family:'DM Mono',monospace;font-size:.61rem;color:var(--mut);}
+.sel-block{padding:.6rem .75rem;background:var(--surf2);border-radius:6px;border-left:3px solid var(--accent);}
+.sel-d-name{font-family:'Playfair Display',serif;font-size:.95rem;margin-bottom:.28rem;}
+.sel-score{font-family:'DM Mono',monospace;font-size:1.1rem;font-weight:500;margin-bottom:.38rem;}
+.dim-breakdown{display:flex;flex-direction:column;gap:.25rem;}
+.db-row{display:flex;align-items:center;gap:.45rem;padding:.25rem .38rem;background:var(--surf);border-radius:4px;}
+.db-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;}
+.db-name{font-size:.60rem;color:var(--mut);flex:1;}
+.db-bar-bg{height:3px;background:var(--dim);border-radius:2px;flex:1;max-width:50px;}
+.db-bar-fill{height:100%;border-radius:2px;transition:width .4s;}
+.db-val{font-family:'DM Mono',monospace;font-size:.60rem;color:var(--ink);}
+.tlog{font-family:'DM Mono',monospace;font-size:.56rem;color:var(--mut);line-height:1.6;max-height:110px;overflow-y:auto;}
+.te{padding:.08rem 0;border-bottom:1px solid var(--brd);}
+.te:last-child{border-bottom:none;}
+.tt2{color:var(--dim);margin-right:.28rem;}
+.ta{color:var(--accent);}
+
+.leaflet-popup-content-wrapper{background:var(--surf)!important;color:var(--ink)!important;border:1px solid var(--brd)!important;border-radius:9px!important;box-shadow:0 8px 28px rgba(0,0,0,.75)!important;}
+.leaflet-popup-content{margin:.75rem!important;font-family:'DM Sans',sans-serif!important;}
+.leaflet-popup-tip{background:var(--surf)!important;}
+.lp-name{font-family:'Playfair Display',serif;font-size:.92rem;margin-bottom:.28rem;}
+.lp-val{font-family:'DM Mono',monospace;font-size:1.15rem;font-weight:500;margin-bottom:.28rem;}
+.lp-rows{display:flex;flex-direction:column;gap:.1rem;}
+.lp-row{display:flex;justify-content:space-between;font-size:.63rem;color:var(--mut);padding:.1rem 0;border-bottom:1px solid var(--brd);}
+.lp-row:last-child{border-bottom:none;}
+.lp-rv{color:var(--ink);font-family:'DM Mono',monospace;}
+@media(max-width:860px){.lp,.rp{display:none;}}
+</style>
+</head>
+<body>
+
+<header class="hd">
+  <div>
+    <div class="hd-title">Strata Stone Partners · Geo Digital Twin</div>
+    <div class="hd-sub">Construction completion · leakage · logistics · Uganda + East Africa</div>
+  </div>
+  <div class="hd-right">
+    <span class="badge badge-gold">93 Variables</span>
+    <span class="badge">7 Departments</span>
+    <span class="badge">Rank-3 Tensor</span>
+    <button class="icon-btn" id="theme-btn" title="Toggle theme">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+      Theme
+    </button>
+  </div>
+</header>
+
+<div class="body">
+  <aside class="lp">
+    <div>
+      <div class="plbl">Map layer</div>
+      <div class="layer-grid" id="layer-grid">
+        <button class="layer-btn on" onclick="setLayer(this,'completion')" data-layer="completion">
+          <div class="layer-dot" style="background:#d4a820"></div>
+          <div><span>Completion heatmap</span><span class="layer-sub">% complete per site · phase</span></div>
+        </button>
+        <button class="layer-btn" onclick="setLayer(this,'leakage')" data-layer="leakage">
+          <div class="layer-dot" style="background:#e84040"></div>
+          <div><span>Leakage L(θ)</span><span class="layer-sub">Weighted loss · eigen signal</span></div>
+        </button>
+        <button class="layer-btn" onclick="setLayer(this,'logistics')" data-layer="logistics">
+          <div class="layer-dot" style="background:#2880d8"></div>
+          <div><span>Logistics / GPS</span><span class="layer-sub">Trucks · routes · cargo</span></div>
+        </button>
+        <button class="layer-btn" onclick="setLayer(this,'composite')" data-layer="composite">
+          <div class="layer-dot" style="background:#80e0ff"></div>
+          <div><span>Composite L(θ)</span><span class="layer-sub">Full operational loss surface</span></div>
+        </button>
+      </div>
+    </div>
+
+    <div>
+      <div class="plbl">Loss function</div>
+      <div class="formula">θₜ → <span class="hl">L(θ)</span> → ∇L → −η∇L → θ′<br><br>L = Σ wᵢ · <span class="hl2">opᵢ</span>(θ)<br><br><span style="color:var(--r)">Cement: systemic leakage</span><br><span style="color:var(--b)">Tensor: dept × phase × resource</span></div>
+    </div>
+
+    <div>
+      <div class="plbl">Leakage weights</div>
+      <div class="sl-row">
+        <div class="sl-meta"><span class="sl-name">Cement</span><span class="sl-val" id="v-cement">35%</span></div>
+        <input type="range" class="ro" id="s-cement" min="5" max="60" value="35">
+      </div>
+      <div class="sl-row">
+        <div class="sl-meta"><span class="sl-name">Steel</span><span class="sl-val" id="v-steel">25%</span></div>
+        <input type="range" class="rg" id="s-steel" min="5" max="50" value="25">
+      </div>
+      <div class="sl-row">
+        <div class="sl-meta"><span class="sl-name">Labor</span><span class="sl-val" id="v-labor">20%</span></div>
+        <input type="range" class="rr" id="s-labor" min="5" max="40" value="20">
+      </div>
+      <div class="sl-row">
+        <div class="sl-meta"><span class="sl-name">Timber</span><span class="sl-val" id="v-timber">12%</span></div>
+        <input type="range" class="rb" id="s-timber" min="2" max="30" value="12">
+      </div>
+      <div class="sl-row">
+        <div class="sl-meta"><span class="sl-name">Electrical / other</span><span class="sl-val" id="v-elec">8%</span></div>
+        <input type="range" class="ri" id="s-elec" min="2" max="25" value="8">
+      </div>
+    </div>
+
+    <div>
+      <div class="plbl">η — intervention speed</div>
+      <div class="sl-row">
+        <div class="sl-meta"><span class="sl-name">Learning rate</span><span class="sl-val" id="v-eta">0.10</span></div>
+        <input type="range" class="rb" id="s-eta" min="1" max="30" value="10">
+      </div>
+    </div>
+
+    <div>
+      <div class="plbl">Scenarios</div>
+      <button class="sc-btn on" onclick="setSc(this,'base')">Status quo<span>Live data · all weights nominal</span></button>
+      <button class="sc-btn" onclick="setSc(this,'cement')">Cement emergency<span>w_cement=55% · systemic flag</span></button>
+      <button class="sc-btn" onclick="setSc(this,'finish')">Finishing push<span>η=0.28 · Handover phase priority</span></button>
+      <button class="sc-btn" onclick="setSc(this,'logistics')">Logistics audit<span>Truck routes · material tracking</span></button>
+      <button class="sc-btn" onclick="setSc(this,'eigen')">Eigen mode<span>→ Dominant leakage eigenvector</span></button>
+    </div>
+  </aside>
+
+  <div class="mc">
+    <div id="map"></div>
+    <div class="upd" id="upd">Recomputing gradient…</div>
+    <div class="leg">
+      <div class="leg-title" id="leg-title">Completion heatmap</div>
+      <div class="leg-scale">
+        <div class="leg-sw" style="background:#e84040"></div>
+        <div class="leg-sw" style="background:#d87030"></div>
+        <div class="leg-sw" style="background:#d4a820"></div>
+        <div class="leg-sw" style="background:#30b060"></div>
+        <div class="leg-sw" style="background:#2880d8"></div>
+        <div class="leg-sw" style="background:#9050c0"></div>
+        <div class="leg-sw" style="background:#20b890"></div>
+      </div>
+      <div class="leg-labs"><span>0% / high loss</span><span>100% / complete</span></div>
+      <div class="leg-rows" id="leg-rows"></div>
+    </div>
+  </div>
+
+  <aside class="rp">
+    <div>
+      <div class="sc2">
+        <div class="sc2-lbl">Portfolio loss L(θ)</div>
+        <div class="sc2-val" id="st-loss">—</div>
+        <div class="sc2-delta bad" id="st-delta">computing…</div>
+      </div>
+    </div>
+    <div>
+      <div class="sc2">
+        <div class="sc2-lbl">Sites at risk (&lt;50%)</div>
+        <div class="sc2-val" id="st-crit" style="color:var(--r)">—</div>
+        <div class="sc2-delta bad">below completion threshold</div>
+      </div>
+    </div>
+    <div>
+      <div class="sc2">
+        <div class="sc2-lbl">Dominant leakage signal</div>
+        <div class="sc2-val" style="color:var(--r);font-size:1.1rem;">Cement</div>
+        <div class="sc2-delta bad">eigen weight 0.48 · systemic flag</div>
+      </div>
+    </div>
+    <div>
+      <div class="sc2">
+        <div class="sc2-lbl">Active trucks</div>
+        <div class="sc2-val" style="color:var(--b)">4</div>
+        <div class="sc2-delta">2 en route · 1 loading · 1 delayed</div>
+      </div>
+    </div>
+    <div id="sel-panel" style="display:none;">
+      <div class="plbl">Selected site</div>
+      <div class="sel-block">
+        <div class="sel-d-name" id="sel-name">—</div>
+        <div class="sel-score" id="sel-score">—</div>
+        <div class="dim-breakdown" id="sel-dims"></div>
+      </div>
+    </div>
+    <div>
+      <div class="plbl">Sites ranked by loss</div>
+      <div class="d-list" id="top-d"></div>
+    </div>
+    <div>
+      <div class="plbl">Transcript</div>
+      <div class="tlog" id="tlog"></div>
+    </div>
+  </aside>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.min.js"></script>
+<script>
+// ── REAL STRATA STONE SITES (lat/lon) ────────────────────────────
+// Kampala region + EA presence — real coordinates
+const SITES = [
+  // Uganda — Kampala & surrounds
+  {id:'s01', name:'Kadi Dev — Ntinda',         lat:0.354, lon:32.610, pct:82, phase:'Finishing', units:48, city:'Kampala'},
+  {id:'s02', name:'Pearl Heights — Entebbe',    lat:0.062, lon:32.466, pct:61, phase:'Shell',     units:36, city:'Entebbe'},
+  {id:'s03', name:'Nakawa Gardens',             lat:0.335, lon:32.630, pct:45, phase:'Shell',     units:60, city:'Kampala'},
+  {id:'s04', name:'Naalya Estate',              lat:0.381, lon:32.668, pct:74, phase:'Finishing', units:32, city:'Kampala'},
+  {id:'s05', name:'Wakiso Residences',          lat:0.403, lon:32.454, pct:38, phase:'Pre_Con',   units:44, city:'Wakiso'},
+  // Uganda — upcountry
+  {id:'s06', name:'Mbarara Ridge',              lat:-0.606, lon:30.655, pct:90, phase:'Handover',  units:24, city:'Mbarara'},
+  {id:'s07', name:'Jinja Riverside',            lat:0.446, lon:33.202, pct:33, phase:'Pre_Con',   units:42, city:'Jinja'},
+  {id:'s08', name:'Gulu North',                 lat:2.774, lon:32.299, pct:55, phase:'Shell',     units:30, city:'Gulu'},
+  {id:'s09', name:'Fort Portal Heights',        lat:0.671, lon:30.275, pct:68, phase:'Finishing', units:28, city:'Fort Portal'},
+  {id:'s10', name:'Masaka Gardens',             lat:-0.336, lon:31.740, pct:22, phase:'Pre_Con',  units:36, city:'Masaka'},
+  // East Africa expansion
+  {id:'s11', name:'Nairobi Heights — Westlands',lat:-1.268, lon:36.806, pct:70, phase:'Finishing',units:40, city:'Nairobi'},
+  {id:'s12', name:'Arusha Gardens — TZ',        lat:-3.370, lon:36.680, pct:25, phase:'Pre_Con',  units:32, city:'Arusha'},
+  {id:'s13', name:'Kigali Ridge — Rwanda',      lat:-1.944, lon:30.059, pct:48, phase:'Shell',    units:20, city:'Kigali'},
+];
+
+const TRUCKS = [
+  {id:'T-01', name:'Cement run',   from:[0.354,32.610], to:[0.335,32.630], cargo:'Cement 20t',    pct:0.38},
+  {id:'T-02', name:'Steel delivery',from:[0.062,32.466],to:[0.403,32.454], cargo:'Steel bars 8t', pct:0.71},
+  {id:'T-03', name:'Timber — Gulu',from:[0.354,32.610],to:[2.774,32.299], cargo:'Timber 12t',    pct:0.18},
+  {id:'T-04', name:'Finishings',   from:[-0.606,30.655],to:[0.671,30.275],cargo:'Finishing kit',  pct:0.54},
+];
+
+const RC = ['#e84040','#d87030','#d4a820','#30b060','#2880d8','#9050c0','#20b890'];
+
+let curLayer = 'completion';
+let dataset = [...SITES];
+let markers = [], truckMarkers = [], truckLines = [], selSite = null;
+let map, darkTile, lightTile, animFrame, truckPct;
+
+function clamp(v,a,b){return Math.max(a,Math.min(b,v));}
+
+function getWeights(){
+  return {
+    cement: +document.getElementById('s-cement').value,
+    steel:  +document.getElementById('s-steel').value,
+    labor:  +document.getElementById('s-labor').value,
+    timber: +document.getElementById('s-timber').value,
+    elec:   +document.getElementById('s-elec').value,
+  };
+}
+function getEta(){return +document.getElementById('s-eta').value/100;}
+
+// Synthetic leakage per site (seeded from index for consistency)
+function synthLeakage(site, idx){
+  const s = idx * 137.5 + 7.3;
+  const isKampala = ['Kampala','Entebbe','Wakiso'].includes(site.city);
+  let cement = 0.35 + 0.45 * Math.abs(Math.sin(s * 1.1));
+  let steel  = 0.20 + 0.35 * Math.abs(Math.sin(s * 0.9));
+  let labor  = 0.15 + 0.30 * Math.abs(Math.sin(s * 1.4));
+  let timber = 0.10 + 0.28 * Math.abs(Math.sin(s * 1.8));
+  let elec   = 0.08 + 0.25 * Math.abs(Math.sin(s * 2.1));
+  // Cement has planted systemic leakage per the real docx
+  cement = clamp(cement + 0.18, 0, 1);
+  if(isKampala){ cement = clamp(cement+0.1,0,1); steel = clamp(steel+0.08,0,1); }
+  return {cement, steel, labor, timber, elec};
+}
+
+function compositeLeakage(lk, w){
+  const T = w.cement + w.steel + w.labor + w.timber + w.elec;
+  return (w.cement/T)*lk.cement + (w.steel/T)*lk.steel + (w.labor/T)*lk.labor + (w.timber/T)*lk.timber + (w.elec/T)*lk.elec;
+}
+
+function siteLoss(site, idx){
+  const lk = synthLeakage(site, idx);
+  const w = getWeights();
+  const eta = getEta();
+  if(curLayer === 'completion') return 1 - (site.pct/100);
+  if(curLayer === 'leakage')   return clamp(compositeLeakage(lk,w) - eta*compositeLeakage(lk,w)*0.3, 0, 1);
+  if(curLayer === 'composite') return clamp((compositeLeakage(lk,w)*0.6 + (1-site.pct/100)*0.4) - eta*0.2, 0, 1);
+  return compositeLeakage(lk, w); // logistics still shows loss colour
+}
+
+function loss2col(loss){
+  if(loss >= 0.82) return RC[0];
+  if(loss >= 0.64) return RC[1];
+  if(loss >= 0.46) return RC[2];
+  if(loss >= 0.28) return RC[3];
+  if(loss >= 0.13) return RC[4];
+  if(loss >= 0.05) return RC[5];
+  return RC[6];
+}
+
+function initMap(){
+  // Centre on Uganda
+  map = L.map('map', {center:[1.37,32.29], zoom:7});
+  darkTile = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',
+    {attribution:'© OpenStreetMap contributors © CARTO', subdomains:'abcd', maxZoom:19});
+  lightTile = L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',
+    {attribution:'© OpenStreetMap contributors © CARTO', subdomains:'abcd', maxZoom:19});
+  darkTile.addTo(map);
+}
+
+function clearMarkers(){
+  markers.forEach(m=>map.removeLayer(m));
+  truckMarkers.forEach(m=>map.removeLayer(m));
+  truckLines.forEach(l=>map.removeLayer(l));
+  markers=[]; truckMarkers=[]; truckLines=[];
+}
+
+function renderSites(){
+  dataset.forEach((site,idx)=>{
+    const loss = siteLoss(site,idx);
+    const col  = loss2col(loss);
+    const isKampala = site.city==='Kampala';
+    const r = isKampala ? 14 : ['Entebbe','Mbarara','Jinja','Gulu','Nairobi'].includes(site.city) ? 11 : 9;
+
+    // Halo ring for at-risk sites
+    if(loss > 0.64){
+      const halo = L.circleMarker([site.lat,site.lon], {
+        radius: r+8, fillColor:'transparent', color:col, weight:1.2, opacity:0.35
+      }).addTo(map);
+      markers.push(halo);
+    }
+
+    const lk = synthLeakage(site,idx);
+    const dims = ['cement','steel','labor','timber','elec'];
+    const dRows = dims.map(k=>{
+      const lv = lk[k];
+      return`<div class="lp-row"><span>${k}</span><span class="lp-rv" style="color:${loss2col(lv)}">${(lv*100).toFixed(0)}%</span></div>`;
+    }).join('');
+
+    const m = L.circleMarker([site.lat,site.lon],{
+      radius:r, fillColor:col, color:'rgba(255,255,255,0.15)', weight:1.5,
+      opacity:1, fillOpacity:0.88
+    }).addTo(map);
+
+    m.bindPopup(`
+      <div class="lp-name">${site.name}</div>
+      <div class="lp-val" style="color:${col}">${site.pct}% complete</div>
+      <div class="lp-rows">
+        <div class="lp-row"><span>Phase</span><span class="lp-rv">${site.phase}</span></div>
+        <div class="lp-row"><span>Units</span><span class="lp-rv">${site.units}</span></div>
+        <div class="lp-row"><span>L(θ) loss</span><span class="lp-rv" style="color:${col}">${(loss*100).toFixed(1)}%</span></div>
+        ${dRows}
+        <div class="lp-row"><span>Priority</span><span class="lp-rv">${loss>0.65?'🔴 Urgent':loss>0.40?'🟠 Watch':'🟢 On track'}</span></div>
+      </div>
+    `);
+
+    m.on('click',()=>{
+      selectSite(site,idx);
+      logA(`${site.name} · ${site.pct}% · L=${(loss*100).toFixed(1)}%`);
+    });
+    markers.push(m);
+  });
+}
+
+function renderTrucks(){
+  if(curLayer !== 'logistics') return;
+  if(!truckPct) truckPct = TRUCKS.map(t=>t.pct);
+
+  TRUCKS.forEach((t,i)=>{
+    const p = truckPct[i];
+    const lat = t.from[0] + (t.to[0]-t.from[0])*p;
+    const lon = t.from[1] + (t.to[1]-t.from[1])*p;
+
+    // Dashed route line
+    const line = L.polyline([t.from, t.to],{
+      color:'#2880d8', weight:1.5, dashArray:'5,7', opacity:0.5
+    }).addTo(map);
+    truckLines.push(line);
+
+    // Truck dot
+    const tm = L.circleMarker([lat,lon],{
+      radius:7, fillColor:'#2880d8', color:'#fff', weight:1.5, opacity:1, fillOpacity:0.9
+    }).bindPopup(`<div class="lp-name">${t.id}</div><div class="lp-val" style="color:#2880d8">${t.cargo}</div><div class="lp-rows"><div class="lp-row"><span>Progress</span><span class="lp-rv">${Math.round(p*100)}%</span></div></div>`).addTo(map);
+    truckMarkers.push(tm);
+  });
+}
+
+function animateTrucks(){
+  if(curLayer !== 'logistics'){animFrame=requestAnimationFrame(animateTrucks);return;}
+  if(!truckPct) truckPct = TRUCKS.map(t=>t.pct);
+  truckPct = truckPct.map((p,i)=>{
+    const spd=[0.0005,0.0004,0.0008,0.0006][i];
+    return p>=1?0:p+spd;
+  });
+  // Redraw truck positions only (lightweight)
+  truckMarkers.forEach((m,i)=>{
+    const t = TRUCKS[i];
+    const p = truckPct[i];
+    const lat = t.from[0]+(t.to[0]-t.from[0])*p;
+    const lon = t.from[1]+(t.to[1]-t.from[1])*p;
+    m.setLatLng([lat,lon]);
+  });
+  animFrame=requestAnimationFrame(animateTrucks);
+}
+
+function renderAll(){
+  clearMarkers();
+  renderSites();
+  if(curLayer==='logistics') renderTrucks();
+  renderStats();
+  renderLegend();
+  renderTopList();
+  if(selSite){
+    const idx = SITES.findIndex(s=>s.id===selSite.id);
+    if(idx>=0) selectSite(SITES[idx],idx);
+  }
+}
+
+function selectSite(site,idx){
+  selSite = site;
+  const loss = siteLoss(site,idx);
+  const col  = loss2col(loss);
+  const lk   = synthLeakage(site,idx);
+  document.getElementById('sel-panel').style.display='block';
+  document.getElementById('sel-name').textContent = site.name;
+  document.getElementById('sel-score').textContent = `${site.pct}% · L=${(loss*100).toFixed(1)}%`;
+  document.getElementById('sel-score').style.color = col;
+  document.getElementById('sel-dims').innerHTML = ['cement','steel','labor','timber','elec'].map(k=>{
+    const lv=lk[k], c=loss2col(lv), p=Math.round(lv*100);
+    return`<div class="db-row"><div class="db-dot" style="background:${c}"></div><div class="db-name">${k}</div><div class="db-bar-bg"><div class="db-bar-fill" style="width:${p}%;background:${c}"></div></div><div class="db-val">${p}%</div></div>`;
+  }).join('');
+}
+
+function renderStats(){
+  const losses = dataset.map((s,i)=>siteLoss(s,i));
+  const mean   = losses.reduce((a,b)=>a+b,0)/losses.length;
+  const atRisk = losses.filter(l=>l>0.5).length;
+  const lel    = document.getElementById('st-loss');
+  lel.textContent = (mean*100).toFixed(1)+'%';
+  lel.style.color = loss2col(mean);
+  document.getElementById('st-delta').textContent = mean>0.5?`↑ ${((mean-0.5)*100).toFixed(1)}pt above threshold`:`↓ ${((0.5-mean)*100).toFixed(1)}pt below threshold`;
+  document.getElementById('st-delta').className = 'sc2-delta '+(mean>0.5?'bad':'good');
+  document.getElementById('st-crit').textContent = atRisk+' / '+dataset.length;
+}
+
+function renderTopList(){
+  const sorted = [...dataset].map((s,i)=>({s,i,loss:siteLoss(s,i)})).sort((a,b)=>b.loss-a.loss);
+  window.__siteMap={};dataset.forEach((s,i)=>{window.__siteMap[s.id]={s,i};});
+  document.getElementById('top-d').innerHTML = sorted.slice(0,8).map(({s,loss})=>
+    `<div class="d-item" onclick="(function(){var si=window.__siteMap['${s.id}'];selectSite(si.s,si.i);})()">
+      <div class="d-dot" style="background:${loss2col(loss)}"></div>
+      <span class="d-name">${s.name}</span>
+      <span class="d-val">${s.pct}%</span>
+    </div>`
+  ).join('');
+}
+
+function renderLegend(){
+  const titles={completion:'Completion heatmap',leakage:'Leakage L(θ)',logistics:'Logistics / GPS',composite:'Composite L(θ)'};
+  document.getElementById('leg-title').textContent = titles[curLayer];
+  document.getElementById('leg-rows').innerHTML = [
+    {col:RC[0],label:'0–20% / critical loss'},
+    {col:RC[1],label:'20–36% / high leakage'},
+    {col:RC[2],label:'36–54% / moderate'},
+    {col:RC[3],label:'54–72% / on track'},
+    {col:RC[4],label:'72–87% / low loss'},
+    {col:RC[5],label:'87–95% / well managed'},
+    {col:RC[6],label:'95–100% / complete'},
+  ].map(r=>`<div class="leg-row"><div class="leg-dot" style="background:${r.col}"></div><span>${r.label}</span>`).join('');
+}
+
+function updWeightLabels(){
+  const w=getWeights(), T=Object.values(w).reduce((a,b)=>a+b,0);
+  Object.entries(w).forEach(([k,v])=>{
+    const el=document.getElementById('v-'+k);
+    if(el) el.textContent=Math.round(v/T*100)+'%';
+  });
+  document.getElementById('v-eta').textContent=getEta().toFixed(2);
+}
+
+function logA(msg){
+  const n=new Date();
+  const t=[n.getHours(),n.getMinutes(),n.getSeconds()].map(x=>String(x).padStart(2,'0')).join(':');
+  const el=document.getElementById('tlog'), e=document.createElement('div');
+  e.className='te';
+  e.innerHTML=`<span class="tt2">${t}</span><span class="ta">${msg}</span>`;
+  el.prepend(e);
+  if(el.children.length>22) el.removeChild(el.lastChild);
+}
+
+let sched_tmr=null;
+function sched(){
+  updWeightLabels();
+  document.getElementById('upd').classList.add('on');
+  clearTimeout(sched_tmr);
+  sched_tmr=setTimeout(()=>{
+    renderAll();
+    document.getElementById('upd').classList.remove('on');
+  },260);
+}
+
+function setLayer(btn,layer){
+  document.querySelectorAll('.layer-btn').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');
+  curLayer=layer;
+  logA('Layer: '+layer);
+  // If switching to logistics, re-init truck positions
+  if(layer==='logistics') truckPct=TRUCKS.map(t=>t.pct);
+  sched();
+}
+
+function setSc(btn,nm){
+  document.querySelectorAll('.sc-btn').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');
+  const scenarios={
+    base:     [35,25,20,12,8,10],
+    cement:   [55,15,15,10,5,12],
+    finish:   [20,20,20,20,20,28],
+    logistics:[25,25,20,15,15,10],
+    eigen:    [48,28,12,8,4,15],
+  };
+  const v=scenarios[nm];
+  ['s-cement','s-steel','s-labor','s-timber','s-elec','s-eta'].forEach((id,i)=>{
+    document.getElementById(id).value=v[i];
+  });
+  logA('Scenario: '+btn.childNodes[0].textContent.trim());
+  sched();
+}
+
+// Theme toggle
+document.getElementById('theme-btn').addEventListener('click',()=>{
+  const next=document.documentElement.getAttribute('data-theme')==='dark'?'light':'dark';
+  document.documentElement.setAttribute('data-theme',next);
+  if(next==='dark'){map.removeLayer(lightTile);darkTile.addTo(map);}
+  else{map.removeLayer(darkTile);lightTile.addTo(map);}
+});
+
+// Slider listeners
+['s-cement','s-steel','s-labor','s-timber','s-elec','s-eta'].forEach(id=>{
+  document.getElementById(id).addEventListener('input',sched);
+});
+
+// Init
+initMap();
+updWeightLabels();
+renderAll();
+requestAnimationFrame(animateTrucks);
+
+logA('Strata Stone Geo Twin initialized');
+logA('13 sites · Uganda + East Africa · real coords');
+logA('Cement: systemic leakage signal detected');
+logA('Tensor: 93 variables × 7 departments');
+</script>
+</body>
+</html>
