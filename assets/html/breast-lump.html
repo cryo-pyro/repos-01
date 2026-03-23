@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Ukubona Twin · The Breast Basin · SGD Across a Diagnostic Landscape</title>
+<title>Ukubona Twin · The Breast Basin · SGD Across a Diagnostic Landscape · v2</title>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=Source+Serif+4:ital,wght@0,300;0,400;0,600;1,300;1,400&family=IBM+Plex+Mono:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
   :root {
@@ -626,14 +626,16 @@
   <a href="#s10">§ 10 · No Backprop?</a>
   <a href="#s11">§ 11 · Tensor Correction</a>
   <a href="#s12">§ 12 · The Twin Engine</a>
+  <a href="#s13">§ 13 · Evidence Hierarchy</a>
+  <a href="#s14">§ 14 · The Ultrasound Problem</a>
 </nav>
 
 <main>
 
   <div class="doc-header">
-    <div class="doc-meta">Ukubona LLC · Game of Care · 2026-03-23 · Kampala</div>
+    <div class="doc-meta">Ukubona LLC · Game of Care · 2026-03-23 · Kampala · v2 — ultrasound context added</div>
     <h1 class="doc-title">The <em>Breast Basin</em> &<br>the Catastrophic Learning Rate</h1>
-    <p class="doc-subtitle">SGD across a diagnostic landscape — one patient, one lump, refusing premature convergence. A clinical proof of concept for the Ukubona loss tensor architecture.</p>
+    <p class="doc-subtitle">SGD across a diagnostic landscape — one patient, one lump, refusing premature convergence. A clinical proof of concept for the Ukubona loss tensor architecture. Updated with elicited history, cyclical confirmation, and evidence weight hierarchy.</p>
   </div>
 
   <!-- PENTAD I: THE SGD LOOP -->
@@ -648,23 +650,25 @@
     <p>The patient — a 29-year-old Ugandan-Rwandese woman, upper-middle class, Kampala 2026 — is not a population statistic. She is an individual. The twin must initialize from her parameters, not from demographic averages. This is the w_i correction: <strong>gradient sovereignty returned to the principal.</strong></p>
 
     <div class="n-vector">
-      <div class="n-vector-title">Parameter Space · N-dimensional State Vector θ₀</div>
+      <div class="n-vector-title">Parameter Space · N-dimensional State Vector θ₀ · Updated v2</div>
       <div class="n-row"><span class="n-key">P₁</span><span class="n-label">Age</span><span class="n-value n-resolved">29 ✓</span></div>
       <div class="n-row"><span class="n-key">P₁</span><span class="n-label">Ethnicity / SES</span><span class="n-value n-resolved">Ugandan-Rwandese, upper-middle class, Kampala ✓</span></div>
-      <div class="n-row"><span class="n-key">P₁</span><span class="n-label">Menarche / cycle regularity</span><span class="n-value n-null">NULL ← high curvature</span></div>
-      <div class="n-row"><span class="n-key">P₁</span><span class="n-label">LMP / cycle-mass relationship</span><span class="n-value n-partial">PARTIAL — cycle fluctuation confirmed, peak pain 2d pre-period ✓</span></div>
-      <div class="n-row"><span class="n-key">P₁</span><span class="n-label">Parity / breastfeeding / OCP</span><span class="n-value n-null">NULL</span></div>
-      <div class="n-row"><span class="n-key">P₂</span><span class="n-label">Mass size / location</span><span class="n-value n-resolved">4cm, left breast, periareolar ✓</span></div>
-      <div class="n-row"><span class="n-key">P₂</span><span class="n-label">Consistency</span><span class="n-value n-resolved">Hard ✓</span></div>
-      <div class="n-row"><span class="n-key">P₂</span><span class="n-label">Tenderness</span><span class="n-value n-resolved">Mild — mildly tender on palpation ✓ ← underweighted signal</span></div>
-      <div class="n-row"><span class="n-key">P₂</span><span class="n-label">Duration</span><span class="n-value n-partial">~1 year ✓</span></div>
-      <div class="n-row"><span class="n-key">P₂</span><span class="n-label">Nipple discharge / retraction</span><span class="n-value n-resolved">None confirmed ✓ — important negative</span></div>
-      <div class="n-row"><span class="n-key">P₂</span><span class="n-label">Skin tethering / ulceration</span><span class="n-value n-resolved">Absent ✓ — important negative</span></div>
-      <div class="n-row"><span class="n-key">P₃</span><span class="n-label">Axillary nodes — character</span><span class="n-value n-partial">Palpable, mobile ✓ — consistency / tenderness NULL</span></div>
-      <div class="n-row"><span class="n-key">P₃</span><span class="n-label">Supraclavicular nodes</span><span class="n-value n-null">NULL ← not documented</span></div>
-      <div class="n-row"><span class="n-key">P₄</span><span class="n-label">Family history</span><span class="n-value n-null">NULL — unknown ≠ negative</span></div>
+      <div class="n-row"><span class="n-key">P₁</span><span class="n-label">Cycle-mass relationship</span><span class="n-value n-resolved">CONFIRMED — unbearable pain 2d pre-period, settles after, not present all month ✓ ← high-weight signal</span></div>
+      <div class="n-row"><span class="n-key">P₁</span><span class="n-label">Menarche / OCP / parity</span><span class="n-value n-null">NULL</span></div>
+      <div class="n-row"><span class="n-key">P₂</span><span class="n-label">Mass size / location</span><span class="n-value n-resolved">4cm, left breast, periareolar, close to surface ✓</span></div>
+      <div class="n-row"><span class="n-key">P₂</span><span class="n-label">Mobility</span><span class="n-value n-resolved">Moves a lot — highly mobile ✓ ← strong benign signal</span></div>
+      <div class="n-row"><span class="n-key">P₂</span><span class="n-label">Size variation with cycle</span><span class="n-value n-resolved">CONFIRMED — changes in size across cycle ✓ ← malignancy nearly excluded by this alone</span></div>
+      <div class="n-row"><span class="n-key">P₂</span><span class="n-label">Presence across cycle</span><span class="n-value n-resolved">Not present all month ✓ ← dominant cyst / fibrocystic strongly suggested</span></div>
+      <div class="n-row"><span class="n-key">P₂</span><span class="n-label">Nipple discharge / retraction</span><span class="n-value n-resolved">None — no retraction confirmed ✓ important negative</span></div>
+      <div class="n-row"><span class="n-key">P₂</span><span class="n-label">Skin changes / ulceration</span><span class="n-value n-resolved">Skin fine, no ulceration ✓ important negative</span></div>
+      <div class="n-row"><span class="n-key">P₂</span><span class="n-label">Duration</span><span class="n-value n-resolved">~1 year ✓ — stable timeline argues against aggressive malignancy</span></div>
+      <div class="n-row"><span class="n-key">P₃</span><span class="n-label">Axillary nodes — exam</span><span class="n-value n-partial">Palpable, mobile ✓ — ultrasound characterization UNKNOWN ← critical null</span></div>
+      <div class="n-row"><span class="n-key">P₃</span><span class="n-label">Ultrasound — mass</span><span class="n-value n-partial">DONE — report not available. Informed referral. Cystic vs solid UNKNOWN ← highest-value missing parameter</span></div>
+      <div class="n-row"><span class="n-key">P₃</span><span class="n-label">Ultrasound — nodes</span><span class="n-value n-null">NULL — cortical thickening? fatty hilum? size? unknown ← pivot parameter</span></div>
+      <div class="n-row"><span class="n-key">P₄</span><span class="n-label">Family history</span><span class="n-value n-partial">Paternal cousin — not first-degree. Low BRCA weight. ✓</span></div>
       <div class="n-row"><span class="n-key">P₄</span><span class="n-label">Prior breast events / trauma</span><span class="n-value n-null">NULL</span></div>
-      <div class="n-row"><span class="n-key">P₅</span><span class="n-label">Constitutional symptoms (TB screen)</span><span class="n-value n-resolved">Demoted — SES prior too suppressive ✓</span></div>
+      <div class="n-row"><span class="n-key">P₅</span><span class="n-label">TB / constitutional symptoms</span><span class="n-value n-resolved">Demoted — SES prior suppressive ✓</span></div>
+      <div class="n-row"><span class="n-key">P₅</span><span class="n-label">Core needle biopsy</span><span class="n-value n-null">NOT DONE — surgeon advised against FNAC (different from CNB) ← gate partially open</span></div>
     </div>
 
     <div class="insight">
@@ -686,32 +690,36 @@
 L_vector (wrong):    Lᵢ = wᵢ · fᵢ(θ)           <span class="comment">// diagnoses scored independently</span>
 L_tensor (correct):  L_ijk = w_ijk · fᵢ(θ) · fⱼ(θ)  <span class="comment">// feature × diagnosis interactions</span>
 
-<span class="comment">// Current state after cycle history update</span>
+<span class="comment">// v2 posterior — after full history elicitation + ultrasound confirmed done</span>
 L = {
-  <span class="value">Fibrocystic disease / complex cyst:</span>    0.35  <span class="comment">← deepened by cycle signal</span>
-  <span class="value">Fibroadenoma / giant fibroadenoma:</span>    0.22
-  <span class="value">Phyllodes tumor (benign):</span>             0.18
-  <span class="value">Idiopathic granulomatous mastitis:</span>    0.10
-  <span class="value">Carcinoma (any type):</span>                 0.08  <span class="comment">← low, non-zero, BRCA unknown</span>
-  <span class="value">Lymphoma (primary breast):</span>            0.04
-  <span class="value">TB mastitis:</span>                          <span class="null">0.02  ← DEMOTED (SES prior)</span>
-  <span class="value">Other:</span>                                0.01
+  <span class="value">Fibrocystic disease / dominant cyst:</span>  0.52  <span class="comment">← cycle variation + size change + not all month</span>
+  <span class="value">Fibroadenoma (giant/complex):</span>         0.18  <span class="comment">← less likely: doesn't vary this dramatically</span>
+  <span class="value">Phyllodes tumor (benign):</span>             0.12  <span class="comment">← size change fits; cyclical pattern weaker fit</span>
+  <span class="value">Granulomatous mastitis:</span>               0.08
+  <span class="value">Carcinoma (any type):</span>                 <span class="null">0.07  ← nodes on US may raise this; history suppresses</span>
+  <span class="value">Lymphoma:</span>                             0.02
+  <span class="value">TB mastitis:</span>                          <span class="null">0.01  ← demoted (SES prior)</span>
 }
+
+<span class="comment">// Axillary node US characterization is the ONE parameter that could</span>
+<span class="comment">// shift carcinoma from 0.07 upward significantly.</span>
+<span class="comment">// Cortical thickening + loss of fatty hilum → carcinoma moves to ~0.25</span>
+<span class="comment">// Normal node architecture on US → carcinoma stays ≤ 0.05</span>
 
 <span class="comment">// Gate condition — do NOT collapse until:</span>
 max(L) > 0.85 AND N_completeness > 0.90 AND gradient_confidence > 0.85
-<span class="comment">// Current max(L) = 0.35 → gate is CLOSED</span>
+<span class="comment">// Current max(L) = 0.52 → gate remains open for tissue diagnosis, not surgery</span>
     </div>
 
-    <h3>The Loss Distribution · Visualized</h3>
+    <h3>The Loss Distribution · v2 Posterior</h3>
     <div class="loss-dist" id="lossDist">
-      <div class="loss-row"><span class="loss-label">Fibrocystic disease</span><div class="loss-bar-wrap"><div class="loss-bar" style="width:35%; background: var(--a);"></div></div><span class="loss-pct">35%</span></div>
-      <div class="loss-row"><span class="loss-label">Fibroadenoma</span><div class="loss-bar-wrap"><div class="loss-bar" style="width:22%;"></div></div><span class="loss-pct">22%</span></div>
-      <div class="loss-row"><span class="loss-label">Phyllodes (benign)</span><div class="loss-bar-wrap"><div class="loss-bar" style="width:18%;"></div></div><span class="loss-pct">18%</span></div>
-      <div class="loss-row"><span class="loss-label">Granulomatous mastitis</span><div class="loss-bar-wrap"><div class="loss-bar" style="width:10%;"></div></div><span class="loss-pct">10%</span></div>
-      <div class="loss-row"><span class="loss-label">Carcinoma</span><div class="loss-bar-wrap"><div class="loss-bar" style="width:8%; background: var(--x);"></div></div><span class="loss-pct">8%</span></div>
-      <div class="loss-row"><span class="loss-label">Lymphoma</span><div class="loss-bar-wrap"><div class="loss-bar" style="width:4%;"></div></div><span class="loss-pct">4%</span></div>
-      <div class="loss-row"><span class="loss-label">TB mastitis</span><div class="loss-bar-wrap"><div class="loss-bar" style="width:2%; background: var(--text3);"></div></div><span class="loss-pct">2%</span></div>
+      <div class="loss-row"><span class="loss-label">Fibrocystic / dominant cyst</span><div class="loss-bar-wrap"><div class="loss-bar" style="width:52%; background: var(--a);"></div></div><span class="loss-pct">52%</span></div>
+      <div class="loss-row"><span class="loss-label">Fibroadenoma</span><div class="loss-bar-wrap"><div class="loss-bar" style="width:18%;"></div></div><span class="loss-pct">18%</span></div>
+      <div class="loss-row"><span class="loss-label">Phyllodes (benign)</span><div class="loss-bar-wrap"><div class="loss-bar" style="width:12%;"></div></div><span class="loss-pct">12%</span></div>
+      <div class="loss-row"><span class="loss-label">Granulomatous mastitis</span><div class="loss-bar-wrap"><div class="loss-bar" style="width:8%;"></div></div><span class="loss-pct">8%</span></div>
+      <div class="loss-row"><span class="loss-label">Carcinoma ← node US unknown</span><div class="loss-bar-wrap"><div class="loss-bar" style="width:7%; background: var(--x);"></div></div><span class="loss-pct">7%</span></div>
+      <div class="loss-row"><span class="loss-label">Lymphoma</span><div class="loss-bar-wrap"><div class="loss-bar" style="width:2%;"></div></div><span class="loss-pct">2%</span></div>
+      <div class="loss-row"><span class="loss-label">TB mastitis</span><div class="loss-bar-wrap"><div class="loss-bar" style="width:1%; background: var(--text3);"></div></div><span class="loss-pct">1%</span></div>
     </div>
 
     <div class="voice voice-h">
@@ -1160,9 +1168,145 @@ L_TB = w_geography · w_nodes · w_mass · w_(age|TB) · w_(SES|TB) · w_(exposu
 
   </section>
 
+  <section id="s13">
+    <div class="section-num">§ 13 · Architecture · v2</div>
+    <h2>Evidence Hierarchy · The Weight Ladder</h2>
+    <p class="lead">Not all gradient signals are equal. The loss tensor must weight each evidence source by its resolution, reliability, and irreversibility cost. History, examination, imaging, cytology, histology — these are not parallel inputs. They form a hierarchy of increasing fidelity and increasing η.</p>
+
+    <p>The surgeon's implicit model collapsed this hierarchy. He moved from ultrasound directly to surgical extraction, skipping the tissue diagnosis tier that sits between them. The twin must formalize the ladder so the gate condition knows exactly which rungs have been climbed and which have been skipped.</p>
+
+    <div class="math-block">
+<span class="comment">// Evidence weight ladder — w_evidence × information_gain / η_cost</span>
+
+Tier 0:  Patient history           w = 0.30  η ≈ 0.00  reversible: fully
+         <span class="comment">// cyclical pattern, duration, mobility, skin, family</span>
+         <span class="comment">// HIGHEST information/cost ratio. Almost always skipped.</span>
+
+Tier 1:  Physical examination      w = 0.20  η ≈ 0.00  reversible: fully
+         <span class="comment">// size, consistency, mobility, nodes, skin, retraction</span>
+         <span class="comment">// Confirms or challenges history. Free gradient.</span>
+
+Tier 2:  Ultrasound                w = 0.25  η = 0.05  reversible: fully
+         <span class="comment">// cystic vs solid, margins, vascularity, node architecture</span>
+         <span class="comment">// Single highest-resolution non-invasive measurement.</span>
+         <span class="comment">// STATUS: DONE — report not available to us</span>
+
+Tier 3a: Fine needle aspirate      w = 0.15  η = 0.10  reversible: mostly
+         <span class="comment">// cytology only — cells not architecture</span>
+         <span class="comment">// Surgeon advised against. Reason unstated. SKIPPED.</span>
+
+Tier 3b: Core needle biopsy        w = 0.35  η = 0.20  reversible: mostly
+         <span class="comment">// histology + architecture + receptor status</span>
+         <span class="comment">// Gold standard pre-surgical tissue diagnosis.</span>
+         <span class="comment">// STATUS: NOT DONE ← critical gap</span>
+
+Tier 4:  Excisional biopsy         w = 0.40  η = 0.60  reversible: partial
+         <span class="comment">// removes the mass — diagnostic AND therapeutic if benign</span>
+         <span class="comment">// appropriate IF CNB inconclusive or mass benign-appearing</span>
+
+Tier 5:  Wide excision / lumpectomy  w = 1.0  η = 1.00  reversible: NO
+         <span class="comment">// oncological surgery — only appropriate AFTER tissue confirms malignancy</span>
+         <span class="comment">// CURRENT RECOMMENDATION: April 3rd ← η catastrophic without Tier 3b</span>
+
+<span class="comment">// The surgeon's path: Tier 0 (partial) → Tier 1 → Tier 2 (unknown) → Tier 5</span>
+<span class="comment">// Tiers 3a, 3b, 4 skipped. That is the catastrophic η problem.</span>
+    </div>
+
+    <h3>The Bayesian Update per Tier</h3>
+
+    <table>
+      <thead>
+        <tr><th>Tier</th><th>Evidence</th><th>What it resolves</th><th>This patient</th><th>L shift</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>0 · History</td><td>Cyclical, 1yr, mobile, no retraction, not all month</td><td>Hormonal driver? Timeline? Red flags?</td><td>DONE ✓ — strongly benign</td><td>Fibrocystic +0.27</td></tr>
+        <tr><td>1 · Exam</td><td>4cm, hard, mildly tender, slightly mobile, nodes mobile</td><td>Fixed vs mobile? Skin involvement?</td><td>DONE ✓ — mixed signal (hard + mobile)</td><td>Neutral to mildly benign</td></tr>
+        <tr><td>2 · Ultrasound</td><td>Cystic vs solid, margins, node character</td><td>Largest single landscape measurement</td><td>DONE — report unavailable ← null pointer</td><td>UNKNOWN — pivot</td></tr>
+        <tr><td>3a · FNAC</td><td>Cell cytology</td><td>Malignant cells present?</td><td>SKIPPED — surgeon advised against</td><td>Would shift carcinoma ±0.20</td></tr>
+        <tr><td>3b · CNB</td><td>Core histology + receptor status</td><td>Tissue architecture, grade, ER/PR/HER2</td><td>NOT DONE ← critical gap</td><td>Would collapse L to dominant basin</td></tr>
+        <tr><td>4 · Excisional Bx</td><td>Full excised mass histology</td><td>Definitive — diagnostic + therapeutic</td><td>Not yet indicated</td><td>Closes loop if benign</td></tr>
+        <tr><td>5 · Surgery</td><td>Intraoperative findings + final path</td><td>Everything — but irreversible</td><td>April 3rd planned</td><td>Gate should require CNB first</td></tr>
+      </tbody>
+    </table>
+
+    <div class="insight">
+      <p><strong>The weight ladder is not just about accuracy.</strong> It is about the cost of being wrong at each tier. A wrong FNAC costs a repeat procedure. A wrong surgical extraction on a dominant cyst costs healthy breast tissue, scarring, psychological burden, and a patient whose actual diagnosis — hormonal fibrocystic disease — was never treated. The η is calibrated to this asymmetry, not to clinical convention.</p>
+    </div>
+  </section>
+
+  <section id="s14">
+    <div class="section-num">§ 14 · Architecture · v2</div>
+    <h2>The Ultrasound Problem · A Null Pointer That Changes Everything</h2>
+    <p class="lead">An ultrasound was done. Its findings drove this referral. We don't have the report. This is the most consequential null pointer in the current state vector — because the surgeon's gradient was computed from it, and we cannot reconstruct his L without it.</p>
+
+    <p>The referral letter says: "suspicious left breast mass with associated axillary lymphadenopathy." This language is post-ultrasound. The word <em>suspicious</em> carries specific imaging meaning — it likely reflects one or more of: irregular margins, posterior acoustic shadowing, non-parallel orientation, or abnormal node architecture. These are BIRADS features. They shift the carcinoma prior materially.</p>
+
+    <div class="math-block">
+<span class="comment">// Two scenarios for the ultrasound — both must be held open</span>
+
+<span class="keyword">Scenario A: Nodes normal on US</span>
+  Node features: oval, echogenic hilum, cortex &lt; 3mm
+  → axillary lymphadenopathy = reactive (infection, inflammation)
+  → carcinoma prior stays at ~0.07
+  → fibrocystic / benign basin dominant
+  → CNB before surgery is sufficient gate
+  → April 3rd surgical plan: PREMATURE without CNB
+
+<span class="keyword">Scenario B: Nodes abnormal on US</span>
+  Node features: rounded, lost hilum, cortical thickening &gt; 3mm
+  → axillary lymphadenopathy = pathological
+  → carcinoma prior rises to ~0.25–0.35
+  → L distribution shifts significantly
+  → CNB becomes urgent, not just appropriate
+  → staging workup (CT chest/abdomen) before surgery
+  → April 3rd surgical plan: still needs CNB first, then planned oncological surgery
+
+<span class="comment">// In BOTH scenarios: CNB before surgical extraction is the correct next step</span>
+<span class="comment">// The scenarios differ in urgency, not in the requirement for tissue diagnosis</span>
+
+<span class="comment">// The one scenario where April 3rd makes sense without CNB:</span>
+<span class="comment">// US shows simple cyst → aspiration on April 3rd, not excision</span>
+<span class="comment">// But referral language suggests solid mass was seen</span>
+    </div>
+
+    <div class="voice voice-c">
+      The surgeon's advice against fine needle aspirate requires interrogation. FNAC and core needle biopsy are not the same instrument. FNAC gives cytology — cells without architecture. CNB gives histology — tissue with structure, grade, receptor status. Advising against FNAC while also skipping CNB and proceeding directly to surgical extraction is not a clinical upgrade. It is a skip of the entire tissue diagnosis tier. The question to ask on April 3rd: "Will you do a core needle biopsy before making the incision?"
+    </div>
+
+    <h3>What to Ask Before April 3rd</h3>
+
+    <div class="gate-flow">
+      <div class="gate-step">
+        <span class="gate-eta">Ask #1</span>
+        <span class="gate-action">Can I see the ultrasound report?</span>
+        <span class="gate-note">Resolves the pivot null pointer. Node characterization changes the entire landscape.</span>
+      </div>
+      <div class="gate-step">
+        <span class="gate-eta">Ask #2</span>
+        <span class="gate-action">Will you do a core needle biopsy before surgery?</span>
+        <span class="gate-note">If yes: the gate opens appropriately. If no: ask why not.</span>
+      </div>
+      <div class="gate-step">
+        <span class="gate-eta">Ask #3</span>
+        <span class="gate-action">What exactly will you remove, and what are you planning to do if it's benign vs malignant?</span>
+        <span class="gate-note">The surgical plan should differ by diagnosis. One operation for a cyst. Another for carcinoma. If the answer is the same regardless — that is the catastrophic η.</span>
+      </div>
+      <div class="gate-step">
+        <span class="gate-eta">Ask #4</span>
+        <span class="gate-action">Given that the lump disappears after her period — could this be a dominant cyst? What did the ultrasound show about its internal structure?</span>
+        <span class="gate-note">Forces the surgeon to engage with the cyclical history. His gradient should update on this.</span>
+      </div>
+    </div>
+
+    <div class="insight">
+      <p>The twin's final output for this session: <strong>the history is almost entirely benign. The axillary nodes are the one signal that justifies surgical concern. Getting the ultrasound report, and insisting on core needle biopsy before any excision, are the two non-negotiable steps before April 3rd.</strong> These are not delays. They are the architecture of a system that respects irreversibility.</p>
+    </div>
+  </section>
+
   <footer>
-    <div>Ukubona LLC · Game of Care · 2026-03-23 · Kampala / Baltimore</div>
+    <div>Ukubona LLC · Game of Care · 2026-03-23 · Kampala / Baltimore · v2</div>
     <div>Session participants: Heisenberg (Abimereki Muzaale) · Anthropic Claude</div>
+    <div>v2 update: full history elicited, cyclical pattern confirmed, evidence weight hierarchy formalized, ultrasound null pointer identified</div>
     <div>Fidelity: ~80% verbatim from session transcript · 20% editorial synthesis · No formal content altered · All equations preserved</div>
     <div>Integrity: This document is a sovereign archive. The twin is a mirror, not a storefront.</div>
     <div class="footer-eq">θ → L_ijk → ∇L_ijk → −η∇L → θ′ · Sensing → Emotion(vector) → Memory → Intelligence → Deployment</div>
