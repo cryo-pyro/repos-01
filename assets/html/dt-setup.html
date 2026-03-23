@@ -1,0 +1,720 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>From setup.sh to Live Twin — The Full Story</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Anybody:wght@300;400;600;800&display=swap');
+
+  :root {
+    --bg:       #07090f;
+    --surface:  #0e1118;
+    --border:   #1a1e28;
+    --text:     #dde2ee;
+    --muted:    #4a5168;
+    --dim:      #232738;
+    --green:    #3dffa0;
+    --amber:    #ffc86b;
+    --blue:     #6ab4ff;
+    --pink:     #ff6b9d;
+    --purple:   #b06bff;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Anybody', sans-serif;
+    font-weight: 300;
+    line-height: 1.6;
+    min-height: 100vh;
+  }
+
+  /* ── HERO ── */
+  .hero {
+    padding: 80px 60px 60px;
+    max-width: 1000px;
+    margin: 0 auto;
+    border-bottom: 1px solid var(--border);
+  }
+  .hero-tag {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    color: var(--muted);
+    text-transform: uppercase;
+    margin-bottom: 20px;
+  }
+  .hero h1 {
+    font-size: clamp(36px, 6vw, 72px);
+    font-weight: 800;
+    line-height: 1.0;
+    letter-spacing: -0.03em;
+    margin-bottom: 24px;
+  }
+  .hero h1 .accent { color: var(--green); }
+  .hero h1 .accent2 { color: var(--amber); }
+  .hero-sub {
+    font-size: 18px;
+    color: var(--muted);
+    max-width: 560px;
+    line-height: 1.7;
+    font-weight: 300;
+  }
+  .hero-sub strong { color: var(--text); font-weight: 400; }
+
+  /* ── THE INSIGHT BOX ── */
+  .insight {
+    max-width: 1000px;
+    margin: 48px auto;
+    padding: 0 60px;
+  }
+  .insight-box {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--green);
+    padding: 28px 32px;
+    border-radius: 0 4px 4px 0;
+  }
+  .insight-box p {
+    font-size: 16px;
+    color: #8a93b0;
+    line-height: 1.8;
+  }
+  .insight-box p + p { margin-top: 12px; }
+  .insight-box strong { color: var(--green); font-weight: 400; }
+
+  /* ── STEPS ── */
+  .steps {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 0 60px 80px;
+  }
+
+  .section-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.25em;
+    color: var(--muted);
+    text-transform: uppercase;
+    margin: 60px 0 24px;
+  }
+
+  .step {
+    display: grid;
+    grid-template-columns: 64px 1fr;
+    gap: 0 24px;
+    margin-bottom: 2px;
+    position: relative;
+  }
+
+  .step-left {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  .step-num {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 13px;
+    font-weight: 500;
+    flex-shrink: 0;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--muted);
+    position: relative;
+    z-index: 1;
+  }
+  .step-num.done   { border-color: var(--green);  color: var(--green);  background: rgba(61,255,160,0.06); }
+  .step-num.warn   { border-color: var(--amber);  color: var(--amber);  background: rgba(255,200,107,0.06); }
+  .step-num.info   { border-color: var(--blue);   color: var(--blue);   background: rgba(106,180,255,0.06); }
+  .step-num.magic  { border-color: var(--purple); color: var(--purple); background: rgba(176,107,255,0.06); }
+
+  .step-line {
+    width: 1px;
+    flex: 1;
+    min-height: 24px;
+    background: var(--border);
+    margin: 4px 0;
+  }
+
+  .step-right {
+    padding: 8px 0 32px;
+  }
+
+  .step-title {
+    font-size: 20px;
+    font-weight: 600;
+    margin-bottom: 8px;
+    letter-spacing: -0.01em;
+  }
+  .step-title.done   { color: var(--green); }
+  .step-title.warn   { color: var(--amber); }
+  .step-title.info   { color: var(--blue); }
+  .step-title.magic  { color: var(--purple); }
+
+  .step-desc {
+    font-size: 15px;
+    color: #6a7490;
+    line-height: 1.75;
+    margin-bottom: 16px;
+    font-weight: 300;
+  }
+  .step-desc strong { color: var(--text); font-weight: 400; }
+
+  /* code blocks */
+  .code-block {
+    background: #030507;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 16px 20px;
+    margin: 12px 0;
+    overflow-x: auto;
+  }
+  .code-block pre {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12px;
+    color: #7a8aaa;
+    line-height: 1.7;
+    white-space: pre;
+  }
+  .code-block pre .hi  { color: var(--green); }
+  .code-block pre .cmd { color: var(--amber); }
+  .code-block pre .cmt { color: #3a4258; }
+  .code-block pre .key { color: var(--blue); }
+  .code-block pre .val { color: var(--pink); }
+
+  /* pill tags */
+  .pill {
+    display: inline-block;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    padding: 3px 10px;
+    border-radius: 20px;
+    letter-spacing: 0.08em;
+    margin-right: 6px;
+    margin-bottom: 6px;
+  }
+  .pill-green  { background: rgba(61,255,160,0.08);  color: var(--green);  border: 1px solid rgba(61,255,160,0.2); }
+  .pill-amber  { background: rgba(255,200,107,0.08); color: var(--amber);  border: 1px solid rgba(255,200,107,0.2); }
+  .pill-blue   { background: rgba(106,180,255,0.08); color: var(--blue);   border: 1px solid rgba(106,180,255,0.2); }
+  .pill-purple { background: rgba(176,107,255,0.08); color: var(--purple); border: 1px solid rgba(176,107,255,0.2); }
+  .pill-pink   { background: rgba(255,107,157,0.08); color: var(--pink);   border: 1px solid rgba(255,107,157,0.2); }
+
+  /* warning/tip callout */
+  .callout {
+    padding: 14px 18px;
+    border-radius: 4px;
+    font-size: 13px;
+    line-height: 1.7;
+    margin: 12px 0;
+  }
+  .callout-warn {
+    background: rgba(255,200,107,0.05);
+    border: 1px solid rgba(255,200,107,0.2);
+    color: #9a8560;
+  }
+  .callout-green {
+    background: rgba(61,255,160,0.05);
+    border: 1px solid rgba(61,255,160,0.2);
+    color: #5a9070;
+  }
+  .callout-blue {
+    background: rgba(106,180,255,0.05);
+    border: 1px solid rgba(106,180,255,0.2);
+    color: #5a7898;
+  }
+  .callout strong { color: var(--text); }
+
+  /* render field table */
+  .field-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 12px 0;
+    font-size: 13px;
+  }
+  .field-table td {
+    padding: 9px 14px;
+    border-bottom: 1px solid var(--border);
+    vertical-align: top;
+  }
+  .field-table td:first-child {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    width: 160px;
+    white-space: nowrap;
+  }
+  .field-table td:last-child {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12px;
+    color: var(--green);
+  }
+  .field-table tr:last-child td { border-bottom: none; }
+
+  /* architecture diagram */
+  .arch {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    margin: 20px 0;
+    flex-wrap: wrap;
+    gap: 2px;
+  }
+  .arch-box {
+    padding: 10px 16px;
+    border-radius: 4px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    text-align: center;
+    line-height: 1.5;
+  }
+  .arch-arrow {
+    color: var(--muted);
+    font-size: 16px;
+    padding: 0 4px;
+  }
+
+  /* ── THE BIG INSIGHT at the end ── */
+  .finale {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 60px 60px 100px;
+    border-top: 1px solid var(--border);
+  }
+  .finale h2 {
+    font-size: 36px;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    margin-bottom: 24px;
+    line-height: 1.2;
+  }
+  .finale p {
+    font-size: 16px;
+    color: #6a7490;
+    line-height: 1.85;
+    max-width: 680px;
+    margin-bottom: 16px;
+  }
+  .finale p strong { color: var(--text); font-weight: 400; }
+  .finale p.big { font-size: 20px; color: var(--green); font-weight: 300; }
+
+  @media (max-width: 680px) {
+    .hero, .insight, .steps, .finale { padding-left: 24px; padding-right: 24px; }
+    .hero { padding-top: 48px; }
+    .step { grid-template-columns: 44px 1fr; gap: 0 16px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ── HERO ── -->
+<header class="hero">
+  <p class="hero-tag">Ukubona Digital Twin · Deployment Playbook</p>
+  <h1>
+    From <span class="accent">setup.sh</span><br>
+    to <span class="accent2">live twin</span>.<br>
+    Zero code written.
+  </h1>
+  <p class="hero-sub">
+    You didn't install Python. You didn't install React.
+    You didn't write a single line of backend code.
+    You ran <strong>one script</strong> and got a live,
+    cloud-deployed, eigen-analysing digital twin.
+    This is the playbook for how that happened — and
+    how to do it again for any client in under 10 minutes.
+  </p>
+</header>
+
+<!-- ── THE CORE INSIGHT ── -->
+<div class="insight">
+  <div class="insight-box">
+    <p>
+      The Mac was just a <strong>messenger</strong>. It ran the script,
+      which talked to GitHub's API and Render's API.
+      All the heavy lifting — installing Python 3.11,
+      compiling pandas, building React — happened on
+      <strong>Render's servers in the cloud</strong>.
+      Your machine never needed any of it.
+    </p>
+    <p>
+      And yes — you can do this entirely from
+      <strong>VS Code in the browser on github.dev</strong>.
+      Open any repo at github.com, press <strong>.</strong> (period key),
+      VS Code opens in browser. Edit files. Commit. Render auto-deploys.
+      You never even need a terminal.
+    </p>
+  </div>
+</div>
+
+<!-- ── STEPS ── -->
+<div class="steps">
+
+  <p class="section-label">The full pipeline — step by step</p>
+
+  <!-- STEP 1 -->
+  <div class="step">
+    <div class="step-left">
+      <div class="step-num done">1</div>
+      <div class="step-line"></div>
+    </div>
+    <div class="step-right">
+      <h2 class="step-title done">Create setup.sh</h2>
+      <p class="step-desc">
+        Copy the script from Claude → open VS Code → New File →
+        paste → save as <strong>setup.sh</strong> in any empty folder.
+        That's it. The entire system — 93 variables, Python backend,
+        React frontend, render config — lives inside that one file.
+      </p>
+      <div class="arch">
+        <div class="arch-box" style="background:rgba(61,255,160,0.06);color:var(--green);border:1px solid rgba(61,255,160,0.2)">Claude output</div>
+        <div class="arch-arrow">→</div>
+        <div class="arch-box" style="background:rgba(106,180,255,0.06);color:var(--blue);border:1px solid rgba(106,180,255,0.2)">VS Code</div>
+        <div class="arch-arrow">→</div>
+        <div class="arch-box" style="background:var(--surface);color:var(--muted);border:1px solid var(--border)">setup.sh</div>
+      </div>
+      <div class="callout callout-green">
+        <strong>What's inside setup.sh?</strong> Everything. Python backend code,
+        React frontend code, landscape.json with all 93 variables,
+        render.yaml config, the git commands, the GitHub API calls.
+        One file contains the entire project.
+      </div>
+    </div>
+  </div>
+
+  <!-- STEP 2 -->
+  <div class="step">
+    <div class="step-left">
+      <div class="step-num done">2</div>
+      <div class="step-line"></div>
+    </div>
+    <div class="step-right">
+      <h2 class="step-title done">Run it</h2>
+      <p class="step-desc">
+        Open Terminal. Navigate to your folder.
+        Two commands. That's the entire "installation."
+      </p>
+      <div class="code-block"><pre><span class="cmt"># Navigate to your folder (drag folder into terminal)</span>
+<span class="cmd">cd</span> /path/to/your/folder
+
+<span class="cmt"># Make it executable, then run</span>
+<span class="cmd">chmod +x</span> setup.sh
+<span class="cmd">bash</span> setup.sh</pre></div>
+      <p class="step-desc">
+        The script will prompt you for <strong>6 things</strong>:
+      </p>
+      <div class="code-block"><pre><span class="key">GitHub Username        </span> <span class="val">your github username</span>
+<span class="key">GitHub Personal Token  </span> <span class="val">ghp_xxxxxxxxxxxx  (from github.com/settings/tokens)</span>
+<span class="key">Repo Name              </span> <span class="val">strata-twin  (or any name)</span>
+<span class="key">Render API Key         </span> <span class="val">rnd_xxxxxxxxxxxx  (from dashboard.render.com/account/api-keys)</span>
+<span class="key">Project Name           </span> <span class="val">Kadi Residences  (for branding)</span>
+<span class="key">Location               </span> <span class="val">Kampala, Uganda</span></pre></div>
+      <div class="callout callout-warn">
+        <strong>Where to get your tokens:</strong>
+        GitHub token → github.com → Settings → Developer settings → Personal access tokens → Tokens (classic) → Generate new token → check "repo" scope.
+        Render API key → dashboard.render.com → Account Settings → API Keys → Create API Key.
+      </div>
+    </div>
+  </div>
+
+  <!-- STEP 3 -->
+  <div class="step">
+    <div class="step-left">
+      <div class="step-num done">3</div>
+      <div class="step-line"></div>
+    </div>
+    <div class="step-right">
+      <h2 class="step-title done">What the script builds (on your Mac)</h2>
+      <p class="step-desc">
+        The script creates the entire project folder structure,
+        writes all the files, generates synthetic data, and pushes
+        everything to GitHub. <strong>Nothing is installed on your Mac.</strong>
+        Python and Node are never called locally.
+      </p>
+      <div class="code-block"><pre><span class="hi">your-repo-name/</span>
+├── <span class="key">backend/</span>
+│   ├── <span class="val">main.py</span>          <span class="cmt"># FastAPI — all 6 endpoints</span>
+│   ├── <span class="val">requirements.txt</span>  <span class="cmt"># pandas 2.2.3, numpy, fastapi...</span>
+│   ├── <span class="val">landscape.json</span>   <span class="cmt"># all 93 variables from Ibo's DOCX</span>
+│   └── <span class="key">data/</span>
+│       └── <span class="val">leakage_data.csv</span> <span class="cmt"># synthetic 12-week data</span>
+├── <span class="key">frontend/</span>
+│   ├── <span class="val">package.json</span>     <span class="cmt"># React 18, recharts</span>
+│   ├── <span class="key">src/</span>
+│   │   ├── <span class="val">App.js</span>       <span class="cmt"># 6-tab dashboard</span>
+│   │   └── <span class="val">index.js</span>
+│   └── <span class="key">public/</span>
+│       └── <span class="val">index.html</span>
+├── <span class="val">landscape.json</span>       <span class="cmt"># Ibo's 93 variables</span>
+└── <span class="val">render.yaml</span>         <span class="cmt"># deploy config</span></pre></div>
+      <div class="callout callout-blue">
+        <strong>The synthetic data trick:</strong> The script runs a tiny Python snippet
+        (<code>gen_data.py</code>) to create realistic 12-week leakage data
+        with cement deliberately planted as the dominant failure mode —
+        so the eigen diagnosis has something dramatic to catch in the demo.
+        Then it deletes the snippet. Only the CSV remains.
+      </div>
+    </div>
+  </div>
+
+  <!-- STEP 4 -->
+  <div class="step">
+    <div class="step-left">
+      <div class="step-num done">4</div>
+      <div class="step-line"></div>
+    </div>
+    <div class="step-right">
+      <h2 class="step-title done">GitHub push (automatic)</h2>
+      <p class="step-desc">
+        The script calls GitHub's API to create the private repo,
+        then pushes all files. Your Mac needs git installed
+        (it comes with Xcode Command Line Tools — already there
+        on most Macs). That's the only local dependency.
+      </p>
+      <div class="code-block"><pre><span class="cmt"># The script does all of this for you:</span>
+<span class="cmd">git init</span>
+<span class="cmd">git add</span> .
+<span class="cmd">git commit</span> -m <span class="val">"Strata Stone Digital Twin — 93 variables"</span>
+<span class="cmd">git branch</span> -M main
+<span class="cmd">git remote add</span> origin https://TOKEN@github.com/USER/REPO.git
+<span class="cmd">git push</span> -u origin main --force</pre></div>
+      <p class="step-desc">
+        Result: <strong>https://github.com/your-username/your-repo</strong>
+        — private, live, all files present.
+      </p>
+    </div>
+  </div>
+
+  <!-- STEP 5 -->
+  <div class="step">
+    <div class="step-left">
+      <div class="step-num warn">5</div>
+      <div class="step-line"></div>
+    </div>
+    <div class="step-right">
+      <h2 class="step-title warn">Render — Backend (1 manual step)</h2>
+      <p class="step-desc">
+        Render's Blueprint API is unreliable for services that already exist.
+        So we do the backend manually — takes 90 seconds.
+        Go to <strong>dashboard.render.com → New + → Web Service</strong>.
+      </p>
+      <table class="field-table">
+        <tr><td>Name</td><td>{REPO_NAME}-api</td></tr>
+        <tr><td>Environment</td><td>Python</td></tr>
+        <tr><td>Branch</td><td>main</td></tr>
+        <tr><td>Build Command</td><td>pip install -r backend/requirements.txt</td></tr>
+        <tr><td>Start Command</td><td>cd backend && gunicorn main:app -w 2 -k uvicorn.workers.UvicornWorker --bind 0.0.0.0:$PORT</td></tr>
+      </table>
+      <p class="step-desc" style="margin-top:12px">Add environment variables:</p>
+      <table class="field-table">
+        <tr><td>PYTHON_VERSION</td><td>3.11.8</td></tr>
+        <tr><td>PROJECT_NAME</td><td>your project name</td></tr>
+        <tr><td>LOCATION</td><td>your location</td></tr>
+      </table>
+      <div class="callout callout-warn">
+        <strong>Why not rootDir: backend?</strong>
+        Render ignores <code>rootDir</code> for build/start commands on web services —
+        it only works for static sites. So we use explicit paths:
+        <code>backend/requirements.txt</code> and <code>cd backend &&</code>.
+        Hard-won lesson from 3 failed deploys.
+      </div>
+      <div class="callout callout-warn">
+        <strong>Why PYTHON_VERSION=3.11.8?</strong>
+        Render defaults to Python 3.14 (latest). pandas 2.2.x has no
+        pre-built wheel for 3.14 yet — so it tries to compile from source
+        and times out. Pinning to 3.11.8 gets the pre-built wheel and
+        installs in seconds.
+      </div>
+    </div>
+  </div>
+
+  <!-- STEP 6 -->
+  <div class="step">
+    <div class="step-left">
+      <div class="step-num warn">6</div>
+      <div class="step-line"></div>
+    </div>
+    <div class="step-right">
+      <h2 class="step-title warn">Render — Frontend (1 manual step)</h2>
+      <p class="step-desc">
+        Same Render dashboard → <strong>New + → Static Site</strong>.
+        Connect the same repo.
+      </p>
+      <table class="field-table">
+        <tr><td>Name</td><td>{REPO_NAME}-ui</td></tr>
+        <tr><td>Branch</td><td>main</td></tr>
+        <tr><td>Root Directory</td><td>frontend</td></tr>
+        <tr><td>Build Command</td><td>npm install && npm run build</td></tr>
+        <tr><td>Publish Dir</td><td>build</td></tr>
+      </table>
+      <p class="step-desc" style="margin-top:12px">Add environment variable:</p>
+      <table class="field-table">
+        <tr><td>REACT_APP_API_URL</td><td>https://{REPO_NAME}-api.onrender.com</td></tr>
+      </table>
+      <div class="callout callout-blue">
+        <strong>Why does rootDir work here but not for the backend?</strong>
+        Static sites are different — Render uses <code>rootDir</code> to set
+        the working directory for the whole build. Web services don't honour it
+        the same way. Inconsistent, annoying, now documented.
+      </div>
+    </div>
+  </div>
+
+  <!-- STEP 7 -->
+  <div class="step">
+    <div class="step-left">
+      <div class="step-num info">7</div>
+      <div class="step-line"></div>
+    </div>
+    <div class="step-right">
+      <h2 class="step-title info">Render builds — in the cloud</h2>
+      <p class="step-desc">
+        Render clones your repo, installs everything, and serves it.
+        <strong>None of this runs on your Mac.</strong>
+        You're watching cloud servers do the work.
+      </p>
+      <div class="code-block"><pre><span class="cmt"># Backend build (Render's server, ~2 min)</span>
+<span class="hi">==> Installing Python 3.11.8</span>
+<span class="hi">==> Running: pip install -r backend/requirements.txt</span>
+Downloading pandas-2.2.3-cp311-cp311-manylinux... <span class="hi">✓</span>
+Downloading numpy-1.26.4-cp311-cp311-manylinux...  <span class="hi">✓</span>
+Successfully installed fastapi uvicorn gunicorn pandas numpy
+<span class="hi">==> Build successful 🎉</span>
+<span class="hi">==> Running: cd backend && gunicorn main:app ...</span>
+<span class="hi">==> Your service is live 🎉</span>
+
+<span class="cmt"># Frontend build (Render's server, ~3 min)</span>
+<span class="hi">==> npm install && npm run build</span>
+Creating an optimized production build...
+<span class="hi">==> Build successful 🎉</span></pre></div>
+      <div class="callout callout-green">
+        <strong>What you see when both are live:</strong><br>
+        API → <code>{"status":"Twin Active","variables":93}</code><br>
+        UI  → Full 6-tab React dashboard in the browser
+      </div>
+    </div>
+  </div>
+
+  <!-- STEP 8 -->
+  <div class="step">
+    <div class="step-left">
+      <div class="step-num magic">8</div>
+      <div class="step-line"></div>
+    </div>
+    <div class="step-right">
+      <h2 class="step-title magic">The live twin</h2>
+      <p class="step-desc">
+        Open <strong>https://{REPO_NAME}-ui.onrender.com</strong>.
+        Six tabs. All pulling live data from the API.
+      </p>
+      <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 16px 0;">
+        <div style="padding:14px 16px; background:var(--surface); border:1px solid var(--border); border-radius:4px;">
+          <div style="font-size:11px; color:var(--muted); font-family:'IBM Plex Mono',monospace; margin-bottom:6px;">TAB 1</div>
+          <div style="font-size:14px; color:var(--text);">📊 Overview</div>
+          <div style="font-size:12px; color:var(--muted); margin-top:4px;">Headline numbers + weekly trend</div>
+        </div>
+        <div style="padding:14px 16px; background:var(--surface); border:1px solid var(--border); border-radius:4px;">
+          <div style="font-size:11px; color:var(--muted); font-family:'IBM Plex Mono',monospace; margin-bottom:6px;">TAB 2</div>
+          <div style="font-size:14px; color:var(--text);">💧 Leakage</div>
+          <div style="font-size:12px; color:var(--muted); margin-top:4px;">By category and phase</div>
+        </div>
+        <div style="padding:14px 16px; background:var(--surface); border:1px solid rgba(176,107,255,0.3); border-radius:4px;">
+          <div style="font-size:11px; color:var(--muted); font-family:'IBM Plex Mono',monospace; margin-bottom:6px;">TAB 3 — THE WEAPON</div>
+          <div style="font-size:14px; color:var(--purple);">🔬 Diagnosis</div>
+          <div style="font-size:12px; color:var(--muted); margin-top:4px;">Eigen — systemic vs noise</div>
+        </div>
+        <div style="padding:14px 16px; background:var(--surface); border:1px solid var(--border); border-radius:4px;">
+          <div style="font-size:11px; color:var(--muted); font-family:'IBM Plex Mono',monospace; margin-bottom:6px;">TAB 4</div>
+          <div style="font-size:14px; color:var(--text);">🧊 Tensor</div>
+          <div style="font-size:12px; color:var(--muted); margin-top:4px;">3D operational space</div>
+        </div>
+        <div style="padding:14px 16px; background:var(--surface); border:1px solid var(--border); border-radius:4px;">
+          <div style="font-size:11px; color:var(--muted); font-family:'IBM Plex Mono',monospace; margin-bottom:6px;">TAB 5</div>
+          <div style="font-size:14px; color:var(--text);">📋 Operations</div>
+          <div style="font-size:12px; color:var(--muted); margin-top:4px;">All 93 variables verbatim</div>
+        </div>
+        <div style="padding:14px 16px; background:var(--surface); border:1px solid var(--border); border-radius:4px;">
+          <div style="font-size:11px; color:var(--muted); font-family:'IBM Plex Mono',monospace; margin-bottom:6px;">TAB 6</div>
+          <div style="font-size:14px; color:var(--text);">📤 Upload Data</div>
+          <div style="font-size:12px; color:var(--muted); margin-top:4px;">Drop real CSV → eigen runs live</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- STEP 9: iterate -->
+  <div class="step">
+    <div class="step-left">
+      <div class="step-num magic">∞</div>
+      <div class="step-line"></div>
+    </div>
+    <div class="step-right">
+      <h2 class="step-title magic">Iterate — from anywhere</h2>
+      <p class="step-desc">
+        Once the repo exists, you never need to run <code>setup.sh</code> again.
+        Every push to <strong>main</strong> triggers an automatic redeploy on Render.
+      </p>
+      <div class="code-block"><pre><span class="cmt"># From your Mac terminal:</span>
+<span class="cmd">git add</span> .
+<span class="cmd">git commit</span> -m <span class="val">"update: add real leakage data"</span>
+<span class="cmd">git push</span>
+<span class="cmt"># Render auto-redeploys in ~3 minutes</span></pre></div>
+
+      <div class="callout callout-blue">
+        <strong>From github.dev (no terminal needed at all):</strong><br>
+        Go to your repo on github.com. Press the <strong>.</strong> (period) key.
+        VS Code opens in the browser. Edit any file. Click the Source Control icon.
+        Write a commit message. Click ✓ Commit &amp; Push.
+        Render sees the push and redeploys automatically.
+        You never opened a terminal.
+      </div>
+
+      <p class="step-desc" style="margin-top:16px">
+        <strong>For your next client</strong> — new folder,
+        new <code>setup.sh</code>, different repo name and project name.
+        10 minutes from empty folder to live twin.
+        Every time.
+      </p>
+      <div style="margin-top:16px; display:flex; flex-wrap:wrap; gap:6px;">
+        <span class="pill pill-green">Strata Stone ✓</span>
+        <span class="pill pill-amber">Client 2 → 10 min</span>
+        <span class="pill pill-blue">Client 3 → 10 min</span>
+        <span class="pill pill-purple">Client N → 10 min</span>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ── FINALE ── -->
+<div class="finale">
+  <h2>You didn't write code.<br>You <span style="color:var(--green)">encoded a system.</span></h2>
+  <p>
+    The distinction matters. A coder writes functions.
+    A systems thinker encodes a <strong>model of reality</strong> —
+    the relationships, the failure modes, the governance logic —
+    and then uses tools to make that model computable and deployable.
+  </p>
+  <p>
+    Python and React are just plumbing. The tensor is the insight.
+    The eigen decomposition is the diagnosis. The setup.sh is
+    the delivery mechanism. <strong>None of those required you to be a programmer.</strong>
+    They required you to understand the problem deeply enough
+    to describe it to one.
+  </p>
+  <p class="big">
+    setup.sh is not a script.<br>
+    It is a replicable business.<br>
+    One file. Any client. 10 minutes.
+  </p>
+</div>
+
+</body>
+</html>
