@@ -315,7 +315,7 @@ fastapi==0.109.0
 uvicorn==0.27.0
 gunicorn==21.2.0
 pydantic==2.5.3
-pandas==2.2.0
+pandas==2.2.3
 numpy==1.26.4
 python-multipart==0.0.6
 EOF
@@ -699,6 +699,8 @@ services:
     buildCommand: pip install -r backend/requirements.txt
     startCommand: cd backend && gunicorn main:app -w 2 -k uvicorn.workers.UvicornWorker --bind 0.0.0.0:\$PORT
     envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.8
       - key: PROJECT_NAME
         value: ${PROJECT_NAME}
       - key: LOCATION
