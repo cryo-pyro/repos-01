@@ -1,0 +1,848 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>κ(coffee) · Uganda Coffee Scalar · Ukubona LLC</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Lora:ital,wght@0,400;0,600;1,400;1,600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --ink: #0a0804;
+  --parchment: #f2ead8;
+  --cream: #e8dfc8;
+  --coffee: #3d1f0a;
+  --espresso: #1a0c04;
+  --roast: #6b3a1f;
+  --green-bean: #4a6741;
+  --gold: #c8922a;
+  --gold2: #e8b84a;
+  --rust: #a33a1a;
+  --steam: rgba(242,234,216,0.06);
+  --mute: #8a7a62;
+  --serif: 'Playfair Display', Georgia, serif;
+  --lora: 'Lora', Georgia, serif;
+  --mono: 'Space Mono', monospace;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: var(--lora);
+  background: var(--espresso);
+  color: var(--parchment);
+  line-height: 1.7;
+  overflow-x: hidden;
+  cursor: default;
+  min-height: 100vh;
+}
+
+/* grain overlay */
+body::after {
+  content: '';
+  position: fixed; inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23g)' opacity='0.06'/%3E%3C/svg%3E");
+  pointer-events: none; z-index: 999; opacity: 0.5;
+}
+
+/* ── HEADER ── */
+header {
+  padding: 2.5rem 6vw 2rem;
+  border-bottom: 1px solid rgba(200,146,42,0.2);
+  display: flex; justify-content: space-between; align-items: baseline;
+  flex-wrap: wrap; gap: 1rem;
+  position: relative;
+}
+header::after {
+  content: '';
+  position: absolute; bottom: 0; left: 6vw; right: 6vw;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--gold), transparent);
+}
+.brand { font-family: var(--mono); font-size: 8px; letter-spacing: .28em; text-transform: uppercase; color: var(--gold); }
+.issue { font-family: var(--mono); font-size: 8px; letter-spacing: .15em; text-transform: uppercase; color: var(--mute); }
+
+/* ── HERO ── */
+.hero {
+  padding: 5vw 6vw 4vw;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+  position: relative;
+  overflow: hidden;
+}
+.hero::before {
+  content: '';
+  position: absolute; top: 0; right: 0;
+  width: 40%; height: 100%;
+  background: radial-gradient(ellipse 80% 100% at 80% 30%, rgba(107,58,31,0.18), transparent 70%);
+  pointer-events: none;
+}
+.hero-eyebrow {
+  font-family: var(--mono); font-size: 9px; letter-spacing: .3em; text-transform: uppercase;
+  color: var(--gold); margin-bottom: 1.5rem;
+  display: flex; align-items: center; gap: 1rem;
+}
+.hero-eyebrow::after { content: ''; flex: 1; max-width: 120px; height: 1px; background: linear-gradient(90deg, var(--gold), transparent); }
+
+.hero-title {
+  font-family: var(--serif);
+  font-size: clamp(3.5rem, 10vw, 8rem);
+  line-height: .9;
+  font-weight: 900;
+  font-style: italic;
+  letter-spacing: -.02em;
+  margin-bottom: 1.5rem;
+}
+.hero-title .line-2 { color: var(--gold); display: block; }
+.hero-title .line-3 { color: rgba(242,234,216,0.35); display: block; font-size: .55em; font-weight: 400; letter-spacing: .05em; font-style: normal; margin-top: .3em; font-family: var(--mono); text-transform: uppercase; }
+
+.hero-premise {
+  max-width: 58ch;
+  font-size: clamp(.9rem, 1.5vw, 1.1rem);
+  font-style: italic;
+  color: var(--cream);
+  line-height: 1.9;
+  margin-bottom: 2.5rem;
+  border-left: 2px solid rgba(200,146,42,0.4);
+  padding-left: 1.5rem;
+}
+.hero-premise strong { color: var(--parchment); font-style: normal; }
+
+/* ── CULTURAL INTERRUPT ── */
+.cultural-bar {
+  background: rgba(107,58,31,0.12);
+  border: 1px solid rgba(200,146,42,0.15);
+  border-radius: 4px;
+  padding: 1.4rem 2rem;
+  margin-bottom: 2rem;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1px;
+  background: linear-gradient(rgba(107,58,31,0.12), rgba(107,58,31,0.12)), rgba(200,146,42,0.08);
+}
+@media(max-width:640px) { .cultural-bar { grid-template-columns: 1fr; } }
+.cb-cell {
+  padding: 1rem 1.2rem;
+  background: var(--espresso);
+}
+.cb-faith { font-family: var(--mono); font-size: 8px; letter-spacing: .2em; text-transform: uppercase; color: var(--gold); margin-bottom: .5rem; }
+.cb-claim { font-family: var(--serif); font-size: clamp(.85rem, 1.4vw, 1rem); font-style: italic; color: var(--parchment); margin-bottom: .4rem; line-height: 1.5; }
+.cb-note { font-size: 11px; color: var(--mute); line-height: 1.6; font-style: italic; }
+.cb-note em { color: var(--cream); }
+
+/* ── CHAIN ── */
+.chain-section { padding: 4vw 6vw; border-bottom: 1px solid rgba(255,255,255,0.05); }
+.sec-label {
+  font-family: var(--mono); font-size: 8px; letter-spacing: .28em; text-transform: uppercase;
+  color: var(--gold); margin-bottom: 2.5rem;
+  display: flex; align-items: center; gap: 1rem;
+}
+.sec-label::after { content: ''; flex: 1; height: 1px; background: linear-gradient(90deg, rgba(200,146,42,.3), transparent); }
+
+.chain-strip {
+  display: flex; align-items: stretch; flex-wrap: wrap;
+  border: 1px solid rgba(200,146,42,0.15);
+  border-radius: 6px;
+  overflow: hidden;
+  margin-bottom: 3rem;
+}
+.chain-node {
+  flex: 1; min-width: 120px;
+  padding: 1.4rem 1rem;
+  background: rgba(26,12,4,0.6);
+  border-right: 1px solid rgba(200,146,42,0.1);
+  text-align: center;
+  cursor: pointer;
+  transition: background .2s;
+  position: relative;
+}
+.chain-node:last-child { border-right: none; }
+.chain-node:hover, .chain-node.active { background: rgba(107,58,31,0.25); }
+.chain-node.active::after {
+  content: '';
+  position: absolute; bottom: 0; left: 0; right: 0;
+  height: 2px; background: var(--gold);
+}
+.cn-num { font-family: var(--mono); font-size: 7px; letter-spacing: .15em; text-transform: uppercase; color: var(--mute); margin-bottom: .4rem; }
+.cn-sym { font-family: var(--serif); font-size: 1.6rem; font-style: italic; line-height: 1; margin-bottom: .3rem; }
+.cn-name { font-family: var(--mono); font-size: 9px; text-transform: uppercase; letter-spacing: .1em; color: var(--cream); }
+.chain-node:nth-child(1) .cn-sym { color: #8b5cf6; }
+.chain-node:nth-child(2) .cn-sym { color: var(--gold); }
+.chain-node:nth-child(3) .cn-sym { color: #3b82f6; }
+.chain-node:nth-child(4) .cn-sym { color: #10b981; }
+.chain-node:nth-child(5) .cn-sym { color: var(--rust); }
+
+/* ── SLIDES ── */
+.slide { display: none; }
+.slide.active { display: block; }
+
+/* TENSOR slide */
+.tensor-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1px;
+  background: rgba(200,146,42,0.08);
+  border: 1px solid rgba(200,146,42,0.12);
+  border-radius: 6px;
+  overflow: hidden;
+  margin-bottom: 1.5rem;
+}
+@media(max-width:640px) { .tensor-grid { grid-template-columns: 1fr; } }
+.tg-cell {
+  background: var(--espresso);
+  padding: 1.4rem 1.6rem;
+}
+.tg-label { font-family: var(--mono); font-size: 8px; letter-spacing: .15em; text-transform: uppercase; color: var(--mute); margin-bottom: .6rem; }
+.tg-value { font-family: var(--serif); font-size: clamp(1rem, 2vw, 1.4rem); font-style: italic; color: var(--parchment); margin-bottom: .4rem; }
+.tg-sub { font-size: 11px; color: var(--mute); line-height: 1.65; }
+
+.dim-selector {
+  display: flex; flex-wrap: wrap; gap: .5rem; margin: 1.2rem 0;
+}
+.dim-btn {
+  font-family: var(--mono); font-size: 9px; letter-spacing: .1em; text-transform: uppercase;
+  padding: .4rem .9rem; border: 1px solid rgba(200,146,42,0.25);
+  background: transparent; color: var(--mute);
+  border-radius: 3px; cursor: pointer; transition: all .18s;
+}
+.dim-btn:hover, .dim-btn.active {
+  background: rgba(200,146,42,0.12);
+  border-color: var(--gold); color: var(--gold2);
+}
+
+.tensor-note {
+  border-left: 2px solid #8b5cf6;
+  background: rgba(139,92,246,0.06);
+  padding: .8rem 1.2rem;
+  border-radius: 0 4px 4px 0;
+  font-size: 12px; font-style: italic;
+  color: var(--cream); line-height: 1.7;
+}
+.tensor-note strong { color: var(--parchment); font-style: normal; }
+
+/* COMPRESSOR slide */
+.compressor-body {
+  border: 1px solid rgba(200,146,42,0.18);
+  border-radius: 8px; overflow: hidden;
+  margin-bottom: 1.5rem;
+}
+.comp-head {
+  background: rgba(107,58,31,0.2);
+  padding: .9rem 1.4rem;
+  border-bottom: 1px solid rgba(200,146,42,0.15);
+  display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: .6rem;
+}
+.comp-title { font-family: var(--mono); font-size: 10px; text-transform: uppercase; letter-spacing: .12em; color: var(--gold2); font-weight: 700; }
+.comp-sub { font-family: var(--mono); font-size: 9px; color: var(--mute); font-style: italic; }
+.comp-inner { padding: 1.4rem; background: rgba(26,12,4,0.4); display: flex; flex-direction: column; gap: .9rem; }
+.w-row { display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; }
+.w-label { font-size: 12px; color: var(--cream); min-width: 200px; flex: 1; line-height: 1.3; font-style: italic; }
+.w-slider {
+  flex: 2; min-width: 100px; height: 3px;
+  appearance: none; -webkit-appearance: none;
+  background: rgba(200,146,42,0.2); border-radius: 2px; outline: none; cursor: pointer;
+}
+.w-slider::-webkit-slider-thumb {
+  appearance: none; -webkit-appearance: none;
+  width: 14px; height: 14px; border-radius: 50%;
+  background: var(--gold); cursor: pointer;
+  box-shadow: 0 0 0 3px rgba(200,146,42,0.2);
+  transition: transform .15s;
+}
+.w-slider::-webkit-slider-thumb:hover { transform: scale(1.3); }
+.w-val { font-family: var(--mono); font-size: 11px; font-weight: 700; color: var(--gold2); width: 36px; text-align: right; }
+.comp-foot {
+  padding: .8rem 1.4rem;
+  background: rgba(26,12,4,0.6);
+  border-top: 1px solid rgba(200,146,42,0.12);
+  display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: .6rem;
+}
+.comp-formula { font-family: var(--mono); font-size: 10px; color: var(--mute); font-style: italic; }
+.comp-formula em { color: var(--gold2); }
+.comp-result { font-family: var(--serif); font-size: 1.3rem; font-style: italic; color: var(--gold2); }
+
+.gdp-reframe {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 1px;
+  background: rgba(200,146,42,0.08);
+  border: 1px solid rgba(200,146,42,0.12);
+  border-radius: 6px; overflow: hidden; margin: 1rem 0;
+}
+@media(max-width:600px) { .gdp-reframe { grid-template-columns: 1fr; } }
+.grf-cell { background: var(--espresso); padding: 1.2rem 1.4rem; }
+.grf-them { border-left: 3px solid var(--rust); }
+.grf-us { border-left: 3px solid var(--green-bean); }
+.grf-label { font-family: var(--mono); font-size: 8px; text-transform: uppercase; letter-spacing: .15em; margin-bottom: .5rem; }
+.grf-them .grf-label { color: var(--rust); }
+.grf-us .grf-label { color: var(--green-bean); }
+.grf-body { font-size: 12px; font-style: italic; color: var(--mute); line-height: 1.7; }
+.grf-body strong { color: var(--parchment); font-style: normal; }
+
+/* VECTOR slide */
+.pathology-chain {
+  display: flex; flex-direction: column; gap: .5rem;
+  margin: 1.2rem 0;
+}
+.path-step {
+  display: flex; align-items: flex-start; gap: 1.2rem;
+  padding: 1rem 1.4rem;
+  background: rgba(26,12,4,0.5);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all .2s;
+}
+.path-step:hover { background: rgba(107,58,31,0.18); border-color: rgba(200,146,42,0.2); }
+.path-step.active { background: rgba(107,58,31,0.25); border-color: rgba(200,146,42,0.35); }
+.ps-num {
+  font-family: var(--mono); font-size: 8px; letter-spacing: .1em; text-transform: uppercase;
+  width: 90px; flex-shrink: 0; padding-top: .15rem; line-height: 1.4;
+}
+.ps-content { flex: 1; }
+.ps-title { font-family: var(--serif); font-size: clamp(.95rem, 1.7vw, 1.1rem); font-style: italic; color: var(--parchment); margin-bottom: .3rem; }
+.ps-body { font-size: 11px; color: var(--mute); line-height: 1.7; }
+.ps-body em { color: var(--cream); }
+.path-arrow { text-align: center; color: rgba(200,146,42,0.4); font-size: 1.1rem; padding: .1rem 0; }
+
+/* EIGEN slide */
+.eigen-modes {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 1px;
+  background: rgba(16,185,129,0.1);
+  border: 1px solid rgba(16,185,129,0.18);
+  border-radius: 6px; overflow: hidden; margin-bottom: 1.2rem;
+}
+@media(max-width:600px) { .eigen-modes { grid-template-columns: 1fr; } }
+.em-cell { background: var(--espresso); padding: 1.2rem 1.4rem; }
+.em-label { font-family: var(--mono); font-size: 8px; text-transform: uppercase; letter-spacing: .13em; color: #10b981; margin-bottom: .5rem; }
+.em-body { font-size: 12px; font-style: italic; color: var(--mute); line-height: 1.7; }
+.em-body strong { color: var(--parchment); font-style: normal; }
+
+.eigen-line {
+  font-family: var(--serif);
+  font-size: clamp(.95rem, 1.7vw, 1.2rem);
+  font-style: italic;
+  color: var(--gold3, #e8c96b);
+  text-align: center;
+  padding: 1.2rem;
+  background: rgba(107,58,31,0.15);
+  border: 1px solid rgba(200,146,42,0.15);
+  border-radius: 4px;
+  margin: 1rem 0;
+  line-height: 1.6;
+}
+
+/* SCALAR slide */
+.scalar-hero {
+  text-align: center;
+  padding: 3.5rem 2rem;
+  border: 1px solid rgba(200,146,42,0.2);
+  border-radius: 10px;
+  background: radial-gradient(ellipse 70% 70% at 50% 50%, rgba(107,58,31,0.18), transparent 70%);
+  margin-bottom: 1.5rem;
+  position: relative; overflow: hidden;
+}
+.scalar-hero::before {
+  content: 'κ';
+  position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%);
+  font-family: var(--serif); font-size: 22rem; font-style: italic;
+  color: rgba(200,146,42,0.03); pointer-events: none;
+  line-height: 1;
+}
+.sh-eye { font-family: var(--mono); font-size: 9px; letter-spacing: .22em; text-transform: uppercase; color: var(--mute); margin-bottom: 1rem; }
+.sh-num {
+  font-family: var(--serif); font-size: clamp(5rem, 14vw, 9rem);
+  line-height: 1; color: var(--gold); margin-bottom: .5rem;
+  transition: all .4s ease;
+  text-shadow: 0 0 60px rgba(200,146,42,0.3);
+}
+.sh-unit { font-family: var(--mono); font-size: 9px; text-transform: uppercase; letter-spacing: .2em; color: var(--mute); margin-bottom: 1.2rem; }
+.sh-label { font-size: clamp(.85rem, 1.5vw, .95rem); font-style: italic; color: var(--cream); max-width: 44ch; margin: 0 auto; line-height: 1.75; }
+
+.scalar-grid {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 1px;
+  background: rgba(200,146,42,0.08);
+  border: 1px solid rgba(200,146,42,0.12);
+  border-radius: 6px; overflow: hidden;
+}
+@media(max-width:600px) { .scalar-grid { grid-template-columns: 1fr; } }
+.sg-cell { background: var(--espresso); padding: 1.2rem 1.4rem; }
+.sg-label { font-family: var(--mono); font-size: 8px; text-transform: uppercase; letter-spacing: .13em; color: var(--mute); margin-bottom: .4rem; }
+.sg-body { font-size: 12px; font-style: italic; color: var(--mute); line-height: 1.7; }
+.sg-body strong { color: var(--parchment); font-style: normal; }
+
+/* ── CLOSING ── */
+.closing { padding: 5vw 6vw; border-top: 1px solid rgba(200,146,42,0.12); }
+.closing-title {
+  font-family: var(--serif); font-size: clamp(2rem, 5vw, 4rem);
+  font-style: italic; line-height: 1.05; margin-bottom: 1.5rem;
+  font-weight: 700;
+}
+.closing-title .gold { color: var(--gold); }
+.closing-body { max-width: 62ch; font-style: italic; color: var(--cream); line-height: 1.9; margin-bottom: 2.5rem; font-size: clamp(.9rem, 1.5vw, 1.05rem); }
+
+.final-eq {
+  font-family: var(--mono); font-size: clamp(10px, 1.4vw, 13px);
+  color: var(--gold); letter-spacing: .08em;
+  padding: 1.4rem 2rem;
+  border: 1px solid rgba(200,146,42,0.2);
+  background: rgba(107,58,31,0.1);
+  border-radius: 6px;
+  line-height: 2;
+  max-width: 720px;
+}
+.final-eq .dim { color: var(--mute); }
+.final-eq .hi { color: var(--parchment); font-weight: 700; }
+
+/* ── FOOTER ── */
+footer {
+  padding: 2rem 6vw;
+  border-top: 1px solid rgba(255,255,255,0.05);
+  display: flex; justify-content: space-between; align-items: baseline;
+  flex-wrap: wrap; gap: 1rem;
+}
+.footer-brand { font-family: var(--serif); font-style: italic; color: var(--gold); font-size: 1.1rem; }
+.footer-note { font-family: var(--mono); font-size: 8px; letter-spacing: .15em; text-transform: uppercase; color: var(--mute); }
+
+/* fade in */
+.fade { opacity: 0; transform: translateY(18px); transition: opacity .7s ease, transform .7s ease; }
+.fade.in { opacity: 1; transform: none; }
+
+/* pullquote */
+.pq {
+  border-left: 2px solid var(--gold);
+  padding: .5rem 1.4rem;
+  margin: 1.4rem 0;
+  font-family: var(--serif); font-style: italic;
+  font-size: clamp(.95rem, 1.7vw, 1.2rem);
+  color: var(--parchment); line-height: 1.6;
+}
+.pq cite { display: block; font-family: var(--mono); font-size: 8px; font-style: normal; text-transform: uppercase; letter-spacing: .12em; color: var(--mute); margin-top: .5rem; }
+
+.ornament { text-align: center; font-family: var(--serif); color: var(--gold); opacity: .3; margin: 2rem 0; letter-spacing: .6em; font-size: 1rem; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="brand">Ukubona LLC &nbsp;·&nbsp; Coffee Scalar &nbsp;·&nbsp; κ(coffee)</div>
+  <div class="issue">Kampala &nbsp;·&nbsp; 2026 &nbsp;·&nbsp; T → W → v → Eig → κ</div>
+</header>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-eyebrow">κ(coffee) &nbsp;·&nbsp; Uganda Scalar</div>
+  <h1 class="hero-title fade">
+    Not GDP.
+    <span class="line-2">Not export<br>revenue.</span>
+    <span class="line-3">T → W → v → Eig → κ</span>
+  </h1>
+  <p class="hero-premise fade">
+    The economists' scalar is export revenue: <strong>US$2.4 billion, rising toward $5 billion</strong>.
+    That number measures what Uganda ships out. It does not measure what Uganda becomes.
+    A genuine coffee scalar must run the pentad —
+    from <strong>anatomy</strong> (what the crop is) through <strong>pathology</strong> (what breaks the value chain)
+    to <strong>treatment</strong> (what shifts the equilibrium) to an <strong>updated state</strong>
+    that is falsifiable, not aspirational.
+  </p>
+
+  <div class="cultural-bar fade">
+    <div class="cb-cell">
+      <div class="cb-faith">Anglican · Catholic Uganda</div>
+      <div class="cb-claim">Coffee was never yours to drink. Tea was.</div>
+      <div class="cb-note">The British planted tea in the hills and trained a culture around it. <em>Coffee was export from the start — the crop of the landlord's ledger, not the kitchen.</em> You cannot build domestic consumption on a colonial non-habit in a generation.</div>
+    </div>
+    <div class="cb-cell">
+      <div class="cb-faith">Muslim Uganda</div>
+      <div class="cb-claim">The Ottomans had coffee. You had the crop, not the culture.</div>
+      <div class="cb-note">Mocha, the Yemeni port. The Ottoman coffeehouses. The Islamic world invented the café. But Uganda's Muslim communities grew the Robusta — <em>they didn't inherit the ritual. The bean traveled West, not home.</em></div>
+    </div>
+    <div class="cb-cell">
+      <div class="cb-faith">The Structural Fact</div>
+      <div class="cb-claim">Domestic consumption is not a marketing problem.</div>
+      <div class="cb-note">It is a pathophysiology problem. <em>The tariff structure, the cold chain gap, the absence of a roast-to-cup retail infrastructure</em> — these are the lesions. No campaign cures a structural lesion.</div>
+    </div>
+  </div>
+</section>
+
+<!-- CHAIN NAV -->
+<section class="chain-section">
+  <div class="sec-label fade">The Coffee Pentad</div>
+
+  <div class="chain-strip fade" id="chainStrip">
+    <div class="chain-node active" data-slide="s-tensor" onclick="showSlide(this)">
+      <div class="cn-num">① Input</div>
+      <div class="cn-sym">T</div>
+      <div class="cn-name">Tensor</div>
+    </div>
+    <div class="chain-node" data-slide="s-comp" onclick="showSlide(this)">
+      <div class="cn-num">② Transform</div>
+      <div class="cn-sym">W</div>
+      <div class="cn-name">Compressor</div>
+    </div>
+    <div class="chain-node" data-slide="s-vec" onclick="showSlide(this)">
+      <div class="cn-num">③ Direction</div>
+      <div class="cn-sym">v</div>
+      <div class="cn-name">Vector</div>
+    </div>
+    <div class="chain-node" data-slide="s-eig" onclick="showSlide(this)">
+      <div class="cn-num">④ Structure</div>
+      <div class="cn-sym">Eig</div>
+      <div class="cn-name">Eigen—</div>
+    </div>
+    <div class="chain-node" data-slide="s-scalar" onclick="showSlide(this)">
+      <div class="cn-num">⑤ Output</div>
+      <div class="cn-sym">κ</div>
+      <div class="cn-name">Scalar</div>
+    </div>
+  </div>
+
+  <!-- ── SLIDE 1: TENSOR ── -->
+  <div class="slide active" id="s-tensor">
+    <p style="font-style:italic;color:var(--mute);font-size:12px;margin-bottom:1.2rem;">
+      The tensor is the full picture before compression. Uganda's coffee is not one number — it is a district × indicator × time array.
+    </p>
+    <div class="tensor-grid">
+      <div class="tg-cell">
+        <div class="tg-label">Anatomy / Physiology</div>
+        <div class="tg-value">What the crop actually is</div>
+        <div class="tg-sub">8.4M bags. 1.7M smallholder households. Two species: Robusta (80% — native to Budongo forest) and Arabica (Bugisu, Mt. Elgon). Africa Coffee Park in Ntungamo. Freeze-dry and spray-dry capacity present but not at scale. GI certification for Bugisu incomplete.</div>
+      </div>
+      <div class="tg-cell">
+        <div class="tg-label">The dimensions of the tensor</div>
+        <div class="tg-value" style="font-family:var(--mono);font-size:.95rem;color:var(--gold)">D × I × T</div>
+        <div class="tg-sub">D = 146 districts (not all produce, but all are downstream consumers of the value). I = indicators (see below). T = financial years, 2020–2030 target horizon.</div>
+      </div>
+      <div class="tg-cell">
+        <div class="tg-label">Why not just yield?</div>
+        <div class="tg-value">Yield is anatomy. Value is physiology.</div>
+        <div class="tg-sub">A district can double yield and see no change in household income if the value is extracted post-export. The tensor must carry both the productive and the extractive dimensions — otherwise the compressor optimizes the wrong thing.</div>
+      </div>
+      <div class="tg-cell">
+        <div class="tg-label">The cultural layer</div>
+        <div class="tg-value">Non-consumption is a valid dimension.</div>
+        <div class="tg-sub">Uganda's domestic consumption (≈ 4% of output) is not a failure of marketing. It is a structural feature of a crop inherited as an export commodity. The tensor must include a <em>domestic absorption index</em> — or the scalar will forever optimise for the export ledger only.</div>
+      </div>
+    </div>
+
+    <p style="font-family:var(--mono);font-size:9px;text-transform:uppercase;letter-spacing:.12em;color:var(--mute);margin-bottom:.6rem;">Select indicator dimension:</p>
+    <div class="dim-selector" id="dimSelector">
+      <button class="dim-btn active" onclick="setDim(this,'yield')">Yield / Productivity</button>
+      <button class="dim-btn" onclick="setDim(this,'value')">Value Capture %</button>
+      <button class="dim-btn" onclick="setDim(this,'process')">Processing Depth</button>
+      <button class="dim-btn" onclick="setDim(this,'domestic')">Domestic Absorption</button>
+      <button class="dim-btn" onclick="setDim(this,'tariff')">Tariff Exposure</button>
+    </div>
+    <div class="tensor-note" id="tensorNote">
+      <strong>Yield / Productivity:</strong> Uganda's output grew 38% over five years without a proportional increase in value per bag. The yield tensor looks healthy. The value tensor does not. <strong>That divergence is the first eigenmode.</strong>
+    </div>
+  </div>
+
+  <!-- ── SLIDE 2: COMPRESSOR ── -->
+  <div class="slide" id="s-comp">
+    <p style="font-style:italic;color:var(--mute);font-size:12px;margin-bottom:1.2rem;">
+      The compressor encodes what you believe matters. The economists' compressor weights export revenue at ~0.9. We say no.
+    </p>
+
+    <div class="gdp-reframe">
+      <div class="grf-cell grf-them">
+        <div class="grf-label">The Economists' Scalar</div>
+        <div class="grf-body">Export revenue ≈ <strong>$2.4B → $5B</strong>. Weight: export price × volume. Pathology: invisible. Pathophysiology: invisible. Treatment: "increase value addition" (no mechanism). Updated state: the same number, larger.</div>
+      </div>
+      <div class="grf-cell grf-us">
+        <div class="grf-label">The Ukubona Scalar</div>
+        <div class="grf-body"><strong>κ(coffee) = f(value capture, processing depth, domestic absorption, tariff exposure, household income delta).</strong> Each dimension weighted by what we believe matters about Uganda's development — not about the export ledger.</div>
+      </div>
+    </div>
+
+    <div class="compressor-body">
+      <div class="comp-head">
+        <span class="comp-title">Weight matrix · κ(coffee)</span>
+        <span class="comp-sub">Drag to set priorities → scalar recomputes</span>
+      </div>
+      <div class="comp-inner">
+        <div class="w-row">
+          <span class="w-label">Value capture (% of retail retained in Uganda)</span>
+          <input type="range" class="w-slider" id="w-vc" min="5" max="40" value="30" oninput="compUpdate()">
+          <span class="w-val" id="w-vc-v">—</span>
+        </div>
+        <div class="w-row">
+          <span class="w-label">Processing depth (green → roasted → instant → functional)</span>
+          <input type="range" class="w-slider" id="w-pd" min="5" max="40" value="25" oninput="compUpdate()">
+          <span class="w-val" id="w-pd-v">—</span>
+        </div>
+        <div class="w-row">
+          <span class="w-label">Smallholder household income delta</span>
+          <input type="range" class="w-slider" id="w-hi" min="5" max="35" value="20" oninput="compUpdate()">
+          <span class="w-val" id="w-hi-v">—</span>
+        </div>
+        <div class="w-row">
+          <span class="w-label">Domestic absorption index</span>
+          <input type="range" class="w-slider" id="w-da" min="2" max="25" value="12" oninput="compUpdate()">
+          <span class="w-val" id="w-da-v">—</span>
+        </div>
+        <div class="w-row">
+          <span class="w-label">Tariff exposure (EU escalation vulnerability)</span>
+          <input type="range" class="w-slider" id="w-te" min="2" max="25" value="13" oninput="compUpdate()">
+          <span class="w-val" id="w-te-v">—</span>
+        </div>
+      </div>
+      <div class="comp-foot">
+        <span class="comp-formula">κ = <em>Σ αᵢwᵢθᵢ</em> &nbsp;·&nbsp; weights sum to 1</span>
+        <span class="comp-result" id="comp-result">—</span>
+      </div>
+    </div>
+
+    <div class="pq">
+      The EU tariff structure is engineered to keep Uganda in the anatomy layer: green beans enter at 0%, roasted at 7.5%, soluble at 11.5%. <strong>That is not a market. That is a constraint baked into the compressor by someone else.</strong> Uganda's κ must name it — not absorb it silently.
+    </div>
+  </div>
+
+  <!-- ── SLIDE 3: VECTOR / PATHOPHYSIOLOGY ── -->
+  <div class="slide" id="s-vec">
+    <p style="font-style:italic;color:var(--mute);font-size:12px;margin-bottom:1.2rem;">
+      The vector is the direction of intervention. The pentad demands we name the <em>mechanism</em> — not just the symptom and the prescription.
+    </p>
+
+    <div class="pathology-chain">
+      <div class="path-step active" onclick="setPath(this, 'anatomy')">
+        <div class="ps-num" style="color:#8b5cf6">① Anatomy<br>Physiology</div>
+        <div class="ps-content">
+          <div class="ps-title">What Uganda's coffee sector structurally is</div>
+          <div class="ps-body">8.4M bags. Robusta dominant. 1.7M households. GI incomplete. Africa Coffee Park exists. Freeze-dry/spray-dry capacity present. Export share: ~97% green beans. Domestic consumption: ~4%. <em>This is the tissue before the lesion.</em></div>
+        </div>
+      </div>
+      <div class="path-arrow">↓</div>
+      <div class="path-step" onclick="setPath(this, 'pathology')">
+        <div class="ps-num" style="color:#ef9f27">② Pathology<br>The Lesion</div>
+        <div class="ps-content">
+          <div class="ps-title">Uganda captures ~3% of the retail value of its own coffee</div>
+          <div class="ps-body">The bulk of value is extracted post-export in roasting, branding, and retail in consuming countries. The Park exists but is not at scale. GI certification for Bugisu is incomplete — the premium cannot be captured without the certificate. <em>This is the specific, nameable break in the tissue.</em></div>
+        </div>
+      </div>
+      <div class="path-arrow">↓</div>
+      <div class="path-step" onclick="setPath(this, 'pathophysiology')">
+        <div class="ps-num" style="color:#ef4444">③ Pathophysiology<br>Why It Persists</div>
+        <div class="ps-content">
+          <div class="ps-title">The mechanism maintaining the lesion</div>
+          <div class="ps-body">EU tariff escalation (0% → 7.5% → 11.5%) directly penalises processing. German and Italian roasters hold incumbent relationships, brand equity, and logistics moats. No domestic cold chain. No roast-to-cup retail infrastructure. No consumer habit — <em>because the crop was never inherited as a beverage.</em> Anglican and Catholic Uganda inherited tea. Muslim Uganda inherited the Koran's ambivalence. The lesion is structural, not cultural.</div>
+        </div>
+      </div>
+      <div class="path-arrow">↓</div>
+      <div class="path-step" onclick="setPath(this, 'treatment')">
+        <div class="ps-num" style="color:#10b981">④ Treatment<br>The Mechanism</div>
+        <div class="ps-content">
+          <div class="ps-title">GI certification for Bugisu is the single highest-leverage first move</div>
+          <div class="ps-body">It creates a price premium <em>within</em> the green bean market while the processing infrastructure matures — no new factories required. Simultaneously, route processed coffee into intra-African markets via AfCFTA where EU tariff escalation is absent. The domestic consumption intervention is a 15-year project, not a campaign. <em>Don't prescribe a habit that doesn't exist yet.</em></div>
+        </div>
+      </div>
+      <div class="path-arrow">↓</div>
+      <div class="path-step" onclick="setPath(this, 'updated')">
+        <div class="ps-num" style="color:var(--gold)">⑤ Updated State<br>Falsifiable</div>
+        <div class="ps-content">
+          <div class="ps-title">What convergence looks like — with a number you can be wrong about</div>
+          <div class="ps-body">Processed coffee as % of export revenue rises from ~5% to 30% by 2030. κ(coffee) moves from its current baseline (value-capture dominated) toward 0.6+. GI certification complete by 2027. AfCFTA coffee corridor operational. <em>These are not aspirations — they are update rules. If they don't move, the treatment failed.</em></div>
+        </div>
+      </div>
+    </div>
+    <div class="tensor-note" id="pathNote" style="border-color:#8b5cf6">
+      <strong>Anatomy / Physiology:</strong> The sector's fundamental structure — before any dysfunction is named. Rich Robusta genetics, dense smallholder base, nascent processing capacity. The tissue is healthy. The lesion is downstream.
+    </div>
+  </div>
+
+  <!-- ── SLIDE 4: EIGEN ── -->
+  <div class="slide" id="s-eig">
+    <p style="font-style:italic;color:var(--mute);font-size:12px;margin-bottom:1.2rem;">
+      When you compress the coffee tensor through the weight matrix, structure surfaces that no consultant's report spotted.
+    </p>
+
+    <div class="eigen-modes">
+      <div class="em-cell">
+        <div class="em-label">Mode 1 — The Extraction Gradient</div>
+        <div class="em-body">High-yield districts (Bugisu, Rwenzori, Kasese) load together on value-capture deficit. <strong>More coffee produced → more value extracted abroad.</strong> Productivity and poverty are correlated in the wrong direction.</div>
+      </div>
+      <div class="em-cell">
+        <div class="em-label">Mode 2 — The Cultural Non-Market</div>
+        <div class="em-body">Domestic absorption is near-zero across all demographic clusters — Anglican, Catholic, Muslim alike. <strong>This is not one community's failure. It is a structural absence.</strong> The crop was never socialised as a beverage for its own people.</div>
+      </div>
+      <div class="em-cell">
+        <div class="em-label">Mode 3 — The Tariff Trap</div>
+        <div class="em-body">Processing investment clusters near Kampala and Ntungamo — but the EU tariff wall creates a ceiling. <strong>The eigenmode shows that tariff exposure is upstream of every other processing constraint.</strong> Fix the tariff corridor first.</div>
+      </div>
+      <div class="em-cell">
+        <div class="em-label">Mode 4 — The GI Premium Signal</div>
+        <div class="em-body">Bugisu Arabica already commands a spot premium in specialty markets. <strong>The GI structure is the fastest path to a price jump that doesn't require new factories.</strong> It surfaces in the eigen-decomposition before any analyst recommends it.</div>
+      </div>
+    </div>
+
+    <div class="eigen-line">
+      "The eigenstructure is Uganda's coffee sector showing you its skeleton.<br>The export revenue figure is just the skin."
+    </div>
+
+    <div class="pq">
+      The dominant mode is not yield deficit. It is <strong>value extraction by design</strong> — a structural feature of the post-colonial commodity system that the sector's anatomy did not choose and cannot escape without changing the compressor.
+      <cite>— Eigen-decomposition of κ(coffee) tensor</cite>
+    </div>
+  </div>
+
+  <!-- ── SLIDE 5: SCALAR ── -->
+  <div class="slide" id="s-scalar">
+    <p style="font-style:italic;color:var(--mute);font-size:12px;margin-bottom:1.2rem;">
+      The scalar is the number that moves when Uganda's coffee sector actually changes — not when export volume rises.
+    </p>
+
+    <div class="scalar-hero">
+      <div class="sh-eye">κ(coffee) · Current Baseline · Value-Capture Weighted</div>
+      <div class="sh-num" id="scalarNum">24</div>
+      <div class="sh-unit" id="scalarUnit">out of 100 · Target: 65 by 2030</div>
+      <div class="sh-label">
+        Adjust weights on the Compressor slide — this number moves.
+        <br>GDP does not. That is the entire distinction.
+      </div>
+    </div>
+
+    <div class="scalar-grid">
+      <div class="sg-cell">
+        <div class="sg-label">What κ(coffee) = 24 means</div>
+        <div class="sg-body">Uganda captures approximately <strong>3–5% of the final retail value</strong> of its own coffee. It ships anatomy, not physiology. The export revenue number ($2.4B) looks healthy. The scalar says the sector is operating at 24% of its potential value — <strong>the rest is captured in Hamburg and Milan.</strong></div>
+      </div>
+      <div class="sg-cell">
+        <div class="sg-label">What κ(coffee) = 65 requires</div>
+        <div class="sg-body"><strong>GI certification → Bugisu premium unlocked.</strong> AfCFTA processed coffee corridor → EU tariff wall bypassed. Africa Coffee Park at scale → freeze-dry and spray-dry volume. Domestic absorption rises from 4% to ~15% — <em>not through campaigns, but through cold chain infrastructure and a generation of urban café culture.</em></div>
+      </div>
+      <div class="sg-cell">
+        <div class="sg-label">Why not GDP?</div>
+        <div class="sg-body">GDP captures the transaction. <strong>κ captures the gradient.</strong> A country can double export revenue while the scalar falls — if the additional volume is all green beans and the value chain deepens abroad. GDP rewards volume. κ rewards transformation.</div>
+      </div>
+      <div class="sg-cell">
+        <div class="sg-label">The invariant</div>
+        <div class="sg-body">T → W → v → Eig → κ holds for health, infrastructure, governance, and coffee. <strong>Swap the indicators. The chain doesn't change.</strong> In 2040 when Uganda has a domestic espresso culture, the same compressor will show it — before any economist writes a report about it.</div>
+      </div>
+    </div>
+  </div>
+
+</section>
+
+<!-- CLOSING -->
+<section class="closing">
+  <div class="ornament fade">✦ &nbsp; ✦ &nbsp; ✦</div>
+  <h2 class="closing-title fade">
+    The crop that was<br>
+    never yours to <span class="gold">drink.</span>
+  </h2>
+  <p class="closing-body fade">
+    Uganda's coffee scalar cannot be GDP. GDP measures the ledger of extraction.
+    κ(coffee) measures the distance between what the crop is and what the country becomes because of it.
+    Anglican and Catholic Uganda inherited tea from the master's table.
+    Muslim Uganda inherited the bean without the Ottoman coffeehouse.
+    The crop arrived as a commodity and stayed that way —
+    not because Ugandans don't know how to drink coffee,
+    but because the infrastructure that turns a crop into a culture
+    was never built for them.
+    <br><br>
+    The scalar names that gap.
+    The compressor makes the gap visible.
+    The vector points at the one intervention — GI certification, AfCFTA corridor, Africa Coffee Park at scale —
+    that shifts the equilibrium before the culture catches up.
+    <br><br>
+    You cannot become Italian overnight.
+    You don't need to.
+    You need to capture the value before it ships to Milan.
+  </p>
+
+  <div class="final-eq fade">
+    <span class="dim">κ(coffee) = f(</span><br>
+    &nbsp;&nbsp;<span class="hi">value_capture_pct</span> <span class="dim">× w₁</span> <span class="dim">// what Uganda keeps of retail</span><br>
+    &nbsp;&nbsp;+ <span class="hi">processing_depth</span> <span class="dim">× w₂</span> <span class="dim">// green → roast → instant → functional</span><br>
+    &nbsp;&nbsp;+ <span class="hi">household_income_delta</span> <span class="dim">× w₃</span> <span class="dim">// does the farmer feel it?</span><br>
+    &nbsp;&nbsp;+ <span class="hi">domestic_absorption_index</span> <span class="dim">× w₄</span> <span class="dim">// culture, slowly</span><br>
+    &nbsp;&nbsp;+ <span class="hi">tariff_exposure_inverse</span> <span class="dim">× w₅</span> <span class="dim">// the EU wall, named not absorbed</span><br>
+    <span class="dim">) <br>≠ GDP &nbsp;·&nbsp; ≠ export_revenue &nbsp;·&nbsp; = the gradient Uganda actually needs to descend</span>
+  </div>
+</section>
+
+<footer>
+  <div class="footer-brand">Ukubona LLC</div>
+  <div class="footer-note">κ(coffee) · Uganda Coffee Scalar</div>
+  <div class="footer-note">T → W → v → Eig → κ · Kampala 2026</div>
+</footer>
+
+<script>
+// ── CHAIN SLIDE NAV ──
+function showSlide(node) {
+  document.querySelectorAll('.chain-node').forEach(n => n.classList.remove('active'));
+  node.classList.add('active');
+  const id = node.getAttribute('data-slide');
+  document.querySelectorAll('.slide').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+// ── TENSOR DIM ──
+const dimNotes = {
+  yield: "<strong>Yield / Productivity:</strong> Uganda's output grew 38% over five years without a proportional increase in value per bag. The yield tensor looks healthy. The value tensor does not. <strong>That divergence is the first eigenmode.</strong>",
+  value: "<strong>Value Capture %:</strong> Uganda retains approximately 3\u20135% of final retail price. A German supermarket jar of Ugandan instant coffee captures more value than the entire smallholder supply chain. <strong>This is the central lesion.</strong>",
+  process: "<strong>Processing Depth:</strong> 95%+ of exports leave as green beans. The Africa Coffee Park has freeze-dry capacity but is not at scale. <strong>The gap between capacity and throughput is the treatment target.</strong>",
+  domestic: "<strong>Domestic Absorption:</strong> ~4% of output consumed domestically. Anglican and Catholic Uganda inherited tea. Muslim Uganda had the crop without the Ottoman caf\u00e9 tradition. <strong>This is a 15-year infrastructure project, not a campaign.</strong>",
+  tariff: "<strong>Tariff Exposure:</strong> EU structure: green beans 0%, roasted 7.5%, soluble 11.5%. The tariff wall is engineered to keep Uganda in the anatomy layer. <strong>AfCFTA is the bypass \u2014 processed coffee to African markets where this wall doesn't apply.</strong>"
+};
+function setDim(btn, key) {
+  document.querySelectorAll('.dim-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('tensorNote').innerHTML = dimNotes[key];
+}
+
+// ── COMPRESSOR ──
+function compUpdate() {
+  const vc = +document.getElementById('w-vc').value;
+  const pd = +document.getElementById('w-pd').value;
+  const hi = +document.getElementById('w-hi').value;
+  const da = +document.getElementById('w-da').value;
+  const te = +document.getElementById('w-te').value;
+  const T = vc + pd + hi + da + te;
+  document.getElementById('w-vc-v').textContent = Math.round(vc/T*100) + '%';
+  document.getElementById('w-pd-v').textContent = Math.round(pd/T*100) + '%';
+  document.getElementById('w-hi-v').textContent = Math.round(hi/T*100) + '%';
+  document.getElementById('w-da-v').textContent = Math.round(da/T*100) + '%';
+  document.getElementById('w-te-v').textContent = Math.round(te/T*100) + '%';
+  // scalar: baseline ~0.24, moves with processing_depth and value_capture weights
+  const vcW = vc/T, pdW = pd/T, hiW = hi/T;
+  const raw = 0.18 + vcW*0.22 + pdW*0.18 + hiW*0.12;
+  const pct = Math.round(Math.min(raw * 100, 72));
+  document.getElementById('comp-result').textContent = 'κ = ' + raw.toFixed(3);
+  updateScalar(pct);
+}
+
+function updateScalar(val) {
+  const el = document.getElementById('scalarNum');
+  el.textContent = val;
+  if (val >= 55) { el.style.color = 'var(--green-bean)'; }
+  else if (val >= 38) { el.style.color = 'var(--gold)'; }
+  else { el.style.color = 'var(--rust)'; }
+}
+
+// ── PATHOLOGY ──
+const pathNotes = {
+  anatomy: '<strong>Anatomy / Physiology:</strong> The sector\'s fundamental structure — before any dysfunction is named. Rich Robusta genetics, dense smallholder base, nascent processing capacity. The tissue is healthy. The lesion is downstream.',
+  pathology: '<strong>Pathology — The Lesion:</strong> Uganda captures ~3% of retail value. Not because the crop is poor quality — because the value chain breaks at export. The lesion is specific: <strong>the GI is incomplete, the Park is underscale, the tariff wall is intact.</strong>',
+  pathophysiology: '<strong>Pathophysiology — Why It Persists:</strong> EU tariff escalation. Incumbent roaster relationships. No cold chain. No domestic café infrastructure. And — most honestly — <strong>a crop that was never culturally inherited as a beverage by its own producers.</strong> All of these together maintain the lesion.',
+  treatment: '<strong>Treatment:</strong> GI certification for Bugisu first — it shifts the price without requiring new capital. Then AfCFTA corridor for processed coffee — it bypasses the EU wall. Then Africa Coffee Park at scale. Domestic consumption last — it follows infrastructure, not campaigns.',
+  updated: '<strong>Updated State (Falsifiable):</strong> Processed coffee as % of exports: 5% → 30% by 2030. κ(coffee): 24 → 65. GI certification: complete by 2027. If these don\'t move, <strong>the treatment failed — and we update the diagnosis, not the aspiration.</strong>'
+};
+function setPath(el, key) {
+  document.querySelectorAll('.path-step').forEach(s => s.classList.remove('active'));
+  el.classList.add('active');
+  const colors = { anatomy: '#8b5cf6', pathology: '#ef9f27', pathophysiology: '#ef4444', treatment: '#10b981', updated: 'var(--gold)' };
+  const note = document.getElementById('pathNote');
+  note.style.borderColor = colors[key];
+  note.innerHTML = pathNotes[key];
+}
+
+// ── FADE IN ──
+const obs = new IntersectionObserver(entries => {
+  entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('in'); obs.unobserve(e.target); } });
+}, { threshold: 0.08 });
+document.querySelectorAll('.fade').forEach(el => obs.observe(el));
+
+// ── BOOT ──
+compUpdate();
+</script>
+</body>
+</html>
