@@ -1,0 +1,655 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ukubona — The Framework</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400;1,600&family=JetBrains+Mono:wght@300;400&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #09080a;
+  --ink: #e2d8c8;
+  --ink2: #8a8070;
+  --ink3: #3a3430;
+  --gold: #c8a040;
+  --gold2: rgba(200,160,64,0.15);
+  --gold3: rgba(200,160,64,0.06);
+  --red: #b84040;
+  --blue: #4080b8;
+  --teal: #309080;
+  --violet: #7050a0;
+  --line: rgba(200,160,64,0.12);
+}
+
+@media (prefers-color-scheme: light) {
+  :root {
+    --bg: #faf6ee;
+    --ink: #1a1408;
+    --ink2: #706040;
+    --ink3: #c8c0a8;
+    --gold: #9a7010;
+    --gold2: rgba(154,112,16,0.10);
+    --gold3: rgba(154,112,16,0.04);
+    --line: rgba(154,112,16,0.12);
+  }
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'Cormorant Garamond', 'Palatino Linotype', Georgia, serif;
+  background: var(--bg);
+  color: var(--ink);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 24px;
+}
+
+/* ── GRAIN ── */
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 100;
+  opacity: 0.4;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='0.05'/%3E%3C/svg%3E");
+}
+
+.page {
+  width: 100%;
+  max-width: 700px;
+}
+
+/* ── HEADER ── */
+.eyebrow {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.6rem;
+  font-weight: 300;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: 32px;
+  opacity: 0.7;
+}
+
+/* ── THE EQUATION ── */
+.equation-wrap {
+  margin: 0 0 72px;
+}
+
+.equation {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(1.6rem, 5vw, 2.8rem);
+  font-weight: 300;
+  letter-spacing: 0.02em;
+  line-height: 1.2;
+  color: var(--ink);
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.15em;
+}
+
+.eq-term {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 3px;
+  transition: background 0.2s;
+}
+
+.eq-term:hover { background: var(--gold2); }
+
+.eq-term.active { background: var(--gold2); }
+
+.eq-label {
+  font-size: clamp(0.9rem, 2.5vw, 1.5rem);
+  font-weight: 300;
+  color: var(--ink);
+  transition: color 0.2s;
+}
+
+.eq-term.active .eq-label,
+.eq-term:hover .eq-label { color: var(--gold); }
+
+.eq-sub {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.52rem;
+  font-weight: 300;
+  letter-spacing: 0.08em;
+  color: var(--ink3);
+  text-transform: uppercase;
+  margin-top: 3px;
+  white-space: nowrap;
+  opacity: 0;
+  transform: translateY(2px);
+  transition: opacity 0.2s, transform 0.2s;
+}
+
+.eq-term:hover .eq-sub,
+.eq-term.active .eq-sub {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.eq-arrow {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(1.2rem, 3vw, 2rem);
+  font-weight: 300;
+  color: var(--ink3);
+  padding: 4px 2px;
+  user-select: none;
+}
+
+.eq-blank {
+  color: var(--gold);
+  font-style: italic;
+  border-bottom: 1px solid var(--gold);
+  padding-bottom: 1px;
+}
+
+/* ── DESCRIPTION PANEL ── */
+.desc-panel {
+  min-height: 100px;
+  margin: 32px 0 56px;
+  padding: 24px 28px;
+  border-left: 1px solid var(--gold);
+  background: var(--gold3);
+  opacity: 0;
+  transform: translateY(8px);
+  transition: opacity 0.3s ease, transform 0.3s ease;
+  pointer-events: none;
+}
+
+.desc-panel.visible {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
+.desc-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.3rem;
+  font-weight: 400;
+  font-style: italic;
+  color: var(--gold);
+  margin-bottom: 10px;
+}
+
+.desc-body {
+  font-size: 1.0rem;
+  font-weight: 300;
+  line-height: 1.75;
+  color: var(--ink2);
+  max-width: 56ch;
+}
+
+.desc-math {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.78rem;
+  font-weight: 300;
+  color: var(--ink2);
+  margin-top: 12px;
+  opacity: 0.7;
+  letter-spacing: 0.03em;
+}
+
+/* ── THE TWO AXES ── */
+.axes {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1px;
+  background: var(--line);
+  margin: 0 0 56px;
+}
+
+.axis-cell {
+  background: var(--bg);
+  padding: 24px 26px;
+}
+
+.axis-head {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.58rem;
+  font-weight: 300;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: 14px;
+  opacity: 0.7;
+}
+
+.axis-line {
+  font-size: 0.95rem;
+  font-weight: 300;
+  color: var(--ink2);
+  line-height: 2;
+  font-style: italic;
+}
+
+.axis-line span {
+  color: var(--ink);
+  font-style: normal;
+}
+
+/* ── DIVIDER ── */
+.divider {
+  width: 100%;
+  height: 1px;
+  background: var(--line);
+  margin: 48px 0;
+  position: relative;
+}
+
+.divider::after {
+  content: '✦';
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  background: var(--bg);
+  padding: 0 12px;
+  font-size: 0.65rem;
+  color: var(--ink3);
+}
+
+/* ── THE QUANTUM/CLASSICAL TABLE ── */
+.qc-table {
+  width: 100%;
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+  margin: 0 0 56px;
+}
+
+.qc-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  border-bottom: 1px solid var(--line);
+}
+
+.qc-row:last-child { border-bottom: none; }
+
+.qc-row.header { border-bottom: 1px solid var(--gold); }
+
+.qc-cell {
+  padding: 12px 14px;
+  font-size: 0.88rem;
+  font-weight: 300;
+  color: var(--ink2);
+  line-height: 1.5;
+}
+
+.qc-row.header .qc-cell {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.56rem;
+  font-weight: 300;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--gold);
+  opacity: 0.7;
+  padding: 10px 14px;
+}
+
+.qc-cell:first-child {
+  color: var(--ink);
+  font-style: italic;
+}
+
+.qc-cell em { font-style: italic; color: var(--gold); }
+
+/* ── APHORISMS ── */
+.aphorisms {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+  margin: 0 0 56px;
+}
+
+.aphorism {
+  display: flex;
+  gap: 20px;
+  align-items: flex-start;
+}
+
+.aph-mark {
+  font-size: 1.8rem;
+  color: var(--gold);
+  opacity: 0.3;
+  line-height: 1;
+  flex-shrink: 0;
+  font-style: italic;
+  margin-top: -4px;
+}
+
+.aph-text {
+  font-size: 1.05rem;
+  font-weight: 300;
+  font-style: italic;
+  color: var(--ink2);
+  line-height: 1.65;
+  border-bottom: 1px solid var(--line);
+  padding-bottom: 28px;
+}
+
+.aph-text em { font-style: normal; color: var(--ink); }
+
+.aphorism:last-child .aph-text { border-bottom: none; padding-bottom: 0; }
+
+/* ── HARD GATE ── */
+.hard-gate {
+  background: var(--gold3);
+  border: 1px solid var(--line);
+  padding: 28px 32px;
+  margin: 0 0 56px;
+}
+
+.hg-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.56rem;
+  font-weight: 300;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--gold);
+  opacity: 0.7;
+  margin-bottom: 14px;
+}
+
+.hg-rule {
+  font-size: 1.0rem;
+  font-weight: 300;
+  color: var(--ink2);
+  line-height: 1.8;
+}
+
+.hg-rule strong {
+  color: var(--ink);
+  font-weight: 400;
+}
+
+.hg-math {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.75rem;
+  font-weight: 300;
+  color: var(--ink3);
+  margin-top: 14px;
+  letter-spacing: 0.04em;
+  line-height: 1.8;
+}
+
+.hg-math span { color: var(--gold); opacity: 0.8; }
+
+/* ── FOOTER ── */
+.foot {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  flex-wrap: wrap;
+  gap: 12px;
+  padding-top: 32px;
+  border-top: 1px solid var(--line);
+}
+
+.foot-left {
+  font-size: 0.9rem;
+  font-weight: 300;
+  font-style: italic;
+  color: var(--ink3);
+}
+
+.foot-right {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.52rem;
+  font-weight: 300;
+  letter-spacing: 0.12em;
+  color: var(--ink3);
+  text-align: right;
+  line-height: 1.8;
+}
+
+/* ── ANIMATIONS ── */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.page > * {
+  animation: fadeIn 0.7s ease both;
+}
+
+.equation-wrap { animation-delay: 0.1s; }
+.desc-panel    { animation-delay: 0.2s; }
+.axes          { animation-delay: 0.3s; }
+.qc-table      { animation-delay: 0.35s; }
+.aphorisms     { animation-delay: 0.4s; }
+.hard-gate     { animation-delay: 0.45s; }
+.foot          { animation-delay: 0.5s; }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="eyebrow">Ukubona LLC · A Framework</div>
+
+  <!-- THE EQUATION -->
+  <div class="equation-wrap">
+    <div class="equation" id="eq">
+      <span class="eq-term" data-key="tensor" onclick="activate(this)">
+        <span class="eq-label">Tensor</span>
+        <span class="eq-sub">full state space · rank-n</span>
+      </span>
+      <span class="eq-arrow">→</span>
+      <span class="eq-term" data-key="compressor" onclick="activate(this)">
+        <span class="eq-label">Compressor</span>
+        <span class="eq-sub">operator · loss function</span>
+      </span>
+      <span class="eq-arrow">→</span>
+      <span class="eq-term" data-key="vector" onclick="activate(this)">
+        <span class="eq-label">Vector</span>
+        <span class="eq-sub">compressed direction</span>
+      </span>
+      <span class="eq-arrow">→</span>
+      <span class="eq-term" data-key="eigen" onclick="activate(this)">
+        <span class="eq-label">eigen<em class="eq-blank">___</em></span>
+        <span class="eq-sub">invariant residue · irreducible</span>
+      </span>
+      <span class="eq-arrow">→</span>
+      <span class="eq-term" data-key="scalar" onclick="activate(this)">
+        <span class="eq-label">Scalar</span>
+        <span class="eq-sub">decision · diagnosis · L(θ)</span>
+      </span>
+    </div>
+  </div>
+
+  <!-- DESCRIPTION PANEL -->
+  <div class="desc-panel" id="desc">
+    <div class="desc-title" id="desc-title"></div>
+    <div class="desc-body" id="desc-body"></div>
+    <div class="desc-math" id="desc-math"></div>
+  </div>
+
+  <!-- THE TWO AXES -->
+  <div class="axes">
+    <div class="axis-cell">
+      <div class="axis-head">Structural axis — rank</div>
+      <div class="axis-line">
+        <span>0</span> — scalar, temperature, one number<br>
+        <span>1</span> — vector, symptom profile<br>
+        <span>2</span> — matrix, host × pathogen<br>
+        <span>3</span> — cube, genomic × temporal × geo<br>
+        <span>n</span> — no upper bound exists
+      </div>
+    </div>
+    <div class="axis-cell">
+      <div class="axis-head">Decision axis — collapse</div>
+      <div class="axis-line">
+        <span>tensor</span> — all possibilities held<br>
+        <span>compressor</span> — loss rules applied<br>
+        <span>vector</span> — direction found<br>
+        <span>eigen___</span> — invariant named<br>
+        <span>scalar</span> — decision made
+      </div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- QUANTUM / CLASSICAL TABLE -->
+  <div class="qc-table">
+    <div class="qc-row header">
+      <div class="qc-cell">Concept</div>
+      <div class="qc-cell">Classical · neural networks</div>
+      <div class="qc-cell">This framework · pre-collapse</div>
+    </div>
+    <div class="qc-row">
+      <div class="qc-cell">State</div>
+      <div class="qc-cell">Definite vector from layer 1</div>
+      <div class="qc-cell">Superposition held — full tensor</div>
+    </div>
+    <div class="qc-row">
+      <div class="qc-cell">Operation</div>
+      <div class="qc-cell">Matrix multiply, depth</div>
+      <div class="qc-cell">Unitary transform on wavefunction</div>
+    </div>
+    <div class="qc-row">
+      <div class="qc-cell">Measurement</div>
+      <div class="qc-cell">Read a value — collapse early</div>
+      <div class="qc-cell"><em>Collapse only at eigen___</em></div>
+    </div>
+    <div class="qc-row">
+      <div class="qc-cell">Failure mode</div>
+      <div class="qc-cell">Premature collapse — no rank check</div>
+      <div class="qc-cell">Hard Gate — η = 0 until r ≥ r*</div>
+    </div>
+    <div class="qc-row">
+      <div class="qc-cell">In medicine</div>
+      <div class="qc-cell">Single probability output</div>
+      <div class="qc-cell">Differential held open until r* met</div>
+    </div>
+  </div>
+
+  <!-- APHORISMS -->
+  <div class="aphorisms">
+    <div class="aphorism">
+      <div class="aph-mark">"</div>
+      <div class="aph-text">
+        <em>Tensor rank</em> measures how much of the universe you are willing to represent.
+        <em>Scalar collapse</em> measures how decisively you are willing to act on it.
+      </div>
+    </div>
+    <div class="aphorism">
+      <div class="aph-mark">"</div>
+      <div class="aph-text">
+        If your tensor rank is too low, <em>corruption looks like noise.</em>
+        If your tensor rank is sufficient, <em>corruption becomes an eigenvector.</em>
+      </div>
+    </div>
+    <div class="aphorism">
+      <div class="aph-mark">"</div>
+      <div class="aph-text">
+        The blank in <em>eigen___</em> is not ignorance.
+        It is the honest admission that the invariant structure of a system
+        resists being fully named before you measure it.
+      </div>
+    </div>
+  </div>
+
+  <!-- HARD GATE -->
+  <div class="hard-gate">
+    <div class="hg-label">The Hard Gate — r* condition</div>
+    <div class="hg-rule">
+      A system must <strong>refuse to collapse</strong> to scalar
+      when the data tensor rank is below the irreducible rank of the problem.
+      In medicine, this means holding the differential open.
+      In construction, this means locking the phase gate.
+      In both cases, the math enforces what the human resists.
+    </div>
+    <div class="hg-math">
+      r* = min { r ∈ ℕ₀ | rank(∇²L(θ*; 𝒯ᵣ)) = d }<br>
+      <span>if r &lt; r* → η = 0 &nbsp;&nbsp;</span>no irreversible action permitted<br>
+      <span>if r ≥ r* → η &gt; 0 &nbsp;&nbsp;</span>collapse permitted, eigen___ named
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <div class="foot">
+    <div class="foot-left">Ukubona — to see, carefully</div>
+    <div class="foot-right">
+      Kampala · 2025<br>
+      Gemini · OpenAI · xAI · Anthropic · Ukubona
+    </div>
+  </div>
+
+</div>
+
+<script>
+const DATA = {
+  tensor: {
+    title: 'Tensor — the full state space',
+    body: 'The patient arrives as a high-rank tensor of raw potentiality. The construction project arrives as a cloud of 93 interacting variables. The world arrives as everything, everywhere, simultaneously. The tensor is the refusal to simplify before you understand.',
+    math: '𝒯_{f,t,i} ∈ ℝⁿ   ·   all dimensions held open   ·   no premature collapse'
+  },
+  compressor: {
+    title: 'Compressor — the loss operator',
+    body: 'Not a matrix. A matrix is what it is; a compressor is what it does. It encodes the rules of the game — the weights, the constraints, the trade-offs between accuracy and sovereignty, between speed and certainty. The compressor is where values become mathematics.',
+    math: 'L = Σ wᵢ · opᵢ(θ)   ·   composite loss   ·   the systemic constitution in code'
+  },
+  vector: {
+    title: 'Vector — the compressed direction',
+    body: 'The output of compression is not a number. It is a direction — a specific trajectory through the reduced space. In clinical reasoning, this is the hypothesis under test. In construction, this is the intervention being evaluated. The vector is the first act of resolution.',
+    math: 'θ ∈ ℝⁿ   ·   the proposed decision   ·   one path through the state space'
+  },
+  eigen: {
+    title: 'eigen___ — the invariant residue',
+    body: 'The blank is deliberate. What survives the compression cannot always be named in advance. It might be an eigenvector — the direction the compressor cannot destroy. It might be an eigenvalue — the magnitude of what remains. It might be an eigenfunction, an eigenstate, a pathognomonic sign. The invariant is what the system reduces to when everything contingent has been removed.',
+    math: 'Σv = λv   ·   invariant under transformation   ·   the spine of the system'
+  },
+  scalar: {
+    title: 'Scalar — the decision signal L(θ)',
+    body: 'One number. The final collapse. In clinical reasoning: the diagnosis. In construction forensics: SYSTEMIC LEAKAGE DETECTED — true or false. In cancer genomics: the subtype, certain enough to treat. The scalar is earned, not assumed. It follows from the rank having been met.',
+    math: 'L(θ*) = global minimum   ·   if r ≥ r*   ·   otherwise: η = 0, gate closed'
+  }
+};
+
+let current = null;
+
+function activate(el) {
+  const key = el.getAttribute('data-key');
+
+  // Deactivate if same
+  if (current === key) {
+    el.classList.remove('active');
+    const panel = document.getElementById('desc');
+    panel.classList.remove('visible');
+    current = null;
+    return;
+  }
+
+  // Deactivate all
+  document.querySelectorAll('.eq-term').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  current = key;
+
+  const d = DATA[key];
+  document.getElementById('desc-title').textContent = d.title;
+  document.getElementById('desc-body').textContent = d.body;
+  document.getElementById('desc-math').textContent = d.math;
+
+  const panel = document.getElementById('desc');
+  panel.classList.remove('visible');
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => { panel.classList.add('visible'); });
+  });
+}
+</script>
+</body>
+</html>
